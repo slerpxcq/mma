@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Core.hpp"
-#include "AppLayer.hpp"
-#include "Events.hpp"
+#include "Layer.hpp"
+
+#include "Core/Core.hpp"
+#include "Core/Event.hpp"
 
 #include <vector>
 #include <memory>
@@ -10,10 +11,10 @@
 
 namespace mm
 {
-	class AppLayerStack
+	class LayerStack
 	{
 	public:
-		AppLayerStack() :
+		LayerStack() :
 			m_layerInsertPos(0) {};
 
 
@@ -21,13 +22,13 @@ namespace mm
 		void OnUpdate(float deltaTime);
 		void OnUIRender();
 
-		void PushLayer(std::unique_ptr<AppLayer> layer) {
+		void PushLayer(std::unique_ptr<Layer> layer) {
 			layer->OnAttach();
 			m_layers.insert(m_layers.begin() + m_layerInsertPos, std::move(layer));
 			++m_layerInsertPos;
 		}
 
-		void PushOverlay(std::unique_ptr<AppLayer> overlay) {
+		void PushOverlay(std::unique_ptr<Layer> overlay) {
 			overlay->OnAttach();
 			m_layers.push_back(std::move(overlay));
 		}
@@ -40,13 +41,13 @@ namespace mm
 			MM_FATAL("TO BE IMPLEMENTED");
 		}
 
-		~AppLayerStack() {
-			for (auto it = m_layers.rend(); it != m_layers.rbegin(); ++it)
+		~LayerStack() {
+			for (auto it = m_layers.rbegin(); it != m_layers.rend(); ++it)
 				(*it)->OnDetach();
 		}
 
 	private:
-		std::vector<std::unique_ptr<AppLayer>> m_layers;
+		std::vector<std::unique_ptr<Layer>> m_layers;
 		uint32_t m_layerInsertPos;
 	};
 }

@@ -4,7 +4,7 @@ namespace mm
 {
 	class Event;
 
-	class AppLayer
+	class Layer
 	{
 	public:
 		virtual void OnAttach() {}
@@ -12,7 +12,7 @@ namespace mm
 		virtual void OnUpdate(float deltaTime) {}
 		virtual void OnUIRender() {}
 		virtual void OnEvent(Event& e) {};
-		virtual	~AppLayer() {}
+		virtual	~Layer() {}
 	};
 }
 

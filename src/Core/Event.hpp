@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 namespace mm
 {
 	struct Event {
@@ -21,37 +19,28 @@ namespace mm
 			MOUSE_MOVED_, MOUSE_SCROLLED
 		};
 
-		struct WindowResize {
-			uint32_t w, h;
-		};
-
-		struct Key {
-			uint32_t code;
-			bool repeat;
-		};
-
-		struct MouseButton {
-			uint32_t code;
-		};
-
-		struct MouseMove {
-			float x, y;
-		};
-
-		struct MouseScroll {
-			float delta;
-		};
 
 	public:
 		Source source;
 		Type type;
 		bool handled;
 		union {
-			WindowResize windowResize;
-			Key key;
-			MouseButton mouseButton;
-			MouseMove mouseMove;
-			MouseScroll mouseScroll;
+			struct WindowSize {
+				uint32_t w, h;
+			} windowResize;
+			struct Key {
+				uint32_t code;
+				bool repeat;
+			} key;
+			struct MouseButton {
+				uint32_t code;
+			} mouseButton;
+			struct MouseMove {
+				float x, y;
+			} mouseMove;
+			struct MouseScroll {
+				float delta;
+			} mouseScroll;
 		} data;
 	};
 }

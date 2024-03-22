@@ -56,10 +56,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>mmpch.hpp</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>MM_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>3rdparty\glfw\include;3rdparty\glad\include;3rdparty\imgui;3rdparty\ImGuizmo;3rdparty\bullet3\src;3rdparty\spdlog\include;3rdparty\glm;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>3rdparty\glfw\include;3rdparty\glad\include;3rdparty\imgui;3rdparty\ImGuizmo;3rdparty\bullet3\src;3rdparty\spdlog\include;3rdparty\glm;3rdparty\stb;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -74,10 +76,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>mmpch.hpp</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>MM_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>3rdparty\glfw\include;3rdparty\glad\include;3rdparty\imgui;3rdparty\ImGuizmo;3rdparty\bullet3\src;3rdparty\spdlog\include;3rdparty\glm;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>3rdparty\glfw\include;3rdparty\glad\include;3rdparty\imgui;3rdparty\ImGuizmo;3rdparty\bullet3\src;3rdparty\spdlog\include;3rdparty\glm;3rdparty\stb;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -95,20 +99,41 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\AppLayer.hpp" />
-    <ClInclude Include="src\Core\AppLayerStack.hpp" />
+    <ClInclude Include="src\Editor\EditorLayer.hpp" />
+    <ClInclude Include="src\Core\Renderer.hpp" />
+    <ClInclude Include="src\Core\GL\GLTexture.hpp" />
     <ClInclude Include="src\Core\Application.hpp" />
     <ClInclude Include="src\Core\Core.hpp" />
-    <ClInclude Include="src\Core\Events.hpp" />
-    <ClInclude Include="src\Core\ImGui\ImGuiLayer.hpp" />
+    <ClInclude Include="src\Core\Event.hpp" />
+    <ClInclude Include="src\Core\GL\GLBuffer.hpp" />
+    <ClInclude Include="src\Core\GL\GLContext.hpp" />
+    <ClInclude Include="src\Core\GL\GLLayout.hpp" />
+    <ClInclude Include="src\Core\GL\GLShader.hpp" />
+    <ClInclude Include="src\Core\GL\GLVertexArray.hpp" />
+    <ClInclude Include="src\Core\Layer\ImGuiLayer.hpp" />
+    <ClInclude Include="src\Core\Layer\Layer.hpp" />
+    <ClInclude Include="src\Core\Layer\LayerStack.hpp" />
+    <ClInclude Include="src\Core\SampleLayout.hpp" />
+    <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\AppLayer.cpp" />
-    <ClCompile Include="src\Core\AppLayerStack.cpp" />
+    <ClCompile Include="src\Editor\EditorLayer.cpp" />
+    <ClCompile Include="src\Core\Renderer.cpp" />
+    <ClCompile Include="src\Core\GL\GLTexture.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
-    <ClCompile Include="src\Core\Events.cpp" />
-    <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp" />
+    <ClCompile Include="src\Core\Event.cpp" />
+    <ClCompile Include="src\Core\GL\GLBuffer.cpp" />
+    <ClCompile Include="src\Core\GL\GLContext.cpp" />
+    <ClCompile Include="src\Core\GL\GLLayout.cpp" />
+    <ClCompile Include="src\Core\GL\GLShader.cpp" />
+    <ClCompile Include="src\Core\GL\GLVertexArray.cpp" />
+    <ClCompile Include="src\Core\Layer\ImGuiLayer.cpp" />
+    <ClCompile Include="src\Core\Layer\Layer.cpp" />
+    <ClCompile Include="src\Core\Layer\LayerStack.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
+    <ClCompile Include="src\mmpch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="3rdparty\glad\glad.vcxproj">

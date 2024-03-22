@@ -13,6 +13,7 @@ workspace "MMX"
     IncDir["bullet3"] = "3rdparty/bullet3/src"
     IncDir["spdlog"] = "3rdparty/spdlog/include"
     IncDir["glm"] = "3rdparty/glm"
+    IncDir["stb"] = "3rdparty/stb"
 
     group "3rdparty"
     include "3rdparty/glfw"
@@ -29,6 +30,9 @@ workspace "MMX"
         cppdialect "C++17"
         targetdir "bin/%{prj.name}/%{cfg.buildcfg}"
         objdir "obj/%{prj.name}/%{cfg.buildcfg}"
+
+        pchheader "mmpch.hpp"
+        pchsource "src/mmpch.cpp"
 
         links {
             "glad",
@@ -48,6 +52,7 @@ workspace "MMX"
             "%{IncDir.bullet3}",
             "%{IncDir.spdlog}",
             "%{IncDir.glm}",
+            "%{IncDir.stb}",
             "src"
         }
 
@@ -59,6 +64,9 @@ workspace "MMX"
         filter "system:windows"
             staticruntime "on"
             systemversion "latest"
+            disablewarnings {
+                "26812"
+            }
 
         filter "configurations:Debug"
             defines { 

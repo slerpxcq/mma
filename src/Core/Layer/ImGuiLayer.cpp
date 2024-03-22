@@ -1,7 +1,8 @@
+#include "mmpch.hpp"
 #include "ImGuiLayer.hpp"
-#include "../Application.hpp"
 
-#include <imgui.h>
+#include "Core/Application.hpp"
+
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
@@ -9,6 +10,7 @@ namespace mm
 {
 	void ImGuiLayer::OnAttach() 
 	{
+		m_blockEvent = false;
 		m_window = Application::Instance().GetWindow();
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -18,7 +20,7 @@ namespace mm
 
 		ImGui::StyleColorsDark();
 
-		ImGui_ImplGlfw_InitForOpenGL(m_window, false);
+		ImGui_ImplGlfw_InitForOpenGL(m_window, true);
 		ImGui_ImplOpenGL3_Init("#version 430");
 	}
 
@@ -35,7 +37,6 @@ namespace mm
 
 	void ImGuiLayer::OnEvent(Event& e) 
 	{
-		// TODO: Recieve event from Application
 	}
 
 	void ImGuiLayer::Begin()

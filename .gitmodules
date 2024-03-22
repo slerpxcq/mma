@@ -16,3 +16,6 @@
 [submodule "3rdparty/glm"]
 	path = 3rdparty/glm
 	url = https://github.com/slerpxcq/glm.git
+[submodule "3rdparty/stb"]
+	path = 3rdparty/stb
+	url = https://github.com/slerpxcq/stb.git

@@ -1,9 +1,19 @@
+#include "mmpch.hpp"
 #include "Application.hpp"
-#include "Core.hpp"
-#include "Events.hpp"
-#include "ImGui/ImGuiLayer.hpp"
 
-#include <chrono>
+#include "Core.hpp"
+#include "Event.hpp"
+#include "Layer/ImGuiLayer.hpp"
+#include "Editor/EditorLayer.hpp"
+
+#include "GL/GLShader.hpp"
+#include "GL/GLBuffer.hpp"
+#include "GL/GLVertexArray.hpp"
+#include "GL/GLLayout.hpp"
+#include "GL/GLTexture.hpp"
+#include "SampleLayout.hpp"
+
+#include <glm/gtc/type_ptr.hpp>
 
 namespace mm
 {
@@ -15,18 +25,17 @@ namespace mm
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MM_GL_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MM_GL_VERSION_MINOR);
 		m_window = glfwCreateWindow(1280, 720, "", nullptr, nullptr);
-
 		MM_ASSERT(m_window);
-
-		glfwMakeContextCurrent(m_window);
 		RegisterCallbacks();
 
-		std::unique_ptr<AppLayer> imguiLayer = std::make_unique<ImGuiLayer>();
+		m_glctx = std::make_unique<GLContext>(m_window);
+		m_renderer = std::make_unique<Renderer>();
+
+		auto imguiLayer = std::make_unique<ImGuiLayer>();
 		m_imguiLayer = static_cast<ImGuiLayer*>(imguiLayer.get());
 		PushOverlay(std::move(imguiLayer));
 
-		// TEST
-		PushLayer(std::make_unique<TestLayer>());
+		PushLayer(std::make_unique<EditorLayer>());
 	}
 
 	void Application::RegisterCallbacks()
@@ -34,7 +43,8 @@ namespace mm
 		glfwSetWindowUserPointer(m_window, this);
 
 		glfwSetErrorCallback([](int code, const char* what) {
-			MM_ERROR("GLFW error:\n  Code: {0}\n  Info: {1}\n", code, what);
+			// FIXME: causing segfault
+			//MM_ERROR("GLFW error:\n  Code: {0}\n  Info: {1}\n", code, what);
 		});
 
 		glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
@@ -126,9 +136,34 @@ namespace mm
 	{
 		static MM_TIMEPOINT lastTime = MM_TIME_NOW();
 
+		GLTexture tex("resources/textures/H.png", GL_TEXTURE_2D);
+		
+		GLShader shader;
+		shader.Compile("resources/shaders/test.vert", GLShader::VERTEX);
+		shader.Compile("resources/shaders/test.frag", GLShader::FRAGMENT);
+		shader.Link();
+
+		SampleLayout::Vertex triangle[] = {
+			{ glm::vec2(-.5f, -.5f), glm::vec4(1, 0, 0, 1) },
+			{ glm::vec2(0.f, .5f), glm::vec4(0, 1, 0, 1) },
+			{ glm::vec2(.5f, -.5f), glm::vec4(0, 0, 1, 1) }
+		};
+
+		GLBuffer buffer(GL_ARRAY_BUFFER);
+		buffer.Data(sizeof(triangle), triangle);
+
+		std::unique_ptr<GLLayout> layout = std::make_unique<SampleLayout>();
+
+		GLVertexArray varr;
+		varr.Bind();
+		varr.BindBuffer(buffer);
+		varr.BufferLayout(layout.get());
+
 		while (m_running) {
 			float deltaTime = MM_TIME_DELTA(lastTime);
 			lastTime = MM_TIME_NOW();
+
+			m_glctx->Clear();
 
 			if (!m_minimized) {
 				m_layerStack.OnUpdate(deltaTime);
@@ -138,7 +173,18 @@ namespace mm
 				m_imguiLayer->End();
 			}
 
-			glfwSwapBuffers(m_window);
+			glm::vec4 color(0.f, 1.f, 0.f, 1.f);
+			int32_t unit = 0;
+
+			//m_renderer->Submit(std::bind(glEnable, GL_DEPTH_TEST));
+			m_renderer->Submit(MM_WRAP(shader.Use()));
+			m_renderer->Submit(MM_WRAP(tex.Bind(GL_TEXTURE0)));
+			m_renderer->Submit(MM_WRAP(shader.Uniform("c", 1, &color)));
+			m_renderer->Submit(MM_WRAP(shader.Uniform("tex", 1, &unit)));
+			m_renderer->Submit(MM_WRAP(varr.DrawArray(GL_TRIANGLES, 0, 3)));
+			m_renderer->Commit();
+
+			m_glctx->SwapBuffers();
 			glfwPollEvents();
 		}
 	}
@@ -172,7 +218,7 @@ namespace mm
 	void Application::OnWindowResize(Event& e)
 	{
 		m_minimized = (e.data.windowResize.w == 0 || e.data.windowResize.h == 0);
-		// TODO: resize viewport
+		m_glctx->Viewport(e.data.windowResize.w, e.data.windowResize.h);
 		e.handled = true;
 	}
 }

@@ -1,25 +1,15 @@
 #pragma once
 
-#include "AppLayerStack.hpp"
+#include "Layer/LayerStack.hpp"
+#include "GL/GLContext.hpp"
+#include "Renderer.hpp"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include <imgui.h>
-
-#include <memory>
+struct GLFWwindow;
 
 namespace mm 
 {
 	struct Event;
 	class ImGuiLayer;
-
-	class TestLayer : public AppLayer {
-	public:
-		void OnUIRender() override {
-			ImGui::ShowDemoWindow();
-		}
-	};
 
 	class Application {
 	public:
@@ -37,11 +27,11 @@ namespace mm
 		void DeInit();
 		void OnEvent(Event& e); 
 
-		void PushLayer(std::unique_ptr<AppLayer> layer) {
+		void PushLayer(std::unique_ptr<Layer> layer) {
 			m_layerStack.PushLayer(std::move(layer));
 		}
 
-		void PushOverlay(std::unique_ptr<AppLayer> overlay) {
+		void PushOverlay(std::unique_ptr<Layer> overlay) {
 			m_layerStack.PushOverlay(std::move(overlay));
 		}
 
@@ -50,16 +40,18 @@ namespace mm
 
 	private:
 		Application() :
-			m_window(nullptr),
 			m_running(true) {}
 
 		void RegisterCallbacks();
 
 	private:
 		GLFWwindow* m_window;
+		std::unique_ptr<GLContext> m_glctx;
 
-		AppLayerStack m_layerStack;
+		LayerStack m_layerStack;
 		ImGuiLayer* m_imguiLayer;
+
+		std::unique_ptr<Renderer> m_renderer;
 
 		bool m_running;
 		bool m_minimized;
