@@ -10,13 +10,15 @@ namespace mm
 {
 	void ImGuiLayer::OnAttach() 
 	{
-		m_blockEvent = false;
-		m_window = Application::Instance().GetWindow();
+		m_window = Application::Instance()->GetWindow();
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+		m_font = io.Fonts->AddFontFromFileTTF("resources/fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", FONT_SIZE);
+		MM_ASSERT(m_font);
 
 		ImGui::StyleColorsDark();
 
@@ -35,19 +37,17 @@ namespace mm
 	{
 	}
 
-	void ImGuiLayer::OnEvent(Event& e) 
-	{
-	}
-
 	void ImGuiLayer::Begin()
 	{
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		ImGui::PushFont(m_font);
 	}
 
 	void ImGuiLayer::End()
 	{
+		ImGui::PopFont();
 		ImGuiIO& io = ImGui::GetIO();
 		int32_t x, y;
 		glfwGetWindowSize(m_window, &x, &y);

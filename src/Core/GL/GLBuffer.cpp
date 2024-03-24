@@ -12,6 +12,7 @@ namespace mm
 
 	void GLBuffer::Data(uint32_t size, void* data)
 	{ 
+		m_size = size;
 		glBindBuffer(m_target, m_id);
 		glBufferData(m_target, size, data, GL_STATIC_DRAW);
 	}
@@ -24,7 +25,8 @@ namespace mm
 
 	void GLBuffer::Base(uint32_t base)
 	{
-		if (m_target != GL_SHADER_STORAGE_BUFFER) {
+		if (m_target != GL_SHADER_STORAGE_BUFFER && 
+			m_target != GL_UNIFORM_BUFFER) {
 			MM_ERROR("Invalid op");
 			return;
 		}

@@ -5,10 +5,6 @@
 #include "Core/Core.hpp"
 #include "Core/Event.hpp"
 
-#include <vector>
-#include <memory>
-#include <chrono>
-
 namespace mm
 {
 	class LayerStack
@@ -17,8 +13,6 @@ namespace mm
 		LayerStack() :
 			m_layerInsertPos(0) {};
 
-
-		void OnEvent(Event& e);
 		void OnUpdate(float deltaTime);
 		void OnUIRender();
 

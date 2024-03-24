@@ -18,6 +18,7 @@ namespace mm
 		}
 		catch (const std::out_of_range& e) {
 			loc = glGetUniformLocation(m_programId, name.c_str());
+			MM_ASSERT(loc > 0);
 			m_locCache.insert({ name, loc });
 		}
 		return loc;

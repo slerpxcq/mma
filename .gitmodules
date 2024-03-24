@@ -19,3 +19,9 @@
 [submodule "3rdparty/stb"]
 	path = 3rdparty/stb
 	url = https://github.com/slerpxcq/stb.git
+[submodule "3rdparty/nativefiledialog"]
+	path = 3rdparty/nativefiledialog
+	url = https://github.com/slerpxcq/nativefiledialog.git
+[submodule "3rdparty/EventBus"]
+	path = 3rdparty/EventBus
+	url = https://github.com/slerpxcq/EventBus.git

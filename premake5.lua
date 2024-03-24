@@ -14,6 +14,8 @@ workspace "MMX"
     IncDir["spdlog"] = "3rdparty/spdlog/include"
     IncDir["glm"] = "3rdparty/glm"
     IncDir["stb"] = "3rdparty/stb"
+    IncDir["nativefiledialog"] = "3rdparty/nativefiledialog/src/include"
+    IncDir["EventBus"] = "3rdparty/EventBus/lib/src"
 
     group "3rdparty"
     include "3rdparty/glfw"
@@ -22,6 +24,8 @@ workspace "MMX"
     include "3rdparty/ImGuizmo"
     include "3rdparty/bullet3"
     include "3rdparty/spdlog"
+    include "3rdparty/nativefiledialog"
+    include "3rdparty/EventBus"
     group ""
 
     project "MMX"
@@ -41,6 +45,8 @@ workspace "MMX"
             "ImGuizmo",
             "bullet3",
             "spdlog",
+            "nativefiledialog",
+            "EventBus",
             "opengl32.lib"
         }
 
@@ -53,6 +59,8 @@ workspace "MMX"
             "%{IncDir.spdlog}",
             "%{IncDir.glm}",
             "%{IncDir.stb}",
+            "%{IncDir.nativefiledialog}",
+            "%{IncDir.EventBus}",
             "src"
         }
 

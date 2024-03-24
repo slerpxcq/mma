@@ -35,5 +35,10 @@
 
 #define MM_WRAP(x) [&](){x;}
 
+#define MM_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)
+
+#define MM_SKINNING_BASE 0
+#define MM_MATERIAL_BASE 1
+
 
 

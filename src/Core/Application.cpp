@@ -4,16 +4,8 @@
 #include "Core.hpp"
 #include "Event.hpp"
 #include "Layer/ImGuiLayer.hpp"
+#include "Layer/MenuBarLayer.hpp"
 #include "Editor/EditorLayer.hpp"
-
-#include "GL/GLShader.hpp"
-#include "GL/GLBuffer.hpp"
-#include "GL/GLVertexArray.hpp"
-#include "GL/GLLayout.hpp"
-#include "GL/GLTexture.hpp"
-#include "SampleLayout.hpp"
-
-#include <glm/gtc/type_ptr.hpp>
 
 namespace mm
 {
@@ -21,24 +13,47 @@ namespace mm
 	{
 		MM_INFO("App start");
 
+		// Window
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MM_GL_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MM_GL_VERSION_MINOR);
 		m_window = glfwCreateWindow(1280, 720, "", nullptr, nullptr);
 		MM_ASSERT(m_window);
-		RegisterCallbacks();
+		RegisterWindowCallbacks();
+
+		// Event
+		m_eventBus = std::make_unique<dexode::EventBus>();
+		m_listener = std::make_unique<dexode::EventBus::Listener>(m_eventBus);
+		ListenEvents();
 
 		m_glctx = std::make_unique<GLContext>(m_window);
-		m_renderer = std::make_unique<Renderer>();
+		m_renderer = std::make_unique<GLRenderer>();
+		LoadToons();
 
 		auto imguiLayer = std::make_unique<ImGuiLayer>();
-		m_imguiLayer = static_cast<ImGuiLayer*>(imguiLayer.get());
+		m_imguiLayer = imguiLayer.get();
 		PushOverlay(std::move(imguiLayer));
+
+		PushOverlay(std::make_unique<MenuBarLayer>());
 
 		PushLayer(std::make_unique<EditorLayer>());
 	}
 
-	void Application::RegisterCallbacks()
+	void Application::LoadToons()
+	{
+		constexpr uint32_t TOON_COUNT = 11;
+
+		for (uint32_t i = 0; i < TOON_COUNT; ++i) {
+			std::filesystem::path toonPath = "resources/textures/toon";
+			toonPath += (i < 10) ? 
+				'0' + std::to_string(i) :
+				std::to_string(i);
+			toonPath += ".bmp";
+			m_toons.emplace_back(toonPath, GL_TEXTURE_2D);
+		}
+	}
+
+	void Application::RegisterWindowCallbacks()
 	{
 		glfwSetWindowUserPointer(m_window, this);
 
@@ -49,115 +64,67 @@ namespace mm
 
 		glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			Event e = {};
-			e.source = Event::Source::WINDOW;
-			e.type = Event::Type::WINDOW_RESIZED;
-			e.data.windowResize.w = w;
-			e.data.windowResize.h = h;
-			app->OnEvent(e);
+			app->GetEventBus()->postpone<Event::WindowSized>({ (uint32_t)w, (uint32_t)h });
 		});
 
 		glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			Event e = {};
-			e.source = Event::Source::WINDOW;
-			e.type = Event::Type::WINDOW_CLOSED;
-			app->OnEvent(e);
+			app->GetEventBus()->postpone<Event::WindowClosed>({});
 		});
 
 		glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			Event e = {};
-			e.source = Event::Source::KEYBOARD;
+			auto eb = app->GetEventBus();
 			switch (action) {
 			case GLFW_PRESS:
-				e.type = Event::Type::KEY_PRESSED;
-				e.data.key.repeat = false;
+				eb->postpone<Event::KeyPressed>({(uint32_t)key, false});
 				break;
 			case GLFW_RELEASE:
-				e.type = Event::Type::KEY_RELEASED;
-				e.data.key.repeat = false;
+				eb->postpone<Event::KeyReleased>({(uint32_t)key});
 				break;
 			case GLFW_REPEAT:
-				e.type = Event::Type::KEY_PRESSED;
-				e.data.key.repeat = true;
+				eb->postpone<Event::KeyPressed>({ (uint32_t)key, true });
 				break;
 			}
-			e.data.key.code = key;
-			app->OnEvent(e);
 		});
 
 		glfwSetCharCallback(m_window, [](GLFWwindow* window, unsigned int codepoint) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			Event e = {};
-			e.source = Event::Source::KEYBOARD;
-			e.type = Event::Type::KEY_TYPED;
-			e.data.key.code = codepoint;
-			app->OnEvent(e);
+			app->GetEventBus()->postpone<Event::KeyTyped>({(uint32_t)codepoint});
 		});
 
 		glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			Event e = {};
-			e.source = Event::Source::MOUSE_BUTTON;
 			switch (action) {
 			case GLFW_PRESS:
-				e.type = Event::Type::MOUSE_BUTTON_PRESSED;
+				app->GetEventBus()->postpone<Event::MouseButtonPressed>({ (uint32_t)button });
 				break;
 			case GLFW_RELEASE:
-				e.type = Event::Type::MOUSE_BUTTON_RELEASED;
+				app->GetEventBus()->postpone<Event::MouseButtonReleased>({ (uint32_t)button });
 				break;
 			}
-			e.data.mouseButton.code = button;
-			app->OnEvent(e);
 		});
 
 		glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double xpos, double ypos) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			Event e = {};
-			e.source = Event::Source::MOUSE;
-			e.type = Event::Type::MOUSE_MOVED_;
-			e.data.mouseMove.x = static_cast<float>(xpos);
-			e.data.mouseMove.y = static_cast<float>(ypos);
-			app->OnEvent(e);
+			app->GetEventBus()->postpone<Event::MouseMoved>({ (float)xpos, (float)ypos });
 		});
 
 		glfwSetScrollCallback(m_window, [](GLFWwindow* window, double xoffset, double yoffset) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			Event e = {};
-			e.source = Event::Source::MOUSE;
-			e.type = Event::Type::MOUSE_SCROLLED;
-			e.data.mouseScroll.delta = static_cast<float>(yoffset);
-			app->OnEvent(e);
+			app->GetEventBus()->postpone<Event::MouseScrolled>({ (float)yoffset });
 		});
+	}
+
+	void Application::ListenEvents() 
+	{
+		m_listener->listen<Event::WindowClosed>(MM_EVENT_FN(Application::OnWindowClose));
+		m_listener->listen<Event::WindowSized>(MM_EVENT_FN(Application::OnWindowResize));
 	}
 
 	void Application::Run()
 	{
 		static MM_TIMEPOINT lastTime = MM_TIME_NOW();
-
-		GLTexture tex("resources/textures/H.png", GL_TEXTURE_2D);
-		
-		GLShader shader;
-		shader.Compile("resources/shaders/test.vert", GLShader::VERTEX);
-		shader.Compile("resources/shaders/test.frag", GLShader::FRAGMENT);
-		shader.Link();
-
-		SampleLayout::Vertex triangle[] = {
-			{ glm::vec2(-.5f, -.5f), glm::vec4(1, 0, 0, 1) },
-			{ glm::vec2(0.f, .5f), glm::vec4(0, 1, 0, 1) },
-			{ glm::vec2(.5f, -.5f), glm::vec4(0, 0, 1, 1) }
-		};
-
-		GLBuffer buffer(GL_ARRAY_BUFFER);
-		buffer.Data(sizeof(triangle), triangle);
-
-		std::unique_ptr<GLLayout> layout = std::make_unique<SampleLayout>();
-
-		GLVertexArray varr;
-		varr.Bind();
-		varr.BindBuffer(buffer);
-		varr.BufferLayout(layout.get());
 
 		while (m_running) {
 			float deltaTime = MM_TIME_DELTA(lastTime);
@@ -176,49 +143,26 @@ namespace mm
 			glm::vec4 color(0.f, 1.f, 0.f, 1.f);
 			int32_t unit = 0;
 
-			//m_renderer->Submit(std::bind(glEnable, GL_DEPTH_TEST));
-			m_renderer->Submit(MM_WRAP(shader.Use()));
-			m_renderer->Submit(MM_WRAP(tex.Bind(GL_TEXTURE0)));
-			m_renderer->Submit(MM_WRAP(shader.Uniform("c", 1, &color)));
-			m_renderer->Submit(MM_WRAP(shader.Uniform("tex", 1, &unit)));
-			m_renderer->Submit(MM_WRAP(varr.DrawArray(GL_TRIANGLES, 0, 3)));
-			m_renderer->Commit();
-
 			m_glctx->SwapBuffers();
 			glfwPollEvents();
+			m_eventBus->process();
 		}
 	}
 
 	void Application::DeInit()
 	{
 		glfwTerminate();
+		m_listener->unlistenAll();
 	}
 
-	void Application::OnEvent(Event& e)
-	{
-		switch (e.type) {
-		case Event::Type::WINDOW_CLOSED:
-			OnWindowClose(e);
-			break;
-		case Event::Type::WINDOW_RESIZED:
-			OnWindowResize(e);
-			break;
-		default:
-			m_layerStack.OnEvent(e);
-			break;
-		}
-	}
-
-	void Application::OnWindowClose(Event& e)
+	void Application::OnWindowClose(const Event::WindowClosed& e)
 	{
 		m_running = false;
-		e.handled = true;
 	}
 
-	void Application::OnWindowResize(Event& e)
+	void Application::OnWindowResize(const Event::WindowSized& e)
 	{
-		m_minimized = (e.data.windowResize.w == 0 || e.data.windowResize.h == 0);
-		m_glctx->Viewport(e.data.windowResize.w, e.data.windowResize.h);
-		e.handled = true;
+		m_minimized = (e.x == 0 || e.y == 0);
+		m_glctx->Viewport(e.x, e.y);
 	}
 }

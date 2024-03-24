@@ -2,7 +2,7 @@
 #include "GLVertexArray.hpp"
 
 #include "GLBuffer.hpp"
-#include "GLLayout.hpp"
+#include "GLVertexAttrib.hpp"
 
 namespace mm
 {
@@ -17,9 +17,9 @@ namespace mm
 		glBindVertexArray(m_id);
 	}
 
-	void GLVertexArray::BufferLayout(GLLayout* layout)
+	void GLVertexArray::Attrib(GLVertexAttrib* attrib)
 	{
-		layout->Set();
+		attrib->Set();
 	}
 
 	void GLVertexArray::DrawArray(uint32_t mode, uint32_t first, uint32_t count)

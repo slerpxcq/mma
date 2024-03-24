@@ -2,7 +2,7 @@
 
 namespace mm
 {
-	class Event;
+	class Application;
 
 	class Layer
 	{
@@ -11,7 +11,6 @@ namespace mm
 		virtual void OnDetach() {}
 		virtual void OnUpdate(float deltaTime) {}
 		virtual void OnUIRender() {}
-		virtual void OnEvent(Event& e) {};
 		virtual	~Layer() {}
 	};
 }

@@ -61,7 +61,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>MM_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>3rdparty\glfw\include;3rdparty\glad\include;3rdparty\imgui;3rdparty\ImGuizmo;3rdparty\bullet3\src;3rdparty\spdlog\include;3rdparty\glm;3rdparty\stb;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>3rdparty\glfw\include;3rdparty\glad\include;3rdparty\imgui;3rdparty\ImGuizmo;3rdparty\bullet3\src;3rdparty\spdlog\include;3rdparty\glm;3rdparty\stb;3rdparty\nativefiledialog\src\include;3rdparty\EventBus\lib\src;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -81,7 +81,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>MM_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>3rdparty\glfw\include;3rdparty\glad\include;3rdparty\imgui;3rdparty\ImGuizmo;3rdparty\bullet3\src;3rdparty\spdlog\include;3rdparty\glm;3rdparty\stb;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>3rdparty\glfw\include;3rdparty\glad\include;3rdparty\imgui;3rdparty\ImGuizmo;3rdparty\bullet3\src;3rdparty\spdlog\include;3rdparty\glm;3rdparty\stb;3rdparty\nativefiledialog\src\include;3rdparty\EventBus\lib\src;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -99,38 +99,60 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Editor\EditorLayer.hpp" />
-    <ClInclude Include="src\Core\Renderer.hpp" />
-    <ClInclude Include="src\Core\GL\GLTexture.hpp" />
+    <ClInclude Include="src\Core\MM\Mesh.hpp" />
     <ClInclude Include="src\Core\Application.hpp" />
     <ClInclude Include="src\Core\Core.hpp" />
     <ClInclude Include="src\Core\Event.hpp" />
+    <ClInclude Include="src\Core\EventUser.hpp" />
     <ClInclude Include="src\Core\GL\GLBuffer.hpp" />
     <ClInclude Include="src\Core\GL\GLContext.hpp" />
-    <ClInclude Include="src\Core\GL\GLLayout.hpp" />
+    <ClInclude Include="src\Core\GL\GLRenderer.hpp" />
     <ClInclude Include="src\Core\GL\GLShader.hpp" />
+    <ClInclude Include="src\Core\GL\GLTexture.hpp" />
     <ClInclude Include="src\Core\GL\GLVertexArray.hpp" />
+    <ClInclude Include="src\Core\GL\GLVertexAttrib.hpp" />
     <ClInclude Include="src\Core\Layer\ImGuiLayer.hpp" />
     <ClInclude Include="src\Core\Layer\Layer.hpp" />
     <ClInclude Include="src\Core\Layer\LayerStack.hpp" />
-    <ClInclude Include="src\Core\SampleLayout.hpp" />
+    <ClInclude Include="src\Core\Layer\MenuBarLayer.hpp" />
+    <ClInclude Include="src\Core\Locale\Locale.hpp" />
+    <ClInclude Include="src\Core\Locale\ShiftJIS.hpp" />
+    <ClInclude Include="src\Core\MM\Armature.hpp" />
+    <ClInclude Include="src\Core\MM\IKSolver.hpp" />
+    <ClInclude Include="src\Core\MM\Model.hpp" />
+    <ClInclude Include="src\Core\MM\PMXFile.hpp" />
+    <ClInclude Include="src\Core\MM\Skin.hpp" />
+    <ClInclude Include="src\Core\MM\StreamUtility.hpp" />
+    <ClInclude Include="src\Core\MM\Transform.hpp" />
+    <ClInclude Include="src\Core\MM\VMDFile.hpp" />
+    <ClInclude Include="src\Editor\EditorLayer.hpp" />
+    <ClInclude Include="src\Editor\Scene.hpp" />
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Editor\EditorLayer.cpp" />
-    <ClCompile Include="src\Core\Renderer.cpp" />
-    <ClCompile Include="src\Core\GL\GLTexture.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
-    <ClCompile Include="src\Core\Event.cpp" />
+    <ClCompile Include="src\Core\EventUser.cpp" />
     <ClCompile Include="src\Core\GL\GLBuffer.cpp" />
     <ClCompile Include="src\Core\GL\GLContext.cpp" />
-    <ClCompile Include="src\Core\GL\GLLayout.cpp" />
+    <ClCompile Include="src\Core\GL\GLRenderer.cpp" />
     <ClCompile Include="src\Core\GL\GLShader.cpp" />
+    <ClCompile Include="src\Core\GL\GLTexture.cpp" />
     <ClCompile Include="src\Core\GL\GLVertexArray.cpp" />
+    <ClCompile Include="src\Core\GL\GLVertexAttrib.cpp" />
     <ClCompile Include="src\Core\Layer\ImGuiLayer.cpp" />
-    <ClCompile Include="src\Core\Layer\Layer.cpp" />
     <ClCompile Include="src\Core\Layer\LayerStack.cpp" />
+    <ClCompile Include="src\Core\Layer\MenuBarLayer.cpp" />
+    <ClCompile Include="src\Core\Locale\Locale.cpp" />
+    <ClCompile Include="src\Core\Locale\ShiftJIS.cpp" />
+    <ClCompile Include="src\Core\MM\Armature.cpp" />
+    <ClCompile Include="src\Core\MM\IKSolver.cpp" />
+    <ClCompile Include="src\Core\MM\Model.cpp" />
+    <ClCompile Include="src\Core\MM\PMXFile.cpp" />
+    <ClCompile Include="src\Core\MM\Skin.cpp" />
+    <ClCompile Include="src\Core\MM\VMDFile.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
+    <ClCompile Include="src\Editor\EditorLayer.cpp" />
+    <ClCompile Include="src\Editor\Scene.cpp" />
     <ClCompile Include="src\mmpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -153,6 +175,12 @@
     </ProjectReference>
     <ProjectReference Include="3rdparty\spdlog\spdlog.vcxproj">
       <Project>{8EAD431C-7A4F-6EF2-630A-82464F4BF542}</Project>
+    </ProjectReference>
+    <ProjectReference Include="3rdparty\nativefiledialog\nativefiledialog.vcxproj">
+      <Project>{5CD62ECE-48CF-4D20-7101-33A55D592D2C}</Project>
+    </ProjectReference>
+    <ProjectReference Include="3rdparty\EventBus\EventBus.vcxproj">
+      <Project>{D1FE6998-BDCB-C4A3-E6E4-B24BD210FA31}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
