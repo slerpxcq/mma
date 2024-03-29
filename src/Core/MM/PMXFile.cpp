@@ -1,7 +1,7 @@
 #include "mmpch.hpp"
 #include "PMXFile.hpp"
 #include "Core/Locale/Locale.hpp"
-#include "StreamUtility.hpp"
+#include "Core/StreamUtility.hpp"
 
 namespace mm
 {
@@ -97,11 +97,11 @@ namespace mm
 
 	void PMXFile::ParseFace(std::ifstream& stream)
 	{
-		uint32_t faceCount;
-		Read(stream, faceCount);
-		faceCount /= 3;
-		m_faces.resize(faceCount);
-		for (uint32_t i = 0; i < faceCount; ++i) {
+		uint32_t elementCount;
+		Read(stream, elementCount);
+		elementCount /= 3;
+		m_faces.resize(elementCount);
+		for (uint32_t i = 0; i < elementCount; ++i) {
 			Face& face = m_faces[i];
 			Read(stream, face.vertexIndices, m_header.vertexIndexSize);
 		}
@@ -145,7 +145,7 @@ namespace mm
 				Read(stream, material.toonIndex, m_header.textureIndexSize);
 
 			ParseText(stream, material.comment);
-			Read(stream, material.faceCount);
+			Read(stream, material.elementCount);
 		}
 	}
 

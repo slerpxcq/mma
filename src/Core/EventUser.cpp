@@ -6,7 +6,12 @@
 namespace mm
 {
 	EventUser::EventUser() :
-		m_eventBus(Application::Instance()->GetEventBus()),
+		m_eventBus(Application::Instance().GetEventBus()),
 		m_listener(m_eventBus) {
+	}
+
+	EventUser::~EventUser()
+	{
+		m_listener.unlistenAll();
 	}
 }

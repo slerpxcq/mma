@@ -4,7 +4,7 @@
 #include "Core/Event.hpp"
 #include "Core/EventUser.hpp"
 
-#include "Scene.hpp"
+#include "Core/MM/World.hpp"
 
 namespace mm
 {
@@ -18,7 +18,7 @@ namespace mm
 		void OnUIRender() override ;
 
 	private:
-		std::unique_ptr<Scene> m_scene;
+		std::unique_ptr<World> m_scene;
 		Model* m_model;
 	};
 }

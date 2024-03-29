@@ -1,6 +1,6 @@
 #include "mmpch.hpp"
 #include "VMDFile.hpp"
-#include "StreamUtility.hpp"
+#include "Core/StreamUtility.hpp"
 
 namespace mm
 {

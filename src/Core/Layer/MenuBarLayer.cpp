@@ -10,7 +10,6 @@ namespace mm
 {
 	void MenuBarLayer::OnAttach()
 	{
-		MM_INFO("MenuBarLayer");
 	}
 
 	void MenuBarLayer::OnDetach()

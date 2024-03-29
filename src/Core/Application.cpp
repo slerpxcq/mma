@@ -9,9 +9,11 @@
 
 namespace mm
 {
+	Application* Application::s_instance = nullptr;
+
 	void Application::Init()
 	{
-		MM_INFO("App start");
+		MM_INFO("App started");
 
 		// Window
 		glfwInit();
@@ -19,15 +21,15 @@ namespace mm
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MM_GL_VERSION_MINOR);
 		m_window = glfwCreateWindow(1280, 720, "", nullptr, nullptr);
 		MM_ASSERT(m_window);
-		RegisterWindowCallbacks();
 
 		// Event
 		m_eventBus = std::make_unique<dexode::EventBus>();
 		m_listener = std::make_unique<dexode::EventBus::Listener>(m_eventBus);
+		RegisterWindowCallbacks();
 		ListenEvents();
 
 		m_glctx = std::make_unique<GLContext>(m_window);
-		m_renderer = std::make_unique<GLRenderer>();
+		m_renderer = std::make_unique<GLRenderer>(*m_glctx);
 		LoadToons();
 
 		auto imguiLayer = std::make_unique<ImGuiLayer>();
@@ -49,7 +51,7 @@ namespace mm
 				'0' + std::to_string(i) :
 				std::to_string(i);
 			toonPath += ".bmp";
-			m_toons.emplace_back(toonPath, GL_TEXTURE_2D);
+			m_toons.push_back(std::make_unique<GLTexture>(toonPath, GL_TEXTURE_2D));
 		}
 	}
 
@@ -58,8 +60,7 @@ namespace mm
 		glfwSetWindowUserPointer(m_window, this);
 
 		glfwSetErrorCallback([](int code, const char* what) {
-			// FIXME: causing segfault
-			//MM_ERROR("GLFW error:\n  Code: {0}\n  Info: {1}\n", code, what);
+			MM_ERROR("GLFW error:\n  Code: {0}\n  Info: {1}\n", code, what);
 		});
 
 		glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
@@ -130,18 +131,16 @@ namespace mm
 			float deltaTime = MM_TIME_DELTA(lastTime);
 			lastTime = MM_TIME_NOW();
 
-			m_glctx->Clear();
+			 m_glctx->Clear();
 
 			if (!m_minimized) {
 				m_layerStack.OnUpdate(deltaTime);
+				m_renderer->Commit();
 				
 				m_imguiLayer->Begin();
 				m_layerStack.OnUIRender();
 				m_imguiLayer->End();
 			}
-
-			glm::vec4 color(0.f, 1.f, 0.f, 1.f);
-			int32_t unit = 0;
 
 			m_glctx->SwapBuffers();
 			glfwPollEvents();
@@ -151,8 +150,14 @@ namespace mm
 
 	void Application::DeInit()
 	{
-		glfwTerminate();
 		m_listener->unlistenAll();
+
+		MM_ASSERT(s_instance);
+		delete s_instance;
+
+		glfwTerminate();
+
+		MM_INFO("App exited");
 	}
 
 	void Application::OnWindowClose(const Event::WindowClosed& e)

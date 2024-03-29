@@ -1,7 +1,7 @@
 #pragma once
 
-#include <spdlog/spdlog.h>
 #include "Core/Core.hpp"
+#include "Core/Log.hpp"
 
 // GL
 #include <glad/glad.h>
@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <memory>
 #include <random>
+
 
 
 

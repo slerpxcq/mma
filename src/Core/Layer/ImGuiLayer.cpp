@@ -10,7 +10,7 @@ namespace mm
 {
 	void ImGuiLayer::OnAttach() 
 	{
-		m_window = Application::Instance()->GetWindow();
+		m_window = Application::Instance().GetWindow();
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
@@ -23,7 +23,7 @@ namespace mm
 		ImGui::StyleColorsDark();
 
 		ImGui_ImplGlfw_InitForOpenGL(m_window, true);
-		ImGui_ImplOpenGL3_Init("#version 430");
+		ImGui_ImplOpenGL3_Init("#version 460");
 	}
 
 	void ImGuiLayer::OnDetach() 

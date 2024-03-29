@@ -12,14 +12,17 @@ namespace mm
 
 	uint32_t GLShader::GetLoc(const std::string& name)
 	{
-		uint32_t loc;
+		int32_t loc = 0;
 		try {
 			loc = m_locCache.at(name);
 		}
 		catch (const std::out_of_range& e) {
 			loc = glGetUniformLocation(m_programId, name.c_str());
-			MM_ASSERT(loc > 0);
-			m_locCache.insert({ name, loc });
+	//		MM_ASSERT(loc > 0 && "Uniform does not existing in the shader");
+			if (loc >= 0)
+				m_locCache.insert({ name, loc });
+			else
+				MM_WARN("Uniform \"{0}\" does not exist in shader {1}", name, m_programId);
 		}
 		return loc;
 	}
@@ -95,13 +98,15 @@ namespace mm
 			std::vector<GLchar> errorLog(maxLength);
 			glGetShaderInfoLog(id, maxLength, &maxLength, &errorLog[0]);
 			errorLog.push_back(0);
-			MM_ERROR("Failed to compile shader: \n  Type: {0}", type);
+			MM_ERROR("Failed to compile shader: {0}", path.u8string().c_str());
 			MM_ERROR("What: {0}", &errorLog[0]);
 
 			DeleteAllShaders();
+			return;
 		}
-	}
 
+		MM_INFO("id={0}, path={1}: Shader compiled", id, path.u8string().c_str());
+	} 
 	void GLShader::Link()
 	{
 		AttachAllShaders();
@@ -125,94 +130,97 @@ namespace mm
 		}
 
 		DetachAllShaders();
+
+		MM_INFO("id={0}: Shader linked", m_programId);
 	}
 
-	void GLShader::Use()
+	void GLShader::Use() const
 	{
 		glUseProgram(m_programId);
-	}
-
-	template <>
-	void GLShader::Uniform<float>(const std::string& name, uint32_t count, const float* v)
-	{
-		glUniform1fv(GetLoc(name), count, v);
-	}
-
-	template <>
-	void GLShader::Uniform<glm::vec2>(const std::string& name, uint32_t count, const glm::vec2* v)
-	{
-		glUniform2fv(GetLoc(name), count, glm::value_ptr(*v));
-	}
-
-	template <>
-	void GLShader::Uniform<glm::vec3>(const std::string& name, uint32_t count, const glm::vec3* v)
-	{
-		glUniform3fv(GetLoc(name), count, glm::value_ptr(*v));
-	}
-
-	template <>
-	void GLShader::Uniform<glm::vec4>(const std::string& name, uint32_t count, const glm::vec4* v)
-	{
-		glUniform4fv(GetLoc(name), count, glm::value_ptr(*v));
-	}
-
-	template <>
-	void GLShader::Uniform<int32_t>(const std::string& name, uint32_t count, const int32_t* v)
-	{
-		glUniform1iv(GetLoc(name), count, v);
-	}
-
-	template <>
-	void GLShader::Uniform<glm::ivec2>(const std::string& name, uint32_t count, const glm::ivec2 *v)
-	{
-		glUniform2iv(GetLoc(name), count, glm::value_ptr(*v));
-	}
-
-	template <>
-	void GLShader::Uniform<glm::ivec3>(const std::string& name, uint32_t count, const glm::ivec3* v)
-	{
-		glUniform3iv(GetLoc(name), count, glm::value_ptr(*v));
-	}
-
-	template <>
-	void GLShader::Uniform<glm::ivec4>(const std::string& name, uint32_t count, const glm::ivec4* v)
-	{
-		glUniform4iv(GetLoc(name), count, glm::value_ptr(*v));
-	}
-
-	template <>
-	void GLShader::Uniform<uint32_t>(const std::string& name, uint32_t count, const uint32_t* v)
-	{
-		glUniform1uiv(GetLoc(name), count, v);
-	}
-
-	template <>
-	void GLShader::Uniform<glm::uvec2>(const std::string& name, uint32_t count, const glm::uvec2* v)
-	{
-		glUniform2uiv(GetLoc(name), count, glm::value_ptr(*v));
-	}
-
-	template <>
-	void GLShader::Uniform<glm::uvec3>(const std::string& name, uint32_t count, const glm::uvec3* v)
-	{
-		glUniform3uiv(GetLoc(name), count, glm::value_ptr(*v));
-	}
-
-	template <>
-	void GLShader::Uniform<glm::uvec4>(const std::string& name, uint32_t count, const glm::uvec4* v)
-	{
-		glUniform4uiv(GetLoc(name), count, glm::value_ptr(*v));
-	}
-
-	template <>
-	void GLShader::Uniform<glm::mat4>(const std::string& name, uint32_t count, const glm::mat4* v)
-	{
-		glUniformMatrix4fv(GetLoc(name), count, GL_FALSE, glm::value_ptr(*v));
 	}
 
 	GLShader::~GLShader()
 	{
 		DeleteAllShaders();
 		glDeleteProgram(m_programId);
+		MM_INFO("id={0}: shader unloaded", m_programId);
+	}
+
+	template <>
+	void GLShader::Uniform<float>(const std::string& name, uint32_t count, const float* v)
+	{
+		glProgramUniform1fv(m_programId, GetLoc(name), count, v);
+	}
+
+	template <>
+	void GLShader::Uniform<glm::vec2>(const std::string& name, uint32_t count, const glm::vec2* v)
+	{
+		glProgramUniform2fv(m_programId, GetLoc(name), count, glm::value_ptr(*v));
+	}
+
+	template <>
+	void GLShader::Uniform<glm::vec3>(const std::string& name, uint32_t count, const glm::vec3* v)
+	{
+		glProgramUniform3fv(m_programId, GetLoc(name), count, glm::value_ptr(*v));
+	}
+
+	template <>
+	void GLShader::Uniform<glm::vec4>(const std::string& name, uint32_t count, const glm::vec4* v)
+	{
+		glProgramUniform4fv(m_programId, GetLoc(name), count, glm::value_ptr(*v));
+	}
+
+	template <>
+	void GLShader::Uniform<int32_t>(const std::string& name, uint32_t count, const int32_t* v)
+	{
+		glProgramUniform1iv(m_programId, GetLoc(name), count, v);
+	}
+
+	template <>
+	void GLShader::Uniform<glm::ivec2>(const std::string& name, uint32_t count, const glm::ivec2 *v)
+	{
+		glProgramUniform2iv(m_programId, GetLoc(name), count, glm::value_ptr(*v));
+	}
+
+	template <>
+	void GLShader::Uniform<glm::ivec3>(const std::string& name, uint32_t count, const glm::ivec3* v)
+	{
+		glProgramUniform3iv(m_programId, GetLoc(name), count, glm::value_ptr(*v));
+	}
+
+	template <>
+	void GLShader::Uniform<glm::ivec4>(const std::string& name, uint32_t count, const glm::ivec4* v)
+	{
+		glProgramUniform4iv(m_programId, GetLoc(name), count, glm::value_ptr(*v));
+	}
+
+	template <>
+	void GLShader::Uniform<uint32_t>(const std::string& name, uint32_t count, const uint32_t* v)
+	{
+		glProgramUniform1uiv(m_programId, GetLoc(name), count, v);
+	}
+
+	template <>
+	void GLShader::Uniform<glm::uvec2>(const std::string& name, uint32_t count, const glm::uvec2* v)
+	{
+		glProgramUniform2uiv(m_programId, GetLoc(name), count, glm::value_ptr(*v));
+	}
+
+	template <>
+	void GLShader::Uniform<glm::uvec3>(const std::string& name, uint32_t count, const glm::uvec3* v)
+	{
+		glProgramUniform3uiv(m_programId, GetLoc(name), count, glm::value_ptr(*v));
+	}
+
+	template <>
+	void GLShader::Uniform<glm::uvec4>(const std::string& name, uint32_t count, const glm::uvec4* v)
+	{
+		glProgramUniform4uiv(m_programId, GetLoc(name), count, glm::value_ptr(*v));
+	}
+
+	template <>
+	void GLShader::Uniform<glm::mat4>(const std::string& name, uint32_t count, const glm::mat4* v)
+	{
+		glProgramUniformMatrix4fv(m_programId, GetLoc(name), count, GL_FALSE, glm::value_ptr(*v));
 	}
 }

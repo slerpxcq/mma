@@ -15,11 +15,13 @@ namespace mm
 		};
 	public:
 		GLShader();
+		GLShader(const GLShader&) = delete;
+		GLShader(GLShader&&) = default;
 		~GLShader();
 
 		void Compile(const std::filesystem::path& path, Type type);
 		void Link();
-		void Use();
+		void Use() const;
 
 		template <typename T>
 		void Uniform(const std::string& name, uint32_t count, const T* v);

@@ -6,9 +6,14 @@ namespace mm
 	{
 	public:
 		GLTexture(const std::filesystem::path path, uint32_t target);
-		void Bind(uint32_t active);
+		GLTexture(const GLTexture&) = delete;
+		GLTexture(GLTexture&&) = default;
+
+		void Bind(uint32_t unit);
 		void SetWrap(uint32_t wrapS, uint32_t wrapT);
 		void SetFilter(uint32_t min, uint32_t mag);
+
+		~GLTexture();
 
 	private:
 		uint32_t m_id;

@@ -170,7 +170,7 @@ namespace mm
 			uint8_t     toonFlag;
 			int32_t     toonIndex;
 			std::string comment;
-			int32_t     faceCount;
+			int32_t     elementCount;
 		};
 
 		struct Bone {
@@ -258,7 +258,6 @@ namespace mm
 		};
 
 		struct Cluster {
-
 			struct Element {
 				uint8_t type;
 				int32_t index;
@@ -271,7 +270,6 @@ namespace mm
 		};
 
 		struct Rigidbody {
-
 			std::string nameJP;
 			std::string nameEN;
 			int32_t     boneIndex;
@@ -290,7 +288,6 @@ namespace mm
 		};
 
 		struct Joint {
-
 			std::string nameJP;
 			std::string nameEN;
 			uint8_t     type;

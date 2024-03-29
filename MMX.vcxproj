@@ -99,8 +99,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\MM\Mesh.hpp" />
+    <ClInclude Include="src\Core\MM\Physics\ModelPhysicsData.hpp" />
     <ClInclude Include="src\Core\Application.hpp" />
+    <ClInclude Include="src\Core\Camera.hpp" />
     <ClInclude Include="src\Core\Core.hpp" />
     <ClInclude Include="src\Core\Event.hpp" />
     <ClInclude Include="src\Core\EventUser.hpp" />
@@ -117,20 +118,28 @@
     <ClInclude Include="src\Core\Layer\MenuBarLayer.hpp" />
     <ClInclude Include="src\Core\Locale\Locale.hpp" />
     <ClInclude Include="src\Core\Locale\ShiftJIS.hpp" />
+    <ClInclude Include="src\Core\Log.hpp" />
     <ClInclude Include="src\Core\MM\Armature.hpp" />
     <ClInclude Include="src\Core\MM\IKSolver.hpp" />
+    <ClInclude Include="src\Core\MM\MMShader.hpp" />
     <ClInclude Include="src\Core\MM\Model.hpp" />
+    <ClInclude Include="src\Core\MM\Morph.hpp" />
     <ClInclude Include="src\Core\MM\PMXFile.hpp" />
+    <ClInclude Include="src\Core\MM\Physics\PhysicsWorld.hpp" />
     <ClInclude Include="src\Core\MM\Skin.hpp" />
-    <ClInclude Include="src\Core\MM\StreamUtility.hpp" />
     <ClInclude Include="src\Core\MM\Transform.hpp" />
     <ClInclude Include="src\Core\MM\VMDFile.hpp" />
+    <ClInclude Include="src\Core\MM\World.hpp" />
+    <ClInclude Include="src\Core\StreamUtility.hpp" />
+    <ClInclude Include="src\Core\TypeCast.hpp" />
+    <ClInclude Include="src\Editor\Editor.hpp" />
     <ClInclude Include="src\Editor\EditorLayer.hpp" />
-    <ClInclude Include="src\Editor\Scene.hpp" />
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\MM\Physics\ModelPhysicsData.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
+    <ClCompile Include="src\Core\Camera.cpp" />
     <ClCompile Include="src\Core\EventUser.cpp" />
     <ClCompile Include="src\Core\GL\GLBuffer.cpp" />
     <ClCompile Include="src\Core\GL\GLContext.cpp" />
@@ -138,7 +147,6 @@
     <ClCompile Include="src\Core\GL\GLShader.cpp" />
     <ClCompile Include="src\Core\GL\GLTexture.cpp" />
     <ClCompile Include="src\Core\GL\GLVertexArray.cpp" />
-    <ClCompile Include="src\Core\GL\GLVertexAttrib.cpp" />
     <ClCompile Include="src\Core\Layer\ImGuiLayer.cpp" />
     <ClCompile Include="src\Core\Layer\LayerStack.cpp" />
     <ClCompile Include="src\Core\Layer\MenuBarLayer.cpp" />
@@ -146,13 +154,17 @@
     <ClCompile Include="src\Core\Locale\ShiftJIS.cpp" />
     <ClCompile Include="src\Core\MM\Armature.cpp" />
     <ClCompile Include="src\Core\MM\IKSolver.cpp" />
+    <ClCompile Include="src\Core\MM\MMShader.cpp" />
     <ClCompile Include="src\Core\MM\Model.cpp" />
+    <ClCompile Include="src\Core\MM\Morph.cpp" />
     <ClCompile Include="src\Core\MM\PMXFile.cpp" />
+    <ClCompile Include="src\Core\MM\Physics\PhysicsWorld.cpp" />
     <ClCompile Include="src\Core\MM\Skin.cpp" />
     <ClCompile Include="src\Core\MM\VMDFile.cpp" />
+    <ClCompile Include="src\Core\MM\World.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
+    <ClCompile Include="src\Editor\Editor.cpp" />
     <ClCompile Include="src\Editor\EditorLayer.cpp" />
-    <ClCompile Include="src\Editor\Scene.cpp" />
     <ClCompile Include="src\mmpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
