@@ -1,9 +1,6 @@
 [submodule "3rdparty/glfw"]
 	path = 3rdparty/glfw
 	url = https://github.com/slerpxcq/glfw.git
-[submodule "3rdparty/imgui"]
-	path = 3rdparty/imgui
-	url = https://github.com/slerpxcq/imgui.git
 [submodule "3rdparty/ImGuizmo"]
 	path = 3rdparty/ImGuizmo
 	url = https://github.com/slerpxcq/ImGuizmo.git
@@ -25,5 +22,3 @@
 [submodule "3rdparty/EventBus"]
 	path = 3rdparty/EventBus
 	url = https://github.com/slerpxcq/EventBus.git
-[submodule "imgui"]
-	branch = docking
