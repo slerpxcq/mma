@@ -14,12 +14,12 @@ namespace mm
 	{
 		m_camera.Update();
 
-		for (auto& model : m_models) 
+		for (auto&& [_, model] : m_models) 
 			model->Update(deltaTime);
 
 		m_physicsWorld.Update(deltaTime);
 
-		for (auto& model : m_models) {
+		for (auto&& [_, model] : m_models) {
 			model->SyncWithPhysics();
 			model->CalcSkinning();
 		}
@@ -28,7 +28,8 @@ namespace mm
 	void World::LoadModel(const std::filesystem::path& path)
 	{
 		try {
-			m_models.push_back(std::make_unique<Model>(*this, path));
+			auto model = std::make_unique<Model>(*this, path);
+			m_models.insert({ model->GetPMXFile().GetInfo().nameJP, std::move(model) });
 		}
 		catch (const PMXParseError& e) {
 			MM_FATAL("{0}: invalid file", path.u8string().c_str());
@@ -40,9 +41,9 @@ namespace mm
 
 	void World::Render(GLRenderer& renderer) 
 	{
-		renderer.SetCamera(&m_camera);
+		renderer.SetCamera(m_camera);
 
-		for (auto& model : m_models) {
+		for (auto&& [_, model] : m_models) {
 			model->Render(renderer);
 		}
 	}

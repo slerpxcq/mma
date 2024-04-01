@@ -17,12 +17,12 @@ namespace mm
 		MM_INFO("id={0}: vertex array loaded", m_id);
 	}
 
-	void GLVertexArray::Bind()
+	void GLVertexArray::Bind() const
 	{
 		glBindVertexArray(m_id);
 	}
 
-	void GLVertexArray::Unbind()
+	void GLVertexArray::Unbind() const
 	{
 		glBindVertexArray(0);
 	}
@@ -60,12 +60,12 @@ namespace mm
 		}
 	}
 
-	void GLVertexArray::DrawArray(uint32_t mode, uint32_t first, uint32_t count)
+	void GLVertexArray::DrawArray(uint32_t mode, uint32_t first, uint32_t count) const
 	{
 		glDrawArrays(mode, first, count);
 	}
 
-	void GLVertexArray::DrawElem(uint32_t mode, uint32_t first, uint32_t count)
+	void GLVertexArray::DrawElem(uint32_t mode, uint32_t first, uint32_t count) const
 	{
 		glDrawElements(mode, count, m_elemType, (void*)(first * m_elemSize));
 	}

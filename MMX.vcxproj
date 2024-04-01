@@ -65,6 +65,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -88,6 +89,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -99,7 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\MM\Physics\ModelPhysicsData.hpp" />
+    <ClInclude Include="src\Core\GL\GLFrameBuffer.hpp" />
     <ClInclude Include="src\Core\Application.hpp" />
     <ClInclude Include="src\Core\Camera.hpp" />
     <ClInclude Include="src\Core\Core.hpp" />
@@ -120,15 +122,16 @@
     <ClInclude Include="src\Core\Locale\ShiftJIS.hpp" />
     <ClInclude Include="src\Core\Log.hpp" />
     <ClInclude Include="src\Core\MM\Armature.hpp" />
+    <ClInclude Include="src\Core\MM\Files\PMXFile.hpp" />
+    <ClInclude Include="src\Core\MM\Files\VMDFile.hpp" />
     <ClInclude Include="src\Core\MM\IKSolver.hpp" />
     <ClInclude Include="src\Core\MM\MMShader.hpp" />
     <ClInclude Include="src\Core\MM\Model.hpp" />
     <ClInclude Include="src\Core\MM\Morph.hpp" />
-    <ClInclude Include="src\Core\MM\PMXFile.hpp" />
+    <ClInclude Include="src\Core\MM\Physics\ModelPhysicsData.hpp" />
     <ClInclude Include="src\Core\MM\Physics\PhysicsWorld.hpp" />
     <ClInclude Include="src\Core\MM\Skin.hpp" />
     <ClInclude Include="src\Core\MM\Transform.hpp" />
-    <ClInclude Include="src\Core\MM\VMDFile.hpp" />
     <ClInclude Include="src\Core\MM\World.hpp" />
     <ClInclude Include="src\Core\StreamUtility.hpp" />
     <ClInclude Include="src\Core\TypeCast.hpp" />
@@ -137,7 +140,7 @@
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\MM\Physics\ModelPhysicsData.cpp" />
+    <ClCompile Include="src\Core\GL\GLFrameBuffer.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Camera.cpp" />
     <ClCompile Include="src\Core\EventUser.cpp" />
@@ -153,14 +156,15 @@
     <ClCompile Include="src\Core\Locale\Locale.cpp" />
     <ClCompile Include="src\Core\Locale\ShiftJIS.cpp" />
     <ClCompile Include="src\Core\MM\Armature.cpp" />
+    <ClCompile Include="src\Core\MM\Files\PMXFile.cpp" />
+    <ClCompile Include="src\Core\MM\Files\VMDFile.cpp" />
     <ClCompile Include="src\Core\MM\IKSolver.cpp" />
     <ClCompile Include="src\Core\MM\MMShader.cpp" />
     <ClCompile Include="src\Core\MM\Model.cpp" />
     <ClCompile Include="src\Core\MM\Morph.cpp" />
-    <ClCompile Include="src\Core\MM\PMXFile.cpp" />
+    <ClCompile Include="src\Core\MM\Physics\ModelPhysicsData.cpp" />
     <ClCompile Include="src\Core\MM\Physics\PhysicsWorld.cpp" />
     <ClCompile Include="src\Core\MM\Skin.cpp" />
-    <ClCompile Include="src\Core\MM\VMDFile.cpp" />
     <ClCompile Include="src\Core\MM\World.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
     <ClCompile Include="src\Editor\Editor.cpp" />

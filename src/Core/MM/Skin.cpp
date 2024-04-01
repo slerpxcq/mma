@@ -1,7 +1,7 @@
 #include "mmpch.hpp"
 #include "Skin.hpp"
 
-#include "PMXFile.hpp"
+#include "Files/PMXFile.hpp"
 #include "Model.hpp"
 
 #include "Core/Application.hpp"
@@ -40,19 +40,15 @@ namespace mm
 	GLTexture& Skin::GetTexture(int32_t idx)
 	{
 		return (idx < 0) ? 
-			// Default texture
 			*Application::Instance().GetToons()[0] :
 			*m_textures[idx];
-		//return *m_textures[0];
 	}
 
 	void Skin::Render(GLRenderer& renderer)
 	{
-		GLContext& ctx = renderer.GetContext();
-		renderer.Submit(RENDERER_CMD(ctx.Enable(GL_DEPTH_TEST)));
-		//renderer.Submit(RENDERER_CMD(ctx.Enable(GL_PROGRAM_POINT_SIZE)));
-		renderer.Submit(RENDERER_CMD(ctx.Enable(GL_BLEND)));
-		renderer.Submit(RENDERER_CMD(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)));
+		renderer.Begin(GL_DEPTH_TEST);
+		renderer.Begin(GL_BLEND);
+		renderer.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		for (uint32_t i = 0; i < m_meshes.size(); ++i) {
 			const auto& mesh = m_meshes[i];
@@ -64,33 +60,32 @@ namespace mm
 				*Application::Instance().GetToons()[mesh.toonIndex + 1] :
 				GetTexture(mesh.toonIndex);
 
-			renderer.Submit(RENDERER_CMD(albedo.Bind(MMShader::ALBEDO_TEX_UNIT)));
-			renderer.Submit(RENDERER_CMD(mesh.shader->Uniform("u_albedo", 1, &MMShader::ALBEDO_TEX_UNIT)));
-			//renderer.Submit(RENDERER_CMD(sph.Bind(SPH_TEX_UNIT)));
-			//renderer.Submit(RENDERER_CMD(toon.Bind(TOON_TEX_UNIT)));
+			renderer.UseShader(*mesh.shader);
+			renderer.BindTexture(albedo, MMShader::ALBEDO_TEX_UNIT);
+			renderer.BindTexture(sph, MMShader::SPH_TEX_UNIT);
+			renderer.BindTexture(toon, MMShader::TOON_TEX_UNIT);
+			renderer.GetShader()->Uniform("u_albedo", 1, &MMShader::ALBEDO_TEX_UNIT);
+			//renderer.GetShader()->Uniform("u_sph", 1, &MMShader::SPH_TEX_UNIT);
+			//renderer.GetShader()->Uniform("u_toon", 1, &MMShader::TOON_TEX_UNIT);
 
 			// Materials
-			renderer.Submit(RENDERER_CMD(m_model.m_materialBuffer->SetSubData(0, sizeof(mesh.material), (void*)&mesh.material)));
+			dynamic_cast<MMShader*>(renderer.GetShader())->SetMaterial(mesh.material);
 
 			// Shader
-			static glm::mat4 proj = glm::perspective(glm::radians(30.f), 1280.f / 720, .1f, 100.f);
-			static glm::mat4 view;
-			view = renderer.GetCamera()->GetMatrix();
+			const Camera* camera = renderer.GetCamera();
+			if (camera != nullptr) {
+				renderer.GetShader()->Uniform("u_proj", 1, &camera->GetProj());
+				renderer.GetShader()->Uniform("u_view", 1, &camera->GetView());
+			}
 
-			renderer.Submit(RENDERER_CMD(mesh.shader->Use()));
-			renderer.Submit(RENDERER_CMD(mesh.shader->Uniform("u_proj", 1, &proj)));
-			renderer.Submit(RENDERER_CMD(mesh.shader->Uniform("u_view", 1, &view)));
-
-			// Draw
-			renderer.Submit(RENDERER_CMD(m_vertexArray->Bind()));
-			renderer.Submit(RENDERER_CMD(m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount)));
+			renderer.Draw(*m_vertexArray, true, GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
 
 			// Barrier needed because we resetted Morph in vertex shader
-			renderer.Submit(MM_WRAP(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT)));
+			renderer.Barrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		}
 
-		renderer.Submit(RENDERER_CMD(ctx.Disable(GL_BLEND)));
-		renderer.Submit(RENDERER_CMD(ctx.Disable(GL_DEPTH_TEST)));
+		renderer.End(GL_BLEND);
+		renderer.End(GL_DEPTH_TEST);
 	}
 
 	void Skin::LoadVertices()

@@ -24,12 +24,6 @@ namespace mm
 	{
 		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
-				if (ImGui::MenuItem("Open")) {
-					nfdchar_t* path = nullptr;
-					nfdresult_t result = NFD_OpenDialog(nullptr, nullptr, &path);
-					m_eventBus->postpone<Event::FileOpened>({ (const char*)path });
-				}
-				ImGui::Separator();
 				if (ImGui::MenuItem("Exit")) {
 					m_eventBus->postpone<Event::WindowClosed>({});
 				}

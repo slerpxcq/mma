@@ -9,16 +9,19 @@ namespace mm
 	class GLRenderer;
 	class World
 	{
+		using ModelContainer = std::map<std::string, std::unique_ptr<Model>>;
 	public:
 		World();
 		void OnUpdate(float deltaTime);
 		void LoadModel(const std::filesystem::path& path);
 		void Render(GLRenderer&);
+
 		Camera& GetCamera() { return m_camera; } 
 		PhysicsWorld& GetPhysicsWorld() { return m_physicsWorld; }
+		const ModelContainer& GetModels() const { return m_models; }
 
 	private:
-		std::vector<std::unique_ptr<Model>> m_models;
+		ModelContainer m_models;
 		Camera m_camera;
 		PhysicsWorld m_physicsWorld;
 	};

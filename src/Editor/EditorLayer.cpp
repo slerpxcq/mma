@@ -40,6 +40,10 @@ namespace mm
         if (ImGui::Button("Reset physics")) {
             m_scene->GetPhysicsWorld().Reset();
         }
+		for (auto&& [name, _] : m_scene->GetModels()) {
+			//ImGui::BeginCombo("Models", "Models");
+			//ImGui::EndCombo();
+		}
         ImGui::End();
     }
 }

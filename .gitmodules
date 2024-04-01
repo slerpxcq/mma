@@ -25,3 +25,5 @@
 [submodule "3rdparty/EventBus"]
 	path = 3rdparty/EventBus
 	url = https://github.com/slerpxcq/EventBus.git
+[submodule "imgui"]
+	branch = docking

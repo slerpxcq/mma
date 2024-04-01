@@ -19,7 +19,6 @@ namespace mm
 
 	private:
 		std::unique_ptr<World> m_scene;
-		Model* m_model;
 	};
 }
 

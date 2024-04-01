@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PMXFile.hpp"
+#include "Files/PMXFile.hpp"
 #include "Transform.hpp"
 
 #include "Core/GL/GLBuffer.hpp"

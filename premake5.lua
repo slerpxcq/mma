@@ -34,6 +34,7 @@ workspace "MMX"
         cppdialect "C++17"
         targetdir "bin/%{prj.name}/%{cfg.buildcfg}"
         objdir "obj/%{prj.name}/%{cfg.buildcfg}"
+        vectorextensions "AVX2"
 
         pchheader "mmpch.hpp"
         pchsource "src/mmpch.cpp"

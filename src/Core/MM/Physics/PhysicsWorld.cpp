@@ -1,7 +1,7 @@
 #include "mmpch.hpp"
 #include "PhysicsWorld.hpp"
 
-#include "Core/MM/PMXFile.hpp"
+#include "Core/MM/Files/PMXFile.hpp"
 #include "Core/TypeCast.hpp"
 
 namespace mm

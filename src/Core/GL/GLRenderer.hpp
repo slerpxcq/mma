@@ -12,43 +12,37 @@ namespace mm
 {
 	class GLShader;
 	class GLContext;
+	class GLTexture;
+	class GLVertexArray;
+	class GLFrameBuffer;
 
 	class Camera;
 
 	class GLRenderer
 	{
 	public:
-		using Command = std::function<void()>;
-
-	public:
 		GLRenderer(GLContext& context);
-		void SetProj(const glm::mat4& proj) {
-			m_proj = proj;
-		}
+		void SetCamera(const Camera& camera) { m_camera = &camera; }
+		const Camera* GetCamera() { return m_camera; }
 
-		void SetCamera(const Camera* camera) {
-			m_camera = camera;
-		}
+		void UseShader(GLShader& shader);
+		GLShader* GetShader() const { return m_shader; }
+		void Begin(uint32_t what);
+		void End(uint32_t what);
+		void Viewport(uint32_t x, uint32_t y);
+		void BlendFunc(uint32_t src, uint32_t dst);
+		void BindTexture(const GLTexture& texture, uint32_t slot);
+		void Draw(const GLVertexArray& va, bool indexed, uint32_t mode, uint32_t offset, uint32_t count);
+		void Barrier(uint32_t bitmask);
 
-		const Camera* GetCamera() const {
-			return m_camera;
-		}
+		void Clear(const glm::vec4& color, uint32_t bitmask);
 
-		GLContext& GetContext() {
-			return m_context;
-		}
-
-		void UseShader(const GLShader* shader); 
-
-		void Submit(Command cmd);
-		void Commit();
+		GLContext& GetContext() { return m_context; }
 
 	private:
 		GLContext& m_context;
-		const GLShader* m_shader;
-		const Camera* m_camera;
-		std::vector<Command> m_cmdQueue;
-		glm::mat4 m_proj;
+		const Camera* m_camera = nullptr;
+		GLShader* m_shader = nullptr;
 	};
 }
 

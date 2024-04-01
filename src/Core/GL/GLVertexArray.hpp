@@ -13,8 +13,8 @@ namespace mm
 		GLVertexArray(GLVertexArray&&) = default;
 		~GLVertexArray();
 
-		void Bind();
-		void Unbind();
+		void Bind() const ;
+		void Unbind() const;
 
 		void SetVertexBuffer(const GLBuffer& vbo, uint32_t vertexSize);
 
@@ -22,8 +22,8 @@ namespace mm
 		void SetVertexAttrib(const GLVertexAttrib& attrib);
 		void SetElemType(uint32_t type);
 
-		void DrawArray(uint32_t mode, uint32_t first, uint32_t count);
-		void DrawElem(uint32_t mode, uint32_t first, uint32_t count);
+		void DrawArray(uint32_t mode, uint32_t first, uint32_t count) const;
+		void DrawElem(uint32_t mode, uint32_t first, uint32_t count) const;
 
 		uint32_t GetId() const {
 			return m_id;

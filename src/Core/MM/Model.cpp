@@ -7,22 +7,22 @@
 
 namespace mm
 {
-	std::shared_ptr<MMShader> Model::s_meshShader;
-	std::shared_ptr<MMShader> Model::s_morphShader;
+	std::unique_ptr<MMShader> Model::s_meshShader;
+	std::unique_ptr<MMShader> Model::s_morphShader;
 
 	Model::Model(World& world, const std::filesystem::path& path) :
 		m_pmxFile(std::make_unique<PMXFile>(path)),
 		m_world(world)
 	{
 		if (Model::s_meshShader == nullptr) {
-			s_meshShader = std::make_shared<MMShader>();
+			s_meshShader = std::make_unique<MMShader>();
 			s_meshShader->Compile("resources/shaders/default.vert", GLShader::VERTEX);
 			s_meshShader->Compile("resources/shaders/default.frag", GLShader::FRAGMENT);
 			s_meshShader->Link();
 		}
 
 		if (Model::s_morphShader == nullptr) {
-			s_morphShader = std::make_shared<MMShader>();
+			s_morphShader = std::make_unique<MMShader>();
 			s_morphShader->Compile("resources/shaders/morph.vert", GLShader::VERTEX);
 			s_morphShader->Link();
 		}
@@ -30,10 +30,6 @@ namespace mm
 		m_armature = std::make_unique<Armature>(*this);
 		m_skin = std::make_unique<Skin>(*this);
 		m_morph = std::make_unique<Morph>(*this);
-
-		m_materialBuffer = std::make_unique<GLBuffer>(GL_UNIFORM_BUFFER);
-		m_materialBuffer->SetData(sizeof(MMShader::MaterialLayout), nullptr);
-		m_materialBuffer->SetBase(MMShader::MATERIAL_BASE);
 
 		m_skinningBuffer = std::make_unique<GLBuffer>(GL_SHADER_STORAGE_BUFFER);
 		m_skinningBuffer->SetData(m_armature->GetBones().size() * sizeof(glm::mat4), nullptr);

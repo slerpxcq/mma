@@ -16,10 +16,12 @@ namespace mm
 		m_center(glm::vec3(0, 10, 0)),
 		m_up(glm::vec3(0, 1, 0)),
 		m_view(glm::normalize(m_center - m_eye)),
-		m_right(glm::cross(m_up, m_view))
+		m_right(glm::cross(m_up, m_view)),
+		m_aspect(1.778f)
 	{
 		m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Camera::OnMouseScrolled));
 		m_listener.listen<Event::MouseButtonPressed>(MM_EVENT_FN(Camera::OnMouseButtonPressed));
+		m_listener.listen<Event::WindowSized>(MM_EVENT_FN(Camera::OnWindowResized));
 	}
 
 	Camera::~Camera()
@@ -66,7 +68,6 @@ namespace mm
 		case GLFW_MOUSE_BUTTON_MIDDLE:
 			{
 				m_mousePos0 = m_mousePos1 = GetMousePos();
-				MM_INFO("mouse={0}", glm::to_string(m_mousePos0));
 				m_eye0 = m_eye;
 				m_center0 = m_center;
 				m_up0 = m_up;
@@ -82,5 +83,10 @@ namespace mm
 		glm::vec3 trans = ZOOM_SPEED * e.delta * m_view;
 		m_eye += trans;
 		m_center += trans;
+	}
+
+	void Camera::OnWindowResized(const Event::WindowSized& e)
+	{
+		m_aspect = (float)e.x / e.y;
 	}
 }

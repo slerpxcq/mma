@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PMXFile.hpp"
+#include "Files/PMXFile.hpp"
 #include "Armature.hpp"
 #include "Skin.hpp"
 #include "Morph.hpp"
@@ -36,11 +36,10 @@ namespace mm
 		std::unique_ptr<Morph> m_morph;
 
 		// ---------- RENDERING ----------
-		static std::shared_ptr<MMShader> s_meshShader;
-		static std::shared_ptr<MMShader> s_morphShader;
+		static std::unique_ptr<MMShader> s_meshShader;
+		static std::unique_ptr<MMShader> s_morphShader;
 
 		std::unique_ptr<GLBuffer> m_skinningBuffer;
-		std::unique_ptr<GLBuffer> m_materialBuffer;
 		std::unique_ptr<GLBuffer> m_morphOffsetBuffer;
 
 		// ---------- PHYSICS ----------

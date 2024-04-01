@@ -3,33 +3,65 @@
 
 #include "GLShader.hpp"
 #include "GLContext.hpp"
+#include "GLTexture.hpp"
+#include "GLVertexArray.hpp"
 
 namespace mm
 {
 	GLRenderer::GLRenderer(GLContext& context) :
-		m_context(context),
-		m_shader(nullptr),
-		m_proj(glm::mat4(1.0f))
+		m_context(context)
 	{
 	}
 
-	void GLRenderer::UseShader(const GLShader* shader)
+	void GLRenderer::UseShader(GLShader& shader)
 	{
-		m_shader = shader;
-		if (m_shader != nullptr)
-			Submit(MM_WRAP(m_shader->Use()));
+		shader.Use();
+		m_shader = &shader;
 	}
 
-	void GLRenderer::Submit(Command cmd)
+	void GLRenderer::Begin(uint32_t what)
 	{
-		m_cmdQueue.push_back(cmd);
+		glEnable(what);
 	}
 
-	void GLRenderer::Commit()
+	void GLRenderer::End(uint32_t what)
 	{
-		for (const auto& cmd : m_cmdQueue) 
-			cmd();
+		glDisable(what);
+	}
 
-		m_cmdQueue.clear();
+	void GLRenderer::Viewport(uint32_t x, uint32_t y)
+	{
+		glViewport(0, 0, x, y);
+	}
+
+	void GLRenderer::BlendFunc(uint32_t src, uint32_t dst)
+	{
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	}
+
+	void GLRenderer::BindTexture(const GLTexture& texture, uint32_t slot)
+	{
+		texture.Bind(slot);
+	}
+
+	void GLRenderer::Draw(const GLVertexArray& va, bool indexed, uint32_t mode, uint32_t offset, uint32_t count)
+	{
+		va.Bind();
+
+		if (indexed)
+			va.DrawElem(mode, offset, count);
+		else
+			va.DrawArray(mode, offset, count);
+	}
+
+	void GLRenderer::Barrier(uint32_t bitmask)
+	{
+		glMemoryBarrier(bitmask);
+	}
+
+	void GLRenderer::Clear(const glm::vec4& color, uint32_t bitmask)
+	{
+		glClearColor(color.r, color.g, color.b, color.a);
+		glClear(bitmask); 
 	}
 }

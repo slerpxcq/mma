@@ -2,11 +2,13 @@
 #include "MMShader.hpp"
 
 #include "Core/GL/GLVertexArray.hpp"
+#include "Core/GL/GLBuffer.hpp"
 
 namespace mm
 {
 	std::shared_ptr<GLVertexAttrib> MMShader::s_vertexAttrib;
 	std::shared_ptr<GLVertexAttrib> MMShader::s_morphAttrib;
+	std::shared_ptr<GLBuffer> MMShader::s_matrialBuffer;
 
 	void MMShader::VertexAttrib::Set(GLVertexArray& vao) const
 	{
@@ -53,9 +55,20 @@ namespace mm
 
 		if (s_morphAttrib == nullptr) 
 			s_morphAttrib = std::make_shared<MorphAttrib>();
+
+		if (s_matrialBuffer == nullptr) {
+			s_matrialBuffer = std::make_shared<GLBuffer>(GL_UNIFORM_BUFFER);
+			s_matrialBuffer->SetBase(MATERIAL_BASE);
+			s_matrialBuffer->SetData(sizeof(MaterialLayout), nullptr);
+		}
 	}
 
 	MMShader::~MMShader()
 	{
+	}
+
+	void MMShader::SetMaterial(const MaterialLayout& material)
+	{
+		s_matrialBuffer->SetSubData(0, sizeof(MaterialLayout), (void*)&material);
 	}
 }

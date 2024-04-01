@@ -131,11 +131,11 @@ namespace mm
 			float deltaTime = MM_TIME_DELTA(lastTime);
 			lastTime = MM_TIME_NOW();
 
-			 m_glctx->Clear();
+			glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			if (!m_minimized) {
 				m_layerStack.OnUpdate(deltaTime);
-				m_renderer->Commit();
 				
 				m_imguiLayer->Begin();
 				m_layerStack.OnUIRender();
@@ -168,6 +168,6 @@ namespace mm
 	void Application::OnWindowResize(const Event::WindowSized& e)
 	{
 		m_minimized = (e.x == 0 || e.y == 0);
-		m_glctx->Viewport(e.x, e.y);
+		glViewport(0, 0, e.x, e.y);
 	}
 }

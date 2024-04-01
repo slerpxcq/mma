@@ -17,7 +17,7 @@ namespace mm
 		GLShader();
 		GLShader(const GLShader&) = delete;
 		GLShader(GLShader&&) = default;
-		~GLShader();
+		virtual ~GLShader();
 
 		void Compile(const std::filesystem::path& path, Type type);
 		void Link();

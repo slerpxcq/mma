@@ -29,30 +29,10 @@ namespace mm
 		}, nullptr);
 	}
 
-	void GLContext::Clear()
-	{
-		glClearColor(0.1f, 0.1f, 0.1f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
-	void GLContext::Enable(uint32_t what)
-	{
-		glEnable(what);
-	}
-
-	void GLContext::Disable(uint32_t what)
-	{
-		glDisable(what);
-	}
 
 	void GLContext::SwapBuffers()
 	{
 		glfwSwapBuffers(m_window);
-	}
-
-	void GLContext::Viewport(uint32_t x, uint32_t y)
-	{
-		glViewport(0, 0, x, y);
 	}
 }
 

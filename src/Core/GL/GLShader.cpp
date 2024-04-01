@@ -105,7 +105,7 @@ namespace mm
 			return;
 		}
 
-		MM_INFO("id={0}, path={1}: Shader compiled", id, path.u8string().c_str());
+		MM_INFO("id={0}, path={1}: shader compiled", id, path.u8string().c_str());
 	} 
 	void GLShader::Link()
 	{
@@ -131,7 +131,7 @@ namespace mm
 
 		DetachAllShaders();
 
-		MM_INFO("id={0}: Shader linked", m_programId);
+		MM_INFO("id={0}: shader linked", m_programId);
 	}
 
 	void GLShader::Use() const

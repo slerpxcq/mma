@@ -22,19 +22,16 @@ namespace mm
 
 	void Morph::Render(GLRenderer& renderer) const
 	{
-		renderer.Submit(MM_WRAP(renderer.GetContext().Enable(GL_RASTERIZER_DISCARD)));
-		renderer.Submit(MM_WRAP(m_model.s_morphShader->Use()));
+		renderer.Begin(GL_RASTERIZER_DISCARD);
+		renderer.UseShader(*m_model.s_morphShader);
 
 		for (const auto& target : m_vertexTargets) {
-			renderer.Submit(MM_WRAP(m_model.s_morphShader->Uniform("u_weight", 1, &m_weights[target.index])));
-			renderer.Submit(MM_WRAP(target.vertexArray->Bind()));
-			renderer.Submit(MM_WRAP(target.vertexArray->DrawArray(GL_POINTS, 0, target.offsetCount)));
-
-			// Barrier needed since morphs should be drawn sequentially 
-			renderer.Submit(MM_WRAP(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT)));
+			renderer.GetShader()->Uniform("u_weight", 1, &m_weights[target.index]);
+			renderer.Draw(*target.vertexArray, false, GL_POINTS, 0, target.offsetCount);
+			renderer.Barrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		}
 
-		renderer.Submit(MM_WRAP(renderer.GetContext().Disable(GL_RASTERIZER_DISCARD)));
+		renderer.End(GL_RASTERIZER_DISCARD);
 	}
 
 	Morph::VertexTarget Morph::LoadVertexTarget(const PMXFile::Morph& pmxMorph)

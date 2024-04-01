@@ -68,9 +68,13 @@ namespace mm
 	public:
 		MMShader();
 		~MMShader();
+		void SetMaterial(const MaterialLayout& material);
 
 	public:
 		static std::shared_ptr<GLVertexAttrib> s_vertexAttrib;
 		static std::shared_ptr<GLVertexAttrib> s_morphAttrib;
+
+	private:
+		static std::shared_ptr<GLBuffer> s_matrialBuffer;
 	};
 }

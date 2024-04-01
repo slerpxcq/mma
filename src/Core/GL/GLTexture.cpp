@@ -5,8 +5,7 @@
 
 namespace mm
 {
-	GLTexture::GLTexture(const std::filesystem::path path, uint32_t target) :
-		m_id(0),
+	GLTexture::GLTexture(const std::filesystem::path& path, uint32_t target) :
 		m_target(target)
 	{
 		glCreateTextures(m_target, 1, &m_id);
@@ -16,7 +15,7 @@ namespace mm
 		MM_ASSERT(img);
 		MM_ASSERT(ch >= 3);
 
-		m_size = glm::vec2(x, y);
+		m_size = glm::uvec2(x, y);
 
 		glTextureStorage2D(m_id, 1, GL_RGBA8, x, y);
 		if (ch == 4) 
@@ -25,11 +24,11 @@ namespace mm
 			glTextureSubImage2D(m_id, 0, 0, 0, x, y, GL_RGB, GL_UNSIGNED_BYTE, img);
 
 		stbi_image_free(img);
-		MM_INFO("id={0} path={1}: texture loaded: size={2}x{3}", 
+		MM_INFO("id={0}, path={1}: texture loaded from file: size={2}x{3}", 
 			m_id, path.u8string().c_str(), x, y);
 	}
 
-	void GLTexture::Bind(uint32_t unit)
+	void GLTexture::Bind(uint32_t unit) const
 	{
 		glBindTextureUnit(unit, m_id);
 	}
