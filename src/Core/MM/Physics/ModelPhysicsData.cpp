@@ -3,8 +3,8 @@
 
 #include "PhysicsWorld.hpp"
 
-#include "Core/MM/Model.hpp"
-#include "Core/TypeCast.hpp"
+#include "Core/MM/Model/Model.hpp"
+#include "Core/Utility/Type.hpp"
 
 namespace mm
 {
@@ -76,7 +76,8 @@ namespace mm
 			m_rigidbodies.push_back(std::make_unique<btRigidBody>(
 				btRigidBody::btRigidBodyConstructionInfo(
 					mass,
-					m_motionStates.back().get(), m_collisionShapes.back().get(),
+					m_motionStates.back().get(), 
+					m_collisionShapes.back().get(),
 					localInertia)));
 
 			auto& rigidbody = m_rigidbodies.back();

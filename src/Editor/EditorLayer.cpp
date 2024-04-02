@@ -1,10 +1,10 @@
 #include "mmpch.hpp"
 #include "EditorLayer.hpp"
 
-#include "Core/Application.hpp"
+#include "Core/App/Application.hpp"
 
-#include "Core/Core.hpp"
-#include "Core/Event.hpp"
+#include "Core/App/Core.hpp"
+#include "Core/App/Event.hpp"
 
 #include "Core/GL/GLRenderer.hpp"
 
@@ -14,7 +14,9 @@ namespace mm
 {
     void EditorLayer::OnAttach()
     {
-        m_scene = std::make_unique<World>();
+        m_world = std::make_unique<World>();
+        m_viewport = std::make_unique<Viewport>(*this);
+        m_poseEditor = std::make_unique<PoseEditor>(*this);
     }
 
     void EditorLayer::OnDetach()
@@ -23,27 +25,29 @@ namespace mm
 
     void EditorLayer::OnUpdate(float deltaTime)
     {
-        m_scene->OnUpdate(deltaTime);
+        m_world->OnUpdate(deltaTime);
+        m_viewport->OnUpdate(deltaTime);
+        m_poseEditor->OnUpdate(deltaTime);
+
         GLRenderer& renderer = Application::Instance().GetRenderer();
-        m_scene->Render(renderer);
+        m_viewport->OnRender(renderer);
     }
 
     void EditorLayer::OnUIRender()
     {
-        ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoResize);
+        ImGui::Begin("Editor");
         if (ImGui::Button("Load model")) {
             nfdchar_t* path = nullptr;
             nfdresult_t result = NFD_OpenDialog("pmx", nullptr, &path);
             if (result == NFD_OKAY)
-				m_scene->LoadModel(path);
+				m_poseEditor->SetModel(m_world->LoadModel(path));
         }
         if (ImGui::Button("Reset physics")) {
-            m_scene->GetPhysicsWorld().Reset();
+            m_world->GetPhysicsWorld().Reset();
         }
-		for (auto&& [name, _] : m_scene->GetModels()) {
-			//ImGui::BeginCombo("Models", "Models");
-			//ImGui::EndCombo();
-		}
         ImGui::End();
+
+        m_viewport->OnUIRender();
+        m_poseEditor->OnUIRender();
     }
 }

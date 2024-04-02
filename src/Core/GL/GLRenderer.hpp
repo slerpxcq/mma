@@ -25,7 +25,13 @@ namespace mm
 		void SetCamera(const Camera& camera) { m_camera = &camera; }
 		const Camera* GetCamera() { return m_camera; }
 
-		void UseShader(GLShader& shader);
+		// nullptr for default shader
+		void BeginShader(GLShader* shader);
+		void EndShader();
+		// nullptr for default framebuffer
+		void BeginFramebuffer(GLFrameBuffer* framebuffer);
+		void EndFramebuffer();
+
 		GLShader* GetShader() const { return m_shader; }
 		void Begin(uint32_t what);
 		void End(uint32_t what);
@@ -43,6 +49,7 @@ namespace mm
 		GLContext& m_context;
 		const Camera* m_camera = nullptr;
 		GLShader* m_shader = nullptr;
+		GLFrameBuffer* m_framebuffer = nullptr;
 	};
 }
 

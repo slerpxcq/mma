@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Files/PMXFile.hpp"
+#include "../Files/PMXFile.hpp"
 #include "Armature.hpp"
 #include "Skin.hpp"
 #include "Morph.hpp"
+
 
 namespace mm
 {
@@ -22,7 +23,7 @@ namespace mm
 		void Render(GLRenderer& renderer);
 		void Update(float deltaTime);
 		const PMXFile& GetPMXFile() const { return *m_pmxFile; }
-		const Armature& GetArmature() const { return *m_armature; }
+		Armature& GetArmature() { return *m_armature; }
 		void SyncWithPhysics() { if (m_physicsData != nullptr) m_armature->SyncWithPhysics(*m_physicsData); }
 		void CalcSkinning() { m_armature->CalcSkinning(); }
 
@@ -36,9 +37,6 @@ namespace mm
 		std::unique_ptr<Morph> m_morph;
 
 		// ---------- RENDERING ----------
-		static std::unique_ptr<MMShader> s_meshShader;
-		static std::unique_ptr<MMShader> s_morphShader;
-
 		std::unique_ptr<GLBuffer> m_skinningBuffer;
 		std::unique_ptr<GLBuffer> m_morphOffsetBuffer;
 

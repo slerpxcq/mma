@@ -1,15 +1,16 @@
 #pragma once
 
-#include "Files/PMXFile.hpp"
-#include "Transform.hpp"
+#include "../Files/PMXFile.hpp"
+#include "../Transform.hpp"
 
 #include "Core/GL/GLVertexArray.hpp"
 
 namespace mm
 {
-
 	class Model;
 	class GLRenderer;
+	class MorphShader;
+
 	class Morph
 	{
 	public:
@@ -74,6 +75,8 @@ namespace mm
 		std::vector<VertexTarget> m_vertexTargets;
 		std::vector<MaterialTarget> m_materialTargets;
 		std::vector<BoneTarget> m_boneTargets;
+
+		MorphShader* m_morphShader;
 	};
 }
 

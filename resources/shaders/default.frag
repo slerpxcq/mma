@@ -22,8 +22,5 @@ layout (binding = 0, std140) uniform Material
 
 void main()
 {
-	//f_fragColor = vec4(fs_in.texCoord, 0, 1);
 	f_fragColor = u_material.diffuse * texture(u_albedo, fs_in.texCoord);
-	//f_fragColor = u_material.diffuse * vec4(texture(u_albedo, fs_in.texCoord).a);
-	//f_fragColor = u_material.diffuse;
 }

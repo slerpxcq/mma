@@ -1,28 +1,38 @@
 #include "mmpch.hpp"
 #include "Skin.hpp"
 
-#include "Files/PMXFile.hpp"
+#include "../Files/PMXFile.hpp"
 #include "Model.hpp"
 
-#include "Core/Application.hpp"
+#include "Core/App/Application.hpp"
 #include "Core/GL/GLRenderer.hpp"
 #include "Core/GL/GLVertexArray.hpp"
 #include "Core/GL/GLVertexAttrib.hpp"
-#include "Core/Camera.hpp"
+#include "Core/Camera/Camera.hpp"
+
+static constexpr const char* toonTable[] = {
+	"toon01.bmp", "toon02.bmp",
+	"toon03.bmp", "toon04.bmp",
+	"toon05.bmp", "toon06.bmp",
+	"toon07.bmp", "toon08.bmp",
+	"toon09.bmp", "toon10.bmp",
+};
 
 namespace mm
 {
 	Skin::Skin(Model& model) :
 		m_model(model)
 	{
+		m_defaultShader = dynamic_cast<DefaultShader*>(Application::Instance().GetResourceManager()->GetShader("default"));
+
 		LoadVertices();
 		LoadIndices();
 		LoadMeshes();
 		LoadTextures();
 
 		m_vertexArray = std::make_unique<GLVertexArray>();
-		m_vertexArray->SetVertexBuffer(*m_vertexBuffer, MMShader::s_vertexAttrib->GetSize());
-		m_vertexArray->SetVertexAttrib(*MMShader::s_vertexAttrib);
+		m_vertexArray->SetVertexBuffer(*m_vertexBuffer, m_defaultShader->GetAttrib()->GetSize());
+		m_vertexArray->SetVertexAttrib(*m_defaultShader->GetAttrib());
 		m_vertexArray->SetElemBuffer(*m_elemBuffer);
 		m_vertexArray->SetElemType(GL_UNSIGNED_INT);
 	}
@@ -40,7 +50,7 @@ namespace mm
 	GLTexture& Skin::GetTexture(int32_t idx)
 	{
 		return (idx < 0) ? 
-			*Application::Instance().GetToons()[0] :
+			*Application::Instance().GetResourceManager()->GetTexture("toon00.bmp") :
 			*m_textures[idx];
 	}
 
@@ -51,25 +61,25 @@ namespace mm
 		renderer.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		for (uint32_t i = 0; i < m_meshes.size(); ++i) {
-			const auto& mesh = m_meshes[i];
+			auto& mesh = m_meshes[i];
 
 			// Textures
 			GLTexture& albedo = GetTexture(mesh.albedoIndex);
 			GLTexture& sph = GetTexture(mesh.sphIndex);
 			GLTexture& toon = (mesh.material.flags & TOON_FLAG_BIT) ?
-				*Application::Instance().GetToons()[mesh.toonIndex + 1] :
+				*Application::Instance().GetResourceManager()->GetTexture(toonTable[mesh.toonIndex]) :
 				GetTexture(mesh.toonIndex);
 
-			renderer.UseShader(*mesh.shader);
-			renderer.BindTexture(albedo, MMShader::ALBEDO_TEX_UNIT);
-			renderer.BindTexture(sph, MMShader::SPH_TEX_UNIT);
-			renderer.BindTexture(toon, MMShader::TOON_TEX_UNIT);
-			renderer.GetShader()->Uniform("u_albedo", 1, &MMShader::ALBEDO_TEX_UNIT);
+			renderer.BeginShader(mesh.shader);
+			renderer.BindTexture(albedo, DefaultShader::ALBEDO_TEX_UNIT);
+			renderer.BindTexture(sph, DefaultShader::SPH_TEX_UNIT);
+			renderer.BindTexture(toon, DefaultShader::TOON_TEX_UNIT);
+			renderer.GetShader()->Uniform("u_albedo", 1, &DefaultShader::ALBEDO_TEX_UNIT);
 			//renderer.GetShader()->Uniform("u_sph", 1, &MMShader::SPH_TEX_UNIT);
 			//renderer.GetShader()->Uniform("u_toon", 1, &MMShader::TOON_TEX_UNIT);
 
 			// Materials
-			dynamic_cast<MMShader*>(renderer.GetShader())->SetMaterial(mesh.material);
+			dynamic_cast<DefaultShader*>(renderer.GetShader())->SetMaterial(mesh.material);
 
 			// Shader
 			const Camera* camera = renderer.GetCamera();
@@ -90,10 +100,10 @@ namespace mm
 
 	void Skin::LoadVertices()
 	{
-		std::vector<MMShader::VertexAttrib::Layout> vertices;
+		std::vector<DefaultShader::Attrib::Layout> vertices;
 
 		for (const auto& pv : m_model.m_pmxFile->GetVertices()) {
-			MMShader::VertexAttrib::Layout v = {};
+			DefaultShader::Attrib::Layout v = {};
 			v.position = glm::make_vec3(pv.position),
 			v.normal = glm::make_vec3(pv.normal),
 			v.uv = glm::make_vec2(pv.uv),
@@ -134,7 +144,7 @@ namespace mm
 
 		m_vertexCount = vertices.size();
 		m_vertexBuffer = std::make_unique<GLBuffer>(GL_ARRAY_BUFFER);
-		m_vertexBuffer->SetData(vertices.size() * sizeof(MMShader::VertexAttrib::Layout), vertices.data());
+		m_vertexBuffer->SetData(vertices.size() * sizeof(DefaultShader::Attrib::Layout), vertices.data());
 		MM_INFO("{0}: vertices loaded; count={1}", m_model.m_pmxFile->GetInfo().nameJP, vertices.size());
 	}
 
@@ -146,7 +156,7 @@ namespace mm
 		for (const auto& pm : m_model.m_pmxFile->GetMaterials()) {
 			uint32_t elemCount = pm.elementCount;
 
-			MMShader::MaterialLayout mat = {};
+			DefaultShader::MaterialLayout mat = {};
 			mat.diffuse = glm::make_vec4(pm.diffuseColor);
 			mat.specular = glm::vec4(glm::make_vec3(pm.specularColor), pm.specularExponent);
 			mat.ambient = glm::vec4(glm::make_vec3(pm.ambientColor), 1);
@@ -162,7 +172,7 @@ namespace mm
 			mesh.albedoIndex = pm.textureIndex;
 			mesh.sphIndex = pm.sphereIndex;
 			mesh.toonIndex = pm.toonIndex;
-			mesh.shader = m_model.s_meshShader.get();
+			mesh.shader = dynamic_cast<DefaultShader*>(Application::Instance().GetResourceManager()->GetShader("default"));
 
 			m_meshes.push_back(std::move(mesh));
 			MM_INFO("{0}: mesh loaded; faceCount={1}, faceOffset={2}",

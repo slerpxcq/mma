@@ -1,8 +1,8 @@
 #include "mmpch.hpp"
 #include "MenuBarLayer.hpp"
 
-#include "Core/Application.hpp"
-#include "Core/Event.hpp"
+#include "Core/App/Application.hpp"
+#include "Core/App/Event.hpp"
 
 #include <nfd.h>
 

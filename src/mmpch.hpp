@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Core.hpp"
-#include "Core/Log.hpp"
+#include "Core/App/Core.hpp"
+#include "Core/App/Log.hpp"
 
 // GL
 #include <glad/glad.h>
@@ -40,6 +40,9 @@
 #include <algorithm>
 #include <memory>
 #include <random>
+#include <stdexcept>
+#include <exception>
+
 
 
 

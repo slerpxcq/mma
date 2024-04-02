@@ -2,8 +2,8 @@
 
 #include "Layer.hpp"
 
-#include "Core/Core.hpp"
-#include "Core/Event.hpp"
+#include "Core/App/Core.hpp"
+#include "Core/App/Event.hpp"
 
 namespace mm
 {

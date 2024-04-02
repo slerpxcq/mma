@@ -1,7 +1,8 @@
 #include "mmpch.hpp"
 #include "PMXFile.hpp"
+
 #include "Core/Locale/Locale.hpp"
-#include "Core/StreamUtility.hpp"
+#include "Core/Utility/Stream.hpp"
 
 namespace mm
 {

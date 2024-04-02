@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Files/PMXFile.hpp"
-#include "Transform.hpp"
+#include "../Files/PMXFile.hpp"
+#include "../Transform.hpp"
 
 namespace mm
 {

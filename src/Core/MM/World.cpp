@@ -2,7 +2,7 @@
 #include "World.hpp"
 
 #include "Core/GL/GLRenderer.hpp"
-#include "Armature.hpp"
+#include "Model/Armature.hpp"
 
 namespace mm
 {
@@ -12,8 +12,6 @@ namespace mm
 
 	void World::OnUpdate(float deltaTime)
 	{
-		m_camera.Update();
-
 		for (auto&& [_, model] : m_models) 
 			model->Update(deltaTime);
 
@@ -25,24 +23,25 @@ namespace mm
 		}
 	}
 
-	void World::LoadModel(const std::filesystem::path& path)
+	Model* World::LoadModel(const std::filesystem::path& path)
 	{
+		Model* ret = nullptr;
 		try {
 			auto model = std::make_unique<Model>(*this, path);
+			ret = model.get();
 			m_models.insert({ model->GetPMXFile().GetInfo().nameJP, std::move(model) });
 		}
 		catch (const PMXParseError& e) {
 			MM_FATAL("{0}: invalid file", path.u8string().c_str());
-			return;
+			return nullptr;
 		}
 
 		MM_INFO("{0}: model loaded", path.u8string().c_str());
+		return ret;
 	}
 
 	void World::Render(GLRenderer& renderer) 
 	{
-		renderer.SetCamera(m_camera);
-
 		for (auto&& [_, model] : m_models) {
 			model->Render(renderer);
 		}

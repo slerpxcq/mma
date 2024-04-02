@@ -1,5 +1,5 @@
 #include "mmpch.hpp"
-#include "Editor.hpp"
+#include "ResourceManager.hpp"
 
 namespace mm
 {

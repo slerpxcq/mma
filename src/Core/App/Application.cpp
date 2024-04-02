@@ -7,6 +7,9 @@
 #include "Layer/MenuBarLayer.hpp"
 #include "Editor/EditorLayer.hpp"
 
+#include "Core/MM/Shaders/DefaultShader.hpp"
+#include "Core/MM/Shaders/MorphShader.hpp"
+
 namespace mm
 {
 	Application* Application::s_instance = nullptr;
@@ -28,17 +31,37 @@ namespace mm
 		RegisterWindowCallbacks();
 		ListenEvents();
 
-		m_glctx = std::make_unique<GLContext>(m_window);
-		m_renderer = std::make_unique<GLRenderer>(*m_glctx);
-		LoadToons();
+		// context and renderer
+		m_glContext = std::make_unique<GLContext>(m_window);
+		m_renderer = std::make_unique<GLRenderer>(*m_glContext);
 
+		// Resources
+		m_resourceManager = std::make_unique<ResourceManager>();
+		LoadToons();
+		LoadShaders();
+
+		// Layers
 		auto imguiLayer = std::make_unique<ImGuiLayer>();
 		m_imguiLayer = imguiLayer.get();
 		PushOverlay(std::move(imguiLayer));
 
 		PushOverlay(std::make_unique<MenuBarLayer>());
-
 		PushLayer(std::make_unique<EditorLayer>());
+	}
+
+	void Application::LoadShaders()
+	{
+		auto defaultShader = std::make_unique<DefaultShader>();
+		defaultShader->Compile("resources/shaders/default.vert", GLShader::VERTEX);
+		defaultShader->Compile("resources/shaders/default.frag", GLShader::FRAGMENT);
+		defaultShader->Link();
+
+		auto morphShader = std::make_unique<MorphShader>();
+		morphShader->Compile("resources/shaders/morph.vert", GLShader::VERTEX);
+		morphShader->Link();
+
+		m_resourceManager->LoadShader("default", std::move(defaultShader));
+		m_resourceManager->LoadShader("morph", std::move(morphShader));
 	}
 
 	void Application::LoadToons()
@@ -46,12 +69,15 @@ namespace mm
 		constexpr uint32_t TOON_COUNT = 11;
 
 		for (uint32_t i = 0; i < TOON_COUNT; ++i) {
-			std::filesystem::path toonPath = "resources/textures/toon";
-			toonPath += (i < 10) ? 
+			std::filesystem::path toonPath = "resources/textures/";
+			std::filesystem::path name = "toon";
+			// toon00.bmp, ..., toon10.bmp
+			name += (i < 10) ? 
 				'0' + std::to_string(i) :
 				std::to_string(i);
-			toonPath += ".bmp";
-			m_toons.push_back(std::make_unique<GLTexture>(toonPath, GL_TEXTURE_2D));
+			name += ".bmp";
+			toonPath += name;
+			m_resourceManager->LoadTexture(name.u8string(), std::make_unique<GLTexture>(toonPath, GL_TEXTURE_2D));
 		}
 	}
 
@@ -133,6 +159,7 @@ namespace mm
 
 			glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
 
 			if (!m_minimized) {
 				m_layerStack.OnUpdate(deltaTime);
@@ -142,7 +169,7 @@ namespace mm
 				m_imguiLayer->End();
 			}
 
-			m_glctx->SwapBuffers();
+			m_glContext->SwapBuffers();
 			glfwPollEvents();
 			m_eventBus->process();
 		}
@@ -168,6 +195,6 @@ namespace mm
 	void Application::OnWindowResize(const Event::WindowSized& e)
 	{
 		m_minimized = (e.x == 0 || e.y == 0);
-		glViewport(0, 0, e.x, e.y);
+		m_viewportSize = glm::uvec2(e.x, e.y);
 	}
 }

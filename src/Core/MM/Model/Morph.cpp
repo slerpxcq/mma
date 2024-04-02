@@ -2,18 +2,22 @@
 #include "Morph.hpp"
 
 #include "Model.hpp"
-#include "MMShader.hpp"
+#include "../Shaders/MorphShader.hpp"
 
 #include "Core/GL/GLVertexArray.hpp"
 #include "Core/GL/GLRenderer.hpp"
 #include "Core/GL/GLBuffer.hpp"
 #include "Core/GL/GLContext.hpp"
 
+#include "Core/App/Application.hpp"
+
 namespace mm 
 {
 	Morph::Morph(Model& model) :
 		m_model(model)
 	{
+		m_morphShader = dynamic_cast<MorphShader*>(Application::Instance().GetResourceManager()->GetShader("morph"));
+
 		m_weights.resize(m_model.m_pmxFile->GetMorphs().size());
 		LoadTargets();
 
@@ -23,7 +27,7 @@ namespace mm
 	void Morph::Render(GLRenderer& renderer) const
 	{
 		renderer.Begin(GL_RASTERIZER_DISCARD);
-		renderer.UseShader(*m_model.s_morphShader);
+		renderer.BeginShader(Application::Instance().GetResourceManager()->GetShader("morph"));
 
 		for (const auto& target : m_vertexTargets) {
 			renderer.GetShader()->Uniform("u_weight", 1, &m_weights[target.index]);
@@ -36,10 +40,10 @@ namespace mm
 
 	Morph::VertexTarget Morph::LoadVertexTarget(const PMXFile::Morph& pmxMorph)
 	{
-		std::vector<MMShader::MorphAttrib::Layout> offsets;
+		std::vector<MorphShader::Attrib::Layout> offsets;
 
 		for (const auto& pmxOffset : pmxMorph.offsets) {
-			MMShader::MorphAttrib::Layout offset = {};
+			MorphShader::Attrib::Layout offset = {};
 			if (pmxMorph.type == PMXFile::MORPH_VERTEX) {
 				offset.posOffset = glm::make_vec3(pmxOffset.vertex.value);
 				offset.uvOffset = glm::vec2(0);
@@ -57,9 +61,9 @@ namespace mm
 		target.offsetBuffer = std::make_unique<GLBuffer>(GL_ARRAY_BUFFER);
 		target.vertexArray = std::make_unique<GLVertexArray>();
 
-		target.offsetBuffer->SetData(offsets.size() * sizeof(MMShader::MorphAttrib::Layout), offsets.data());
-		target.vertexArray->SetVertexBuffer(*target.offsetBuffer, MMShader::s_morphAttrib->GetSize());
-		target.vertexArray->SetVertexAttrib(*MMShader::s_morphAttrib);
+		target.offsetBuffer->SetData(offsets.size() * sizeof(MorphShader::Attrib::Layout), offsets.data());
+		target.vertexArray->SetVertexBuffer(*target.offsetBuffer, m_morphShader->GetAttrib()->GetSize());
+		target.vertexArray->SetVertexAttrib(*m_morphShader->GetAttrib());
 		target.offsetCount = offsets.size();
 
 		MM_INFO("{0}: vertex morph loaded; count={1}", pmxMorph.nameJP, target.offsetCount);

@@ -5,8 +5,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
-#include "Core/Event.hpp"
-#include "Core/EventUser.hpp"
+#include "Core/App/Event.hpp"
+#include "Core/App/EventUser.hpp"
 
 namespace mm
 {
@@ -21,6 +21,8 @@ namespace mm
 	public:
 		Camera();
 		~Camera();
+
+		void SetAspect(float aspect) { m_aspect = aspect; }
 
 		const glm::mat4& GetView() const {
 			static glm::mat4 view;
@@ -37,10 +39,6 @@ namespace mm
 		void Update();
 		void OnMouseButtonPressed(const Event::MouseButtonPressed& e);
 		void OnMouseScrolled(const Event::MouseScrolled& e);
-		void OnWindowResized(const Event::WindowSized& e);
-
-	private:
-		glm::vec2 GetMousePos();
 
 	private:
 		glm::vec3 m_view;

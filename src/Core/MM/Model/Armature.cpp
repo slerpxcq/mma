@@ -2,11 +2,11 @@
 #include "Armature.hpp"
 
 #include "IKSolver.hpp"
-#include "Transform.hpp"
+#include "../Transform.hpp"
 #include "Model.hpp"
 
-#include "Physics/ModelPhysicsData.hpp"
-#include "Core/TypeCast.hpp"
+#include "../Physics/ModelPhysicsData.hpp"
+#include "Core/Utility/Type.hpp"
 
 namespace mm
 {
@@ -24,12 +24,19 @@ namespace mm
 			const auto& pmxBone = pmxBones[i];
 			auto& bone = m_bones[i];
 			bone.parent = pmxBones[i].parentIndex;
-			bone.bindWorld.rot = glm::identity<glm::quat>();
-			bone.bindWorld.trans = glm::make_vec3(pmxBone.position);
-			bone.bindParent.rot = glm::identity<glm::quat>();
-			bone.bindParent.trans = bone.parent >= 0 ?
-				bone.bindWorld.trans - m_bones[bone.parent].bindWorld.trans :
-				bone.bindWorld.trans;
+
+			// Bind world position
+			bone.bindWorld = Transform(
+				glm::make_vec3(pmxBone.position),
+				glm::identity<glm::quat>());
+
+			// Bind parent space position
+			bone.bindParent = Transform(
+				bone.parent >= 0 ?
+					bone.bindWorld.trans - m_bones[bone.parent].bindWorld.trans :
+					bone.bindWorld.trans,
+				glm::identity<glm::quat>());
+
 			bone.invBindWorld = bone.bindWorld.inverse();
 
 			if (pmxBone.transformationLayer > m_layerCount)

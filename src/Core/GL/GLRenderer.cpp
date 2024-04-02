@@ -5,6 +5,7 @@
 #include "GLContext.hpp"
 #include "GLTexture.hpp"
 #include "GLVertexArray.hpp"
+#include "GLFrameBuffer.hpp"
 
 namespace mm
 {
@@ -13,10 +14,34 @@ namespace mm
 	{
 	}
 
-	void GLRenderer::UseShader(GLShader& shader)
+	void GLRenderer::BeginShader(GLShader* shader)
 	{
-		shader.Use();
-		m_shader = &shader;
+		if (shader != nullptr)
+			shader->Use();
+		else
+			glUseProgram(0);
+
+		m_shader = shader;
+	}
+
+	void GLRenderer::EndShader()
+	{
+		BeginShader(nullptr);
+	}
+
+	void GLRenderer::BeginFramebuffer(GLFrameBuffer* framebuffer)
+	{
+		if (framebuffer != nullptr)
+			framebuffer->Bind();
+		else
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		m_framebuffer = framebuffer;
+	}
+
+	void GLRenderer::EndFramebuffer()
+	{
+		BeginFramebuffer(nullptr);
 	}
 
 	void GLRenderer::Begin(uint32_t what)

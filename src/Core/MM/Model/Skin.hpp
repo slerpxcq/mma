@@ -6,7 +6,7 @@
 #include "Core/GL/GLTexture.hpp"
 #include "Core/GL/GLVertexArray.hpp"
 
-#include "MMShader.hpp"
+#include "../Shaders/DefaultShader.hpp"
 
 namespace mm
 {
@@ -20,8 +20,8 @@ namespace mm
 
 	public:
 		struct Mesh {
-			MMShader* shader;
-			MMShader::MaterialLayout material;
+			DefaultShader* shader;
+			DefaultShader::MaterialLayout material;
 			uint32_t elemCount;
 			uint32_t elemOffset;
 			int32_t albedoIndex;
@@ -53,6 +53,8 @@ namespace mm
 		std::unique_ptr<GLVertexArray> m_vertexArray;
 		std::unique_ptr<GLBuffer> m_vertexBuffer;
 		std::unique_ptr<GLBuffer> m_elemBuffer;
+
+		DefaultShader* m_defaultShader;
 	};
 }
 

@@ -2,7 +2,7 @@
 #include "PhysicsWorld.hpp"
 
 #include "Core/MM/Files/PMXFile.hpp"
-#include "Core/TypeCast.hpp"
+#include "Core/Utility/Type.hpp"
 
 namespace mm
 {

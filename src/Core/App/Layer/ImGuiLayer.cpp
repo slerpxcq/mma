@@ -1,7 +1,7 @@
 #include "mmpch.hpp"
 #include "ImGuiLayer.hpp"
 
-#include "Core/Application.hpp"
+#include "Core/App/Application.hpp"
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -16,8 +16,10 @@ namespace mm
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigWindowsMoveFromTitleBarOnly = true;
 
-		m_font = io.Fonts->AddFontFromFileTTF("resources/fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", FONT_SIZE);
+		m_font = io.Fonts->AddFontFromFileTTF("resources/fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", FONT_SIZE, nullptr, io.Fonts->GetGlyphRangesJapanese());
 		MM_ASSERT(m_font);
 
 		ImGui::StyleColorsDark();

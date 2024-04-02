@@ -1,11 +1,15 @@
 #pragma once
 
 #include "Layer/LayerStack.hpp"
-#include "GL/GLContext.hpp"
-#include "GL/GLTexture.hpp"
-#include "GL/GLRenderer.hpp"
+
+#include "Core/GL/GLContext.hpp"
+#include "Core/GL/GLTexture.hpp"
+#include "Core/GL/GLRenderer.hpp"
+#include "Core/GL/GLShader.hpp"
 
 #include <dexode/EventBus.hpp>
+
+#include "Core/ResourceManager/ResourceManager.hpp"
 
 struct GLFWwindow;
 
@@ -28,7 +32,7 @@ namespace mm
 
 		GLFWwindow* GetWindow() { return m_window; }
 		GLRenderer& GetRenderer() { return *m_renderer; }
-		std::vector<std::unique_ptr<GLTexture>>& GetToons() { return m_toons; }
+		auto& GetResourceManager() { return m_resourceManager; }
 
 		void PushLayer(std::unique_ptr<Layer> layer) { m_layerStack.PushLayer(std::move(layer)); }
 		void PushOverlay(std::unique_ptr<Layer> overlay) { m_layerStack.PushOverlay(std::move(overlay)); }
@@ -37,6 +41,7 @@ namespace mm
 
 	private:
 		void LoadToons();
+		void LoadShaders();
 		void OnWindowClose(const Event::WindowClosed& e);
 		void OnWindowResize(const Event::WindowSized& e);
 
@@ -47,9 +52,12 @@ namespace mm
 
 	private:
 		static Application* s_instance;
-		GLFWwindow* m_window = nullptr;
-		std::unique_ptr<GLContext> m_glctx;
 
+		GLFWwindow* m_window = nullptr;
+		std::unique_ptr<GLContext> m_glContext;
+		glm::uvec2 m_viewportSize = glm::vec2(0);
+
+		// Event
 		std::shared_ptr<dexode::EventBus> m_eventBus;
 		std::unique_ptr<dexode::EventBus::Listener> m_listener;
 
@@ -58,7 +66,8 @@ namespace mm
 		ImGuiLayer* m_imguiLayer = nullptr;
 
 		std::unique_ptr<GLRenderer> m_renderer;
-		std::vector<std::unique_ptr<GLTexture>> m_toons;
+
+		std::unique_ptr<ResourceManager> m_resourceManager;
 
 		bool m_running = true;
 		bool m_minimized = false;
