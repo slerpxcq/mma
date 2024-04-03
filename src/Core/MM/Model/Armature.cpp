@@ -103,7 +103,7 @@ namespace mm
 		const auto& pmxBones = m_model.m_pmxFile->GetBones();
 
 		return pmxBones[index].transformationLayer == layer &&
-			(bool)(pmxBones[index].flags & PMXFile::BONE_AFTER_PHYSICS) == afterPhys;
+			(bool)(pmxBones[index].flags & PMXFile::BONE_AFTER_PHYSICS_BIT) == afterPhys;
 	}
 
 	void Armature::UpdateForwardKinematics(uint32_t layer, bool afterPhys)
@@ -121,7 +121,7 @@ namespace mm
 
 		for (uint32_t i = 0; i < m_bones.size(); ++i) {
 			if (IsCurrentLayer(i, layer, afterPhys) &&
-				pmxBones[i].flags & PMXFile::BONE_IK) {
+				pmxBones[i].flags & PMXFile::BONE_IK_BIT) {
 				IKSolver solver(*this, pmxBones[i].ik, i);
 				solver.Solve();
 				solver.Sync();
@@ -140,12 +140,12 @@ namespace mm
 				bool doAssignment = false;
 				Transform xform = Transform::identity();
 
-				if (pmxBones[i].flags & PMXFile::BONE_ASSIGN_MOVE) {
+				if (pmxBones[i].flags & PMXFile::BONE_ASSIGN_MOVE_BIT) {
 					xform.trans = assn.ratio * m_bones[assn.targetIndex].animLocal.trans;
 					doAssignment = true;
 				}
 
-				if (pmxBones[i].flags & PMXFile::BONE_ASSIGN_ROTATION) {
+				if (pmxBones[i].flags & PMXFile::BONE_ASSIGN_ROTATION_BIT) {
 					xform.rot = glm::slerp(
 						glm::identity<glm::quat>(),
 						m_bones[assn.targetIndex].animLocal.rot,

@@ -9,6 +9,7 @@
 
 #include "Viewport.hpp"
 #include "PoseEditor.hpp"
+#include "KeyframeEditor.hpp"
 
 namespace mm
 {
@@ -28,6 +29,7 @@ namespace mm
 		std::unique_ptr<World> m_world;
 		std::unique_ptr<Viewport> m_viewport;
 		std::unique_ptr<PoseEditor> m_poseEditor;
+		std::unique_ptr<KeyframeEditor> m_keyframeEditor;
 	};
 }
 

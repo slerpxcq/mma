@@ -24,13 +24,16 @@ namespace mm
 		m_morphOffsetBuffer->SetData(m_skin->GetVertexCount() * sizeof(MorphShader::Layout), nullptr);
 		m_morphOffsetBuffer->SetBase(MorphShader::MORPH_BASE);
 
-		// Physics
 		m_physicsData = m_world.GetPhysicsWorld().LoadModel(*this);
+	}
+
+	void Model::LoadAnimation(const std::filesystem::path& path)
+	{
+		m_animation = std::make_unique<Animation>(*this, path);
 	}
 
 	void Model::Render(GLRenderer& renderer)
 	{
-		m_morph->GetWeights()[0] = 1.0f;
 		m_morph->Render(renderer);
 		m_skin->Render(renderer);
 	}

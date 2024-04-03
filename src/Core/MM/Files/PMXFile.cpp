@@ -164,33 +164,33 @@ namespace mm
 			Read(stream, bone.transformationLayer);
 			Read(stream, bone.flags);
 
-			if (bone.flags & PMXFile::BONE_CONNECTED) {
+			if (bone.flags & PMXFile::BONE_CONNECTED_BIT) {
 				Read(stream, bone.connetcionEnd.boneIndex, m_header.boneIndexSize);
 			}
 			else {
 				Read(stream, bone.connetcionEnd.position);
 			}
 
-			if (bone.flags & PMXFile::BONE_ASSIGN_ROTATION ||
-				bone.flags & PMXFile::BONE_ASSIGN_MOVE) {
+			if (bone.flags & PMXFile::BONE_ASSIGN_ROTATION_BIT ||
+				bone.flags & PMXFile::BONE_ASSIGN_MOVE_BIT) {
 				Read(stream, bone.assignment.targetIndex, m_header.boneIndexSize);
 				Read(stream, bone.assignment.ratio);
 			}
 
-			if (bone.flags & PMXFile::BONE_FIXED_AXIS) {
+			if (bone.flags & PMXFile::BONE_FIXED_AXIS_BIT) {
 				Read(stream, bone.fixedAxis);
 			}
 
-			if (bone.flags & PMXFile::BONE_LOCAL_AXIS) {
+			if (bone.flags & PMXFile::BONE_LOCAL_AXIS_BIT) {
 				Read(stream, bone.localAxisX);
 				Read(stream, bone.localAxisZ);
 			}
 
-			if (bone.flags & PMXFile::BONE_EXTERNAL_PARENT) {
+			if (bone.flags & PMXFile::BONE_EXTERNAL_PARENT_BIT) {
 				Read(stream, bone.externalParentKey);
 			}
 
-			if (bone.flags & PMXFile::BONE_IK) {
+			if (bone.flags & PMXFile::BONE_IK_BIT) {
 				Read(stream, bone.ik.targetIndex, m_header.boneIndexSize);
 				Read(stream, bone.ik.iteration);
 				Read(stream, bone.ik.unitAngle);

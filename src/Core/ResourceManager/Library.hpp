@@ -21,12 +21,13 @@ namespace mm
 
 		T* Get(const K& key) {
 			T* ret = nullptr;
-			try {
-				ret = m_container.at(key).get();
+			auto it = m_container.find(key);
+			if (it != m_container.end()) {
+				ret = it->second.get();
 			}
-			catch (const std::out_of_range& e) {
-				//MM_WARN("Get(): element \"{0}\" does not exist", key);
-				MM_ASSERT(0 && "Failed to get resource");
+			else {
+				MM_ERROR("{0}: cannot find resource", __FUNCTION__);
+				MM_ASSERT(0);
 			}
 			return ret;
 		}

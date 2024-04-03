@@ -12,17 +12,17 @@ namespace mm
 
 	uint32_t GLShader::GetLoc(const std::string& name)
 	{
-		int32_t loc = 0;
-		try {
-			loc = m_locCache.at(name);
-		}
-		catch (const std::out_of_range& e) {
+		int32_t loc = -1;
+		auto locIt = m_locCache.find(name);
+		if (locIt == m_locCache.end()) {
 			loc = glGetUniformLocation(m_programId, name.c_str());
-	//		MM_ASSERT(loc > 0 && "Uniform does not existing in the shader");
 			if (loc >= 0)
 				m_locCache.insert({ name, loc });
 			else
-				MM_WARN("Uniform \"{0}\" does not exist in shader {1}", name, m_programId);
+				MM_WARN("{0}: {1}: uniform does not exist", __FUNCTION__, name);
+		}
+		else {
+			loc = locIt->second;
 		}
 		return loc;
 	}

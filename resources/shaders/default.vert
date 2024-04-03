@@ -26,6 +26,7 @@ layout (binding = 2, std140) buffer Morph
 
 out VS_OUT {
 	vec2 texCoord;
+	vec3 normal;
 } vs_out;
 
 void Skin(in vec3 inPos, in vec3 inNormal, out vec3 outPos, out vec3 outNormal)
@@ -49,6 +50,7 @@ void main()
 
 	gl_Position = u_proj * u_view * vec4(skPos, 1);
 	vs_out.texCoord = a_texCoord + u_morph.offsets[gl_VertexID].uv;
+	vs_out.normal = skNormal;
 
 	u_morph.offsets[gl_VertexID].pos = vec3(0);
 	u_morph.offsets[gl_VertexID].uv = vec2(0);

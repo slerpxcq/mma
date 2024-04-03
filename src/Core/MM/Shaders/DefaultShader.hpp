@@ -15,6 +15,9 @@ namespace mm
 		static constexpr int32_t SPH_TEX_UNIT = 1;
 		static constexpr int32_t TOON_TEX_UNIT = 2;
 
+		static constexpr uint32_t SPH_MODE_OFFSET = 8;
+		static constexpr uint32_t TOON_FLAG_OFFSET = 16;
+
 	public:
 		// Material layout, std140
 		struct MaterialLayout {

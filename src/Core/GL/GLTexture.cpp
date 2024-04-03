@@ -18,10 +18,7 @@ namespace mm
 		m_size = glm::uvec2(x, y);
 
 		glTextureStorage2D(m_id, 1, GL_RGBA8, x, y);
-		if (ch == 4) 
-			glTextureSubImage2D(m_id, 0, 0, 0, x, y, GL_RGBA, GL_UNSIGNED_BYTE, img);
-		else 
-			glTextureSubImage2D(m_id, 0, 0, 0, x, y, GL_RGB, GL_UNSIGNED_BYTE, img);
+		glTextureSubImage2D(m_id, 0, 0, 0, x, y, GL_RGBA, GL_UNSIGNED_BYTE, img);
 
 		stbi_image_free(img);
 		MM_INFO("id={0}, path={1}: texture loaded from file: size={2}x{3}", 

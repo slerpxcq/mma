@@ -17,6 +17,7 @@ namespace mm
         m_world = std::make_unique<World>();
         m_viewport = std::make_unique<Viewport>(*this);
         m_poseEditor = std::make_unique<PoseEditor>(*this);
+        m_keyframeEditor = std::make_unique<KeyframeEditor>(*this);
     }
 
     void EditorLayer::OnDetach()
@@ -28,6 +29,7 @@ namespace mm
         m_world->OnUpdate(deltaTime);
         m_viewport->OnUpdate(deltaTime);
         m_poseEditor->OnUpdate(deltaTime);
+        m_keyframeEditor->OnUpdate(deltaTime);
 
         GLRenderer& renderer = Application::Instance().GetRenderer();
         m_viewport->OnRender(renderer);
@@ -39,8 +41,21 @@ namespace mm
         if (ImGui::Button("Load model")) {
             nfdchar_t* path = nullptr;
             nfdresult_t result = NFD_OpenDialog("pmx", nullptr, &path);
-            if (result == NFD_OKAY)
-				m_poseEditor->SetModel(m_world->LoadModel(path));
+            if (result == NFD_OKAY) {
+                Model* model = m_world->LoadModel(path);
+                m_poseEditor->SetModel(model);
+                m_keyframeEditor->SetModel(model);
+            }
+        }
+        if (ImGui::Button("Load animation")) {
+            nfdchar_t* path = nullptr;
+            nfdresult_t result = NFD_OpenDialog("vmd", nullptr, &path);
+            if (result == NFD_OKAY) {
+                Model* model = m_poseEditor->GetModel();
+                if (model != nullptr) {
+                    model->LoadAnimation(path);
+                }
+            }
         }
         if (ImGui::Button("Reset physics")) {
             m_world->GetPhysicsWorld().Reset();
@@ -49,5 +64,6 @@ namespace mm
 
         m_viewport->OnUIRender();
         m_poseEditor->OnUIRender();
+        m_keyframeEditor->OnUIRender();
     }
 }

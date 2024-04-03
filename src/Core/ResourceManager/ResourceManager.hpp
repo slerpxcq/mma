@@ -4,6 +4,8 @@
 
 #include "Core/GL/GLTexture.hpp"
 #include "Core/GL/GLShader.hpp"
+#include "Core/MM/Files/PMXFile.hpp"
+#include "Core/MM/Files/VMDFile.hpp"
 
 namespace mm
 {

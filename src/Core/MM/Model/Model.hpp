@@ -1,10 +1,11 @@
 #pragma once
 
 #include "../Files/PMXFile.hpp"
+#include "../Animation/Animation.hpp"
+
 #include "Armature.hpp"
 #include "Skin.hpp"
 #include "Morph.hpp"
-
 
 namespace mm
 {
@@ -19,17 +20,22 @@ namespace mm
 		friend class Morph;
 
 	public:
+		// Model file should be managed by resource manager
 		Model(World& world, const std::filesystem::path& path);
+		void LoadAnimation(const std::filesystem::path& path);
 		void Render(GLRenderer& renderer);
 		void Update(float deltaTime);
 		const PMXFile& GetPMXFile() const { return *m_pmxFile; }
 		Armature& GetArmature() { return *m_armature; }
+		Morph& GetMorph() { return *m_morph; }
+		Animation* GetAnim() { return m_animation.get(); }
 		void SyncWithPhysics() { if (m_physicsData != nullptr) m_armature->SyncWithPhysics(*m_physicsData); }
 		void CalcSkinning() { m_armature->CalcSkinning(); }
 
 	private:
 		World& m_world;
 		std::unique_ptr<PMXFile> m_pmxFile;
+		std::unique_ptr<Animation> m_animation;
 
 		// ---------- COMPONENTS ----------
 		std::unique_ptr<Armature> m_armature;

@@ -25,19 +25,38 @@ namespace mm
 		};
 
 		enum Flag {
-			BONE_CONNECTED = (1U << 0),
-			BONE_ROTATABLE = (1U << 1),
-			BONE_MOVEABLE = (1U << 2),
-			BONE_VISIBLE = (1U << 3),
-			BONE_OPERABLE = (1U << 4),
-			BONE_IK = (1U << 5),
-			BONE_ASSIGN_LOCAL = (1U << 7),
-			BONE_ASSIGN_ROTATION = (1U << 8),
-			BONE_ASSIGN_MOVE = (1U << 9),
-			BONE_FIXED_AXIS = (1U << 10),
-			BONE_LOCAL_AXIS = (1U << 11),
-			BONE_AFTER_PHYSICS = (1U << 12),
-			BONE_EXTERNAL_PARENT = (1U << 13),
+			BONE_CONNECTED_BIT = (1U << 0),
+			BONE_ROTATABLE_BIT = (1U << 1),
+			BONE_MOVEABLE_BIT = (1U << 2),
+			BONE_VISIBLE_BIT = (1U << 3),
+			BONE_OPERABLE_BIT = (1U << 4),
+			BONE_IK_BIT = (1U << 5),
+			BONE_ASSIGN_LOCAL_BIT = (1U << 7),
+			BONE_ASSIGN_ROTATION_BIT = (1U << 8),
+			BONE_ASSIGN_MOVE_BIT = (1U << 9),
+			BONE_FIXED_AXIS_BIT = (1U << 10),
+			BONE_LOCAL_AXIS_BIT = (1U << 11),
+			BONE_AFTER_PHYSICS_BIT = (1U << 12),
+			BONE_EXTERNAL_PARENT_BIT = (1U << 13),
+		};
+
+		enum MaterialFlag {
+			MATERIAL_NO_CULL_BIT = 1 << 0,
+			MATERIAL_GROUND_SHADOW_BIT = 1 << 1,
+			MATERIAL_SELF_SHADOW_MAP_BIT = 1 << 2,
+			MATERIAL_SELF_SHADOW_BIT = 1 << 3,
+			MATERIAL_EDGE_BIT = 1 << 4
+		};
+
+		enum SphType {
+			SPH_DISABLE = 0,
+			SPH_MULTIPLY,
+			SPH_ADD,
+			SPH_SUBTEXTURE
+		};
+
+		enum ToonFlag {
+			TOON_SHARED_BIT = 1, 
 		};
 
 		enum MorphType {
@@ -315,6 +334,7 @@ namespace mm
 		const std::vector<Rigidbody>& GetRigidbodies() const { return m_rigidbodies; }
 		const std::vector<Joint>& GetJoints() const { return m_joints; }
 		const std::string& GetBoneName(uint32_t boneIndex) const { return m_bones[boneIndex].nameJP; }
+		const std::string& GetMorphName(uint32_t morphIndex) const { return m_morphs[morphIndex].nameJP; }
 
 	private:
 		void ParseText(std::ifstream& stream, std::string& string);

@@ -44,12 +44,27 @@ namespace mm
 		BeginFramebuffer(nullptr);
 	}
 
-	void GLRenderer::Begin(uint32_t what)
+	void GLRenderer::BeginVertexArray(GLVertexArray* va)
+	{
+		if (va != nullptr)
+			va->Bind();
+		else
+			glBindVertexArray(0);
+
+		m_vertexArray = va;
+	}
+
+	void GLRenderer::EndVertexArray()
+	{
+		BeginVertexArray(nullptr);
+	}
+
+	void GLRenderer::Enable(uint32_t what)
 	{
 		glEnable(what);
 	}
 
-	void GLRenderer::End(uint32_t what)
+	void GLRenderer::Disable(uint32_t what)
 	{
 		glDisable(what);
 	}
@@ -61,7 +76,7 @@ namespace mm
 
 	void GLRenderer::BlendFunc(uint32_t src, uint32_t dst)
 	{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+		glBlendFunc(src, dst); 
 	}
 
 	void GLRenderer::BindTexture(const GLTexture& texture, uint32_t slot)
@@ -69,19 +84,32 @@ namespace mm
 		texture.Bind(slot);
 	}
 
-	void GLRenderer::Draw(const GLVertexArray& va, bool indexed, uint32_t mode, uint32_t offset, uint32_t count)
+	void GLRenderer::Draw(bool indexed, uint32_t mode, uint32_t offset, uint32_t count)
 	{
-		va.Bind();
-
-		if (indexed)
-			va.DrawElem(mode, offset, count);
-		else
-			va.DrawArray(mode, offset, count);
+		if (m_vertexArray != nullptr) {
+			if (indexed)
+				m_vertexArray->DrawElem(mode, offset, count);
+			else
+				m_vertexArray->DrawArray(mode, offset, count);
+		}
+		else {
+			MM_WARN("{0}: no vertex array is bound", __FUNCTION__);
+		}
 	}
 
 	void GLRenderer::Barrier(uint32_t bitmask)
 	{
 		glMemoryBarrier(bitmask);
+	}
+
+	void GLRenderer::CullFace(uint32_t face)
+	{
+		glCullFace(face);
+	}
+
+	void GLRenderer::FrontFace(uint32_t front)
+	{
+		glFrontFace(front);
 	}
 
 	void GLRenderer::Clear(const glm::vec4& color, uint32_t bitmask)

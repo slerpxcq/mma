@@ -20,6 +20,7 @@ namespace mm
 	public:
 		PoseEditor(EditorLayer& editor);
 		void SetModel(Model* model);
+		Model* GetModel() { return m_model; }
 		void OnUpdate(float deltaTime);
 		void OnUIRender();
 

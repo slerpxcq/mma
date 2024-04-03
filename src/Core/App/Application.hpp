@@ -32,7 +32,7 @@ namespace mm
 
 		GLFWwindow* GetWindow() { return m_window; }
 		GLRenderer& GetRenderer() { return *m_renderer; }
-		auto& GetResourceManager() { return m_resourceManager; }
+		ResourceManager& GetResourceManager() { return *m_resourceManager; }
 
 		void PushLayer(std::unique_ptr<Layer> layer) { m_layerStack.PushLayer(std::move(layer)); }
 		void PushOverlay(std::unique_ptr<Layer> overlay) { m_layerStack.PushOverlay(std::move(overlay)); }

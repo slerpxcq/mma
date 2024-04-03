@@ -16,7 +16,7 @@ namespace mm
 	Morph::Morph(Model& model) :
 		m_model(model)
 	{
-		m_morphShader = dynamic_cast<MorphShader*>(Application::Instance().GetResourceManager()->GetShader("morph"));
+		m_morphShader = dynamic_cast<MorphShader*>(Application::Instance().GetResourceManager().GetShader("morph"));
 
 		m_weights.resize(m_model.m_pmxFile->GetMorphs().size());
 		LoadTargets();
@@ -26,16 +26,18 @@ namespace mm
 
 	void Morph::Render(GLRenderer& renderer) const
 	{
-		renderer.Begin(GL_RASTERIZER_DISCARD);
-		renderer.BeginShader(Application::Instance().GetResourceManager()->GetShader("morph"));
+		renderer.Enable(GL_RASTERIZER_DISCARD);
+		renderer.BeginShader(Application::Instance().GetResourceManager().GetShader("morph"));
 
 		for (const auto& target : m_vertexTargets) {
 			renderer.GetShader()->Uniform("u_weight", 1, &m_weights[target.index]);
-			renderer.Draw(*target.vertexArray, false, GL_POINTS, 0, target.offsetCount);
+			renderer.BeginVertexArray(target.vertexArray.get());
+			renderer.Draw(false, GL_POINTS, 0, target.offsetCount);
 			renderer.Barrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		}
 
-		renderer.End(GL_RASTERIZER_DISCARD);
+		renderer.EndVertexArray();
+		renderer.Disable(GL_RASTERIZER_DISCARD);
 	}
 
 	Morph::VertexTarget Morph::LoadVertexTarget(const PMXFile::Morph& pmxMorph)

@@ -4,3 +4,4 @@ obj
 *.vcxproj.*
 *.vcxproj
 .vs
+resources/model

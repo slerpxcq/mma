@@ -11,6 +11,7 @@ namespace mm
         m_editor(editor)
 	{
         m_framebuffer = std::make_unique<GLFrameBuffer>(glm::uvec2(1, 1));
+        m_grid = std::make_unique<Grid>(*this);
 	}
 
     void Viewport::OnUpdate(float deltaTime)
@@ -23,7 +24,8 @@ namespace mm
         renderer.SetCamera(m_camera);
         renderer.Viewport(m_size.x, m_size.y);
         renderer.BeginFramebuffer(m_framebuffer.get());
-        renderer.Clear(glm::vec4(0.1, 0.1, 0.1, 1), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderer.Clear(glm::vec4(0.05, 0.05, 0.05, 1), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        m_grid->Render(renderer);
         m_editor.GetWorld().Render(renderer);
         renderer.EndFramebuffer();
 	}

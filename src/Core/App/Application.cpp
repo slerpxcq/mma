@@ -79,6 +79,8 @@ namespace mm
 			toonPath += name;
 			m_resourceManager->LoadTexture(name.u8string(), std::make_unique<GLTexture>(toonPath, GL_TEXTURE_2D));
 		}
+
+		m_resourceManager->LoadTexture("uv_test", std::make_unique<GLTexture>("resources/textures/uvTex.png", GL_TEXTURE_2D));
 	}
 
 	void Application::RegisterWindowCallbacks()

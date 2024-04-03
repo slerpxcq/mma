@@ -23,7 +23,7 @@ namespace mm
 	Skin::Skin(Model& model) :
 		m_model(model)
 	{
-		m_defaultShader = dynamic_cast<DefaultShader*>(Application::Instance().GetResourceManager()->GetShader("default"));
+		m_defaultShader = dynamic_cast<DefaultShader*>(Application::Instance().GetResourceManager().GetShader("default"));
 
 		LoadVertices();
 		LoadIndices();
@@ -47,33 +47,36 @@ namespace mm
 		MM_INFO("{0}: indices loaded; count={1}", m_model.m_pmxFile->GetInfo().nameJP, faces.size());
 	}
 
-	GLTexture& Skin::GetTexture(int32_t idx)
+	GLTexture* Skin::GetTexture(int32_t idx)
 	{
 		return (idx < 0) ? 
-			*Application::Instance().GetResourceManager()->GetTexture("toon00.bmp") :
-			*m_textures[idx];
+			Application::Instance().GetResourceManager().GetTexture("toon00.bmp") :
+			m_textures[idx].get();
 	}
 
 	void Skin::Render(GLRenderer& renderer)
 	{
-		renderer.Begin(GL_DEPTH_TEST);
-		renderer.Begin(GL_BLEND);
+		renderer.Enable(GL_DEPTH_TEST);
+		renderer.Enable(GL_BLEND);
 		renderer.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		renderer.Enable(GL_CULL_FACE);
+		renderer.CullFace(GL_FRONT);
+		renderer.FrontFace(GL_CW);
 
 		for (uint32_t i = 0; i < m_meshes.size(); ++i) {
 			auto& mesh = m_meshes[i];
 
 			// Textures
-			GLTexture& albedo = GetTexture(mesh.albedoIndex);
-			GLTexture& sph = GetTexture(mesh.sphIndex);
-			GLTexture& toon = (mesh.material.flags & TOON_FLAG_BIT) ?
-				*Application::Instance().GetResourceManager()->GetTexture(toonTable[mesh.toonIndex]) :
+			GLTexture* albedo = GetTexture(mesh.albedoIndex);
+			GLTexture* sph = GetTexture(mesh.sphIndex);
+			GLTexture* toon = ((mesh.material.flags >> DefaultShader::TOON_FLAG_OFFSET) & PMXFile::TOON_SHARED_BIT) ?
+				Application::Instance().GetResourceManager().GetTexture(toonTable[mesh.toonIndex]) :
 				GetTexture(mesh.toonIndex);
 
 			renderer.BeginShader(mesh.shader);
-			renderer.BindTexture(albedo, DefaultShader::ALBEDO_TEX_UNIT);
-			renderer.BindTexture(sph, DefaultShader::SPH_TEX_UNIT);
-			renderer.BindTexture(toon, DefaultShader::TOON_TEX_UNIT);
+			renderer.BindTexture(*albedo, DefaultShader::ALBEDO_TEX_UNIT);
+			renderer.BindTexture(*sph, DefaultShader::SPH_TEX_UNIT);
+			renderer.BindTexture(*toon, DefaultShader::TOON_TEX_UNIT);
 			renderer.GetShader()->Uniform("u_albedo", 1, &DefaultShader::ALBEDO_TEX_UNIT);
 			//renderer.GetShader()->Uniform("u_sph", 1, &MMShader::SPH_TEX_UNIT);
 			//renderer.GetShader()->Uniform("u_toon", 1, &MMShader::TOON_TEX_UNIT);
@@ -88,14 +91,24 @@ namespace mm
 				renderer.GetShader()->Uniform("u_view", 1, &camera->GetView());
 			}
 
-			renderer.Draw(*m_vertexArray, true, GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
+			// Draw
+			bool noCull = mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT;
+			if (noCull)
+				renderer.Disable(GL_CULL_FACE);
+			else
+				renderer.Enable(GL_CULL_FACE);
+
+			renderer.BeginVertexArray(m_vertexArray.get());
+			renderer.Draw(true, GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
 
 			// Barrier needed because we resetted Morph in vertex shader
 			renderer.Barrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		}
 
-		renderer.End(GL_BLEND);
-		renderer.End(GL_DEPTH_TEST);
+		renderer.EndVertexArray();
+		renderer.Disable(GL_CULL_FACE);
+		renderer.Disable(GL_BLEND);
+		renderer.Disable(GL_DEPTH_TEST);
 	}
 
 	void Skin::LoadVertices()
@@ -163,7 +176,7 @@ namespace mm
 			mat.edge = glm::make_vec4(pm.edgeColor);
 			mat.edgeSize = pm.edgeWeight;
 			//                [23:16]                [15:8]                  [7:0]
-			mat.flags = (pm.toonFlag << 16) | (pm.sphereMode << 8) | (pm.drawFlag);
+			mat.flags = (pm.toonFlag << DefaultShader::TOON_FLAG_OFFSET) | (pm.sphereMode << DefaultShader::SPH_MODE_OFFSET) | (pm.drawFlag);
 
 			Mesh mesh = {};
 			mesh.material = mat;
@@ -172,7 +185,7 @@ namespace mm
 			mesh.albedoIndex = pm.textureIndex;
 			mesh.sphIndex = pm.sphereIndex;
 			mesh.toonIndex = pm.toonIndex;
-			mesh.shader = dynamic_cast<DefaultShader*>(Application::Instance().GetResourceManager()->GetShader("default"));
+			mesh.shader = dynamic_cast<DefaultShader*>(Application::Instance().GetResourceManager().GetShader("default"));
 
 			m_meshes.push_back(std::move(mesh));
 			MM_INFO("{0}: mesh loaded; faceCount={1}, faceOffset={2}",

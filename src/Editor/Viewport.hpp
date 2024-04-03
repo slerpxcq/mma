@@ -3,6 +3,8 @@
 #include "Core/Camera/Camera.hpp"
 #include "Core/GL/GLFrameBuffer.hpp"
 
+#include "Grid.hpp"
+
 namespace mm
 {
 	class GLRenderer;
@@ -25,6 +27,8 @@ namespace mm
 		std::unique_ptr<GLFrameBuffer> m_framebuffer;
 		glm::uvec2 m_size;
 		glm::ivec2 m_pos;
+
+		std::unique_ptr<Grid> m_grid;
 
 		bool m_focused;
 	};

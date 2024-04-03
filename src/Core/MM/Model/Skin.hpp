@@ -37,7 +37,7 @@ namespace mm
 		uint32_t GetVertexCount() const { return m_vertexCount;  }
 
 	private:
-		GLTexture& GetTexture(int32_t idx);
+		GLTexture* GetTexture(int32_t idx);
 		void LoadVertices();
 		void LoadIndices();
 		void LoadMeshes();

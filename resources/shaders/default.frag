@@ -8,6 +8,7 @@ in vec2 texCoord;
 
 in VS_OUT {
 	vec2 texCoord;
+	vec3 normal;
 } fs_in;
 
 layout (binding = 0, std140) uniform Material 
@@ -23,4 +24,5 @@ layout (binding = 0, std140) uniform Material
 void main()
 {
 	f_fragColor = u_material.diffuse * texture(u_albedo, fs_in.texCoord);
+	//f_fragColor = texture(u_albedo, fs_in.texCoord);
 }

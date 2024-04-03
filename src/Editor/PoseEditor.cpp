@@ -60,8 +60,8 @@ namespace mm
 		// Check against each bone in screen space
 		for (uint32_t i = 0; i < m_context.screenPos.size(); ++i) {
 			glm::vec3 screenPos = m_context.screenPos[i];
-			if (pmxBones[i].flags & PMXFile::BONE_VISIBLE && 
-				pmxBones[i].flags & PMXFile::BONE_OPERABLE &&
+			if (pmxBones[i].flags & PMXFile::BONE_VISIBLE_BIT && 
+				pmxBones[i].flags & PMXFile::BONE_OPERABLE_BIT &&
 				glm::distance(glm::vec2(screenPos), mousePos) < CIRCLE_RADIUS &&
 				screenPos.z < currZ) {
 				selected = i;
@@ -77,9 +77,7 @@ namespace mm
 		const auto& camera = m_editor.GetViewport().GetCamera();
 		glm::mat4 worldToNDC = camera.GetProj() * camera.GetView();
 		glm::vec4 ndcPos = worldToNDC * glm::vec4(world, 1.0);
-		ndcPos.x /= ndcPos.w;
-		ndcPos.y /= ndcPos.w;
-		ndcPos.z /= ndcPos.w;
+		ndcPos /= ndcPos.w;
 		glm::vec2 viewportSize = m_editor.GetViewport().GetSize();
 		glm::vec2 viewportPos = m_editor.GetViewport().GetPos();
 		return glm::vec3(
@@ -102,12 +100,12 @@ namespace mm
 
 			screenPos = WorldToScreen(bone.animWorld.trans);
 
-			if (pmxBone.flags & PMXFile::BONE_VISIBLE) {
+			if (pmxBone.flags & PMXFile::BONE_VISIBLE_BIT) {
 				uint32_t color = (i == m_context.selected) ?
 					SELECTED_COLOR : 
 					UNSELECTED_COLOR;
 
-				if (pmxBone.flags & PMXFile::BONE_MOVEABLE) {
+				if (pmxBone.flags & PMXFile::BONE_MOVEABLE_BIT) {
 					drawList->AddRectFilled(
 						ImVec2(screenPos.x - CIRCLE_RADIUS, screenPos.y - CIRCLE_RADIUS),
 						ImVec2(screenPos.x + CIRCLE_RADIUS, screenPos.y + CIRCLE_RADIUS), color);
@@ -115,7 +113,7 @@ namespace mm
 						ImVec2(screenPos.x - CIRCLE_RADIUS, screenPos.y - CIRCLE_RADIUS),
 						ImVec2(screenPos.x + CIRCLE_RADIUS, screenPos.y + CIRCLE_RADIUS), OUTLINE_COLOR, OUTLINE_SIZE);
 				}
-				else if (pmxBone.flags & PMXFile::BONE_FIXED_AXIS) {
+				else if (pmxBone.flags & PMXFile::BONE_FIXED_AXIS_BIT) {
 					static constexpr float HALF_SQRT3 = 0.866f;
 					drawList->AddTriangleFilled(
 						ImVec2(screenPos.x - HALF_SQRT3 * CIRCLE_RADIUS, screenPos.y + 0.5f * CIRCLE_RADIUS),
@@ -138,7 +136,7 @@ namespace mm
 				}
 
 				glm::vec2 endPos(0.0f);
-				if (pmxBone.flags & PMXFile::BONE_CONNECTED) {
+				if (pmxBone.flags & PMXFile::BONE_CONNECTED_BIT) {
 					int32_t end = pmxBone.connetcionEnd.boneIndex;
 					endPos = (end >= 0) ? 
 						glm::vec2(m_context.screenPos[end]) :
