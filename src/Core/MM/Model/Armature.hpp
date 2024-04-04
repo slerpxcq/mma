@@ -52,7 +52,9 @@ namespace mm
 		uint32_t m_layerCount;
 		std::vector<Bone> m_bones;
 		std::vector<Transform> m_pose;
-		std::vector<glm::mat4> m_skinningMatrices;
+
+		// [q t]
+		std::vector<glm::mat2x4> m_skinningData;
 	}; 
 }
 

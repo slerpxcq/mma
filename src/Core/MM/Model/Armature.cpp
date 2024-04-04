@@ -17,7 +17,7 @@ namespace mm
 		m_layerCount = 0;
 
 		m_bones.resize(pmxBones.size());
-		m_skinningMatrices.resize(m_bones.size());
+		m_skinningData.resize(m_bones.size());
 		m_pose.resize(m_bones.size());
 
 		for (uint32_t i = 0; i < m_bones.size(); ++i) {
@@ -136,20 +136,20 @@ namespace mm
 
 		for (uint32_t i = 0; i < m_bones.size(); ++i) {
 			if (IsCurrentLayer(i, layer, afterPhys)) {
-				const auto& assn = pmxBones[i].assignment;
+				const auto& assignment = pmxBones[i].assignment;
 				bool doAssignment = false;
 				Transform xform = Transform::identity();
 
 				if (pmxBones[i].flags & PMXFile::BONE_ASSIGN_MOVE_BIT) {
-					xform.trans = assn.ratio * m_bones[assn.targetIndex].animLocal.trans;
+					xform.trans = assignment.ratio * m_bones[assignment.targetIndex].animLocal.trans;
 					doAssignment = true;
 				}
 
 				if (pmxBones[i].flags & PMXFile::BONE_ASSIGN_ROTATION_BIT) {
 					xform.rot = glm::slerp(
 						glm::identity<glm::quat>(),
-						m_bones[assn.targetIndex].animLocal.rot,
-						assn.ratio);
+						m_bones[assignment.targetIndex].animLocal.rot,
+						assignment.ratio);
 					doAssignment = true;
 				}
 
@@ -174,13 +174,16 @@ namespace mm
 
 	void Armature::CalcSkinning()
 	{
-		for (uint32_t i = 0; i < m_bones.size(); ++i)
-			m_skinningMatrices[i] = Transform::toMat4(m_bones[i].animWorld * m_bones[i].invBindWorld);
+		for (uint32_t i = 0; i < m_bones.size(); ++i) {
+			Transform skinning = m_bones[i].animWorld * m_bones[i].invBindWorld;
+			m_skinningData[i][0] = glm::make_vec4(glm::value_ptr(skinning.rot));
+			m_skinningData[i][1] = glm::vec4(skinning.trans, 1);
+		}
 
 		m_model.m_skinningBuffer->SetSubData(
 			0, 
-			m_skinningMatrices.size() * sizeof(glm::mat4), 
-			m_skinningMatrices.data());
+			m_skinningData.size() * sizeof(glm::mat2x4), 
+			m_skinningData.data());
 	}
 }
 

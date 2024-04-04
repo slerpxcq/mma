@@ -81,9 +81,9 @@ namespace mm
 			if (m_morphKeyframes[i].empty()) {
 				MM_INFO("{0}: morph has no motion data", m_model.GetPMXFile().GetMorphName(i));
 				m_morphKeyframes[i].push_back({ 0, 0.0f });
-
-				std::sort(m_morphKeyframes[i].begin(), m_morphKeyframes[i].end());
 			}
+
+			std::sort(m_morphKeyframes[i].begin(), m_morphKeyframes[i].end());
 		}
 	}
 
@@ -122,6 +122,8 @@ namespace mm
 				float dist = Distance(frame, subframe, prev->frame, next->frame);
 				weight = glm::mix(prev->weight, next->weight, dist);
 			}
+
+			MM_INFO("frame={0}: {1}: weight={2}", frame, m_model.GetPMXFile().GetMorphName(i), weight);
 		}
 	}
 

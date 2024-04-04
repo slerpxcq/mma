@@ -17,7 +17,7 @@ namespace mm
 		m_morph = std::make_unique<Morph>(*this);
 
 		m_skinningBuffer = std::make_unique<GLBuffer>(GL_SHADER_STORAGE_BUFFER);
-		m_skinningBuffer->SetData(m_armature->GetBones().size() * sizeof(glm::mat4), nullptr);
+		m_skinningBuffer->SetData(m_armature->GetBones().size() * sizeof(glm::mat2x4), nullptr);
 		m_skinningBuffer->SetBase(DefaultShader::SKINNING_BASE);
 
 		m_morphOffsetBuffer = std::make_unique<GLBuffer>(GL_SHADER_STORAGE_BUFFER);

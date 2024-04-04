@@ -37,6 +37,7 @@ namespace mm
 				glm::vec2 uv;
 				glm::ivec4 bones;
 				glm::vec3 weights;
+				glm::vec3 sdef_c;
 			};
 		private:
 			void Set(GLVertexArray&) const override;

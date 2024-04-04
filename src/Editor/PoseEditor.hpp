@@ -55,6 +55,8 @@ namespace mm
 		EditorLayer& m_editor;
 		Model* m_model = nullptr;
 		Context m_context;
+
+		bool m_enabled = false;
 	};
 }
 

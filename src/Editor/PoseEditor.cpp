@@ -165,7 +165,7 @@ namespace mm
 
 	void PoseEditor::OnMouseButtonPressed(const Event::MouseButtonPressed& e)
 	{
-		if (m_model == nullptr)
+		if (!m_enabled || m_model == nullptr)
 			return;
 
 		switch (m_context.state) {
@@ -182,7 +182,7 @@ namespace mm
 
 	void PoseEditor::OnKeyPressed(const Event::KeyPressed& e)
 	{
-		if (m_model == nullptr)
+		if (!m_enabled || m_model == nullptr)
 			return;
 
 		const auto& bones = m_model->GetArmature().GetBones();
@@ -251,6 +251,7 @@ namespace mm
 	void PoseEditor::OnUIRender()
 	{
 		ImGui::Begin("Pose editor");
+		ImGui::Checkbox("Enable", &m_enabled);
 		ImGui::Text("Model: %s", m_model != nullptr ?
 			m_model->GetPMXFile().GetInfo().nameJP.c_str() : "--");
 		ImGui::Text("Bone: %s", m_model != nullptr && m_context.selected >= 0 ?
@@ -276,7 +277,7 @@ namespace mm
 			ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, 
 			ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 
-		if (m_model != nullptr) {
+		if (m_enabled && m_model != nullptr) {
 			switch (m_context.state) {
 			case Context::PICKING:
 				Draw();
