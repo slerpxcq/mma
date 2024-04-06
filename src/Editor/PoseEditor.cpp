@@ -303,5 +303,18 @@ namespace mm
 		ImGui::End();
 		ImGui::PopStyleVar();
 		ImGui::PopStyleVar();
+
+		ImGui::Begin("Morph edit");
+		if (m_model != nullptr) {
+			auto& morph = m_model->GetMorph();
+			uint32_t morphCount = morph.GetWeights().size();
+			for (uint32_t i = 0; i < morphCount; ++i) {
+				ImGui::SliderFloat(
+					m_model->GetPMXFile().GetMorphName(i).c_str(),
+					&morph.GetWeights()[i],
+					0.0f, 1.0f);
+			}
+		}
+		ImGui::End();
 	}
 }
