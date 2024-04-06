@@ -5,6 +5,13 @@ out VS_OUT
 	vec2 texCoord;
 } vs_out;
 
+layout (binding = 1, std140) uniform Camera 
+{
+	mat4 view;
+	mat4 proj;
+	mat4 viewProj;
+} u_camera;
+
 void main()
 {
 	const vec2 positions[] = vec2[6](

@@ -6,6 +6,7 @@
 #include "Layer/ImGuiLayer.hpp"
 #include "Layer/MenuBarLayer.hpp"
 #include "Editor/EditorLayer.hpp"
+#include "Core/GL/GLCubeMap.hpp"
 
 namespace mm
 {
@@ -33,7 +34,7 @@ namespace mm
 		GLRenderer::s_instance.Init();
 
 		// Resources
-		LoadToons();
+		LoadTextures();
 		LoadShaders();
 
 		// Layers
@@ -61,12 +62,18 @@ namespace mm
 		quadShader->Compile("resources/shaders/quad.frag", GLShader::FRAGMENT);
 		quadShader->Link();
 
+		auto skyboxShader = std::make_unique<GLShader>();
+		skyboxShader->Compile("resources/shaders/skybox.vert", GLShader::VERTEX);
+		skyboxShader->Compile("resources/shaders/skybox.frag", GLShader::FRAGMENT);
+		skyboxShader->Link();
+
 		ResourceManager::s_instance.LoadShader("default", std::move(defaultShader));
 		ResourceManager::s_instance.LoadShader("morph", std::move(morphShader));
 		ResourceManager::s_instance.LoadShader("quad", std::move(quadShader));
+		ResourceManager::s_instance.LoadShader("skybox", std::move(skyboxShader));
 	}
 
-	void Application::LoadToons()
+	void Application::LoadTextures()
 	{
 		constexpr uint32_t TOON_COUNT = 11;
 
@@ -79,10 +86,21 @@ namespace mm
 				std::to_string(i);
 			name += ".bmp";
 			toonPath += name;
-			ResourceManager::s_instance.LoadTexture(name.u8string(), std::make_unique<GLTexture>(toonPath, GL_TEXTURE_2D));
+			ResourceManager::s_instance.LoadTexture(name.u8string(), std::make_unique<GLTexture2D>(toonPath));
 		}
 
-		ResourceManager::s_instance.LoadTexture("uv_test", std::make_unique<GLTexture>("resources/textures/uvTex.png", GL_TEXTURE_2D));
+		ResourceManager::s_instance.LoadTexture("uv_test", std::make_unique<GLTexture2D>("resources/textures/uvTex.png"));
+
+		GLCubeMapConstructInfo info;
+		info.paths[0] = "resources/textures/skybox/right.jpg";
+		info.paths[1] = "resources/textures/skybox/left.jpg";
+		info.paths[2] = "resources/textures/skybox/top.jpg";
+		info.paths[3] = "resources/textures/skybox/bottom.jpg";
+		info.paths[4] = "resources/textures/skybox/front.jpg";
+		info.paths[5] = "resources/textures/skybox/back.jpg";
+
+		auto skybox = std::make_unique<GLCubeMap>(info);
+		ResourceManager::s_instance.LoadTexture("skybox", std::move(skybox));
 	}
 
 	void Application::RegisterWindowCallbacks()

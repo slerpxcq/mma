@@ -5,6 +5,7 @@ layout (location = 0) out vec4 f_fragColor;
 uniform sampler2D u_albedo;
 uniform sampler2D u_sph;
 uniform sampler2D u_toon;
+uniform samplerCube u_skybox;
 
 uniform vec3 u_lightDir;
 uniform vec3 u_lightColor;
@@ -35,9 +36,12 @@ layout (binding = 1, std140) uniform Camera
 void main()
 {
 	vec3 N = fs_in.normal;
-	vec3 L = -u_lightDir;
-	vec3 V = vec3(u_camera.view[3]) - fs_in.position;
+	vec3 L = -normalize(u_lightDir);
+	vec3 V = normalize(vec3(u_camera.view[3]) - fs_in.position);
 	vec3 H = normalize(L+V);
+	vec3 I = -V;
+	vec3 R = reflect(I, N);
+	R.z = -R.z;
 
 	vec2 toonUV = vec2(0, max(0,dot(N,L)));
 
@@ -58,5 +62,6 @@ void main()
 	color.rgb = sphMul * color.rgb + sphAdd;
 	color.rgb += specular;
 
-	f_fragColor = color;
+	f_fragColor = color * texture(u_skybox, R);
+	//f_fragColor = texture(u_skybox, R);
 }

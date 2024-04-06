@@ -4,6 +4,7 @@
 #include "Core/GL/GLRenderer.hpp"
 
 #include "EditorLayer.hpp"
+#include "Core/ResourceManager/ResourceManager.hpp"
 
 namespace mm
 {
@@ -27,6 +28,13 @@ namespace mm
         glViewport(0, 0, m_framebuffer->GetSize().x, m_framebuffer->GetSize().y);
         glClearColor(.05, .05, .05, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDepthMask(GL_FALSE);
+        renderer.BeginShader(ResourceManager::s_instance.GetShader("skybox"));
+        static int32_t ZERO = 0;
+        renderer.Uniform("u_skybox", 1, &ZERO);
+        ResourceManager::s_instance.GetTexture("skybox")->Bind(ZERO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthMask(GL_TRUE);
         m_grid->Render(renderer);
         m_editor.GetWorld().Render(renderer);
         renderer.EndFramebuffer();

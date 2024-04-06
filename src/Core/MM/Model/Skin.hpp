@@ -4,6 +4,7 @@
 #include "Core/GL/GLVertexAttrib.hpp"
 #include "Core/GL/GLShader.hpp"
 #include "Core/GL/GLTexture.hpp"
+#include "Core/GL/GLTexture2D.hpp"
 #include "Core/GL/GLVertexArray.hpp"
 #include "Core/GL/GLFrameBuffer.hpp"
 #include "Core/GL/GLRenderer.hpp"

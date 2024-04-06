@@ -38,7 +38,7 @@ namespace mm
 		std::shared_ptr<dexode::EventBus> GetEventBus() { return m_eventBus; }
 
 	private:
-		void LoadToons();
+		void LoadTextures();
 		void LoadShaders();
 		void OnWindowClose(const Event::WindowClosed& e);
 		void OnWindowResize(const Event::WindowSized& e);

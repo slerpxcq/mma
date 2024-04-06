@@ -101,6 +101,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\GL\GLTexture2D.hpp" />
+    <ClInclude Include="src\Core\GL\GLCubeMap.hpp" />
     <ClInclude Include="src\Core\MM\Model\MorphVertex.hpp" />
     <ClInclude Include="resources\shaders\quad.vert" />
     <ClInclude Include="src\Core\MM\Model\SkinVertex.hpp" />
@@ -153,6 +155,8 @@
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\GL\GLTexture2D.cpp" />
+    <ClCompile Include="src\Core\GL\GLCubeMap.cpp" />
     <ClCompile Include="src\Core\MM\Model\MorphVertex.cpp" />
     <ClCompile Include="src\Core\MM\Model\SkinVertex.cpp" />
     <ClCompile Include="src\Editor\CameraController.cpp" />
@@ -226,6 +230,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\quad.frag" />
+    <None Include="resources\shaders\skybox.frag" />
+    <None Include="resources\shaders\skybox.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

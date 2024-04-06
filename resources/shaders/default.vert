@@ -45,15 +45,6 @@ mat3 QuatToMat(in vec4 q)
 	float y = q.y;
 	float z = q.z;
 	float w = q.w;
-	//mat[0][0] = w*w + x*x - y*y - z*z; 
-	//mat[0][1] = 2*w*z + 2*x*y; 
-	//mat[0][2] = 2*x*z - 2*w*y;
-	//mat[1][0] = 2*x*y - 2*w*z;
-	//mat[1][1] = w*w - x*x + y*y - z*z;
-	//mat[1][2] = 2*y*z + 2*w*x;
-	//mat[2][0] = 2*x*z + 2*w*y;
-	//mat[2][1] = 2*y*z - 2*w*x;
-	//mat[2][2] = w*w - x*x - y*y + z*z;
 	mat[0][0] = 1-2*y*y-2*z*z;
 	mat[0][1] = 2*x*y+2*w*z;
 	mat[0][2] = 2*x*z-2*w*y;
@@ -93,8 +84,8 @@ void Skin(in vec3 inPos, in vec3 inNormal, out vec3 outPos, out vec3 outNormal)
 	}
 
 	if (!IsSDEF(a_bones)) { 
-		outPos = (matSum*vec4(inPos, 1)).xyz;
-		outNormal = (matSum*vec4(inNormal, 0)).xyz;
+		outPos = vec3(matSum*vec4(inPos, 1));
+		outNormal = mat3(transpose(inverse(matSum)))*inNormal;
 	} else { 
 		vec4 q0 = u_skinning.data[a_bones[0]][0];
 		vec4 q1 = u_skinning.data[a_bones[1]][0];

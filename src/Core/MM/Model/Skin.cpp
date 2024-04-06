@@ -77,8 +77,8 @@ namespace mm
 
 			for (uint32_t pass = 0; pass < mesh.effect->size(); ++pass) {
 				renderer.BeginPass((*mesh.effect)[pass]);
-				//mesh.effect->BeginPass(pass);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 				GLTexture& albedo = GetTexture(mesh.albedoIndex);
 				GLTexture& sph = GetTexture(mesh.sphIndex);
 				GLTexture& toon = GetToon(mesh);
@@ -86,13 +86,18 @@ namespace mm
 				sph.Bind(1);
 				toon.Bind(2);
 
+				GLTexture& skybox = *ResourceManager::s_instance.GetTexture("skybox");
+				skybox.Bind(3);
+
 				static int32_t ZERO = 0;
 				static int32_t ONE = 1;
 				static int32_t TWO = 2;
+				static int32_t THREE = 3;
 
 				renderer.Uniform("u_albedo", 1, &ZERO);
 				renderer.Uniform("u_sph", 1, &ONE);
 				renderer.Uniform("u_toon", 1, &TWO);
+				renderer.Uniform("u_skybox", 1, &THREE);
 
 				renderer.SetMaterial(mesh.material);
 
@@ -115,7 +120,6 @@ namespace mm
 				// Barrier needed because we resetted Morph in vertex shader
 				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 				renderer.EndPass();
-				//mesh.effect->EndPass();
 			}
 		}
 	}
@@ -212,7 +216,7 @@ namespace mm
 			std::filesystem::path texPath = m_model.m_pmxFile->GetPath();
 			texPath.remove_filename();
 			texPath += px.name;
-			m_textures.push_back(std::make_unique<GLTexture>(texPath.u8string().c_str(), GL_TEXTURE_2D));
+			m_textures.push_back(std::make_unique<GLTexture2D>(texPath.u8string().c_str()));
 		}
 	}
 }
