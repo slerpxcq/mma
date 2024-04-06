@@ -1,13 +1,17 @@
 #version 430 core
 
-out vec4 f_fragColor;
+layout (location = 0) out vec4 f_fragColor;
 
 uniform sampler2D u_albedo;
+uniform sampler2D u_sph;
+uniform sampler2D u_toon;
 
-in vec2 texCoord;
+uniform vec3 u_lightDir;
+uniform vec3 u_lightColor;
 
 in VS_OUT {
 	vec2 texCoord;
+	vec3 position;
 	vec3 normal;
 } fs_in;
 
@@ -21,8 +25,38 @@ layout (binding = 0, std140) uniform Material
 	uint  flags;
 } u_material;
 
+layout (binding = 1, std140) uniform Camera 
+{
+	mat4 view;
+	mat4 proj;
+	mat4 viewProj;
+} u_camera;
+
 void main()
 {
-	f_fragColor = u_material.diffuse * texture(u_albedo, fs_in.texCoord);
-	//f_fragColor = texture(u_albedo, fs_in.texCoord);
+	vec3 N = fs_in.normal;
+	vec3 L = -u_lightDir;
+	vec3 V = vec3(u_camera.view[3]) - fs_in.position;
+	vec3 H = normalize(L+V);
+
+	vec2 toonUV = vec2(0, max(0,dot(N,L)));
+
+	vec4 color = vec4(0);
+	color.rgb = u_lightColor * texture(u_toon, toonUV).rgb * u_material.diffuse.rgb + u_material.ambient.rgb*0.1;
+	color.a = u_material.diffuse.a;
+	vec3 specular = pow(max(0, dot(N,H)), u_material.specular.w) * u_material.specular.rgb * u_lightColor;
+	color *= texture(u_albedo, fs_in.texCoord);
+
+	// Sphere
+	vec3 vN = mat3(u_camera.view) * N;
+	vec2 sphTexCoord = vN.xy*0.5 + 0.5;
+	uint sphMode = (u_material.flags >> 8) & 3;
+	vec3 sphColor = texture(u_sph, sphTexCoord).rgb;
+	vec3 sphMul = (sphMode == 1) ? sphColor : vec3(1);
+	vec3 sphAdd = (sphMode == 2) ? sphColor : vec3(0);
+
+	color.rgb = sphMul * color.rgb + sphAdd;
+	color.rgb += specular;
+
+	f_fragColor = color;
 }

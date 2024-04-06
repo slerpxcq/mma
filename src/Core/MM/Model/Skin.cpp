@@ -8,7 +8,9 @@
 #include "Core/GL/GLRenderer.hpp"
 #include "Core/GL/GLVertexArray.hpp"
 #include "Core/GL/GLVertexAttrib.hpp"
-#include "Core/Camera/Camera.hpp"
+#include "Core/MM/Camera/Camera.hpp"
+
+#include "SkinVertex.hpp"
 
 static constexpr const char* toonTable[] = {
 	"toon01.bmp", "toon02.bmp",
@@ -23,7 +25,12 @@ namespace mm
 	Skin::Skin(Model& model) :
 		m_model(model)
 	{
-		m_defaultShader = dynamic_cast<DefaultShader*>(Application::Instance().GetResourceManager().GetShader("default"));
+		GLPass pass;
+		pass.blend = true;
+		pass.cullFace = true;
+		pass.depthTest = true;
+		pass.shader = ResourceManager::s_instance.GetShader("default");
+		m_defaultEffect.push_back(pass);
 
 		LoadVertices();
 		LoadIndices();
@@ -31,10 +38,12 @@ namespace mm
 		LoadTextures();
 
 		m_vertexArray = std::make_unique<GLVertexArray>();
-		m_vertexArray->SetVertexBuffer(*m_vertexBuffer, m_defaultShader->GetAttrib()->GetSize());
-		m_vertexArray->SetVertexAttrib(*m_defaultShader->GetAttrib());
+		m_vertexArray->SetVertexBuffer(*m_vertexBuffer, sizeof(SkinVertex::Layout));
+		m_vertexArray->SetVertexAttrib(SkinVertex::s_instance);
 		m_vertexArray->SetElemBuffer(*m_elemBuffer);
 		m_vertexArray->SetElemType(GL_UNSIGNED_INT);
+
+		m_renderBuffer = std::make_unique<GLFrameBuffer>(glm::uvec2(1, 1));
 	}
 
 	void Skin::LoadIndices()
@@ -47,76 +56,76 @@ namespace mm
 		MM_INFO("{0}: indices loaded; count={1}", m_model.m_pmxFile->GetInfo().nameJP, faces.size());
 	}
 
-	GLTexture* Skin::GetTexture(int32_t idx)
+	GLTexture& Skin::GetTexture(int32_t idx)
 	{
 		return (idx < 0) ? 
-			Application::Instance().GetResourceManager().GetTexture("toon00.bmp") :
-			m_textures[idx].get();
+			*ResourceManager::s_instance.GetTexture("toon00.bmp") :
+			*m_textures[idx];
+	}
+
+	GLTexture& Skin::GetToon(const Mesh& mesh)
+	{
+		return ((mesh.material.flags >> 8) & PMXFile::TOON_SHARED_BIT) ?
+			*ResourceManager::s_instance.GetTexture(toonTable[mesh.toonIndex]) :
+			GetTexture(mesh.toonIndex);
 	}
 
 	void Skin::Render(GLRenderer& renderer)
 	{
-		renderer.Enable(GL_DEPTH_TEST);
-		renderer.Enable(GL_BLEND);
-		renderer.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		renderer.Enable(GL_CULL_FACE);
-		renderer.CullFace(GL_FRONT);
-		renderer.FrontFace(GL_CW);
-
 		for (uint32_t i = 0; i < m_meshes.size(); ++i) {
 			auto& mesh = m_meshes[i];
 
-			// Textures
-			GLTexture* albedo = GetTexture(mesh.albedoIndex);
-			GLTexture* sph = GetTexture(mesh.sphIndex);
-			GLTexture* toon = ((mesh.material.flags >> DefaultShader::TOON_FLAG_OFFSET) & PMXFile::TOON_SHARED_BIT) ?
-				Application::Instance().GetResourceManager().GetTexture(toonTable[mesh.toonIndex]) :
-				GetTexture(mesh.toonIndex);
+			for (uint32_t pass = 0; pass < mesh.effect->size(); ++pass) {
+				renderer.BeginPass((*mesh.effect)[pass]);
+				//mesh.effect->BeginPass(pass);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				GLTexture& albedo = GetTexture(mesh.albedoIndex);
+				GLTexture& sph = GetTexture(mesh.sphIndex);
+				GLTexture& toon = GetToon(mesh);
+				albedo.Bind(0);
+				sph.Bind(1);
+				toon.Bind(2);
 
-			renderer.BeginShader(mesh.shader);
-			renderer.BindTexture(*albedo, DefaultShader::ALBEDO_TEX_UNIT);
-			renderer.BindTexture(*sph, DefaultShader::SPH_TEX_UNIT);
-			renderer.BindTexture(*toon, DefaultShader::TOON_TEX_UNIT);
-			renderer.GetShader()->Uniform("u_albedo", 1, &DefaultShader::ALBEDO_TEX_UNIT);
-			//renderer.GetShader()->Uniform("u_sph", 1, &MMShader::SPH_TEX_UNIT);
-			//renderer.GetShader()->Uniform("u_toon", 1, &MMShader::TOON_TEX_UNIT);
+				static int32_t ZERO = 0;
+				static int32_t ONE = 1;
+				static int32_t TWO = 2;
 
-			// Materials
-			dynamic_cast<DefaultShader*>(renderer.GetShader())->SetMaterial(mesh.material);
+				renderer.Uniform("u_albedo", 1, &ZERO);
+				renderer.Uniform("u_sph", 1, &ONE);
+				renderer.Uniform("u_toon", 1, &TWO);
 
-			// Shader
-			const Camera* camera = renderer.GetCamera();
-			if (camera != nullptr) {
-				renderer.GetShader()->Uniform("u_proj", 1, &camera->GetProj());
-				renderer.GetShader()->Uniform("u_view", 1, &camera->GetView());
+				renderer.SetMaterial(mesh.material);
+
+				static glm::vec3 lightDir(-.5, -1, .5);
+				static glm::vec3 lightColor(.6, .6, .6);
+				renderer.Uniform("u_lightDir", 1, &lightDir);
+				renderer.Uniform("u_lightColor", 1, &lightColor);
+
+				if (mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT) {
+					glDisable(GL_CULL_FACE);
+				}
+				else {
+					glEnable(GL_CULL_FACE);
+					glCullFace(GL_FRONT);
+					glFrontFace(GL_CW);
+				}
+				
+				m_vertexArray->Bind();
+				m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
+				// Barrier needed because we resetted Morph in vertex shader
+				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+				renderer.EndPass();
+				//mesh.effect->EndPass();
 			}
-
-			// Draw
-			bool noCull = mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT;
-			if (noCull)
-				renderer.Disable(GL_CULL_FACE);
-			else
-				renderer.Enable(GL_CULL_FACE);
-
-			renderer.BeginVertexArray(m_vertexArray.get());
-			renderer.Draw(true, GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
-
-			// Barrier needed because we resetted Morph in vertex shader
-			renderer.Barrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		}
-
-		renderer.EndVertexArray();
-		renderer.Disable(GL_CULL_FACE);
-		renderer.Disable(GL_BLEND);
-		renderer.Disable(GL_DEPTH_TEST);
 	}
 
 	void Skin::LoadVertices()
 	{
-		std::vector<DefaultShader::Attrib::Layout> vertices;
+		std::vector<SkinVertex::Layout> vertices;
 
 		for (const auto& pv : m_model.m_pmxFile->GetVertices()) {
-			DefaultShader::Attrib::Layout v = {};
+			SkinVertex::Layout v = {};
 			v.position = glm::make_vec3(pv.position),
 			v.normal = glm::make_vec3(pv.normal),
 			v.uv = glm::make_vec2(pv.uv),
@@ -159,7 +168,7 @@ namespace mm
 
 		m_vertexCount = vertices.size();
 		m_vertexBuffer = std::make_unique<GLBuffer>(GL_ARRAY_BUFFER);
-		m_vertexBuffer->SetData(vertices.size() * sizeof(DefaultShader::Attrib::Layout), vertices.data());
+		m_vertexBuffer->SetData(vertices.size() * sizeof(SkinVertex::Layout), vertices.data());
 		MM_INFO("{0}: vertices loaded; count={1}", m_model.m_pmxFile->GetInfo().nameJP, vertices.size());
 	}
 
@@ -171,14 +180,14 @@ namespace mm
 		for (const auto& pm : m_model.m_pmxFile->GetMaterials()) {
 			uint32_t elemCount = pm.elementCount;
 
-			DefaultShader::MaterialLayout mat = {};
+			MaterialUBOLayout mat = {};
 			mat.diffuse = glm::make_vec4(pm.diffuseColor);
 			mat.specular = glm::vec4(glm::make_vec3(pm.specularColor), pm.specularExponent);
 			mat.ambient = glm::vec4(glm::make_vec3(pm.ambientColor), 1);
 			mat.edge = glm::make_vec4(pm.edgeColor);
 			mat.edgeSize = pm.edgeWeight;
 			//                [23:16]                [15:8]                  [7:0]
-			mat.flags = (pm.toonFlag << DefaultShader::TOON_FLAG_OFFSET) | (pm.sphereMode << DefaultShader::SPH_MODE_OFFSET) | (pm.drawFlag);
+			mat.flags = (pm.toonFlag << 16) | (pm.sphereMode << 8) | (pm.drawFlag);
 
 			Mesh mesh = {};
 			mesh.material = mat;
@@ -187,7 +196,8 @@ namespace mm
 			mesh.albedoIndex = pm.textureIndex;
 			mesh.sphIndex = pm.sphereIndex;
 			mesh.toonIndex = pm.toonIndex;
-			mesh.shader = dynamic_cast<DefaultShader*>(Application::Instance().GetResourceManager().GetShader("default"));
+			mesh.effect = &m_defaultEffect;
+			//mesh.shader = m_defaultShader;
 
 			m_meshes.push_back(std::move(mesh));
 			MM_INFO("{0}: mesh loaded; faceCount={1}, faceOffset={2}",

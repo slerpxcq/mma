@@ -8,6 +8,13 @@ namespace mm
 	KeyframeEditor::KeyframeEditor(EditorLayer& editor) :
 		m_editor(editor)
 	{
+		 m_sequence.mFrameMin = -100;
+		 m_sequence.mFrameMax = 1000;
+		 m_sequence.myItems.push_back(MySequence::MySequenceItem{ 0, 10, 30, false });
+		 m_sequence.myItems.push_back(MySequence::MySequenceItem{ 1, 20, 30, true });
+		 m_sequence.myItems.push_back(MySequence::MySequenceItem{ 3, 12, 60, false });
+		 m_sequence.myItems.push_back(MySequence::MySequenceItem{ 2, 61, 90, false });
+		 m_sequence.myItems.push_back(MySequence::MySequenceItem{ 4, 90, 99, false });
 	}
 
 	void KeyframeEditor::OnUpdate(float deltaTime)
@@ -36,7 +43,7 @@ namespace mm
 
 	void KeyframeEditor::OnUIRender()
 	{
-		ImGui::Begin("Keyframe editor");
+		ImGui::Begin("Playback");
 		std::string animName = m_model != nullptr && m_model->GetAnim() != nullptr ?
 			m_model->GetAnim()->GetName() : "--";
 		ImGui::Text("Animation: %s", animName.c_str());
@@ -61,6 +68,35 @@ namespace mm
 			m_subframe = 0;
 			UpdateAnim();
 		}
+		ImGui::End();
+
+		ImGui::Begin("Keyframe edit");
+		 static int selectedEntry = -1;
+         static int firstFrame = 0;
+         static bool expanded = true;
+         static int currentFrame = 100;
+
+
+         ImGui::PushItemWidth(130);
+         ImGui::InputInt("Frame Min", &m_sequence.mFrameMin);
+         ImGui::SameLine();
+         ImGui::InputInt("Frame ", &currentFrame);
+         ImGui::SameLine();
+         ImGui::InputInt("Frame Max", &m_sequence.mFrameMax);
+         ImGui::PopItemWidth();
+         ImSequencer::Sequencer(&m_sequence, &currentFrame, &expanded, &selectedEntry, &firstFrame, 
+			 ImSequencer::SEQUENCER_EDIT_STARTEND | 
+			 ImSequencer::SEQUENCER_ADD | 
+			 ImSequencer::SEQUENCER_DEL | 
+			 ImSequencer::SEQUENCER_COPYPASTE | 
+			 ImSequencer::SEQUENCER_CHANGE_FRAME);
+         // add a UI to edit that particular item
+         if (selectedEntry != -1)
+         {
+           const MySequence::MySequenceItem &item = m_sequence.myItems[selectedEntry];
+           ImGui::Text("I am a %s, please edit me", SequencerItemTypeNames[item.mType]);
+           // switch (type) ....
+         }
 		ImGui::End();
 	}
 

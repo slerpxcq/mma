@@ -9,6 +9,11 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+static ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs)
+{
+	return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y);
+}
+
 namespace mm
 {
 	PoseEditor::PoseEditor(EditorLayer& editor) :
@@ -37,8 +42,8 @@ namespace mm
 		ImGuizmo::Enable(true);
 
 		ImGuizmo::Manipulate(
-			glm::value_ptr(m_editor.GetViewport().GetCamera().GetView()),
-			glm::value_ptr(m_editor.GetViewport().GetCamera().GetProj()),
+			glm::value_ptr(m_editor.GetWorld().GetCamera().GetView()),
+			glm::value_ptr(m_editor.GetWorld().GetCamera().GetProj()),
 			(ImGuizmo::OPERATION)m_context.operation,
 			(ImGuizmo::MODE)m_context.mode,
 			glm::value_ptr(m_context.world));
@@ -54,8 +59,6 @@ namespace mm
 		glm::vec2 mousePos = Input::MousePos();
 		int32_t selected = -1;
 		float currZ = std::numeric_limits<float>::infinity();
-
-		MM_INFO("mouse pos {0} {1}", Input::MousePos().x, Input::MousePos().y);
 
 		// Check against each bone in screen space
 		for (uint32_t i = 0; i < m_context.screenPos.size(); ++i) {
@@ -74,7 +77,7 @@ namespace mm
 
 	glm::vec3 PoseEditor::WorldToScreen(const glm::vec3& world)
 	{
-		const auto& camera = m_editor.GetViewport().GetCamera();
+		const auto& camera = m_editor.GetWorld().GetCamera();
 		glm::mat4 worldToNDC = camera.GetProj() * camera.GetView();
 		glm::vec4 ndcPos = worldToNDC * glm::vec4(world, 1.0);
 		ndcPos /= ndcPos.w;
@@ -155,10 +158,9 @@ namespace mm
 				glm::vec2 p1 = screenPos2D + CIRCLE_RADIUS * n;
 				glm::vec2 p2 = screenPos2D - CIRCLE_RADIUS * n;
 
-				drawList->AddTriangle(
-					ImVec2(p1.x, p1.y), 
-					ImVec2(p2.x, p2.y),
-					ImVec2(endPos.x, endPos.y), color, OUTLINE_SIZE);
+				drawList->AddLine(ImVec2(p1.x, p1.y), ImVec2(p2.x, p2.y), color, OUTLINE_SIZE);
+				drawList->AddLine(ImVec2(p2.x, p2.y), ImVec2(endPos.x, endPos.y), color, OUTLINE_SIZE);
+				drawList->AddLine(ImVec2(endPos.x, endPos.y), ImVec2(p1.x, p1.y), color, OUTLINE_SIZE);
 			}
 		}
 	}
@@ -189,18 +191,28 @@ namespace mm
 
 		switch (m_context.state) {
 		case Context::PICKING:
-			// Start editing
-			if ((e.code == GLFW_KEY_R || e.code == GLFW_KEY_T) && 
-				m_context.selected >= 0) {
-				glm::mat4 parentAnimWorld = Transform::toMat4(bones[bones[m_context.selected].parent].animWorld);
-				glm::mat4 bindParent = Transform::toMat4(bones[m_context.selected].bindParent);
-				m_context.world = Transform::toMat4(bones[m_context.selected].animWorld);
-				m_context.worldToLocal = glm::inverse(parentAnimWorld * bindParent);
-				if (e.code == GLFW_KEY_T)
-					m_context.operation = ImGuizmo::TRANSLATE;
-				else
-					m_context.operation = ImGuizmo::ROTATE;
-				m_context.state = Context::EDITING;
+			if (m_context.selected >= 0) {
+				if (e.code == GLFW_KEY_R || e.code == GLFW_KEY_T) {  
+					int32_t parent = bones[m_context.selected].parent;
+
+					glm::mat4 parentAnimWorld = parent >= 0 ?
+						Transform::toMat4(bones[parent].animWorld) :
+						glm::identity<glm::mat4>();
+
+					glm::mat4 bindParent = Transform::toMat4(bones[m_context.selected].bindParent);
+					m_context.world = Transform::toMat4(bones[m_context.selected].animWorld);
+					m_context.worldToLocal = glm::inverse(parentAnimWorld * bindParent);
+					
+					const auto& pmxBone = m_model->GetPMXFile().GetBones()[m_context.selected];
+					if (e.code == GLFW_KEY_T && (pmxBone.flags & PMXFile::BONE_MOVEABLE_BIT)) {
+						m_context.operation = ImGuizmo::TRANSLATE;
+						m_context.state = Context::EDITING;
+					}
+					if (e.code == GLFW_KEY_R && (pmxBone.flags & PMXFile::BONE_ROTATABLE_BIT)) {
+						m_context.operation = ImGuizmo::ROTATE;
+						m_context.state = Context::EDITING;
+					}
+				}
 			}
 			break;
 		case Context::EDITING:

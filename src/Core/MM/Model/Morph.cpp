@@ -2,7 +2,6 @@
 #include "Morph.hpp"
 
 #include "Model.hpp"
-#include "../Shaders/MorphShader.hpp"
 
 #include "Core/GL/GLVertexArray.hpp"
 #include "Core/GL/GLRenderer.hpp"
@@ -11,12 +10,14 @@
 
 #include "Core/App/Application.hpp"
 
+#include "MorphVertex.hpp"
+
 namespace mm 
 {
 	Morph::Morph(Model& model) :
 		m_model(model)
 	{
-		m_morphShader = dynamic_cast<MorphShader*>(Application::Instance().GetResourceManager().GetShader("morph"));
+		m_morphShader = ResourceManager::s_instance.GetShader("morph");
 
 		m_weights.resize(m_model.m_pmxFile->GetMorphs().size());
 		LoadTargets();
@@ -26,26 +27,27 @@ namespace mm
 
 	void Morph::Render(GLRenderer& renderer) const
 	{
-		renderer.Enable(GL_RASTERIZER_DISCARD);
-		renderer.BeginShader(Application::Instance().GetResourceManager().GetShader("morph"));
+		renderer.BeginShader(m_morphShader);
+
+		glEnable(GL_RASTERIZER_DISCARD);
 
 		for (const auto& target : m_vertexTargets) {
 			renderer.GetShader()->Uniform("u_weight", 1, &m_weights[target.index]);
-			renderer.BeginVertexArray(target.vertexArray.get());
-			renderer.Draw(false, GL_POINTS, 0, target.offsetCount);
-			renderer.Barrier(GL_SHADER_STORAGE_BARRIER_BIT);
+			target.vertexArray->Bind();
+			target.vertexArray->DrawArray(GL_POINTS, 0, target.offsetCount);
+			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		}
 
-		renderer.EndVertexArray();
-		renderer.Disable(GL_RASTERIZER_DISCARD);
+		glDisable(GL_RASTERIZER_DISCARD);
+		renderer.EndShader();
 	}
 
 	Morph::VertexTarget Morph::LoadVertexTarget(const PMXFile::Morph& pmxMorph)
 	{
-		std::vector<MorphShader::Attrib::Layout> offsets;
+		std::vector<MorphVertex::Layout> offsets;
 
 		for (const auto& pmxOffset : pmxMorph.offsets) {
-			MorphShader::Attrib::Layout offset = {};
+			MorphVertex::Layout offset = {};
 			if (pmxMorph.type == PMXFile::MORPH_VERTEX) {
 				offset.posOffset = glm::make_vec3(pmxOffset.vertex.value);
 				offset.uvOffset = glm::vec2(0);
@@ -63,9 +65,9 @@ namespace mm
 		target.offsetBuffer = std::make_unique<GLBuffer>(GL_ARRAY_BUFFER);
 		target.vertexArray = std::make_unique<GLVertexArray>();
 
-		target.offsetBuffer->SetData(offsets.size() * sizeof(MorphShader::Attrib::Layout), offsets.data());
-		target.vertexArray->SetVertexBuffer(*target.offsetBuffer, m_morphShader->GetAttrib()->GetSize());
-		target.vertexArray->SetVertexAttrib(*m_morphShader->GetAttrib());
+		target.offsetBuffer->SetData(offsets.size() * sizeof(MorphVertex::Layout), offsets.data());
+		target.vertexArray->SetVertexBuffer(*target.offsetBuffer, sizeof(MorphVertex::Layout));
+		target.vertexArray->SetVertexAttrib(MorphVertex::s_instance);
 		target.offsetCount = offsets.size();
 
 		MM_INFO("{0}: vertex morph loaded; count={1}", pmxMorph.nameJP, target.offsetCount);

@@ -5,13 +5,14 @@
 #include "Core/GL/GLShader.hpp"
 #include "Core/GL/GLTexture.hpp"
 #include "Core/GL/GLVertexArray.hpp"
-
-#include "../Shaders/DefaultShader.hpp"
+#include "Core/GL/GLFrameBuffer.hpp"
+#include "Core/GL/GLRenderer.hpp"
 
 namespace mm
 {
 	class Model;
 	class GLRenderer;
+	class Effect;
 
 	class Skin
 	{
@@ -20,8 +21,8 @@ namespace mm
 
 	public:
 		struct Mesh {
-			DefaultShader* shader;
-			DefaultShader::MaterialLayout material;
+			MaterialUBOLayout material;
+			std::vector<GLPass>* effect;
 			uint32_t elemCount;
 			uint32_t elemOffset;
 			int32_t albedoIndex;
@@ -30,14 +31,15 @@ namespace mm
 		};
 
 	public:
-
-	public:
 		Skin(Model &model);
 		void Render(GLRenderer& renderer);
 		uint32_t GetVertexCount() const { return m_vertexCount;  }
+		const std::vector<Mesh>& GetMeshes() const { return m_meshes; }
+		const GLVertexArray& GetVertexArray() const { return *m_vertexArray; }
+		GLTexture& GetTexture(int32_t idx);
+		GLTexture& GetToon(const Mesh& mesh);
 
 	private:
-		GLTexture* GetTexture(int32_t idx);
 		void LoadVertices();
 		void LoadIndices();
 		void LoadMeshes();
@@ -54,7 +56,9 @@ namespace mm
 		std::unique_ptr<GLBuffer> m_vertexBuffer;
 		std::unique_ptr<GLBuffer> m_elemBuffer;
 
-		DefaultShader* m_defaultShader;
+		std::vector<GLPass> m_defaultEffect;
+
+		std::unique_ptr<GLFrameBuffer> m_renderBuffer;
 	};
 }
 

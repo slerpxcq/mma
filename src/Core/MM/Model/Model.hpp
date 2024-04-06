@@ -28,6 +28,7 @@ namespace mm
 		const PMXFile& GetPMXFile() const { return *m_pmxFile; }
 		Armature& GetArmature() { return *m_armature; }
 		Morph& GetMorph() { return *m_morph; }
+		Skin& GetSkin() { return *m_skin; }
 		Animation* GetAnim() { return m_animation.get(); }
 		void SyncWithPhysics() { if (m_physicsData != nullptr) m_armature->SyncWithPhysics(*m_physicsData); }
 		void CalcSkinning() { m_armature->CalcSkinning(); }

@@ -124,8 +124,8 @@ namespace mm
 				pmxBones[i].flags & PMXFile::BONE_IK_BIT) {
 				IKSolver solver(*this, pmxBones[i].ik, i);
 				solver.Solve();
-				solver.Sync();
-				CalcWorldPose();
+				solver.Sync(); 
+				CalcWorldPose(pmxBones[i].ik.link.back().boneIndex);
 			}
 		}
 	}
@@ -162,9 +162,9 @@ namespace mm
 		CalcWorldPose();
 	}
 
-	void Armature::CalcWorldPose()
+	void Armature::CalcWorldPose(uint32_t begin)
 	{
-		for (uint32_t i = 0; i < m_bones.size(); ++i) {
+		for (uint32_t i = begin; i < m_bones.size(); ++i) {
 			m_bones[i].animParent = m_bones[i].bindParent * m_bones[i].animLocal;
 			m_bones[i].animWorld = m_bones[i].parent >= 0 ?
 				m_bones[m_bones[i].parent].animWorld * m_bones[i].animParent :

@@ -2,8 +2,6 @@
 #include "Model.hpp"
 
 #include "Core/GL/GLRenderer.hpp"
-#include "../Shaders/DefaultShader.hpp"
-#include "../Shaders/MorphShader.hpp"
 #include "../World.hpp"
 
 namespace mm
@@ -18,11 +16,11 @@ namespace mm
 
 		m_skinningBuffer = std::make_unique<GLBuffer>(GL_SHADER_STORAGE_BUFFER);
 		m_skinningBuffer->SetData(m_armature->GetBones().size() * sizeof(glm::mat2x4), nullptr);
-		m_skinningBuffer->SetBase(DefaultShader::SKINNING_BASE);
+		m_skinningBuffer->SetBase(1);
 
 		m_morphOffsetBuffer = std::make_unique<GLBuffer>(GL_SHADER_STORAGE_BUFFER);
-		m_morphOffsetBuffer->SetData(m_skin->GetVertexCount() * sizeof(MorphShader::Layout), nullptr);
-		m_morphOffsetBuffer->SetBase(MorphShader::MORPH_BASE);
+		m_morphOffsetBuffer->SetData(m_skin->GetVertexCount() * sizeof(Morph::SSBOLayout), nullptr);
+		m_morphOffsetBuffer->SetBase(Morph::MORPH_BASE);
 
 		m_physicsData = m_world.GetPhysicsWorld().LoadModel(*this);
 	}

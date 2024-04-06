@@ -9,11 +9,16 @@ layout (location = 5) in vec3 a_sdef_c;
 
 out VS_OUT {
 	vec2 texCoord;
+	vec3 position;
 	vec3 normal;
 } vs_out;
 
-uniform mat4 u_view;
-uniform mat4 u_proj;
+layout (binding = 1, std140) uniform Camera 
+{
+	mat4 view;
+	mat4 proj;
+	mat4 viewProj;
+} u_camera;
 
 layout (binding = 1, std140) readonly buffer Skinning
 {
@@ -24,9 +29,7 @@ layout (binding = 2, std140) buffer Morph
 {
 	struct {
 		vec3  pos;
-		float pad0;
 		vec2  uv;
-		vec2 pad1;
 	} offsets[];
 } u_morph;
 
@@ -42,26 +45,25 @@ mat3 QuatToMat(in vec4 q)
 	float y = q.y;
 	float z = q.z;
 	float w = q.w;
-	mat[0][0] = w*w + x*x - y*y - z*z; 
-	mat[0][1] = 2*w*z + 2*x*y; 
-	mat[0][2] = 2*x*z - 2*w*y;
-	mat[1][0] = 2*x*y - 2*w*z;
-	mat[1][1] = w*w - x*x + y*y - z*z;
-	mat[1][2] = 2*y*z + 2*w*x;
-	mat[2][0] = 2*x*z + 2*w*y;
-	mat[2][1] = 2*y*z - 2*w*x;
-	mat[2][2] = w*w - x*x - y*y + z*z;
+	//mat[0][0] = w*w + x*x - y*y - z*z; 
+	//mat[0][1] = 2*w*z + 2*x*y; 
+	//mat[0][2] = 2*x*z - 2*w*y;
+	//mat[1][0] = 2*x*y - 2*w*z;
+	//mat[1][1] = w*w - x*x + y*y - z*z;
+	//mat[1][2] = 2*y*z + 2*w*x;
+	//mat[2][0] = 2*x*z + 2*w*y;
+	//mat[2][1] = 2*y*z - 2*w*x;
+	//mat[2][2] = w*w - x*x - y*y + z*z;
+	mat[0][0] = 1-2*y*y-2*z*z;
+	mat[0][1] = 2*x*y+2*w*z;
+	mat[0][2] = 2*x*z-2*w*y;
+	mat[1][0] = 2*x*y-2*w*z;
+	mat[1][1] = 1-2*x*x-2*z*z;
+	mat[1][2] = 2*y*z+2*w*x;
+	mat[2][0] = 2*x*z+2*w*y;
+	mat[2][1] = 2*y*z-2*w*x;
+	mat[2][2] = 1-2*x*x-2*y*y;
 	return mat;
-}
-
-vec4 QuatInv(in vec4 q)
-{
-	return vec4(q.x, -q.y, -q.z, -q.w) / dot(q,q);
-}
-
-vec4 QuatConj(in vec4 q)
-{
-	return vec4(-q.x, -q.y, -q.x, q.w);
 }
 
 mat4 QVPairToMatrix(in mat2x4 pair)
@@ -96,12 +98,8 @@ void Skin(in vec3 inPos, in vec3 inNormal, out vec3 outPos, out vec3 outNormal)
 	} else { 
 		vec4 q0 = u_skinning.data[a_bones[0]][0];
 		vec4 q1 = u_skinning.data[a_bones[1]][0];
-		vec4 q = mix(q0, q1, weights[0]);
-
-		// I have no idea why only this works
-		q = vec4(-q.x, -q.y, q.z, q.w);
-
-		q = normalize(q);
+		vec4 q = normalize(mix(q0, q1, weights[0]));
+		//q = vec4(-q.x, -q.y, q.z, q.w);
 		mat3 Q = QuatToMat(q);
 		vec3 v0 = Q * (inPos - a_sdef_c);
 		vec3 v1 = (matSum*vec4(a_sdef_c, 1)).xyz;
@@ -117,9 +115,10 @@ void main()
 	vec3 morphPos = a_position + u_morph.offsets[gl_VertexID].pos;
 	Skin(morphPos, a_normal, skPos, skNormal);
 
-	gl_Position = u_proj * u_view * vec4(skPos, 1);
+	gl_Position = u_camera.viewProj * vec4(skPos, 1);
 	vs_out.texCoord = a_texCoord + u_morph.offsets[gl_VertexID].uv;
 	vs_out.normal = skNormal;
+	vs_out.position = a_position;
 
 	u_morph.offsets[gl_VertexID].pos = vec3(0);
 	u_morph.offsets[gl_VertexID].uv = vec2(0);

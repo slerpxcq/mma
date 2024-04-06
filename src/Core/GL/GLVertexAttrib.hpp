@@ -9,7 +9,6 @@ namespace mm
 	protected:
 		virtual void Set(GLVertexArray& vao) const = 0;
 	public:
-		virtual uint32_t GetSize() const = 0;
 		virtual ~GLVertexAttrib() {}
 	};
 }

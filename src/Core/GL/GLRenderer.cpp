@@ -2,24 +2,51 @@
 #include "GLRenderer.hpp"
 
 #include "GLShader.hpp"
-#include "GLContext.hpp"
 #include "GLTexture.hpp"
 #include "GLVertexArray.hpp"
 #include "GLFrameBuffer.hpp"
 
+#include "Core/MM/Camera/Camera.hpp"
+
 namespace mm
 {
-	GLRenderer::GLRenderer(GLContext& context) :
-		m_context(context)
+	GLRenderer GLRenderer::s_instance;
+
+	void GLRenderer::Init()
 	{
+		// Initialize UBOs and SSBOs
+		m_materialUBO = std::make_unique<GLBuffer>(GL_UNIFORM_BUFFER);
+		m_materialUBO->SetBase(MATERIAL_BASE);
+		m_materialUBO->SetData(sizeof(MaterialUBOLayout), nullptr);
+
+		m_cameraUBO = std::make_unique<GLBuffer>(GL_UNIFORM_BUFFER);
+		m_cameraUBO->SetBase(CAMERA_BASE);
+		m_cameraUBO->SetData(sizeof(CameraUBOLayout), nullptr);
+	}
+
+	void GLRenderer::SetMaterial(const MaterialUBOLayout& material)
+	{
+		m_materialUBO->SetSubData(0, sizeof(MaterialUBOLayout), (void*)&material);
+	}
+
+	void GLRenderer::SetCamera(const Camera& camera)
+	{
+		CameraUBOLayout ubo = {};
+		ubo.proj = camera.GetProj();
+		ubo.view = camera.GetView();
+		ubo.viewProj = ubo.proj * ubo.view;
+
+		m_cameraUBO->SetSubData(0, sizeof(CameraUBOLayout), &ubo);
 	}
 
 	void GLRenderer::BeginShader(GLShader* shader)
 	{
-		if (shader != nullptr)
+		if (shader != nullptr) {
 			shader->Use();
-		else
+		}
+		else {
 			glUseProgram(0);
+		}
 
 		m_shader = shader;
 	}
@@ -44,77 +71,32 @@ namespace mm
 		BeginFramebuffer(nullptr);
 	}
 
-	void GLRenderer::BeginVertexArray(GLVertexArray* va)
+	void GLRenderer::BeginPass(const GLPass& pass)
 	{
-		if (va != nullptr)
-			va->Bind();
+		m_backup.blend = glIsEnabled(GL_BLEND);
+		m_backup.depthTest = glIsEnabled(GL_DEPTH_TEST);
+		m_backup.cullFace = glIsEnabled(GL_CULL_FACE);
+		m_backup.shader = GetShader();
+
+		SetEnable(GL_BLEND, pass.blend);
+		SetEnable(GL_DEPTH_TEST, pass.depthTest);
+		SetEnable(GL_CULL_FACE, pass.cullFace);
+		BeginShader(pass.shader);
+	}
+
+	void GLRenderer::EndPass()
+	{
+		SetEnable(GL_BLEND, m_backup.blend);
+		SetEnable(GL_DEPTH_TEST, m_backup.depthTest);
+		SetEnable(GL_CULL_FACE, m_backup.cullFace);
+		BeginShader(m_backup.shader);
+	}
+
+	void GLRenderer::SetEnable(uint32_t cap, bool enable)
+	{
+		if (enable)
+			glEnable(cap);
 		else
-			glBindVertexArray(0);
-
-		m_vertexArray = va;
-	}
-
-	void GLRenderer::EndVertexArray()
-	{
-		BeginVertexArray(nullptr);
-	}
-
-	void GLRenderer::Enable(uint32_t what)
-	{
-		glEnable(what);
-	}
-
-	void GLRenderer::Disable(uint32_t what)
-	{
-		glDisable(what);
-	}
-
-	void GLRenderer::Viewport(uint32_t x, uint32_t y)
-	{
-		glViewport(0, 0, x, y);
-	}
-
-	void GLRenderer::BlendFunc(uint32_t src, uint32_t dst)
-	{
-		glBlendFunc(src, dst); 
-	}
-
-	void GLRenderer::BindTexture(const GLTexture& texture, uint32_t slot)
-	{
-		texture.Bind(slot);
-	}
-
-	void GLRenderer::Draw(bool indexed, uint32_t mode, uint32_t offset, uint32_t count)
-	{
-		if (m_vertexArray != nullptr) {
-			if (indexed)
-				m_vertexArray->DrawElem(mode, offset, count);
-			else
-				m_vertexArray->DrawArray(mode, offset, count);
-		}
-		else {
-			MM_WARN("{0}: no vertex array is bound", __FUNCTION__);
-		}
-	}
-
-	void GLRenderer::Barrier(uint32_t bitmask)
-	{
-		glMemoryBarrier(bitmask);
-	}
-
-	void GLRenderer::CullFace(uint32_t face)
-	{
-		glCullFace(face);
-	}
-
-	void GLRenderer::FrontFace(uint32_t front)
-	{
-		glFrontFace(front);
-	}
-
-	void GLRenderer::Clear(const glm::vec4& color, uint32_t bitmask)
-	{
-		glClearColor(color.r, color.g, color.b, color.a);
-		glClear(bitmask); 
+			glDisable(cap);
 	}
 }

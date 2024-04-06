@@ -7,4 +7,5 @@ uniform vec4 u_color;
 void main()
 {
 	f_fragColor = u_color;
+	//f_fragColor = vec4(1,1,1,1);
 }

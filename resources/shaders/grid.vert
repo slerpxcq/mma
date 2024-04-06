@@ -2,10 +2,14 @@
 
 layout (location = 0) in vec3 a_position;
 
-uniform mat4 u_proj;
-uniform mat4 u_view;
+layout (binding = 1, std140) uniform Camera 
+{
+	mat4 view;
+	mat4 proj;
+	mat4 viewProj;
+} u_camera;
 
 void main()
 {
-	gl_Position = u_proj * u_view * vec4(a_position, 1);
+	gl_Position = u_camera.viewProj * vec4(a_position, 1);
 }

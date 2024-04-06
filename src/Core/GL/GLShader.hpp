@@ -23,6 +23,8 @@ namespace mm
 		void Link();
 		void Use() const;
 
+		uint32_t GetId() const { return m_programId; }
+
 		template <typename T>
 		void Uniform(const std::string& name, uint32_t count, const T* v);
 

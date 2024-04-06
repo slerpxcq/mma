@@ -22,7 +22,7 @@ namespace mm
 
 		m_gridShader = gridShader.get();
 
-		Application::Instance().GetResourceManager().LoadShader("grid", std::move(gridShader));
+		ResourceManager::s_instance.LoadShader("grid", std::move(gridShader));
 
 		LoadGrid();
 	}
@@ -50,13 +50,10 @@ namespace mm
 	void Grid::Render(GLRenderer& renderer)
 	{
 		renderer.BeginShader(m_gridShader);
-		renderer.BeginVertexArray(m_vertexArray.get());
-		m_gridShader->Uniform("u_view", 1, &renderer.GetCamera()->GetView());
-		m_gridShader->Uniform("u_proj", 1, &renderer.GetCamera()->GetProj());
 		static glm::vec4 color(1, 1, 1, 0.5);
-		m_gridShader->Uniform("u_color", 1, &color);
-		renderer.Draw(false, GL_LINES, 0, m_vertexCount);
-		renderer.EndVertexArray();
+		renderer.Uniform("u_color", 1, &color);
+		m_vertexArray->Bind();
+		m_vertexArray->DrawArray(GL_LINES, 0, m_vertexCount);
 		renderer.EndShader();
 	}
 }

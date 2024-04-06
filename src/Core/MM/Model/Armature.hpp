@@ -39,7 +39,7 @@ namespace mm
 		const std::vector<Bone>& GetBones() const { return m_bones; }
 
 	private:
-		void CalcWorldPose();
+		void CalcWorldPose(uint32_t begin = 0);
 		void UpdateForwardKinematics(uint32_t layer, bool afterPhys);
 		void UpdateInverseKinematics(uint32_t layer, bool afterPhys);
 		void UpdateAssignment(uint32_t layer, bool afterPhys);

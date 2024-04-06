@@ -9,10 +9,13 @@ namespace mm
 {
 	class Model;
 	class GLRenderer;
-	class MorphShader;
+	class GLShader;
 
 	class Morph
 	{
+	public:
+		static constexpr uint32_t MORPH_BASE = 2;
+
 	public:
 		using Dict = std::unordered_map<std::string, int32_t>;
 
@@ -20,6 +23,14 @@ namespace mm
 		struct Target {
 			uint32_t index;
 		};
+
+		// std140
+		struct SSBOLayout {
+			glm::vec3 pos;
+			float     pad0;
+			glm::vec2 uv;
+			glm::vec2 pad1;
+		}; 
 
 		struct VertexTarget : public Target {
 			std::unique_ptr<GLVertexArray> vertexArray;
@@ -76,7 +87,7 @@ namespace mm
 		std::vector<MaterialTarget> m_materialTargets;
 		std::vector<BoneTarget> m_boneTargets;
 
-		MorphShader* m_morphShader;
+		GLShader* m_morphShader;
 	};
 }
 

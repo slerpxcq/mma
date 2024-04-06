@@ -101,7 +101,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Editor\GridShader.hpp" />
+    <ClInclude Include="src\Core\MM\Model\MorphVertex.hpp" />
+    <ClInclude Include="resources\shaders\quad.vert" />
+    <ClInclude Include="src\Core\MM\Model\SkinVertex.hpp" />
+    <ClInclude Include="src\Editor\CameraController.hpp" />
+    <ClInclude Include="src\Editor\Sequencer.hpp" />
     <ClInclude Include="src\Core\App\Application.hpp" />
     <ClInclude Include="src\Core\App\Core.hpp" />
     <ClInclude Include="src\Core\App\Event.hpp" />
@@ -112,7 +116,7 @@
     <ClInclude Include="src\Core\App\Layer\LayerStack.hpp" />
     <ClInclude Include="src\Core\App\Layer\MenuBarLayer.hpp" />
     <ClInclude Include="src\Core\App\Log.hpp" />
-    <ClInclude Include="src\Core\Camera\Camera.hpp" />
+    <ClInclude Include="src\Core\MM\Camera\Camera.hpp" />
     <ClInclude Include="src\Core\GL\GLBuffer.hpp" />
     <ClInclude Include="src\Core\GL\GLContext.hpp" />
     <ClInclude Include="src\Core\GL\GLFrameBuffer.hpp" />
@@ -134,8 +138,6 @@
     <ClInclude Include="src\Core\MM\Model\Skin.hpp" />
     <ClInclude Include="src\Core\MM\Physics\ModelPhysicsData.hpp" />
     <ClInclude Include="src\Core\MM\Physics\PhysicsWorld.hpp" />
-    <ClInclude Include="src\Core\MM\Shaders\DefaultShader.hpp" />
-    <ClInclude Include="src\Core\MM\Shaders\MorphShader.hpp" />
     <ClInclude Include="src\Core\MM\Transform.hpp" />
     <ClInclude Include="src\Core\MM\World.hpp" />
     <ClInclude Include="src\Core\ResourceManager\Library.hpp" />
@@ -144,13 +146,17 @@
     <ClInclude Include="src\Core\Utility\Type.hpp" />
     <ClInclude Include="src\Editor\EditorLayer.hpp" />
     <ClInclude Include="src\Editor\Grid.hpp" />
+    <ClInclude Include="src\Editor\GridShader.hpp" />
     <ClInclude Include="src\Editor\KeyframeEditor.hpp" />
     <ClInclude Include="src\Editor\PoseEditor.hpp" />
     <ClInclude Include="src\Editor\Viewport.hpp" />
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Editor\GridShader.cpp" />
+    <ClCompile Include="src\Core\MM\Model\MorphVertex.cpp" />
+    <ClCompile Include="src\Core\MM\Model\SkinVertex.cpp" />
+    <ClCompile Include="src\Editor\CameraController.cpp" />
+    <ClCompile Include="src\Editor\Sequencer.cpp" />
     <ClCompile Include="src\Core\App\Application.cpp" />
     <ClCompile Include="src\Core\App\EventUser.cpp" />
     <ClCompile Include="src\Core\App\Input.cpp" />
@@ -158,7 +164,7 @@
     <ClCompile Include="src\Core\App\Layer\LayerStack.cpp" />
     <ClCompile Include="src\Core\App\Layer\MenuBarLayer.cpp" />
     <ClCompile Include="src\Core\App\main.cpp" />
-    <ClCompile Include="src\Core\Camera\Camera.cpp" />
+    <ClCompile Include="src\Core\MM\Camera\Camera.cpp" />
     <ClCompile Include="src\Core\GL\GLBuffer.cpp" />
     <ClCompile Include="src\Core\GL\GLContext.cpp" />
     <ClCompile Include="src\Core\GL\GLFrameBuffer.cpp" />
@@ -179,13 +185,12 @@
     <ClCompile Include="src\Core\MM\Model\Skin.cpp" />
     <ClCompile Include="src\Core\MM\Physics\ModelPhysicsData.cpp" />
     <ClCompile Include="src\Core\MM\Physics\PhysicsWorld.cpp" />
-    <ClCompile Include="src\Core\MM\Shaders\DefaultShader.cpp" />
-    <ClCompile Include="src\Core\MM\Shaders\MorphShader.cpp" />
     <ClCompile Include="src\Core\MM\World.cpp" />
     <ClCompile Include="src\Core\ResourceManager\Library.cpp" />
     <ClCompile Include="src\Core\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="src\Editor\EditorLayer.cpp" />
     <ClCompile Include="src\Editor\Grid.cpp" />
+    <ClCompile Include="src\Editor\GridShader.cpp" />
     <ClCompile Include="src\Editor\KeyframeEditor.cpp" />
     <ClCompile Include="src\Editor\PoseEditor.cpp" />
     <ClCompile Include="src\Editor\Viewport.cpp" />
@@ -218,6 +223,9 @@
     <ProjectReference Include="3rdparty\EventBus\EventBus.vcxproj">
       <Project>{D1FE6998-BDCB-C4A3-E6E4-B24BD210FA31}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\shaders\quad.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

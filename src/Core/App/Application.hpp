@@ -31,8 +31,6 @@ namespace mm
 		void DeInit();
 
 		GLFWwindow* GetWindow() { return m_window; }
-		GLRenderer& GetRenderer() { return *m_renderer; }
-		ResourceManager& GetResourceManager() { return *m_resourceManager; }
 
 		void PushLayer(std::unique_ptr<Layer> layer) { m_layerStack.PushLayer(std::move(layer)); }
 		void PushOverlay(std::unique_ptr<Layer> overlay) { m_layerStack.PushOverlay(std::move(overlay)); }
@@ -64,10 +62,6 @@ namespace mm
 		// Layers
 		LayerStack m_layerStack;
 		ImGuiLayer* m_imguiLayer = nullptr;
-
-		std::unique_ptr<GLRenderer> m_renderer;
-
-		std::unique_ptr<ResourceManager> m_resourceManager;
 
 		bool m_running = true;
 		bool m_minimized = false;

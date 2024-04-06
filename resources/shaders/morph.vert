@@ -10,9 +10,7 @@ layout (binding = 2, std140) buffer Offset
 {
 	struct {
 		vec3  pos;
-		float pad0;
 		vec2  uv;
-		vec2  pad1;
 	} offsets[];
 };
 

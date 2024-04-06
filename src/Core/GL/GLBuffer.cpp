@@ -12,11 +12,6 @@ namespace mm
 		glCreateBuffers(1, &m_id);
 	}
 
-	//void GLBuffer::Bind()
-	//{
-	//	glBindBuffer(m_target, m_id);
-	//}
-
 	void GLBuffer::SetData(uint32_t size, void* data)
 	{ 
 		m_size = size;

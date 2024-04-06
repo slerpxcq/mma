@@ -1,12 +1,13 @@
 #include "mmpch.hpp"
-#include "DefaultShader.hpp"
+#include "SkinVertex.hpp"
 
 #include "Core/GL/GLVertexArray.hpp"
-#include "Core/GL/GLBuffer.hpp"
 
 namespace mm
 {
-	void DefaultShader::Attrib::Set(GLVertexArray& vao) const
+	SkinVertex SkinVertex::s_instance;
+
+	void SkinVertex::Set(GLVertexArray& vao) const
 	{
 		uint32_t vaoid = vao.GetId();
 		glVertexArrayAttribFormat(vaoid, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Layout, position));
@@ -29,19 +30,5 @@ namespace mm
 		glVertexArrayAttribBinding(vaoid, 3, 0);
 		glVertexArrayAttribBinding(vaoid, 4, 0);
 		glVertexArrayAttribBinding(vaoid, 5, 0);
-	}
-
-	DefaultShader::DefaultShader()
-	{
-		m_attrib = std::make_unique<Attrib>();
-
-		m_matrialBuffer = std::make_unique<GLBuffer>(GL_UNIFORM_BUFFER);
-		m_matrialBuffer->SetBase(MATERIAL_BASE);
-		m_matrialBuffer->SetData(sizeof(MaterialLayout), nullptr);
-	}
-
-	void DefaultShader::SetMaterial(const MaterialLayout& material)
-	{
-		m_matrialBuffer->SetSubData(0, sizeof(MaterialLayout), (void*)&material);
 	}
 }

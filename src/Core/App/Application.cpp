@@ -7,9 +7,6 @@
 #include "Layer/MenuBarLayer.hpp"
 #include "Editor/EditorLayer.hpp"
 
-#include "Core/MM/Shaders/DefaultShader.hpp"
-#include "Core/MM/Shaders/MorphShader.hpp"
-
 namespace mm
 {
 	Application* Application::s_instance = nullptr;
@@ -33,10 +30,9 @@ namespace mm
 
 		// context and renderer
 		m_glContext = std::make_unique<GLContext>(m_window);
-		m_renderer = std::make_unique<GLRenderer>(*m_glContext);
+		GLRenderer::s_instance.Init();
 
 		// Resources
-		m_resourceManager = std::make_unique<ResourceManager>();
 		LoadToons();
 		LoadShaders();
 
@@ -51,17 +47,23 @@ namespace mm
 
 	void Application::LoadShaders()
 	{
-		auto defaultShader = std::make_unique<DefaultShader>();
+		auto defaultShader = std::make_unique<GLShader>();
 		defaultShader->Compile("resources/shaders/default.vert", GLShader::VERTEX);
 		defaultShader->Compile("resources/shaders/default.frag", GLShader::FRAGMENT);
 		defaultShader->Link();
 
-		auto morphShader = std::make_unique<MorphShader>();
+		auto morphShader = std::make_unique<GLShader>();
 		morphShader->Compile("resources/shaders/morph.vert", GLShader::VERTEX);
 		morphShader->Link();
 
-		m_resourceManager->LoadShader("default", std::move(defaultShader));
-		m_resourceManager->LoadShader("morph", std::move(morphShader));
+		auto quadShader = std::make_unique<GLShader>();
+		quadShader->Compile("resources/shaders/quad.vert", GLShader::VERTEX);
+		quadShader->Compile("resources/shaders/quad.frag", GLShader::FRAGMENT);
+		quadShader->Link();
+
+		ResourceManager::s_instance.LoadShader("default", std::move(defaultShader));
+		ResourceManager::s_instance.LoadShader("morph", std::move(morphShader));
+		ResourceManager::s_instance.LoadShader("quad", std::move(quadShader));
 	}
 
 	void Application::LoadToons()
@@ -77,10 +79,10 @@ namespace mm
 				std::to_string(i);
 			name += ".bmp";
 			toonPath += name;
-			m_resourceManager->LoadTexture(name.u8string(), std::make_unique<GLTexture>(toonPath, GL_TEXTURE_2D));
+			ResourceManager::s_instance.LoadTexture(name.u8string(), std::make_unique<GLTexture>(toonPath, GL_TEXTURE_2D));
 		}
 
-		m_resourceManager->LoadTexture("uv_test", std::make_unique<GLTexture>("resources/textures/uvTex.png", GL_TEXTURE_2D));
+		ResourceManager::s_instance.LoadTexture("uv_test", std::make_unique<GLTexture>("resources/textures/uvTex.png", GL_TEXTURE_2D));
 	}
 
 	void Application::RegisterWindowCallbacks()

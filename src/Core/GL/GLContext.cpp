@@ -12,23 +12,26 @@ namespace mm
 		RegisterErrorCallback();
 	}
 
+	static void ErrorCallback(
+		GLenum source,
+		GLenum type,
+		GLuint id,
+		GLenum severity,
+		GLsizei length,
+		const GLchar* message,
+		const void* userParam) 
+	{
+		if (type == GL_DEBUG_TYPE_ERROR) {
+			MM_ERROR("GL error:\nWhat: {0}", message);
+			//MM_ASSERT(0);
+		}
+	}
+
 	void GLContext::RegisterErrorCallback()
 	{
 		glEnable(GL_DEBUG_OUTPUT);
-		glDebugMessageCallback([](
-			GLenum source,
-			GLenum type,
-			GLuint id,
-			GLenum severity,
-			GLsizei length,
-			const GLchar* message,
-			const void* userParam) {
-				if (type == GL_DEBUG_TYPE_ERROR) {
-					MM_ERROR("GL error:\nWhat: {0}", message);
-				}
-		}, nullptr);
+		glDebugMessageCallback(ErrorCallback, nullptr);
 	}
-
 
 	void GLContext::SwapBuffers()
 	{

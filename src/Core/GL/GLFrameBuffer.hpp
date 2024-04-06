@@ -16,6 +16,7 @@ namespace mm
 
 		uint32_t GetColorTarget() const { return m_colorTarget; }
 		glm::uvec2 GetSize() const { return m_size;  }
+		void BindColorTarget(uint32_t unit) const { glBindTextureUnit(unit, m_colorTarget); }
 
 	private:
 		uint32_t m_id = 0;

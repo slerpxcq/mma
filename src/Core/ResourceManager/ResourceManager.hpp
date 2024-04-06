@@ -17,6 +17,9 @@ namespace mm
 		void LoadTexture(const std::string& name, std::unique_ptr<GLTexture> tex) { m_textures.Insert(name, std::move(tex)); }
 		void LoadShader(const std::string& name, std::unique_ptr<GLShader> shader) { m_shaders.Insert(name, std::move(shader)); }
 
+	public:
+		static ResourceManager s_instance;
+
 	private:
 		Library<std::string, GLTexture> m_textures;
 		Library<std::string, GLShader> m_shaders;

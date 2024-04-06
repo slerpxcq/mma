@@ -31,7 +31,7 @@ namespace mm
         m_poseEditor->OnUpdate(deltaTime);
         m_keyframeEditor->OnUpdate(deltaTime);
 
-        GLRenderer& renderer = Application::Instance().GetRenderer();
+        GLRenderer& renderer = GLRenderer::s_instance;
         m_viewport->OnRender(renderer);
     }
 

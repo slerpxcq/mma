@@ -1,9 +1,13 @@
 #include "mmpch.hpp"
-#include "MorphShader.hpp"
+#include "MorphVertex.hpp"
+
+#include "Core/GL/GLVertexArray.hpp"
 
 namespace mm
 {
-	void MorphShader::Attrib::Set(GLVertexArray& vao) const
+	MorphVertex MorphVertex::s_instance;
+
+	void MorphVertex::Set(GLVertexArray& vao) const
 	{
 		uint32_t vaoid = vao.GetId();
 		glVertexArrayAttribFormat(vaoid, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Layout, posOffset));

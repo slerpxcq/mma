@@ -3,5 +3,5 @@
 
 namespace mm
 {
-
+	ResourceManager ResourceManager::s_instance;
 }

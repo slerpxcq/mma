@@ -1,9 +1,12 @@
 #pragma once
 
+#include "Sequencer.hpp"
+
 namespace mm
 {
 	class EditorLayer;
 	class Model;
+	class MySequencer;
 
 	class KeyframeEditor
 	{
@@ -24,6 +27,9 @@ namespace mm
 		bool m_playing = false;
 		int32_t m_frame = 0;
 		int32_t m_subframe = 0;
+
+		MySequence m_sequence;
 	};
+
 }
 

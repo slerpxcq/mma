@@ -1,12 +1,6 @@
 #pragma once
 
-//#define MM_RENDERER_CMD_DEBUG
-
-#ifdef MM_RENDERER_CMD_DEBUG
-#define RENDERER_CMD(x) MM_WRAP(x; MM_INFO("{0}", #x))
-#else
-#define RENDERER_CMD(x) MM_WRAP(x)
-#endif
+#include "Core/GL/GLBuffer.hpp"
 
 namespace mm
 {
@@ -18,12 +12,53 @@ namespace mm
 
 	class Camera;
 
+	struct GLPass
+	{
+		GLShader* shader;
+		//std::vector<GLTexture*> textures;
+
+		int32_t depthTest;
+		int32_t blend;
+		int32_t cullFace;
+	};
+
+	// std140
+	struct MaterialUBOLayout 
+	{
+		glm::vec4 diffuse;
+		glm::vec4 specular;
+		glm::vec4 ambient;
+		glm::vec4 edge;
+		float edgeSize;
+		uint32_t flags;
+	};
+
+	// std140
+	struct CameraUBOLayout 
+	{
+		glm::mat4 view;
+		glm::mat4 proj;
+		glm::mat4 viewProj;
+	};
+
 	class GLRenderer
 	{
 	public:
-		GLRenderer(GLContext& context);
-		void SetCamera(const Camera& camera) { m_camera = &camera; }
-		const Camera* GetCamera() { return m_camera; }
+		static constexpr uint32_t MATERIAL_BASE = 0;
+		static constexpr uint32_t CAMERA_BASE = 1;
+		//static constexpr uint32_t SKINNING_BASE = 1;
+		//static constexpr int32_t ALBEDO_TEX_UNIT = 0;
+		//static constexpr int32_t SPH_TEX_UNIT = 1;
+		//static constexpr int32_t TOON_TEX_UNIT = 2;
+
+		//static constexpr uint32_t SPH_MODE_OFFSET = 8;
+		//static constexpr uint32_t TOON_FLAG_OFFSET = 16;
+
+	public:
+		void Init();
+
+		void SetCamera(const Camera& camera);
+		void SetMaterial(const MaterialUBOLayout& material);
 
 		// nullptr for default shader
 		void BeginShader(GLShader* shader);
@@ -32,30 +67,35 @@ namespace mm
 		void BeginFramebuffer(GLFrameBuffer* framebuffer);
 		void EndFramebuffer();
 
-		void BeginVertexArray(GLVertexArray*);
-		void EndVertexArray();
+		void BeginPass(const GLPass& pass);
+		void EndPass();
+
+		void SetEnable(uint32_t cap, bool enable);
+
+		template <typename T>
+		void Uniform(const std::string& name, uint32_t count, const T* v) { 
+			m_shader->Uniform(name, count, v); 
+		}
 
 		GLShader* GetShader() const { return m_shader; }
-		void Enable(uint32_t what);
-		void Disable(uint32_t what);
-		void Viewport(uint32_t x, uint32_t y);
-		void BlendFunc(uint32_t src, uint32_t dst);
-		void BindTexture(const GLTexture& texture, uint32_t slot);
-		void Draw(bool indexed, uint32_t mode, uint32_t offset, uint32_t count);
-		void Barrier(uint32_t bitmask);
-		void CullFace(uint32_t);
-		void FrontFace(uint32_t);
+		GLFrameBuffer* GetFrameBuffer() { return m_framebuffer; }
 
-		void Clear(const glm::vec4& color, uint32_t bitmask);
-
-		GLContext& GetContext() { return m_context; }
+	public:
+		static GLRenderer s_instance;
 
 	private:
-		GLContext& m_context;
-		const Camera* m_camera = nullptr;
+		GLRenderer() {};
+
+	private:
+		//const Camera* m_camera = nullptr;
 		GLShader* m_shader = nullptr;
 		GLFrameBuffer* m_framebuffer = nullptr;
-		GLVertexArray* m_vertexArray = nullptr;
+
+		std::unique_ptr<GLBuffer> m_materialUBO;
+		std::unique_ptr<GLBuffer> m_cameraUBO;
+		//std::unique_ptr<GLBuffer> m_lightUBO;
+
+		GLPass m_backup;
 	};
 }
 

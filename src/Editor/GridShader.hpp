@@ -17,9 +17,6 @@ namespace mm
 			};
 		private:
 			void Set(GLVertexArray&) const override;
-			uint32_t GetSize() const override {
-				return sizeof(Layout);
-			}
 		};
 
 	public:

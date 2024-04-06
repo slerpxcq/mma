@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core/Camera/Camera.hpp"
 #include "Core/GL/GLFrameBuffer.hpp"
 
+#include "CameraController.hpp"
 #include "Grid.hpp"
 
 namespace mm
@@ -19,11 +19,10 @@ namespace mm
 		void OnUIRender();
 		glm::uvec2 GetSize() const { return m_size; }
 		glm::ivec2 GetPos() const { return m_pos; }
-		const Camera& GetCamera() const { return m_camera; }
 
 	private:
 		EditorLayer& m_editor;
-		Camera m_camera;
+		CameraController m_cameraController;
 		std::unique_ptr<GLFrameBuffer> m_framebuffer;
 		glm::uvec2 m_size;
 		glm::ivec2 m_pos;

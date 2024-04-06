@@ -122,8 +122,6 @@ namespace mm
 				float dist = Distance(frame, subframe, prev->frame, next->frame);
 				weight = glm::mix(prev->weight, next->weight, dist);
 			}
-
-			MM_INFO("frame={0}: {1}: weight={2}", frame, m_model.GetPMXFile().GetMorphName(i), weight);
 		}
 	}
 

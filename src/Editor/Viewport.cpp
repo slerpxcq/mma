@@ -8,7 +8,8 @@
 namespace mm
 {
 	Viewport::Viewport(EditorLayer& editor) :
-        m_editor(editor)
+        m_editor(editor),
+        m_cameraController(m_editor.GetWorld().GetCamera())
 	{
         m_framebuffer = std::make_unique<GLFrameBuffer>(glm::uvec2(1, 1));
         m_grid = std::make_unique<Grid>(*this);
@@ -16,15 +17,16 @@ namespace mm
 
     void Viewport::OnUpdate(float deltaTime)
     {
-        m_camera.Update();
+        m_cameraController.Update();
     }
 
 	void Viewport::OnRender(GLRenderer& renderer)
 	{
-        renderer.SetCamera(m_camera);
-        renderer.Viewport(m_size.x, m_size.y);
+        renderer.SetCamera(m_cameraController.GetCamera());
         renderer.BeginFramebuffer(m_framebuffer.get());
-        renderer.Clear(glm::vec4(0.05, 0.05, 0.05, 1), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glViewport(0, 0, m_framebuffer->GetSize().x, m_framebuffer->GetSize().y);
+        glClearColor(.05, .05, .05, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         m_grid->Render(renderer);
         m_editor.GetWorld().Render(renderer);
         renderer.EndFramebuffer();
@@ -44,7 +46,7 @@ namespace mm
         if (m_size != size) {
             m_size = size;
             m_framebuffer->Reload(m_size);
-            m_camera.SetAspect((float)m_size.x / m_size.y);
+            m_cameraController.GetCamera().SetAspect((float)m_size.x / m_size.y);
         }
         // moved
         if (m_pos != pos) {
