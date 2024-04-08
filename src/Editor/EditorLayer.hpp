@@ -2,7 +2,6 @@
 
 #include "Core/App/Layer/Layer.hpp"
 #include "Core/App/Event.hpp"
-#include "Core/App/EventUser.hpp"
 
 #include "Core/MM/World.hpp"
 #include "Core/GL/GLFrameBuffer.hpp"
@@ -11,10 +10,11 @@
 #include "PoseEditor.hpp"
 #include "KeyframeEditor.hpp"
 
+#include <dexode/EventBus.hpp>
+
 namespace mm
 {
-	class Model;
-	class EditorLayer : public Layer, public EventUser
+	class EditorLayer : public Layer
 	{
 	public:
 		void OnAttach() override ;
@@ -27,9 +27,13 @@ namespace mm
 
 	private:
 		std::unique_ptr<World> m_world;
+		Model* m_model;
+
 		std::unique_ptr<Viewport> m_viewport;
 		std::unique_ptr<PoseEditor> m_poseEditor;
 		std::unique_ptr<KeyframeEditor> m_keyframeEditor;
+
+		std::unique_ptr<dexode::EventBus::Listener> m_listener;
 	};
 }
 

@@ -26,10 +26,11 @@ namespace mm
 		m_model(model)
 	{
 		GLPass pass;
-		pass.blend = true;
-		pass.cullFace = true;
-		pass.depthTest = true;
+		// Outline pass
+		pass.cullFace = GL_FRONT;
 		pass.shader = ResourceManager::s_instance.GetShader("default");
+		m_defaultEffect.push_back(pass);
+		pass.cullFace = GL_BACK;
 		m_defaultEffect.push_back(pass);
 
 		LoadVertices();
@@ -77,7 +78,6 @@ namespace mm
 
 			for (uint32_t pass = 0; pass < mesh.effect->size(); ++pass) {
 				renderer.BeginPass((*mesh.effect)[pass]);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 				GLTexture& albedo = GetTexture(mesh.albedoIndex);
 				GLTexture& sph = GetTexture(mesh.sphIndex);
@@ -89,35 +89,38 @@ namespace mm
 				GLTexture& skybox = *ResourceManager::s_instance.GetTexture("skybox");
 				skybox.Bind(3);
 
-				static int32_t ZERO = 0;
-				static int32_t ONE = 1;
-				static int32_t TWO = 2;
-				static int32_t THREE = 3;
+				GLShader* shader = renderer.GetShader();
 
-				renderer.Uniform("u_albedo", 1, &ZERO);
-				renderer.Uniform("u_sph", 1, &ONE);
-				renderer.Uniform("u_toon", 1, &TWO);
-				renderer.Uniform("u_skybox", 1, &THREE);
+				shader->Uniform("u_albedo", 0);
+				shader->Uniform("u_sph", 1);
+				shader->Uniform("u_toon", 2);
+				shader->Uniform("u_skybox", 3);
 
 				renderer.SetMaterial(mesh.material);
 
-				static glm::vec3 lightDir(-.5, -1, .5);
-				static glm::vec3 lightColor(.6, .6, .6);
-				renderer.Uniform("u_lightDir", 1, &lightDir);
-				renderer.Uniform("u_lightColor", 1, &lightColor);
+				shader->Uniform("u_lightDir", glm::vec3(-.5, -1, .5));
+				shader->Uniform("u_lightColor", glm::vec3(.6, .6, .6));
 
-				if (mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT) {
-					glDisable(GL_CULL_FACE);
+				// TODO: SPECIFY UNIFORMS IN PASS PARAMETERS
+				bool outlinePass = (pass == 0);
+				shader->Uniform("u_outlinePass", (int32_t)outlinePass);
+
+				bool draw = false;
+
+				if (!outlinePass) {
+					if (mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT)
+						glDisable(GL_CULL_FACE);
+
+					m_vertexArray->Bind();
+					m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
 				}
 				else {
-					glEnable(GL_CULL_FACE);
-					glCullFace(GL_FRONT);
-					glFrontFace(GL_CW);
+					if (mesh.material.flags & PMXFile::MATERIAL_EDGE_BIT) {
+						m_vertexArray->Bind();
+						m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
+					}
 				}
-				
-				m_vertexArray->Bind();
-				m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
-				// Barrier needed because we resetted Morph in vertex shader
+
 				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 				renderer.EndPass();
 			}

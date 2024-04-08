@@ -10,6 +10,7 @@ namespace mm
 {
 	void MenuBarLayer::OnAttach()
 	{
+		m_appEventBus = Application::Instance().GetEventBus();
 	}
 
 	void MenuBarLayer::OnDetach()
@@ -25,7 +26,7 @@ namespace mm
 		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				if (ImGui::MenuItem("Exit")) {
-					m_eventBus->postpone<Event::WindowClosed>({});
+					m_appEventBus->postpone<Event::WindowClosed>({});
 				}
 				ImGui::EndMenu();
 			}

@@ -33,6 +33,8 @@ layout (binding = 2, std140) buffer Morph
 	} offsets[];
 } u_morph;
 
+uniform bool u_outlinePass;
+
 bool IsSDEF(in ivec4 bones)
 {
 	return bones[2] == -1 && bones[3] != -1;
@@ -84,8 +86,8 @@ void Skin(in vec3 inPos, in vec3 inNormal, out vec3 outPos, out vec3 outNormal)
 	}
 
 	if (!IsSDEF(a_bones)) { 
-		outPos = vec3(matSum*vec4(inPos, 1));
-		outNormal = mat3(transpose(inverse(matSum)))*inNormal;
+		outPos = vec3(matSum * vec4(inPos, 1));
+		outNormal = inverse(transpose(mat3(matSum))) * inNormal;
 	} else { 
 		vec4 q0 = u_skinning.data[a_bones[0]][0];
 		vec4 q1 = u_skinning.data[a_bones[1]][0];
@@ -93,10 +95,10 @@ void Skin(in vec3 inPos, in vec3 inNormal, out vec3 outPos, out vec3 outNormal)
 		//q = vec4(-q.x, -q.y, q.z, q.w);
 		mat3 Q = QuatToMat(q);
 		vec3 v0 = Q * (inPos - a_sdef_c);
-		vec3 v1 = (matSum*vec4(a_sdef_c, 1)).xyz;
+		vec3 v1 = vec3(matSum*vec4(a_sdef_c, 1));
 
 		outPos = v0 + v1;
-		outNormal = Q * inNormal;
+		outNormal = inverse(transpose(Q)) * inNormal;
 	}
 }
 
@@ -106,10 +108,15 @@ void main()
 	vec3 morphPos = a_position + u_morph.offsets[gl_VertexID].pos;
 	Skin(morphPos, a_normal, skPos, skNormal);
 
-	gl_Position = u_camera.viewProj * vec4(skPos, 1);
-	vs_out.texCoord = a_texCoord + u_morph.offsets[gl_VertexID].uv;
+	if (u_outlinePass) {
+		gl_Position = u_camera.viewProj * vec4(skPos + 0.01 * skNormal, 1);
+	} else {
+		gl_Position = u_camera.viewProj * vec4(skPos, 1);
+	}
+
+	vs_out.position = skPos;
 	vs_out.normal = skNormal;
-	vs_out.position = a_position;
+	vs_out.texCoord = a_texCoord + u_morph.offsets[gl_VertexID].uv;
 
 	u_morph.offsets[gl_VertexID].pos = vec3(0);
 	u_morph.offsets[gl_VertexID].uv = vec2(0);

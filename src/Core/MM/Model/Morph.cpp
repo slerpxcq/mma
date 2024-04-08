@@ -27,7 +27,7 @@ namespace mm
 
 	void Morph::Render(GLRenderer& renderer) const
 	{
-		renderer.BeginShader(m_morphShader);
+		renderer.SetShader(m_morphShader);
 
 		glEnable(GL_RASTERIZER_DISCARD);
 
@@ -39,7 +39,6 @@ namespace mm
 		}
 
 		glDisable(GL_RASTERIZER_DISCARD);
-		renderer.EndShader();
 	}
 
 	Morph::VertexTarget Morph::LoadVertexTarget(const PMXFile::Morph& pmxMorph)

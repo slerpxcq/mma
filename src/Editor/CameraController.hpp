@@ -1,15 +1,15 @@
 #pragma once
 
 #include "Core/App/Event.hpp"
-#include "Core/App/EventUser.hpp"
-
 #include "Core/MM/Camera/Camera.hpp"
+
+#include <dexode/EventBus.hpp>
 
 namespace mm
 {
 	class Camera;
 
-	class CameraController : public EventUser
+	class CameraController
 	{
 		static constexpr float PAN_SPEED = 0.01f;
 		static constexpr float ORBIT_SPEED = 0.005f;
@@ -24,6 +24,8 @@ namespace mm
 		void OnMouseScrolled(const Event::MouseScrolled& e);
 
 	private:
+		std::unique_ptr<dexode::EventBus::Listener> m_appEventListener;
+
 		Camera& m_camera;
 
 		// helper states

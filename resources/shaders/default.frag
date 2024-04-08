@@ -33,8 +33,15 @@ layout (binding = 1, std140) uniform Camera
 	mat4 viewProj;
 } u_camera;
 
+uniform bool u_outlinePass;
+
 void main()
 {
+	if (u_outlinePass) {
+		f_fragColor = u_material.edge;
+		return;
+	}
+
 	vec3 N = fs_in.normal;
 	vec3 L = -normalize(u_lightDir);
 	vec3 V = normalize(vec3(u_camera.view[3]) - fs_in.position);
@@ -62,6 +69,7 @@ void main()
 	color.rgb = sphMul * color.rgb + sphAdd;
 	color.rgb += specular;
 
-	f_fragColor = color * texture(u_skybox, R);
+	//f_fragColor = color * texture(u_skybox, R);
 	//f_fragColor = texture(u_skybox, R);
+	f_fragColor = color;
 }

@@ -24,20 +24,22 @@ namespace mm
 	void Viewport::OnRender(GLRenderer& renderer)
 	{
         renderer.SetCamera(m_cameraController.GetCamera());
-        renderer.BeginFramebuffer(m_framebuffer.get());
+        renderer.SetFramebuffer(m_framebuffer.get());
         glViewport(0, 0, m_framebuffer->GetSize().x, m_framebuffer->GetSize().y);
         glClearColor(.05, .05, .05, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Skybox
         glDepthMask(GL_FALSE);
-        renderer.BeginShader(ResourceManager::s_instance.GetShader("skybox"));
-        static int32_t ZERO = 0;
-        renderer.Uniform("u_skybox", 1, &ZERO);
-        ResourceManager::s_instance.GetTexture("skybox")->Bind(ZERO);
+        renderer.SetShader(ResourceManager::s_instance.GetShader("skybox"));
+        renderer.GetShader()->Uniform("u_skybox", 0);
+        ResourceManager::s_instance.GetTexture("skybox")->Bind(0);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthMask(GL_TRUE);
+
         m_grid->Render(renderer);
         m_editor.GetWorld().Render(renderer);
-        renderer.EndFramebuffer();
+        renderer.SetFramebuffer(nullptr);
 	}
 
 	void Viewport::OnUIRender()

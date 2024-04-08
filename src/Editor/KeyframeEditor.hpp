@@ -1,6 +1,9 @@
 #pragma once
 
+#include "EditorEvent.hpp"
 #include "Sequencer.hpp"
+
+#include <dexode/EventBus.hpp>
 
 namespace mm
 {
@@ -14,10 +17,11 @@ namespace mm
 		static constexpr uint32_t SUBFRAME_COUNT = 8;
 	public:
 		KeyframeEditor(EditorLayer& editor);
+		void OnModelLoaded(const EditorEvent::ModelLoaded& e);
+		void OnMotionLoaded(const EditorEvent::MotionLoaded& e);
 		void OnUpdate(float deltaTime);
 		void UpdateAnim();
 		void OnUIRender();
-		void SetModel(Model* model);
 		Model* GetModel() { return m_model; }
 
 	private:
@@ -28,7 +32,9 @@ namespace mm
 		int32_t m_frame = 0;
 		int32_t m_subframe = 0;
 
-		MySequence m_sequence;
+		dexode::EventBus::Listener m_listener;
+
+		std::vector<MySequence> m_clusters;
 	};
 
 }

@@ -67,10 +67,16 @@ namespace mm
 		skyboxShader->Compile("resources/shaders/skybox.frag", GLShader::FRAGMENT);
 		skyboxShader->Link();
 
+		auto gridShader = std::make_unique<GLShader>();
+		gridShader->Compile("resources/shaders/grid.vert", GLShader::VERTEX);
+		gridShader->Compile("resources/shaders/grid.frag", GLShader::FRAGMENT);
+		gridShader->Link();
+
 		ResourceManager::s_instance.LoadShader("default", std::move(defaultShader));
 		ResourceManager::s_instance.LoadShader("morph", std::move(morphShader));
 		ResourceManager::s_instance.LoadShader("quad", std::move(quadShader));
 		ResourceManager::s_instance.LoadShader("skybox", std::move(skyboxShader));
+		ResourceManager::s_instance.LoadShader("grid", std::move(gridShader));
 	}
 
 	void Application::LoadTextures()

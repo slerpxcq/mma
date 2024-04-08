@@ -39,24 +39,17 @@ namespace mm
 		m_cameraUBO->SetSubData(0, sizeof(CameraUBOLayout), &ubo);
 	}
 
-	void GLRenderer::BeginShader(GLShader* shader)
+	void GLRenderer::SetShader(GLShader* shader)
 	{
-		if (shader != nullptr) {
+		if (shader != nullptr) 
 			shader->Use();
-		}
-		else {
+		else 
 			glUseProgram(0);
-		}
 
 		m_shader = shader;
 	}
 
-	void GLRenderer::EndShader()
-	{
-		BeginShader(nullptr);
-	}
-
-	void GLRenderer::BeginFramebuffer(GLFrameBuffer* framebuffer)
+	void GLRenderer::SetFramebuffer(GLFrameBuffer* framebuffer)
 	{
 		if (framebuffer != nullptr)
 			framebuffer->Bind();
@@ -66,30 +59,36 @@ namespace mm
 		m_framebuffer = framebuffer;
 	}
 
-	void GLRenderer::EndFramebuffer()
-	{
-		BeginFramebuffer(nullptr);
-	}
-
 	void GLRenderer::BeginPass(const GLPass& pass)
 	{
-		m_backup.blend = glIsEnabled(GL_BLEND);
-		m_backup.depthTest = glIsEnabled(GL_DEPTH_TEST);
-		m_backup.cullFace = glIsEnabled(GL_CULL_FACE);
 		m_backup.shader = GetShader();
 
-		SetEnable(GL_BLEND, pass.blend);
+		m_backup.depthTest = glIsEnabled(GL_DEPTH_TEST);
+
+		m_backup.blend = glIsEnabled(GL_BLEND);
+		glGetIntegerv(GL_BLEND_SRC_ALPHA, (int32_t*)&m_backup.blendS);
+		glGetIntegerv(GL_BLEND_DST_ALPHA, (int32_t*)&m_backup.blendD);
+
+		m_backup.cull = glIsEnabled(GL_CULL_FACE);
+
+		SetShader(pass.shader);
 		SetEnable(GL_DEPTH_TEST, pass.depthTest);
+		SetEnable(GL_BLEND, pass.blend);
+		if (pass.blend)
+			glBlendFunc(pass.blendS, pass.blendD);
 		SetEnable(GL_CULL_FACE, pass.cullFace);
-		BeginShader(pass.shader);
+		if (pass.cullFace) {
+			glFrontFace(pass.frontFace);
+			glCullFace(pass.cullFace);
+		}
 	}
 
 	void GLRenderer::EndPass()
 	{
-		SetEnable(GL_BLEND, m_backup.blend);
+		SetShader(m_backup.shader);
 		SetEnable(GL_DEPTH_TEST, m_backup.depthTest);
+		SetEnable(GL_BLEND, m_backup.blend);
 		SetEnable(GL_CULL_FACE, m_backup.cullFace);
-		BeginShader(m_backup.shader);
 	}
 
 	void GLRenderer::SetEnable(uint32_t cap, bool enable)

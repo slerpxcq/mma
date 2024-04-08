@@ -15,11 +15,19 @@ namespace mm
 	struct GLPass
 	{
 		GLShader* shader;
-		//std::vector<GLTexture*> textures;
 
-		int32_t depthTest;
-		int32_t blend;
-		int32_t cullFace;
+		bool depthTest = true;
+
+		bool blend = true;
+		uint32_t blendS = GL_SRC_ALPHA;
+		uint32_t blendD = GL_ONE_MINUS_SRC_ALPHA;
+
+		bool cull = true;
+		uint32_t frontFace = GL_CCW;
+		uint32_t cullFace = GL_BACK;
+
+		bool scissorTest = false;
+		bool stencilTest = false;
 	};
 
 	// std140
@@ -46,13 +54,6 @@ namespace mm
 	public:
 		static constexpr uint32_t MATERIAL_BASE = 0;
 		static constexpr uint32_t CAMERA_BASE = 1;
-		//static constexpr uint32_t SKINNING_BASE = 1;
-		//static constexpr int32_t ALBEDO_TEX_UNIT = 0;
-		//static constexpr int32_t SPH_TEX_UNIT = 1;
-		//static constexpr int32_t TOON_TEX_UNIT = 2;
-
-		//static constexpr uint32_t SPH_MODE_OFFSET = 8;
-		//static constexpr uint32_t TOON_FLAG_OFFSET = 16;
 
 	public:
 		void Init();
@@ -61,26 +62,18 @@ namespace mm
 		void SetMaterial(const MaterialUBOLayout& material);
 
 		// nullptr for default shader
-		void BeginShader(GLShader* shader);
-		void EndShader();
+		void SetShader(GLShader* shader);
 		// nullptr for default framebuffer
-		void BeginFramebuffer(GLFrameBuffer* framebuffer);
-		void EndFramebuffer();
+		void SetFramebuffer(GLFrameBuffer* framebuffer);
 
 		void BeginPass(const GLPass& pass);
 		void EndPass();
-
-		void SetEnable(uint32_t cap, bool enable);
-
-		template <typename T>
-		void Uniform(const std::string& name, uint32_t count, const T* v) { 
-			m_shader->Uniform(name, count, v); 
-		}
 
 		GLShader* GetShader() const { return m_shader; }
 		GLFrameBuffer* GetFrameBuffer() { return m_framebuffer; }
 
 	public:
+		void SetEnable(uint32_t cap, bool enable);
 		static GLRenderer s_instance;
 
 	private:

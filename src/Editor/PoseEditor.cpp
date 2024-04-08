@@ -2,12 +2,15 @@
 #include "PoseEditor.hpp"
 
 #include "EditorLayer.hpp"
+#include "EditorEvent.hpp"
 
 #include "Core/MM/Model/Model.hpp"
 #include "Core/App/Input.hpp"
 #include "Core/Locale/Locale.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
+
+#include "Core/App/Application.hpp"
 
 static ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs)
 {
@@ -17,15 +20,17 @@ static ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs)
 namespace mm
 {
 	PoseEditor::PoseEditor(EditorLayer& editor) :
-		m_editor(editor)
+		m_editor(editor),
+		m_listener(Application::Instance().GetEventBus())
 	{
 		m_listener.listen<Event::MouseButtonPressed>(MM_EVENT_FN(PoseEditor::OnMouseButtonPressed));
 		m_listener.listen<Event::KeyPressed>(MM_EVENT_FN(PoseEditor::OnKeyPressed));
+		m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(PoseEditor::OnModelLoaded));
 	}
 
-	void PoseEditor::SetModel(Model* model)
+	void PoseEditor::OnModelLoaded(const EditorEvent::ModelLoaded& e)
 	{
-		m_model = model;
+		m_model = e.model;
 
 		if (m_model != nullptr) {
 			m_context.screenPos.clear();
@@ -260,6 +265,21 @@ namespace mm
 		}
 	}
 
+	void PoseEditor::MorphSliders(uint32_t panel)
+	{
+		auto& morph = m_model->GetMorph();
+		auto& pmxMorphs = m_model->GetPMXFile().GetMorphs();
+		uint32_t morphCount = morph.GetWeights().size();
+		for (uint32_t i = 0; i < morphCount; ++i) {
+			if (pmxMorphs[i].panel == panel) {
+				ImGui::SliderFloat(
+					m_model->GetPMXFile().GetMorphName(i).c_str(),
+					&morph.GetWeights()[i],
+					0.0f, 1.0f);
+			}
+		}
+	}
+
 	void PoseEditor::OnUIRender()
 	{
 		ImGui::Begin("Pose editor");
@@ -306,13 +326,21 @@ namespace mm
 
 		ImGui::Begin("Morph edit");
 		if (m_model != nullptr) {
-			auto& morph = m_model->GetMorph();
-			uint32_t morphCount = morph.GetWeights().size();
-			for (uint32_t i = 0; i < morphCount; ++i) {
-				ImGui::SliderFloat(
-					m_model->GetPMXFile().GetMorphName(i).c_str(),
-					&morph.GetWeights()[i],
-					0.0f, 1.0f);
+			if (ImGui::TreeNode("Eye")) {
+				MorphSliders(PMXFile::PANEL_EYE);
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("Eyebrow")) {
+				MorphSliders(PMXFile::PANEL_EYEBROW);
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("Lip")) {
+				MorphSliders(PMXFile::PANEL_MOUTH);
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("Other")) {
+				MorphSliders(PMXFile::PANEL_OTHER);
+				ImGui::TreePop();
 			}
 		}
 		ImGui::End();

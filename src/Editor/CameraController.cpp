@@ -7,13 +7,17 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include "Core/App/Application.hpp"
+
 namespace mm
 {
 	CameraController::CameraController(Camera& camera) :
 		m_camera(camera)
 	{
-		m_listener.listen<Event::MouseButtonPressed>(MM_EVENT_FN(CameraController::OnMouseButtonPressed));
-		m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(CameraController::OnMouseScrolled));
+		m_appEventListener = std::make_unique<dexode::EventBus::Listener>(Application::Instance().GetEventBus());
+
+		m_appEventListener->listen<Event::MouseButtonPressed>(MM_EVENT_FN(CameraController::OnMouseButtonPressed));
+		m_appEventListener->listen<Event::MouseScrolled>(MM_EVENT_FN(CameraController::OnMouseScrolled));
 	}
 
 	void CameraController::Update()

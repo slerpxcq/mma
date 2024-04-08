@@ -2,14 +2,17 @@
 
 #include <ImGuizmo.h>
 #include "Core/App/Event.hpp"
-#include "Core/App/EventUser.hpp"
+
+#include <dexode/EventBus.hpp>
+
+#include "EditorEvent.hpp"
 
 namespace mm
 {
 	class Model;
 	class EditorLayer;
 	
-	class PoseEditor : public EventUser
+	class PoseEditor
 	{
 		static constexpr uint32_t SELECTED_COLOR = 0x7f0000ff;
 		static constexpr uint32_t UNSELECTED_COLOR = 0x7fc0c0c0;
@@ -19,7 +22,6 @@ namespace mm
 
 	public:
 		PoseEditor(EditorLayer& editor);
-		void SetModel(Model* model);
 		Model* GetModel() { return m_model; }
 		void OnUpdate(float deltaTime);
 		void OnUIRender();
@@ -50,11 +52,16 @@ namespace mm
 
 		void OnMouseButtonPressed(const Event::MouseButtonPressed& e);
 		void OnKeyPressed(const Event::KeyPressed& e);
+		void OnModelLoaded(const EditorEvent::ModelLoaded& e);
+
+		void MorphSliders(uint32_t panel);
 
 	private:
 		EditorLayer& m_editor;
 		Model* m_model = nullptr;
 		Context m_context;
+
+		dexode::EventBus::Listener m_listener;
 
 		bool m_enabled = false;
 	};
