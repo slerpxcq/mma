@@ -45,7 +45,7 @@ namespace mm
 	void Viewport::OnUIRender()
 	{
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoCollapse);
+        ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
         m_hovered = ImGui::IsWindowHovered();
 
@@ -70,5 +70,7 @@ namespace mm
 
         ImGui::End();
         ImGui::PopStyleVar();
+
+        m_cameraController.OnUIRender();
 	}
 }

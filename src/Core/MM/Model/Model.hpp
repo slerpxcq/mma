@@ -22,7 +22,7 @@ namespace mm
 	public:
 		// Model file should be managed by resource manager
 		Model(World& world, const std::filesystem::path& path);
-		void LoadAnimation(const std::filesystem::path& path);
+		Animation* LoadAnimation(const std::filesystem::path& path);
 		void Render(GLRenderer& renderer);
 		void Update(float deltaTime);
 		const PMXFile& GetPMXFile() const { return *m_pmxFile; }

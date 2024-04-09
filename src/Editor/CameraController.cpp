@@ -54,6 +54,16 @@ namespace mm
 		}
 	}
 
+	void CameraController::OnUIRender()
+	{
+		ImGui::Begin("Camera");
+		static bool ortho;
+		static float fov;
+		ImGui::Checkbox("Ortho", &ortho);
+		ImGui::InputFloat("FOV", &fov);
+		ImGui::End();
+	}
+
 	void CameraController::OnMouseButtonPressed(const Event::MouseButtonPressed& e)
 	{
 		if (!m_viewport.IsHovered())

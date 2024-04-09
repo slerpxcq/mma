@@ -5,6 +5,7 @@
 namespace mm
 {
 	class Model;
+	class Animation;
 
 	namespace EditorEvent
 	{
@@ -13,6 +14,7 @@ namespace mm
 		};
 
 		struct MotionLoaded {
+			Animation* animation;
 		};
 	}
 }

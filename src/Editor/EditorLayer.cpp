@@ -48,7 +48,7 @@ namespace mm
             if (result == NFD_OKAY) {
                 Model* model = m_world->LoadModel(path);
                 m_model = model;
-                Application::Instance().GetEventBus()->postpone<EditorEvent::ModelLoaded>({model});
+                Application::Instance().GetEventBus()->postpone<EditorEvent::ModelLoaded>({ model });
             }
         }
         if (ImGui::Button("Load animation")) {
@@ -56,8 +56,8 @@ namespace mm
             nfdresult_t result = NFD_OpenDialog("vmd", nullptr, &path);
             if (result == NFD_OKAY) {
                 if (m_model != nullptr) {
-                    m_model->LoadAnimation(path);
-					Application::Instance().GetEventBus()->postpone<EditorEvent::MotionLoaded>({});
+                    Animation* animation = m_model->LoadAnimation(path);
+					Application::Instance().GetEventBus()->postpone<EditorEvent::MotionLoaded>({ animation });
                 }
             }
         }

@@ -118,6 +118,8 @@ void main()
 	vs_out.normal = skNormal;
 	vs_out.texCoord = a_texCoord + u_morph.offsets[gl_VertexID].uv;
 
-	u_morph.offsets[gl_VertexID].pos = vec3(0);
-	u_morph.offsets[gl_VertexID].uv = vec2(0);
+	if (!u_outlinePass) {
+		u_morph.offsets[gl_VertexID].pos = vec3(0);
+		u_morph.offsets[gl_VertexID].uv = vec2(0);
+	}
 };

@@ -26,8 +26,8 @@ namespace mm
 
 	private:
 		EditorLayer& m_editor;
-		Sequencer m_sequencer;
 		Model* m_model = nullptr;
+		Sequencer m_sequencer;
 
 		bool m_playing = false;
 		int32_t m_frame = 0;

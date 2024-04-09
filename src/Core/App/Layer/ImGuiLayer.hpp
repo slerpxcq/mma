@@ -18,6 +18,8 @@ namespace mm
 		void Begin();
 		void End();
 
+		ImFont* GetFont() const { return m_font; }
+
 	private:
 		GLFWwindow* m_window;
 		ImFont* m_font;

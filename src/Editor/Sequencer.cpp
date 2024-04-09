@@ -1,160 +1,144 @@
 #include "mmpch.hpp"
 #include "Sequencer.hpp"
 
+#include "Core/Utility/Type.hpp"
+
+#include "Core/App/Application.hpp"
+#include "Core/App/Layer/ImGuiLayer.hpp"
+
+#include <imgui_internal.h>
+
 namespace mm
 {
-	RampEdit::RampEdit()
-   {
-	  mPts[0][0] = ImVec2(-10.f, 0);
-	  mPts[0][1] = ImVec2(20.f, 0.6f);
-	  mPts[0][2] = ImVec2(25.f, 0.2f);
-	  mPts[0][3] = ImVec2(70.f, 0.4f);
-	  mPts[0][4] = ImVec2(120.f, 1.f);
-	  mPointCount[0] = 5;
-
-	  mPts[1][0] = ImVec2(-50.f, 0.2f);
-	  mPts[1][1] = ImVec2(33.f, 0.7f);
-	  mPts[1][2] = ImVec2(80.f, 0.2f);
-	  mPts[1][3] = ImVec2(82.f, 0.8f);
-	  mPointCount[1] = 4;
-
-
-	  mPts[2][0] = ImVec2(40.f, 0);
-	  mPts[2][1] = ImVec2(60.f, 0.1f);
-	  mPts[2][2] = ImVec2(90.f, 0.82f);
-	  mPts[2][3] = ImVec2(150.f, 0.24f);
-	  mPts[2][4] = ImVec2(200.f, 0.34f);
-	  mPts[2][5] = ImVec2(250.f, 0.12f);
-	  mPointCount[2] = 6;
-	  mbVisible[0] = mbVisible[1] = mbVisible[2] = true;
-	  mMax = ImVec2(1.f, 1.f);
-	  mMin = ImVec2(0.f, 0.f);
-   }
-
-	int RampEdit::EditPoint(size_t curveIndex, int pointIndex, ImVec2 value)
-   {
-	  mPts[curveIndex][pointIndex] = ImVec2(value.x, value.y);
-	  SortValues(curveIndex);
-	  for (size_t i = 0; i < GetPointCount(curveIndex); i++)
-	  {
-		 if (mPts[curveIndex][i].x == value.x)
-			return (int)i;
-	  }
-	  return pointIndex;
-   }
-
-   void RampEdit::AddPoint(size_t curveIndex, ImVec2 value)
-   {
-	  if (mPointCount[curveIndex] >= 8)
-		 return;
-	  mPts[curveIndex][mPointCount[curveIndex]++] = value;
-	  SortValues(curveIndex);
-   }
-
-	void KeyframeSequence::Get(int index, int** start, int** end, int* type, unsigned int* color)
+	static void ExpandButton(const ImVec2& pos, bool& expanded)
 	{
-	  Item& item = items[index];
-	  if (color)
-		 *color = 0xFFAA8080; // same color for everyone, return color based on type
-	  if (start)
-		 *start = &item.startFrame;
-	  if (end)
-		 *end = &item.endFrame;
-	  if (type)
-		 *type = 0;
-	}
+		static constexpr ImVec2 BUTTON_SIZE = ImVec2(10, 10);
+		static constexpr uint32_t BUTTON_COLOR = 0x7fc0c0c0;
+		ImGuiIO& io = ImGui::GetIO();
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-	void KeyframeSequence::DoubleClick(int index)
-	{
-	  if (items[index].expanded)
-	  {
-		 items[index].expanded = false;
-		 return;
-	  }
-	  for (auto& item : items)
-		 item.expanded = false;
-	  items[index].expanded = !items[index].expanded;
-	}
+		ImRect rect = ImRect(pos, pos + BUTTON_SIZE);
+		bool over = rect.Contains(io.MousePos);
+		bool down = over && rect.Contains(io.MouseClickedPos[0]);
+		bool clicked = down && io.MouseReleased[0];
 
-	void KeyframeSequence::CustomDraw(int index, ImDrawList* draw_list, const ImRect& rc, const ImRect& legendRect, const ImRect& clippingRect, const ImRect& legendClippingRect)
-	{
-		  static const char* labels[] = { "Translation", "Rotation" , "Scale" };
+		if (clicked) {
+			expanded = !expanded;
+		}
 
-		  rampEdit.mMax = ImVec2(float(maxFrame), 1.f);
-		  rampEdit.mMin = ImVec2(float(minFrame), 0.f);
-		  draw_list->PushClipRect(legendClippingRect.Min, legendClippingRect.Max, true);
-		  for (int i = 0; i < 3; i++)
-		  {
-			 ImVec2 pta(legendRect.Min.x + 30, legendRect.Min.y + i * 14.f);
-			 ImVec2 ptb(legendRect.Max.x, legendRect.Min.y + (i + 1) * 14.f);
-			 draw_list->AddText(pta, rampEdit.mbVisible[i] ? 0xFFFFFFFF : 0x80FFFFFF, labels[i]);
-			 if (ImRect(pta, ptb).Contains(ImGui::GetMousePos()) && ImGui::IsMouseClicked(0))
-				rampEdit.mbVisible[i] = !rampEdit.mbVisible[i];
-		  }
-		  draw_list->PopClipRect();
-
-		  ImGui::SetCursorScreenPos(rc.Min);
-		  ImCurveEdit::Edit(rampEdit, rc.Max - rc.Min, 137 + index, &clippingRect);
-	}
-
-	void KeyframeSequence::CustomDrawCompact(int index, ImDrawList* draw_list, const ImRect& rc, const ImRect& clippingRect)
-	{
-		  rampEdit.mMax = ImVec2(float(maxFrame), 1.f);
-		  rampEdit.mMin = ImVec2(float(minFrame), 0.f);
-		  draw_list->PushClipRect(clippingRect.Min, clippingRect.Max, true);
-		  for (int i = 0; i < 3; i++)
-		  {
-			 for (int j = 0; j < rampEdit.mPointCount[i]; j++)
-			 {
-				float p = rampEdit.mPts[i][j].x;
-				if (p < items[index].startFrame || p > items[index].endFrame)
-				   continue;
-				float r = (p - minFrame) / float(maxFrame - minFrame);
-				float x = ImLerp(rc.Min.x, rc.Max.x, r);
-				draw_list->AddLine(ImVec2(x, rc.Min.y + 6), ImVec2(x, rc.Max.y - 4), 0xAA000000, 4.f);
-			 }
-		  }
-		  draw_list->PopClipRect();
-	}
-
-	Sequencer::Sequencer()
-	{
-		m_sequence.minFrame = -100;
-		m_sequence.maxFrame = 1000;
-		//m_sequence.items.push_back(KeyframeSequence::Item{ "item", 10, 30, false });
-		//m_sequence.items.push_back(KeyframeSequence::Item{ "item", 20, 30, true });
-		//m_sequence.items.push_back(KeyframeSequence::Item{ "item", 12, 60, false });
-		//m_sequence.items.push_back(KeyframeSequence::Item{ "item", 61, 90, false });
-		//m_sequence.items.push_back(KeyframeSequence::Item{ "item", 90, 99, false });
+		ImVec2 mid = (rect.Min + rect.Max) * 0.5f;
+		if (!expanded) {
+			drawList->AddTriangleFilled(
+				rect.Min,
+				mid,
+				ImVec2(rect.Max.x, rect.Min.y),
+				BUTTON_COLOR);
+		}
+		else {
+			drawList->AddTriangleFilled(
+				ImVec2(rect.Min.x, mid.y),
+				ImVec2(mid.x, rect.Min.y),
+				ImVec2(rect.Max.x, mid.y),
+				BUTTON_COLOR);
+		}
 	}
 
 	void Sequencer::OnUIRender()
 	{
+		static constexpr uint32_t ITEM_HEIGHT = 20;
+		static constexpr uint32_t BACKGROUND_COLOR = 0xff242424;
+		static constexpr uint32_t HEADER_COLOR = 0xff3d3837;
+		static constexpr uint32_t LEGEND_LENGTH = 100;
+		static constexpr uint32_t RULER_SHORT_MARK_STEP = 20;
+		static constexpr uint32_t RULER_LONG_MARK_MULTIPLIER = 5;
+		static constexpr uint32_t RULER_LONG_MARK_LENGTH = 10;
+		static constexpr uint32_t RULER_SHORT_MARK_LENGTH = 5;
+		static constexpr uint32_t RULER_MARK_COLOR = 0xffc0c0c0;
+		static constexpr uint32_t VERTICAL_MARK_COLOR = 0x20c0c0c0;
+		static constexpr uint32_t RULER_SCALE = 20;
+		static constexpr uint32_t RULER_TEXT_OFFSET = 5;
+		static constexpr uint32_t LEGEND_TEXT_OFFSET = 5;
+		static constexpr uint32_t STRIP_COLOR_EVEN = 0xff363636;
+		static constexpr uint32_t STRIP_COLOR_ODD = 0xff413d3d;
+
 		ImGui::Begin("Sequencer");
-		static int selectedEntry = -1;
-		static int firstFrame = 0;
-		static bool expanded = true;
-		static int currentFrame = 100;
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		ImVec2 min = ImGui::GetWindowContentRegionMin();
+		ImVec2 max = ImGui::GetWindowContentRegionMax();
+		ImVec2 origin = ImGui::GetWindowPos() + min;
+		ImVec2 size = max - min;
+		ImGui::BeginGroup();
 
-		ImGui::PushItemWidth(130);
-		ImGui::InputInt("Frame Min", &m_sequence.minFrame);
-		ImGui::SameLine();
-		ImGui::InputInt("Frame ", &currentFrame);
-		ImGui::SameLine();
-		ImGui::InputInt("Frame Max", &m_sequence.maxFrame);
-		ImGui::PopItemWidth();
-		ImSequencer::Sequencer(
-			&m_sequence, 
-			&currentFrame, 
-			&expanded, 
-			&selectedEntry, 
-			&firstFrame, 
-			ImSequencer::SEQUENCER_EDIT_STARTEND | 
-			ImSequencer::SEQUENCER_ADD | 
-			ImSequencer::SEQUENCER_DEL | 
-			ImSequencer::SEQUENCER_COPYPASTE | 
-			ImSequencer::SEQUENCER_CHANGE_FRAME);
+		// Background
+		drawList->AddRectFilled(origin, origin + size, BACKGROUND_COLOR);
 
+		// Header
+		drawList->AddRectFilled(origin, ImVec2(origin.x + size.x, origin.y + ITEM_HEIGHT), HEADER_COLOR);
+
+		// Groups
+		uint32_t legendBeginY = ITEM_HEIGHT;
+		uint32_t entryIndex = 0;
+		for (uint32_t group = 0; group < m_groups.size(); ++group) {
+			uint32_t y = legendBeginY + entryIndex * ITEM_HEIGHT;
+			// Legend
+			ExpandButton(origin + ImVec2(LEGEND_LENGTH - 20, y + 8), m_groups[group].expanded);
+			drawList->AddText(origin + ImVec2(LEGEND_TEXT_OFFSET, y), RULER_MARK_COLOR, m_groups[group].name.c_str());
+			// Strip
+			uint32_t color = (entryIndex & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
+			drawList->AddRectFilled(
+				origin + ImVec2(LEGEND_LENGTH, y),
+				origin + ImVec2(size.x, y + ITEM_HEIGHT),
+				color);
+			++entryIndex;
+			// Group items
+			if (m_groups[group].expanded) {
+				const auto& items = m_groups[group].items;
+				for (uint32_t item = 0; item < items.size(); ++item) {
+					uint32_t y = legendBeginY + entryIndex * ITEM_HEIGHT;
+					drawList->AddText(origin + ImVec2(LEGEND_TEXT_OFFSET, y), RULER_MARK_COLOR, items[item].name.c_str());
+					// Strip
+					uint32_t color = (entryIndex & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
+					drawList->AddRectFilled(
+						origin + ImVec2(LEGEND_LENGTH, y),
+						origin + ImVec2(size.x, y + ITEM_HEIGHT),
+						color);
+					++entryIndex;
+				}
+			}
+		}
+
+		// Ruler
+		uint32_t rulerBeginX = LEGEND_LENGTH;
+		uint32_t rulerEndX = size.x;
+		for (uint32_t i = rulerBeginX, j = 0; i <= rulerEndX; i += RULER_SHORT_MARK_STEP, ++j) {
+			if (j % RULER_LONG_MARK_MULTIPLIER == 0) {
+				drawList->AddLine(
+					origin + ImVec2(i, ITEM_HEIGHT), 
+					origin + ImVec2(i, ITEM_HEIGHT - RULER_LONG_MARK_LENGTH), 
+					RULER_MARK_COLOR);
+				char buf[16];
+				std::snprintf(buf, sizeof(buf), "%i", j);
+				drawList->AddText(origin + ImVec2(i + RULER_TEXT_OFFSET, 0), RULER_MARK_COLOR, buf);
+			}
+			else {
+				drawList->AddLine(
+					origin + ImVec2(i, ITEM_HEIGHT), 
+					origin + ImVec2(i, ITEM_HEIGHT - RULER_SHORT_MARK_LENGTH), 
+					RULER_MARK_COLOR);
+			}
+
+			// Vertical line
+			uint32_t lineBeginY = ITEM_HEIGHT;
+			uint32_t lineEndY = lineBeginY + ITEM_HEIGHT * entryIndex;
+			drawList->AddLine(
+				origin + ImVec2(i, lineBeginY),
+				origin + ImVec2(i, lineEndY),
+				VERTICAL_MARK_COLOR);
+		}
+
+		// Dopes
+
+		ImGui::EndGroup();
 		ImGui::End();
 	}
 }

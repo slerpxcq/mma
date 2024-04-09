@@ -11,11 +11,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Core/App/Application.hpp"
-
-static ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs)
-{
-	return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y);
-}
+#include "Core/Utility/Type.hpp"
 
 namespace mm
 {
@@ -99,7 +95,7 @@ namespace mm
 		const auto& bones = m_model->GetArmature().GetBones();
 		const auto& pmxBones = m_model->GetPMXFile().GetBones();
 
-		ImDrawList* drawList = ImGui::GetForegroundDrawList();
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
 		for (uint32_t i = 0; i < bones.size(); ++i) {
 			const auto& bone = bones[i];
@@ -311,14 +307,13 @@ namespace mm
 		}
 		ImGui::End();
 
-		glm::vec2 viewportSize = m_editor.GetViewport().GetSize();
-		glm::vec2 viewportPos = m_editor.GetViewport().GetPos();
-
-		ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
-		ImGuizmo::SetRect(
-			ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, 
-			ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-
+		ImGui::Begin("Viewport");
+        ImVec2 min = ImGui::GetWindowContentRegionMin();
+        ImVec2 max = ImGui::GetWindowContentRegionMax();
+        ImVec2 size = max - min;
+        ImVec2 pos = ImGui::GetWindowPos() + min;
+		ImGuizmo::SetDrawlist();
+		ImGuizmo::SetRect(pos.x, pos.y, size.x, size.y);
 		if (m_enabled && m_model != nullptr) {
 			switch (m_context.state) {
 			case Context::PICKING:
@@ -329,5 +324,6 @@ namespace mm
 				break;
 			}
 		}
+		ImGui::End();
 	}
 }

@@ -25,9 +25,10 @@ namespace mm
 		m_physicsData = m_world.GetPhysicsWorld().LoadModel(*this);
 	}
 
-	void Model::LoadAnimation(const std::filesystem::path& path)
+	Animation* Model::LoadAnimation(const std::filesystem::path& path)
 	{
 		m_animation = std::make_unique<Animation>(*this, path);
+		return m_animation.get();
 	}
 
 	void Model::Render(GLRenderer& renderer)

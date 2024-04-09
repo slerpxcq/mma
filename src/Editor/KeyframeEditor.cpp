@@ -24,11 +24,28 @@ namespace mm
 		m_model = e.model;
 
 		if (m_model != nullptr) {
-			const auto& pmxBones = m_model->GetPMXFile().GetBones();
-			for (const auto& pb : pmxBones) {
-				if (pb.flags & PMXFile::BONE_OPERABLE_BIT) {
-					m_sequencer.AddItem(KeyframeSequence::Item({ pb.nameJP, 0, 100, false }));
+			const auto& pmx = m_model->GetPMXFile();
+			const auto& pmxClusters = m_model->GetPMXFile().GetClusters();
+			for (uint32_t i = 0; i < pmxClusters.size(); ++i) {
+				const auto& pc = pmxClusters[i];
+				Sequencer::Group group = {};
+				group.name = pc.nameJP;
+				for (uint32_t j = 0; j < pc.elements.size(); ++j) {
+					const auto& elem = pc.elements[j];
+					Sequencer::Item item = {};
+					item.type = elem.type;
+					item.index = elem.index;
+					switch (elem.type) {
+					case PMXFile::CLUSTER_BONE:
+						item.name = pmx.GetBoneName(elem.index);
+						break;
+					case PMXFile::CLUSTER_MORPH:
+						item.name = pmx.GetMorphName(elem.index);
+						break;
+					}
+					group.items.push_back(item);
 				}
+				m_sequencer.AddGroup(std::move(group));
 			}
 		}
 	}
@@ -39,6 +56,10 @@ namespace mm
 			m_playing = false;
 			m_frame = 0;
 			m_subframe = 0;
+
+			// Sync with motion
+			Animation* animation = e.animation;
+
 			UpdateAnim();
 		}
 	}

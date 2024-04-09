@@ -31,6 +31,7 @@ namespace mm
 		void DeInit();
 
 		GLFWwindow* GetWindow() { return m_window; }
+		ImGuiLayer* GetImGuiLayer() const { return m_imguiLayer; }
 
 		void PushLayer(std::unique_ptr<Layer> layer) { m_layerStack.PushLayer(std::move(layer)); }
 		void PushOverlay(std::unique_ptr<Layer> overlay) { m_layerStack.PushOverlay(std::move(overlay)); }

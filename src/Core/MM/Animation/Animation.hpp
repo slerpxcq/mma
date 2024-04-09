@@ -44,6 +44,8 @@ namespace mm
 		Animation(Model &model, const std::filesystem::path& path);
 		void Update(uint32_t frame, uint32_t subframe);
 		const std::string& GetName() const { return m_name; }
+		const auto& GetBoneKeyframes() const { return m_boneKeyframes; }
+		const auto& GetMorphKeyframes() const { return m_morphKeyframes; }
 
 	private:
 		void LoadBoneKeyframes();
