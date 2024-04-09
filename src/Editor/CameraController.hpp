@@ -8,6 +8,7 @@
 namespace mm
 {
 	class Camera;
+	class Viewport;
 
 	class CameraController
 	{
@@ -15,7 +16,7 @@ namespace mm
 		static constexpr float ORBIT_SPEED = 0.005f;
 		static constexpr float ZOOM_SPEED = 1.f;
 	public:
-		CameraController(Camera&);
+		CameraController(Viewport&, Camera&);
 		void Update();
 		Camera& GetCamera() { return m_camera; }
 
@@ -26,6 +27,7 @@ namespace mm
 	private:
 		std::unique_ptr<dexode::EventBus::Listener> m_appEventListener;
 
+		Viewport& m_viewport;
 		Camera& m_camera;
 
 		// helper states

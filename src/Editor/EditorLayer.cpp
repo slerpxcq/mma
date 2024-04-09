@@ -64,6 +64,8 @@ namespace mm
         if (ImGui::Button("Reset physics")) {
             m_world->GetPhysicsWorld().Reset();
         }
+        if (ImGui::Button("Reload shader")) {
+        }
         ImGui::End();
 
         m_viewport->OnUIRender();

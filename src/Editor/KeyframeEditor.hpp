@@ -26,6 +26,7 @@ namespace mm
 
 	private:
 		EditorLayer& m_editor;
+		Sequencer m_sequencer;
 		Model* m_model = nullptr;
 
 		bool m_playing = false;
@@ -33,8 +34,6 @@ namespace mm
 		int32_t m_subframe = 0;
 
 		dexode::EventBus::Listener m_listener;
-
-		std::vector<MySequence> m_clusters;
 	};
 
 }

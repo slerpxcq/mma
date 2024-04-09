@@ -284,9 +284,9 @@ namespace mm
 	{
 		uint32_t frameCount;
 		Read(stream, frameCount);
-		m_clusters.resize(frameCount);
+		m_sequence.resize(frameCount);
 		for (uint32_t i = 0; i < frameCount; ++i) {
-			Cluster& cluster = m_clusters[i];
+			Cluster& cluster = m_sequence[i];
 			ParseText(stream, cluster.nameJP);
 			ParseText(stream, cluster.nameEN);
 			Read(stream, cluster.isSpecial);

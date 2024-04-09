@@ -26,8 +26,8 @@ namespace mm
 				ret = it->second.get();
 			}
 			else {
-				MM_ERROR("{0}: cannot find resource", __FUNCTION__);
-				MM_ASSERT(0);
+				MM_WARN("{0}: cannot find resource", __FUNCTION__);
+				return nullptr;
 			}
 			return ret;
 		}

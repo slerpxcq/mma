@@ -7,6 +7,8 @@
 #include "Core/MM/Model/Model.hpp"
 #include "Core/App/Application.hpp"
 
+#include "Core/Utility/Type.hpp"
+
 namespace mm
 {
 	KeyframeEditor::KeyframeEditor(EditorLayer& editor) :
@@ -15,50 +17,19 @@ namespace mm
 	{
 		m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(KeyframeEditor::OnModelLoaded));
 		m_listener.listen<EditorEvent::MotionLoaded>(MM_EVENT_FN(KeyframeEditor::OnMotionLoaded));
-
-		 //m_sequence.myItems.push_back(MySequence::MySequenceItem{ 0, 10, 30, false });
-		 //m_sequence.myItems.push_back(MySequence::MySequenceItem{ 1, 20, 30, true });
-		 //m_sequence.myItems.push_back(MySequence::MySequenceItem{ 3, 12, 60, false });
-		 //m_sequence.myItems.push_back(MySequence::MySequenceItem{ 2, 61, 90, false });
-		 //m_sequence.myItems.push_back(MySequence::MySequenceItem{ 4, 90, 99, false });
 	}
 
 	void KeyframeEditor::OnModelLoaded(const EditorEvent::ModelLoaded& e)
 	{
 		m_model = e.model;
-		m_clusters.clear();
 
-		const auto& pmxClusters = m_model->GetPMXFile().GetClusters();
-		for (uint32_t i = 0; i < pmxClusters.size(); ++i) {
-			m_clusters.emplace_back();
-			m_clusters.back().name = pmxClusters[i].nameJP;
-		}
-
-		const auto& pmxBones = m_model->GetPMXFile().GetBones();
-		const auto& pmxMorphs = m_model->GetPMXFile().GetMorphs();
-		for (uint32_t i = 0; i < m_clusters.size(); ++i) {
-			auto& cluster = m_clusters[i];
-			const auto& pmxCluster = pmxClusters[i];
-			for (uint32_t j = 0; j < pmxCluster.elements.size(); ++j) {
-				const auto& element = pmxCluster.elements[j];
-				std::string name;
-				switch (element.type) {
-				case PMXFile::CLUSTER_BONE:
-					name = pmxBones[element.index].nameJP;
-					break;
-				case PMXFile::CLUSTER_MORPH:
-					name = pmxMorphs[element.index].nameJP;
-					break;
+		if (m_model != nullptr) {
+			const auto& pmxBones = m_model->GetPMXFile().GetBones();
+			for (const auto& pb : pmxBones) {
+				if (pb.flags & PMXFile::BONE_OPERABLE_BIT) {
+					m_sequencer.AddItem(KeyframeSequence::Item({ pb.nameJP, 0, 100, false }));
 				}
-
-				cluster.items.push_back(MySequence::MySequenceItem({ std::move(name), 0, 0, 0, false }));
 			}
-		}
-
-		for (uint32_t i = 0; i < m_clusters.size(); ++i) {
-			MM_INFO("{0}", m_clusters[i].name);
-			for (auto& i : m_clusters[i].items)
-				MM_INFO("- {0}", i.label);
 		}
 	}
 
@@ -125,32 +96,6 @@ namespace mm
 		}
 		ImGui::End();
 
-		ImGui::Begin("Keyframe edit");
-		static int selectedEntry = -1;
-		static int firstFrame = 0;
-		static bool expanded = true;
-		static int currentFrame = 100;
-
-		//ImGui::PushItemWidth(130);
-		//ImGui::InputInt("Frame Min", &m_clusters.minFrame);
-		//ImGui::SameLine();
-		//ImGui::InputInt("Frame ", &currentFrame);
-		//ImGui::SameLine();
-		//ImGui::InputInt("Frame Max", &m_clusters.maxFrame);
-		//ImGui::PopItemWidth();
-
-		if (m_model != nullptr) {
-			for (uint32_t i = 0; i < m_clusters.size(); ++i) {
-				if (ImGui::TreeNode("%s", m_clusters[i].name.c_str())) {
-					ImSequencer::Sequencer(&m_clusters[i], &currentFrame, &expanded, &selectedEntry, &firstFrame,
-					 ImSequencer::SEQUENCER_EDIT_STARTEND | 
-					 ImSequencer::SEQUENCER_COPYPASTE | 
-					 ImSequencer::SEQUENCER_CHANGE_FRAME);
-					ImGui::TreePop();
-				}
-			}
-		}
-
-		ImGui::End();
+		m_sequencer.OnUIRender();
 	}
 }

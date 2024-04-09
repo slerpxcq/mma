@@ -3,6 +3,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <imgui.h>
 
 namespace mm
 {
@@ -34,6 +35,21 @@ namespace mm
 	static inline glm::quat btQuatToGLM(const btQuaternion& q)
 	{
 		return glm::quat(q.getW(), q.getX(), q.getY(), q.getZ());
+	}
+
+	static inline ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs)
+	{
+		return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y);
+	}
+
+	static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs)
+	{
+		return ImVec2(lhs.x - rhs.x, lhs.y - rhs.y);
+	}
+
+	static inline ImVec2 operator*(const ImVec2& lhs, const ImVec2& rhs)
+	{
+		return ImVec2(lhs.x * rhs.x, lhs.y * rhs.y);
 	}
 
 }

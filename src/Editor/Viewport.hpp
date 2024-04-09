@@ -19,17 +19,19 @@ namespace mm
 		void OnUIRender();
 		glm::uvec2 GetSize() const { return m_size; }
 		glm::ivec2 GetPos() const { return m_pos; }
+		bool IsHovered() const { return m_hovered; }
 
 	private:
 		EditorLayer& m_editor;
 		CameraController m_cameraController;
+
+		std::unique_ptr<Grid> m_grid;
 		std::unique_ptr<GLFrameBuffer> m_framebuffer;
+
 		glm::uvec2 m_size;
 		glm::ivec2 m_pos;
 
-		std::unique_ptr<Grid> m_grid;
-
-		bool m_focused;
+		bool m_hovered;
 	};
 }
 

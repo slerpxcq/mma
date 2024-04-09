@@ -10,7 +10,7 @@ namespace mm
 {
 	Viewport::Viewport(EditorLayer& editor) :
         m_editor(editor),
-        m_cameraController(m_editor.GetWorld().GetCamera())
+        m_cameraController(*this, m_editor.GetWorld().GetCamera())
 	{
         m_framebuffer = std::make_unique<GLFrameBuffer>(glm::uvec2(1, 1));
         m_grid = std::make_unique<Grid>(*this);
@@ -45,20 +45,20 @@ namespace mm
 	void Viewport::OnUIRender()
 	{
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+        ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoCollapse);
+
+        m_hovered = ImGui::IsWindowHovered();
 
         ImVec2 min = ImGui::GetWindowContentRegionMin();
         ImVec2 max = ImGui::GetWindowContentRegionMax();
         glm::uvec2 size = glm::uvec2(max.x - min.x, max.y - min.y);
         glm::ivec2 pos = glm::ivec2(ImGui::GetWindowPos().x + min.x, ImGui::GetWindowPos().y + min.y);
 
-        // resized
         if (m_size != size) {
             m_size = size;
             m_framebuffer->Reload(m_size);
             m_cameraController.GetCamera().SetAspect((float)m_size.x / m_size.y);
         }
-        // moved
         if (m_pos != pos) {
             m_pos = pos;
         }

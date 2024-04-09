@@ -37,6 +37,7 @@ namespace mm
 			uint8_t operation = 0;
 			uint8_t mode = 0;
 			int32_t selected = -1;
+			int32_t hovered = -1;
 
 			glm::mat4 world = glm::mat4(1);
 			glm::mat4 worldToLocal = glm::mat4(1);

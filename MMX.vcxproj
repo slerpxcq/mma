@@ -101,6 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Editor\Sequencer.hpp" />
     <ClInclude Include="src\Core\App\Application.hpp" />
     <ClInclude Include="src\Core\App\Core.hpp" />
     <ClInclude Include="src\Core\App\Event.hpp" />
@@ -148,11 +149,11 @@
     <ClInclude Include="src\Editor\Grid.hpp" />
     <ClInclude Include="src\Editor\KeyframeEditor.hpp" />
     <ClInclude Include="src\Editor\PoseEditor.hpp" />
-    <ClInclude Include="src\Editor\Sequencer.hpp" />
     <ClInclude Include="src\Editor\Viewport.hpp" />
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Editor\Sequencer.cpp" />
     <ClCompile Include="src\Core\App\Application.cpp" />
     <ClCompile Include="src\Core\App\Input.cpp" />
     <ClCompile Include="src\Core\App\Layer\ImGuiLayer.cpp" />
@@ -192,7 +193,6 @@
     <ClCompile Include="src\Editor\Grid.cpp" />
     <ClCompile Include="src\Editor\KeyframeEditor.cpp" />
     <ClCompile Include="src\Editor\PoseEditor.cpp" />
-    <ClCompile Include="src\Editor\Sequencer.cpp" />
     <ClCompile Include="src\Editor\Viewport.cpp" />
     <ClCompile Include="src\mmpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

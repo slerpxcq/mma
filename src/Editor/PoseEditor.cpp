@@ -99,7 +99,7 @@ namespace mm
 		const auto& bones = m_model->GetArmature().GetBones();
 		const auto& pmxBones = m_model->GetPMXFile().GetBones();
 
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		ImDrawList* drawList = ImGui::GetForegroundDrawList();
 
 		for (uint32_t i = 0; i < bones.size(); ++i) {
 			const auto& bone = bones[i];
@@ -290,40 +290,6 @@ namespace mm
 			m_model->GetPMXFile().GetBoneName(m_context.selected).c_str() : "--");
 		ImGui::End();
 
-		glm::vec2 viewportSize = m_editor.GetViewport().GetSize();
-		glm::vec2 viewportPos = m_editor.GetViewport().GetPos();
-
-		ImGui::SetNextWindowSize(ImVec2(viewportSize.x, viewportSize.y));
-		ImGui::SetNextWindowPos(ImVec2(viewportPos.x, viewportPos.y));
-		ImGui::SetNextWindowBgAlpha(0);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-		ImGui::Begin(" ", nullptr,
-			ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoResize);
-
-		ImGuizmo::SetDrawlist();
-		ImGuizmo::SetRect(
-			ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, 
-			ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-
-		if (m_enabled && m_model != nullptr) {
-			switch (m_context.state) {
-			case Context::PICKING:
-				Draw();
-				break;
-			case Context::EDITING:
-				Edit();
-				break;
-			}
-		}
-		
-		ImGui::End();
-		ImGui::PopStyleVar();
-		ImGui::PopStyleVar();
-
 		ImGui::Begin("Morph edit");
 		if (m_model != nullptr) {
 			if (ImGui::TreeNode("Eye")) {
@@ -344,5 +310,24 @@ namespace mm
 			}
 		}
 		ImGui::End();
+
+		glm::vec2 viewportSize = m_editor.GetViewport().GetSize();
+		glm::vec2 viewportPos = m_editor.GetViewport().GetPos();
+
+		ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
+		ImGuizmo::SetRect(
+			ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, 
+			ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+
+		if (m_enabled && m_model != nullptr) {
+			switch (m_context.state) {
+			case Context::PICKING:
+				Draw();
+				break;
+			case Context::EDITING:
+				Edit();
+				break;
+			}
+		}
 	}
 }

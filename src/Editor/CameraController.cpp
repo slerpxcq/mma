@@ -8,10 +8,12 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "Core/App/Application.hpp"
+#include "Viewport.hpp"
 
 namespace mm
 {
-	CameraController::CameraController(Camera& camera) :
+	CameraController::CameraController(Viewport& viewport, Camera& camera) :
+		m_viewport(viewport),
 		m_camera(camera)
 	{
 		m_appEventListener = std::make_unique<dexode::EventBus::Listener>(Application::Instance().GetEventBus());
@@ -22,6 +24,9 @@ namespace mm
 
 	void CameraController::Update()
 	{
+		if (!m_viewport.IsHovered())
+			return;
+
 		m_view = glm::normalize(m_camera.m_center - m_camera.m_eye);
 		m_right = glm::cross(m_camera.m_up, m_view);
 
@@ -51,6 +56,9 @@ namespace mm
 
 	void CameraController::OnMouseButtonPressed(const Event::MouseButtonPressed& e)
 	{
+		if (!m_viewport.IsHovered())
+			return;
+
 		switch (e.button) {
 		case GLFW_MOUSE_BUTTON_RIGHT:
 		case GLFW_MOUSE_BUTTON_MIDDLE:
@@ -67,6 +75,9 @@ namespace mm
 
 	void CameraController::OnMouseScrolled(const Event::MouseScrolled& e)
 	{
+		if (!m_viewport.IsHovered())
+			return;
+
 		glm::vec3 trans = ZOOM_SPEED * e.delta * m_view;
 		m_camera.m_eye += trans;
 		m_camera.m_center += trans;
