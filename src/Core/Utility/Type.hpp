@@ -61,4 +61,15 @@ namespace mm
 	{
 		return ImVec2(lhs * rhs.x, lhs * rhs.y);
 	}
+
+	static inline bool operator==(const ImVec2& lhs, const ImVec2& rhs)
+	{
+		static constexpr float eps = std::numeric_limits<float>::epsilon();
+		return std::fabsf(lhs.x - rhs.x) <= eps && std::fabsf(lhs.y - rhs.y) <= eps;
+	}
+
+	static inline bool operator!=(const ImVec2& lhs, const ImVec2& rhs)
+	{
+		return !(lhs == rhs);
+	}
 }

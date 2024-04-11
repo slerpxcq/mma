@@ -48,7 +48,7 @@ namespace mm
 		for (uint32_t i = 0; i < m_boneKeyframes.size(); ++i) {
 			if (m_boneKeyframes[i].empty()) {
 				MM_INFO("{0}: bone has no motion data", m_model.GetPMXFile().GetBoneName(i));
-				m_boneKeyframes[i].push_back({ 0, Transform::identity(), Bezier() });
+				m_boneKeyframes[i].emplace_back(0, Transform::identity(), Bezier());
 			}
 
 			std::sort(m_boneKeyframes[i].begin(), m_boneKeyframes[i].end());
@@ -80,7 +80,7 @@ namespace mm
 		for (uint32_t i = 0; i < m_morphKeyframes.size(); ++i) {
 			if (m_morphKeyframes[i].empty()) {
 				MM_INFO("{0}: morph has no motion data", m_model.GetPMXFile().GetMorphName(i));
-				m_morphKeyframes[i].push_back({ 0, 0.0f });
+				m_morphKeyframes[i].emplace_back(0, 0.0f);
 			}
 
 			std::sort(m_morphKeyframes[i].begin(), m_morphKeyframes[i].end());

@@ -13,7 +13,8 @@ namespace mm
 {
 	KeyframeEditor::KeyframeEditor(EditorLayer& editor) :
 		m_editor(editor),
-		m_listener(Application::Instance().GetEventBus())
+		m_listener(Application::Instance().GetEventBus()),
+		m_sequencer(*this)
 	{
 		m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(KeyframeEditor::OnModelLoaded));
 		m_listener.listen<EditorEvent::MotionLoaded>(MM_EVENT_FN(KeyframeEditor::OnMotionLoaded));
@@ -22,6 +23,7 @@ namespace mm
 	void KeyframeEditor::OnModelLoaded(const EditorEvent::ModelLoaded& e)
 	{
 		m_model = e.model;
+		m_sequencer.SetModel(e.model);
 
 		if (m_model != nullptr) {
 			const auto& pmx = m_model->GetPMXFile();
@@ -56,9 +58,6 @@ namespace mm
 			m_playing = false;
 			m_frame = 0;
 			m_subframe = 0;
-
-			// Sync with motion
-			Animation* animation = e.animation;
 
 			UpdateAnim();
 		}

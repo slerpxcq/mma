@@ -6,6 +6,8 @@
 #include "EditorLayer.hpp"
 #include "Core/ResourceManager/ResourceManager.hpp"
 
+#include "Core/Utility/Type.hpp"
+
 namespace mm
 {
 	Viewport::Viewport(EditorLayer& editor) :
@@ -51,16 +53,13 @@ namespace mm
 
         ImVec2 min = ImGui::GetWindowContentRegionMin();
         ImVec2 max = ImGui::GetWindowContentRegionMax();
-        glm::uvec2 size = glm::uvec2(max.x - min.x, max.y - min.y);
-        glm::ivec2 pos = glm::ivec2(ImGui::GetWindowPos().x + min.x, ImGui::GetWindowPos().y + min.y);
+        ImVec2 size = max - min;
+        ImVec2 pos = ImGui::GetWindowPos() + min;
 
         if (m_size != size) {
             m_size = size;
-            m_framebuffer->Reload(m_size);
-            m_cameraController.GetCamera().SetAspect((float)m_size.x / m_size.y);
-        }
-        if (m_pos != pos) {
-            m_pos = pos;
+            m_framebuffer->Reload(glm::uvec2(size.x, size.y));
+            m_cameraController.GetCamera().SetAspect((float)size.x / size.y);
         }
 
         ImGui::Image(

@@ -35,6 +35,5 @@ namespace mm
 
 		dexode::EventBus::Listener m_listener;
 	};
-
 }
 

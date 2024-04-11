@@ -56,7 +56,6 @@ namespace mm
 	void PoseEditor::Pick()
 	{
 		const auto& pmxBones = m_model->GetPMXFile().GetBones();
-		glm::vec2 viewportPos = m_editor.GetViewport().GetPos();
 		glm::vec2 mousePos = Input::MousePos();
 		int32_t selected = -1;
 		float currZ = std::numeric_limits<float>::infinity();
@@ -82,8 +81,10 @@ namespace mm
 		glm::mat4 worldToNDC = camera.GetProj() * camera.GetView();
 		glm::vec4 ndcPos = worldToNDC * glm::vec4(world, 1.0);
 		ndcPos /= ndcPos.w;
-		glm::vec2 viewportSize = m_editor.GetViewport().GetSize();
-		glm::vec2 viewportPos = m_editor.GetViewport().GetPos();
+        ImVec2 min = ImGui::GetWindowContentRegionMin();
+        ImVec2 max = ImGui::GetWindowContentRegionMax();
+        glm::vec2 viewportSize = glm::vec2(max.x - min.x, max.y - min.y);
+        glm::vec2 viewportPos = glm::vec2(ImGui::GetWindowPos().x + min.x, ImGui::GetWindowPos().y + min.y);
 		return glm::vec3(
 			(ndcPos.x + 1.0f) * 0.5f * viewportSize.x + viewportPos.x,
 			(-ndcPos.y + 1.0f) * 0.5f * viewportSize.y + viewportPos.y,

@@ -1,142 +1,291 @@
 #include "mmpch.hpp"
 #include "Sequencer.hpp"
 
+#include "KeyframeEditor.hpp"
+#include "Core/MM/Model/Model.hpp"
+
 #include "Core/Utility/Type.hpp"
 
 #include "Core/App/Application.hpp"
 #include "Core/App/Layer/ImGuiLayer.hpp"
 
-#include <imgui_internal.h>
-
 namespace mm
 {
-	static void ExpandButton(const ImVec2& pos, bool& expanded)
+	void Sequencer::ExpandButton(uint32_t rowIndex, float offsetX, bool& expanded)
 	{
-		static constexpr ImVec2 BUTTON_SIZE = ImVec2(10, 10);
-		static constexpr uint32_t BUTTON_COLOR = 0x7fc0c0c0;
 		ImGuiIO& io = ImGui::GetIO();
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-		ImRect rect = ImRect(pos, pos + BUTTON_SIZE);
-		bool over = rect.Contains(io.MousePos);
-		bool down = over && rect.Contains(io.MouseClickedPos[0]);
-		bool clicked = down && io.MouseReleased[0];
+		ImVec2 pos = ImVec2(offsetX, rowIndex * ROW_HEIGHT + 8);
 
-		if (clicked) {
+		ImGui::SetCursorScreenPos(m_origin + pos);
+		if (ImGui::InvisibleButton(GetButtonId(), BUTTON_SIZE)) {
 			expanded = !expanded;
 		}
 
-		ImVec2 mid = (rect.Min + rect.Max) * 0.5f;
+		ImVec2 max = pos + BUTTON_SIZE;
+		ImVec2 mid = pos + 0.5f * BUTTON_SIZE;
 		if (!expanded) {
+			// Lower triangle
 			drawList->AddTriangleFilled(
-				rect.Min,
-				mid,
-				ImVec2(rect.Max.x, rect.Min.y),
-				BUTTON_COLOR);
+				m_origin + pos, 
+				m_origin + mid, 
+				m_origin + ImVec2(max.x, pos.y), BUTTON_COLOR);
 		}
 		else {
+			// Upper triangle
 			drawList->AddTriangleFilled(
-				ImVec2(rect.Min.x, mid.y),
-				ImVec2(mid.x, rect.Min.y),
-				ImVec2(rect.Max.x, mid.y),
+				m_origin + ImVec2(pos.x, mid.y),
+				m_origin + ImVec2(mid.x, pos.y),
+				m_origin + ImVec2(max.x, mid.y),
 				BUTTON_COLOR);
 		}
 	}
 
+	template <typename T>
+	void Sequencer::DrawRow(T& row, bool expandable, float textOffset)
+	{
+		float y = row.rowIndex * ROW_HEIGHT;
+		m_drawList->AddText(m_origin + ImVec2(LEGEND_TEXT_OFFSET + textOffset, y), RULER_MARK_COLOR, row.name.c_str());
+		if (expandable) 
+			ExpandButton(row.rowIndex, textOffset - 5, row.expanded);
+		// Strip
+		uint32_t stripColor = (row.rowIndex & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
+		m_drawList->AddRectFilled(
+			m_origin + ImVec2(LEGEND_LENGTH, y),
+			m_origin + ImVec2(m_size.x, y + ROW_HEIGHT),
+			stripColor);
+	}
+
+	template <typename T>
+	bool Sequencer::DrawDope(const Item& item, const std::vector<T>& keyframeList)
+	{
+		bool ret = false;
+
+		auto it = std::lower_bound(
+			keyframeList.begin(), 
+			keyframeList.end(), 
+			m_minFrame, 
+			[](const T& lhs, uint32_t rhs) {
+				return lhs.frame < rhs;
+			});
+
+		for (; it != keyframeList.end() && it->frame < m_maxFrame; ++it) {
+			float startX = LEGEND_LENGTH + ROW_HEIGHT / 2;
+			float y = item.rowIndex * ROW_HEIGHT;
+			uint32_t column = it->frame - m_minFrame;
+			ImVec2 dopePos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
+			ImVec2 p0 = m_origin + ImVec2(dopePos.x - DOPE_RADIUS, dopePos.y);
+			ImVec2 p1 = m_origin + ImVec2(dopePos.x, dopePos.y - DOPE_RADIUS);
+			ImVec2 p2 = m_origin + ImVec2(dopePos.x + DOPE_RADIUS, dopePos.y);
+			ImVec2 p3 = m_origin + ImVec2(dopePos.x, dopePos.y + DOPE_RADIUS);
+			m_drawList->AddQuad(p0, p1, p2, p3, DOPE_OUTLINE_COLOR, DOPE_OUTLINE_SIZE);
+			m_drawList->AddQuadFilled(p0, p1, p2, p3, DOPE_FILL_COLOR);
+			ImVec2 buttonSize = 2.f * ImVec2(DOPE_RADIUS, DOPE_RADIUS);
+			ImVec2 buttonPos = dopePos - 0.5f * buttonSize;
+			ImGui::SetCursorScreenPos(m_origin + buttonPos);
+			if (ImGui::InvisibleButton(GetButtonId(), buttonSize)) {
+				ret = true;
+			}
+		}
+
+		return ret;
+	}
+
+	//void Sequencer::DrawCurve()
+	//{
+
+	//}
+
 	void Sequencer::OnUIRender()
 	{
-		static constexpr uint32_t ITEM_HEIGHT = 20;
-		static constexpr uint32_t BACKGROUND_COLOR = 0xff242424;
-		static constexpr uint32_t HEADER_COLOR = 0xff3d3837;
-		static constexpr uint32_t LEGEND_LENGTH = 100;
-		static constexpr uint32_t RULER_SHORT_MARK_STEP = 20;
-		static constexpr uint32_t RULER_LONG_MARK_MULTIPLIER = 5;
-		static constexpr uint32_t RULER_LONG_MARK_LENGTH = 10;
-		static constexpr uint32_t RULER_SHORT_MARK_LENGTH = 5;
-		static constexpr uint32_t RULER_MARK_COLOR = 0xffc0c0c0;
-		static constexpr uint32_t VERTICAL_MARK_COLOR = 0x20c0c0c0;
-		static constexpr uint32_t RULER_SCALE = 20;
-		static constexpr uint32_t RULER_TEXT_OFFSET = 5;
-		static constexpr uint32_t LEGEND_TEXT_OFFSET = 5;
-		static constexpr uint32_t STRIP_COLOR_EVEN = 0xff363636;
-		static constexpr uint32_t STRIP_COLOR_ODD = 0xff413d3d;
+		ImGui::Begin("Sequencer", nullptr,
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoScrollWithMouse);
+		if (ImGui::SliderInt("Min", &m_minFrame, 0, 10000)) {
+			m_minFrame = std::clamp(m_minFrame, 0, 10000);
+		}
 
-		ImGui::Begin("Sequencer");
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		ImVec2 min = ImGui::GetWindowContentRegionMin();
-		ImVec2 max = ImGui::GetWindowContentRegionMax();
-		ImVec2 origin = ImGui::GetWindowPos() + min;
-		ImVec2 size = max - min;
+		m_drawList = ImGui::GetWindowDrawList();
+
+		// Init states
+		m_min = ImGui::GetCursorPos();
+		m_max = ImGui::GetWindowContentRegionMax();
+		m_origin = ImGui::GetWindowPos() + m_min;
+		m_size = m_max - m_min;
+		m_rowCount = 0;
+		m_buttonIndex = 0;
+
 		ImGui::BeginGroup();
 
 		// Background
-		drawList->AddRectFilled(origin, origin + size, BACKGROUND_COLOR);
+		m_drawList->AddRectFilled(m_origin, m_origin + m_size, BACKGROUND_COLOR);
+		m_drawList->AddRectFilled(m_origin, ImVec2(m_origin.x + m_size.x, m_origin.y + ROW_HEIGHT), HEADER_COLOR);
 
-		// Header
-		drawList->AddRectFilled(origin, ImVec2(origin.x + size.x, origin.y + ITEM_HEIGHT), HEADER_COLOR);
+		// Get row index of each entry
+		uint32_t rowIndex = 1;
+		for (auto& group : m_groups) {
+			group.rowIndex = rowIndex++;
+			if (group.expanded) {
+				for (auto& item : group.items) {
+					item.rowIndex = rowIndex++;
+					if (item.expanded) {
+						rowIndex += CURVE_EDITOR_ROW_COUNT;
+					}
+				}
+			}
+		}
+		m_rowCount = rowIndex - 1;
 
-		// Groups
-		uint32_t legendBeginY = ITEM_HEIGHT;
-		uint32_t entryIndex = 0;
-		for (uint32_t group = 0; group < m_groups.size(); ++group) {
-			uint32_t y = legendBeginY + entryIndex * ITEM_HEIGHT;
-			// Legend
-			ExpandButton(origin + ImVec2(LEGEND_LENGTH - 20, y + 8), m_groups[group].expanded);
-			drawList->AddText(origin + ImVec2(LEGEND_TEXT_OFFSET, y), RULER_MARK_COLOR, m_groups[group].name.c_str());
-			// Strip
-			uint32_t color = (entryIndex & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
-			drawList->AddRectFilled(
-				origin + ImVec2(LEGEND_LENGTH, y),
-				origin + ImVec2(size.x, y + ITEM_HEIGHT),
-				color);
-			++entryIndex;
-			// Group items
-			if (m_groups[group].expanded) {
-				const auto& items = m_groups[group].items;
-				for (uint32_t item = 0; item < items.size(); ++item) {
-					uint32_t y = legendBeginY + entryIndex * ITEM_HEIGHT;
-					drawList->AddText(origin + ImVec2(LEGEND_TEXT_OFFSET, y), RULER_MARK_COLOR, items[item].name.c_str());
-					// Strip
-					uint32_t color = (entryIndex & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
-					drawList->AddRectFilled(
-						origin + ImVec2(LEGEND_LENGTH, y),
-						origin + ImVec2(size.x, y + ITEM_HEIGHT),
-						color);
-					++entryIndex;
+		// Draw groups
+		for (auto& group : m_groups) {
+			DrawRow(group, true, 10);
+		}
+
+		// Draw items
+		for (auto& group : m_groups) {
+			if (group.expanded) {
+				for (auto& item : group.items) {
+					switch (item.type) {
+					case PMXFile::CLUSTER_BONE:
+						DrawRow(item, true, 20);
+						break;
+					case PMXFile::CLUSTER_MORPH:
+						DrawRow(item, false, 20);
+						break;
+					}
 				}
 			}
 		}
 
 		// Ruler
-		uint32_t rulerBeginX = LEGEND_LENGTH;
-		uint32_t rulerEndX = size.x;
-		for (uint32_t i = rulerBeginX, j = 0; i <= rulerEndX; i += RULER_SHORT_MARK_STEP, ++j) {
-			if (j % RULER_LONG_MARK_MULTIPLIER == 0) {
-				drawList->AddLine(
-					origin + ImVec2(i, ITEM_HEIGHT), 
-					origin + ImVec2(i, ITEM_HEIGHT - RULER_LONG_MARK_LENGTH), 
+		float rulerBeginX = LEGEND_LENGTH + ROW_HEIGHT / 2;
+		float rulerEndX = m_size.x;
+		uint32_t column = m_minFrame;
+		uint32_t columnCount = 0;
+		for (uint32_t rulerX = rulerBeginX; rulerX <= rulerEndX; rulerX += COLUMN_WIDTH, ++column, ++columnCount) {
+			float lineBeginY = ROW_HEIGHT;
+			float lineEndY = lineBeginY + ROW_HEIGHT * m_rowCount;
+			// Button for selecting current frame
+			ImVec2 buttonPos = ImVec2(rulerX - COLUMN_WIDTH / 2, 0);
+			ImVec2 buttonSize = ImVec2(COLUMN_WIDTH, ROW_HEIGHT);
+			ImGui::SetCursorScreenPos(m_origin + buttonPos);
+			if (ImGui::InvisibleButton(GetButtonId(), buttonSize)) {
+				m_selectedColumn = column;
+			}
+
+			// Draw current frame mark
+			if (column == m_selectedColumn) {
+				m_drawList->AddLine(
+					m_origin + ImVec2(rulerX, lineBeginY),
+					m_origin + ImVec2(rulerX, lineEndY),
+					IM_COL32(255, 0, 0, 64), ROW_HEIGHT / 2);
+			}
+
+			// Long mark
+			if (column % RULER_LONG_MARK_MULTIPLIER == 0) {
+				m_drawList->AddLine(
+					m_origin + ImVec2(rulerX, ROW_HEIGHT),
+					m_origin + ImVec2(rulerX, ROW_HEIGHT - RULER_LONG_MARK_LENGTH),
 					RULER_MARK_COLOR);
 				char buf[16];
-				std::snprintf(buf, sizeof(buf), "%i", j);
-				drawList->AddText(origin + ImVec2(i + RULER_TEXT_OFFSET, 0), RULER_MARK_COLOR, buf);
+				std::snprintf(buf, sizeof(buf), "%i", column);
+				m_drawList->AddText(m_origin + ImVec2(rulerX + RULER_TEXT_OFFSET, 0), RULER_MARK_COLOR, buf);
+				m_drawList->AddLine(
+					m_origin + ImVec2(rulerX, lineBeginY),
+					m_origin + ImVec2(rulerX, lineEndY),
+					VERTICAL_MARK_COLOR, 2.0f);
 			}
+			// Short mark
 			else {
-				drawList->AddLine(
-					origin + ImVec2(i, ITEM_HEIGHT), 
-					origin + ImVec2(i, ITEM_HEIGHT - RULER_SHORT_MARK_LENGTH), 
+				m_drawList->AddLine(
+					m_origin + ImVec2(rulerX, ROW_HEIGHT),
+					m_origin + ImVec2(rulerX, ROW_HEIGHT - RULER_SHORT_MARK_LENGTH),
 					RULER_MARK_COLOR);
+				m_drawList->AddLine(
+					m_origin + ImVec2(rulerX, lineBeginY),
+					m_origin + ImVec2(rulerX, lineEndY),
+					VERTICAL_MARK_COLOR);
 			}
-
-			// Vertical line
-			uint32_t lineBeginY = ITEM_HEIGHT;
-			uint32_t lineEndY = lineBeginY + ITEM_HEIGHT * entryIndex;
-			drawList->AddLine(
-				origin + ImVec2(i, lineBeginY),
-				origin + ImVec2(i, lineEndY),
-				VERTICAL_MARK_COLOR);
 		}
+		m_maxFrame = m_minFrame + columnCount;
 
-		// Dopes
+		// Dope and curve editor
+		if (m_model != nullptr) {
+			Animation* anim = m_model->GetAnim();
+			if (anim != nullptr) {
+				for (auto& group : m_groups) {
+					if (group.expanded) {
+						for (auto& item : group.items) {
+							switch (item.type) {
+							case PMXFile::CLUSTER_BONE:
+								DrawDope(item, anim->GetBoneKeyframes()[item.index]);
+								break;
+							case PMXFile::CLUSTER_MORPH:
+								DrawDope(item, anim->GetMorphKeyframes()[item.index]);
+								break;
+							default:
+								break;
+							}
+							if (item.expanded) {
+								// Curve editor
+								ImVec2 editorOrigin = ImVec2(LEGEND_LENGTH, (item.rowIndex + 1) * ROW_HEIGHT);
+								float editorHeight = CURVE_EDITOR_ROW_COUNT * ROW_HEIGHT;
+								float midY = editorOrigin.y + editorHeight * 0.5f;
+								// NOTE: only bone keyframes are expandable.
+								MM_ASSERT(item.type == PMXFile::CLUSTER_BONE);
+								auto& keyframeList = anim->GetBoneKeyframes()[item.index];
+								auto it = std::lower_bound(
+									keyframeList.begin(),
+									keyframeList.end(),
+									m_minFrame,
+									[](const Animation::Keyframe& lhs, uint32_t rhs) {
+										return lhs.frame < rhs;
+									});
+
+								for (; it != keyframeList.end() && it->frame < m_maxFrame; ++it) {
+									// for all axes
+									static constexpr uint32_t axisColor[] = {
+										IM_COL32(255, 0, 0, 128), // X->R
+										IM_COL32(0, 255, 0, 128), // Y->G
+										IM_COL32(0, 0, 255, 128)}; // Z->B
+
+									for (uint32_t axis = 0; axis < 3; ++axis) {
+										float y = midY + it->xform.trans[axis] * Y_GAIN;
+										float startX = LEGEND_LENGTH + ROW_HEIGHT / 2;
+										uint32_t column = it->frame - m_minFrame;
+										ImVec2 diamondPos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
+										ImVec2 p0 = m_origin + ImVec2(diamondPos.x - POINT_RADIUS, diamondPos.y);
+										ImVec2 p1 = m_origin + ImVec2(diamondPos.x, diamondPos.y - POINT_RADIUS);
+										ImVec2 p2 = m_origin + ImVec2(diamondPos.x + POINT_RADIUS, diamondPos.y);
+										ImVec2 p3 = m_origin + ImVec2(diamondPos.x, diamondPos.y + POINT_RADIUS);
+										m_drawList->AddQuad(p0, p1, p2, p3, POINT_OUTLINE_COLOR, POINT_OUTLINE_SIZE);
+										m_drawList->AddQuadFilled(p0, p1, p2, p3, POINT_FILL_COLOR);
+										if (it + 1 != keyframeList.end()) {
+											ImVec2 bezP0 = diamondPos;
+											float nextY = midY + (it + 1)->xform.trans[axis] * Y_GAIN;
+											uint32_t nextColumn = (it + 1)->frame - m_minFrame;
+											ImVec2 bezP3 = ImVec2(startX + nextColumn * COLUMN_WIDTH, nextY + ROW_HEIGHT / 2);
+											ImVec2 delta = bezP3 - bezP0;
+											ImVec2 vmdP1 = ImVec2(it->bez.GetHandles()[axis][0].x, it->bez.GetHandles()[axis][0].y);
+											ImVec2 bezP1 = ((vmdP1 * (1.f / 127)) * delta) + bezP0;
+											ImVec2 vmdP2 = ImVec2(it->bez.GetHandles()[axis][1].x, it->bez.GetHandles()[axis][1].y);
+											ImVec2 bezP2 = ((vmdP2 * (1.f / 127)) * delta) + bezP0;
+											m_drawList->AddBezierCubic(
+												m_origin + bezP0, 
+												m_origin + bezP1, 
+												m_origin + bezP2, 
+												m_origin + bezP3,
+												axisColor[axis], 3.0f);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 
 		ImGui::EndGroup();
 		ImGui::End();

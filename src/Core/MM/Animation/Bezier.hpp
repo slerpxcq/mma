@@ -8,6 +8,7 @@ namespace mm
 		Bezier();
 		Bezier(const uint8_t* interp);
 		glm::vec4 Eval(float target) const;
+		const auto& GetHandles() const { return m_handles; }
 
 	private:
 		// x, y, z, R

@@ -15,6 +15,8 @@ namespace mm
 		static constexpr uint32_t SUBFRAME_COUNT = 8;
 
 		struct Keyframe {
+		public:
+			virtual ~Keyframe() {};
 		protected:
 			explicit Keyframe(uint32_t frame) :
 				frame(frame) {}
@@ -27,7 +29,7 @@ namespace mm
 				Keyframe(frame),
 				xform(xform),
 				bez(bez) {}
-
+		public:
 			Transform  xform;
 			Bezier bez;
 		};
@@ -36,7 +38,7 @@ namespace mm
 			FacialKeyframe(uint32_t frame, float weight) :
 				Keyframe(frame),
 				weight(weight) {}
-
+		public:
 			float weight;
 		};
 
@@ -63,12 +65,22 @@ namespace mm
 		std::vector<std::vector<FacialKeyframe>> m_morphKeyframes;
 	};
 
-	inline bool operator<(uint32_t frame, const Animation::Keyframe& rhs)
+	static inline bool operator==(uint32_t frame, const Animation::Keyframe& rhs)
+	{
+		return frame == rhs.frame;
+	}
+
+	static inline bool operator<(uint32_t frame, const Animation::Keyframe& rhs)
 	{
 		return frame < rhs.frame;
 	}
 
-	inline bool operator<(const Animation::Keyframe& lhs, const Animation::Keyframe& rhs)
+	static inline bool operator<(const Animation::Keyframe& rhs, uint32_t lhs)
+	{
+		return rhs.frame < lhs;
+	}
+
+	static inline bool operator<(const Animation::Keyframe& lhs, const Animation::Keyframe& rhs)
 	{
 		return lhs.frame < rhs.frame;
 	}
