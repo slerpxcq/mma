@@ -31,7 +31,7 @@ namespace mm
 	};
 
 	// std140
-	struct MaterialUBOLayout 
+	struct MaterialLayout 
 	{
 		glm::vec4 diffuse;
 		glm::vec4 specular;
@@ -59,7 +59,7 @@ namespace mm
 		void Init();
 
 		void SetCamera(const Camera& camera);
-		void SetMaterial(const MaterialUBOLayout& material);
+		void SetMaterial(const MaterialLayout& material);
 
 		// nullptr for default shader
 		void SetShader(GLShader* shader);

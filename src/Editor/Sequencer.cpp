@@ -6,9 +6,6 @@
 
 #include "Core/Utility/Type.hpp"
 
-#include "Core/App/Application.hpp"
-#include "Core/App/Layer/ImGuiLayer.hpp"
-
 namespace mm
 {
 	void Sequencer::ExpandButton(uint32_t rowIndex, float offsetX, bool& expanded)
@@ -42,9 +39,21 @@ namespace mm
 		}
 	}
 
+	void Sequencer::OnMouseScrolled(const Event::MouseScrolled& e)
+	{
+		if (!m_hovered)
+			return;
+
+		m_rowStart += e.delta;
+		m_rowStart = std::clamp(m_rowStart, -m_rowCount + 1, 1);
+	}
+
 	template <typename T>
 	void Sequencer::DrawRow(T& row, bool expandable, float textOffset)
 	{
+		if (row.rowIndex < 1)
+			return;
+
 		float y = row.rowIndex * ROW_HEIGHT;
 		m_drawList->AddText(m_origin + ImVec2(LEGEND_TEXT_OFFSET + textOffset, y), RULER_MARK_COLOR, row.name.c_str());
 		if (expandable) 
@@ -58,9 +67,10 @@ namespace mm
 	}
 
 	template <typename T>
-	bool Sequencer::DrawDope(const Item& item, const std::vector<T>& keyframeList)
+	void Sequencer::DrawDope(const Item& item, const std::vector<T>& keyframeList)
 	{
-		bool ret = false;
+		if (item.rowIndex < 1)
+			return;
 
 		auto it = std::lower_bound(
 			keyframeList.begin(), 
@@ -85,17 +95,65 @@ namespace mm
 			ImVec2 buttonPos = dopePos - 0.5f * buttonSize;
 			ImGui::SetCursorScreenPos(m_origin + buttonPos);
 			if (ImGui::InvisibleButton(GetButtonId(), buttonSize)) {
-				ret = true;
 			}
 		}
-
-		return ret;
 	}
 
-	//void Sequencer::DrawCurve()
-	//{
+	void Sequencer::CurveEditor(Item& item)
+	{
+		// Curve editor
+		ImVec2 editorOrigin = ImVec2(LEGEND_LENGTH, (item.rowIndex + 1) * ROW_HEIGHT);
+		float editorHeight = CURVE_EDITOR_ROW_COUNT * ROW_HEIGHT;
+		float midY = editorOrigin.y + editorHeight * 0.5f;
+		// NOTE: only bone keyframes are expandable.
+		MM_ASSERT(item.type == PMXFile::CLUSTER_BONE);
+		auto& keyframeList = m_model->GetAnim()->GetBoneKeyframes()[item.index];
+		auto it = std::lower_bound(
+			keyframeList.begin(),
+			keyframeList.end(),
+			m_minFrame,
+			[](const Animation::Keyframe& lhs, uint32_t rhs) {
+				return lhs.frame < rhs;
+			});
 
-	//}
+		for (; it != keyframeList.end() && it->frame < m_maxFrame; ++it) {
+			// for all axes
+			static constexpr uint32_t axisColor[] = {
+				IM_COL32(255, 0, 0, 128), // X->R
+				IM_COL32(0, 255, 0, 128), // Y->G
+				IM_COL32(0, 0, 255, 128)}; // Z->B
+
+			for (uint32_t axis = 0; axis < 3; ++axis) {
+				float y = midY + it->xform.trans[axis] * Y_GAIN;
+				float startX = LEGEND_LENGTH + ROW_HEIGHT / 2;
+				uint32_t column = it->frame - m_minFrame;
+				ImVec2 diamondPos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
+				ImVec2 p0 = m_origin + ImVec2(diamondPos.x - POINT_RADIUS, diamondPos.y);
+				ImVec2 p1 = m_origin + ImVec2(diamondPos.x, diamondPos.y - POINT_RADIUS);
+				ImVec2 p2 = m_origin + ImVec2(diamondPos.x + POINT_RADIUS, diamondPos.y);
+				ImVec2 p3 = m_origin + ImVec2(diamondPos.x, diamondPos.y + POINT_RADIUS);
+				m_drawList->AddQuad(p0, p1, p2, p3, POINT_OUTLINE_COLOR, POINT_OUTLINE_SIZE);
+				m_drawList->AddQuadFilled(p0, p1, p2, p3, POINT_FILL_COLOR);
+				if (it + 1 != keyframeList.end()) {
+					ImVec2 bezP0 = diamondPos;
+					float nextY = midY + (it + 1)->xform.trans[axis] * Y_GAIN;
+					uint32_t nextColumn = (it + 1)->frame - m_minFrame;
+					ImVec2 bezP3 = ImVec2(startX + nextColumn * COLUMN_WIDTH, nextY + ROW_HEIGHT / 2);
+					ImVec2 delta = bezP3 - bezP0;
+					ImVec2 vmdP1 = ImVec2(it->bez.GetHandles()[axis][0].x, it->bez.GetHandles()[axis][0].y);
+					ImVec2 bezP1 = ((vmdP1 * (1.f / 127)) * delta) + bezP0;
+					ImVec2 vmdP2 = ImVec2(it->bez.GetHandles()[axis][1].x, it->bez.GetHandles()[axis][1].y);
+					ImVec2 bezP2 = ((vmdP2 * (1.f / 127)) * delta) + bezP0;
+					m_drawList->AddBezierCubic(
+						m_origin + bezP0, 
+						m_origin + bezP1, 
+						m_origin + bezP2, 
+						m_origin + bezP3,
+						axisColor[axis], 3.0f);
+				}
+			}
+		}
+	}
 
 	void Sequencer::OnUIRender()
 	{
@@ -106,6 +164,7 @@ namespace mm
 			m_minFrame = std::clamp(m_minFrame, 0, 10000);
 		}
 
+		m_hovered = ImGui::IsWindowHovered();
 		m_drawList = ImGui::GetWindowDrawList();
 
 		// Init states
@@ -120,10 +179,9 @@ namespace mm
 
 		// Background
 		m_drawList->AddRectFilled(m_origin, m_origin + m_size, BACKGROUND_COLOR);
-		m_drawList->AddRectFilled(m_origin, ImVec2(m_origin.x + m_size.x, m_origin.y + ROW_HEIGHT), HEADER_COLOR);
 
 		// Get row index of each entry
-		uint32_t rowIndex = 1;
+		int32_t rowIndex = m_rowStart;
 		for (auto& group : m_groups) {
 			group.rowIndex = rowIndex++;
 			if (group.expanded) {
@@ -139,7 +197,7 @@ namespace mm
 
 		// Draw groups
 		for (auto& group : m_groups) {
-			DrawRow(group, true, 10);
+			DrawRow(group, true, INDENT_BASE);
 		}
 
 		// Draw items
@@ -148,10 +206,10 @@ namespace mm
 				for (auto& item : group.items) {
 					switch (item.type) {
 					case PMXFile::CLUSTER_BONE:
-						DrawRow(item, true, 20);
+						DrawRow(item, true, 2 * INDENT_BASE);
 						break;
 					case PMXFile::CLUSTER_MORPH:
-						DrawRow(item, false, 20);
+						DrawRow(item, false, 2 * INDENT_BASE);
 						break;
 					}
 				}
@@ -163,6 +221,7 @@ namespace mm
 		float rulerEndX = m_size.x;
 		uint32_t column = m_minFrame;
 		uint32_t columnCount = 0;
+		m_drawList->AddRectFilled(m_origin, ImVec2(m_origin.x + m_size.x, m_origin.y + ROW_HEIGHT), HEADER_COLOR);
 		for (uint32_t rulerX = rulerBeginX; rulerX <= rulerEndX; rulerX += COLUMN_WIDTH, ++column, ++columnCount) {
 			float lineBeginY = ROW_HEIGHT;
 			float lineEndY = lineBeginY + ROW_HEIGHT * m_rowCount;
@@ -228,58 +287,7 @@ namespace mm
 								break;
 							}
 							if (item.expanded) {
-								// Curve editor
-								ImVec2 editorOrigin = ImVec2(LEGEND_LENGTH, (item.rowIndex + 1) * ROW_HEIGHT);
-								float editorHeight = CURVE_EDITOR_ROW_COUNT * ROW_HEIGHT;
-								float midY = editorOrigin.y + editorHeight * 0.5f;
-								// NOTE: only bone keyframes are expandable.
-								MM_ASSERT(item.type == PMXFile::CLUSTER_BONE);
-								auto& keyframeList = anim->GetBoneKeyframes()[item.index];
-								auto it = std::lower_bound(
-									keyframeList.begin(),
-									keyframeList.end(),
-									m_minFrame,
-									[](const Animation::Keyframe& lhs, uint32_t rhs) {
-										return lhs.frame < rhs;
-									});
-
-								for (; it != keyframeList.end() && it->frame < m_maxFrame; ++it) {
-									// for all axes
-									static constexpr uint32_t axisColor[] = {
-										IM_COL32(255, 0, 0, 128), // X->R
-										IM_COL32(0, 255, 0, 128), // Y->G
-										IM_COL32(0, 0, 255, 128)}; // Z->B
-
-									for (uint32_t axis = 0; axis < 3; ++axis) {
-										float y = midY + it->xform.trans[axis] * Y_GAIN;
-										float startX = LEGEND_LENGTH + ROW_HEIGHT / 2;
-										uint32_t column = it->frame - m_minFrame;
-										ImVec2 diamondPos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
-										ImVec2 p0 = m_origin + ImVec2(diamondPos.x - POINT_RADIUS, diamondPos.y);
-										ImVec2 p1 = m_origin + ImVec2(diamondPos.x, diamondPos.y - POINT_RADIUS);
-										ImVec2 p2 = m_origin + ImVec2(diamondPos.x + POINT_RADIUS, diamondPos.y);
-										ImVec2 p3 = m_origin + ImVec2(diamondPos.x, diamondPos.y + POINT_RADIUS);
-										m_drawList->AddQuad(p0, p1, p2, p3, POINT_OUTLINE_COLOR, POINT_OUTLINE_SIZE);
-										m_drawList->AddQuadFilled(p0, p1, p2, p3, POINT_FILL_COLOR);
-										if (it + 1 != keyframeList.end()) {
-											ImVec2 bezP0 = diamondPos;
-											float nextY = midY + (it + 1)->xform.trans[axis] * Y_GAIN;
-											uint32_t nextColumn = (it + 1)->frame - m_minFrame;
-											ImVec2 bezP3 = ImVec2(startX + nextColumn * COLUMN_WIDTH, nextY + ROW_HEIGHT / 2);
-											ImVec2 delta = bezP3 - bezP0;
-											ImVec2 vmdP1 = ImVec2(it->bez.GetHandles()[axis][0].x, it->bez.GetHandles()[axis][0].y);
-											ImVec2 bezP1 = ((vmdP1 * (1.f / 127)) * delta) + bezP0;
-											ImVec2 vmdP2 = ImVec2(it->bez.GetHandles()[axis][1].x, it->bez.GetHandles()[axis][1].y);
-											ImVec2 bezP2 = ((vmdP2 * (1.f / 127)) * delta) + bezP0;
-											m_drawList->AddBezierCubic(
-												m_origin + bezP0, 
-												m_origin + bezP1, 
-												m_origin + bezP2, 
-												m_origin + bezP3,
-												axisColor[axis], 3.0f);
-										}
-									}
-								}
+								CurveEditor(item);
 							}
 						}
 					}

@@ -22,7 +22,7 @@ namespace mm
 
 	public:
 		struct Mesh {
-			MaterialUBOLayout material;
+			MaterialLayout material;
 			std::vector<GLPass>* effect;
 			uint32_t elemCount;
 			uint32_t elemOffset;

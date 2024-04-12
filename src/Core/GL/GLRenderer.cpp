@@ -17,16 +17,16 @@ namespace mm
 		// Initialize UBOs and SSBOs
 		m_materialUBO = std::make_unique<GLBuffer>(GL_UNIFORM_BUFFER);
 		m_materialUBO->SetBase(MATERIAL_BASE);
-		m_materialUBO->SetData(sizeof(MaterialUBOLayout), nullptr);
+		m_materialUBO->SetData(sizeof(MaterialLayout), nullptr);
 
 		m_cameraUBO = std::make_unique<GLBuffer>(GL_UNIFORM_BUFFER);
 		m_cameraUBO->SetBase(CAMERA_BASE);
 		m_cameraUBO->SetData(sizeof(CameraUBOLayout), nullptr);
 	}
 
-	void GLRenderer::SetMaterial(const MaterialUBOLayout& material)
+	void GLRenderer::SetMaterial(const MaterialLayout& material)
 	{
-		m_materialUBO->SetSubData(0, sizeof(MaterialUBOLayout), (void*)&material);
+		m_materialUBO->SetSubData(0, sizeof(MaterialLayout), (void*)&material);
 	}
 
 	void GLRenderer::SetCamera(const Camera& camera)

@@ -1,5 +1,10 @@
 #pragma once
 
+#include <dexode/EventBus.hpp>
+#include "Core/App/Event.hpp"
+
+#include "Core/App/Application.hpp"
+
 namespace mm
 {
 	class KeyframeEditor;
@@ -36,6 +41,7 @@ namespace mm
 		static constexpr uint32_t POINT_OUTLINE_COLOR = 0xff0080ff;
 		static constexpr float POINT_OUTLINE_SIZE = 3.f;
 		static constexpr float Y_GAIN = 5.f;
+		static constexpr uint32_t INDENT_BASE = 15;
 
 		static constexpr uint32_t CURVE_EDITOR_ROW_COUNT = 16;
 
@@ -46,7 +52,7 @@ namespace mm
 			int32_t index;
 			bool expanded = false;
 			// For drawing
-			uint32_t rowIndex;
+			int32_t rowIndex;
 		};
 
 		struct Group {
@@ -54,27 +60,31 @@ namespace mm
 			bool expanded = false;
 			std::vector<Item> items;
 			// For drawing
-			uint32_t rowIndex;
+			int32_t rowIndex;
 		};
 
 	public:
 		Sequencer(KeyframeEditor& ke) : 
-			m_keyframeEditor(ke) {}
-
-
+			m_keyframeEditor(ke),
+			m_listener(Application::Instance().GetEventBus()) {
+			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Sequencer::OnMouseScrolled));
+		}
 
 		void OnUIRender();
 		void AddGroup(const Group& group) { m_groups.push_back(group); }
 		void SetModel(Model* model) { m_model = model; }
 
 	private:
+		void CurveEditor(Item& item);
 		void ExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);
+
+		void OnMouseScrolled(const Event::MouseScrolled& e);
 
 		template<typename T>
 		void DrawRow(T& row, bool expandable, float textOffset);
 
 		template<typename T>
-		bool DrawDope(const Item& item, const std::vector<T>& keyframeList);
+		void DrawDope(const Item& item, const std::vector<T>& keyframeList);
 
 		const char* GetButtonId() {
 			static char buf[16];
@@ -92,9 +102,12 @@ namespace mm
 		int32_t m_selectedRow = -1;
 		int32_t m_selectedColumn = -1;
 
+		bool m_hovered = false;
+
 		// Drawing states
-		uint32_t m_rowCount = 0;
-		uint32_t m_buttonIndex = 0;
+		int32_t m_rowStart = 1;
+		int32_t m_rowCount = 0;
+		int32_t m_buttonIndex = 0;
 		ImVec2 m_min;
 		ImVec2 m_max;
 		ImVec2 m_origin;
@@ -102,6 +115,8 @@ namespace mm
 
 		int32_t m_minFrame = 0;
 		int32_t m_maxFrame = 0;
+
+		dexode::EventBus::Listener m_listener;
 	};
 }
 

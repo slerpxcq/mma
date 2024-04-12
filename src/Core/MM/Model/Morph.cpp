@@ -27,6 +27,31 @@ namespace mm
 
 	void Morph::Render(GLRenderer& renderer) const
 	{
+		// Material targets
+		for (const auto& target : m_materialTargets) {
+			for (const auto& offset : target.offsets) {
+				float weight = m_weights[target.index];
+				auto& buffer = m_model.m_materialMorphBuffer[offset.index];
+				switch (offset.mode) {
+				case PMXFile::MORPH_ADD:
+					buffer.diffuse += offset.diffuse * weight;
+					buffer.specular += glm::vec4(glm::vec3(offset.specular * weight), 0.0f);
+					buffer.ambient += offset.ambient * weight;
+					buffer.edge += offset.edge * weight;
+					buffer.edgeSize += offset.edgeSize * weight;
+					break;
+				case PMXFile::MORPH_MULTIPLY:
+					buffer.diffuse *= offset.diffuse * weight;
+					buffer.specular *= glm::vec4(glm::vec3(offset.specular * weight), 1.0f);
+					buffer.ambient *= offset.ambient * weight;
+					buffer.edge *= offset.edge * weight;
+					buffer.edgeSize *= offset.edgeSize * weight;
+					break;
+				}
+			}
+		}
+		 
+		// Vertex targets
 		renderer.SetShader(m_morphShader);
 
 		glEnable(GL_RASTERIZER_DISCARD);
@@ -80,6 +105,7 @@ namespace mm
 		for (const auto& pmxOffset : pmxMorph.offsets) {
 			MaterialTarget::Offset offset = {};
 			const auto matOffset = pmxOffset.material;
+			offset.index = matOffset.materialIndex;
 			offset.diffuse = glm::make_vec4(matOffset.diffuseColor);
 			offset.specular = glm::vec4(
 				glm::make_vec3(matOffset.specularColor),

@@ -43,9 +43,10 @@ namespace mm
 		std::unique_ptr<Skin> m_skin;
 		std::unique_ptr<Morph> m_morph;
 
-		// ---------- RENDERING ----------
+		// ---------- BUFFERS ----------
 		std::unique_ptr<GLBuffer> m_skinningBuffer;
-		std::unique_ptr<GLBuffer> m_morphOffsetBuffer;
+		std::unique_ptr<GLBuffer> m_vertexMorphBuffer;
+		std::vector<MaterialLayout> m_materialMorphBuffer;
 
 		// ---------- PHYSICS ----------
 		ModelPhysicsData* m_physicsData;

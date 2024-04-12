@@ -30,6 +30,7 @@ namespace mm
 		pass.cullFace = GL_FRONT;
 		pass.shader = ResourceManager::s_instance.GetShader("default");
 		m_defaultEffect.push_back(pass);
+		// Main pass
 		pass.cullFace = GL_BACK;
 		m_defaultEffect.push_back(pass);
 
@@ -73,8 +74,8 @@ namespace mm
 
 	void Skin::Render(GLRenderer& renderer)
 	{
-		for (uint32_t i = 0; i < m_meshes.size(); ++i) {
-			auto& mesh = m_meshes[i];
+		for (uint32_t meshIndex = 0; meshIndex < m_meshes.size(); ++meshIndex) {
+			auto& mesh = m_meshes[meshIndex];
 
 			for (uint32_t pass = 0; pass < mesh.effect->size(); ++pass) {
 				renderer.BeginPass((*mesh.effect)[pass]);
@@ -82,21 +83,19 @@ namespace mm
 				GLTexture& albedo = GetTexture(mesh.albedoIndex);
 				GLTexture& sph = GetTexture(mesh.sphIndex);
 				GLTexture& toon = GetToon(mesh);
+				GLTexture& skybox = *ResourceManager::s_instance.GetTexture("skybox");
 				albedo.Bind(0);
 				sph.Bind(1);
 				toon.Bind(2);
-
-				GLTexture& skybox = *ResourceManager::s_instance.GetTexture("skybox");
 				skybox.Bind(3);
 
-				GLShader* shader = renderer.GetShader();
+				renderer.SetMaterial(m_model.m_materialMorphBuffer[meshIndex]);
 
+				GLShader* shader = renderer.GetShader();
 				shader->Uniform("u_albedo", 0);
 				shader->Uniform("u_sph", 1);
 				shader->Uniform("u_toon", 2);
 				shader->Uniform("u_skybox", 3);
-
-				renderer.SetMaterial(mesh.material);
 
 				shader->Uniform("u_lightDir", glm::vec3(-.5, -1, .5));
 				shader->Uniform("u_lightColor", glm::vec3(.6, .6, .6));
@@ -124,6 +123,17 @@ namespace mm
 				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 				renderer.EndPass();
 			}
+		}
+
+		// Reset material morph offsets
+		for (uint32_t meshIndex = 0; meshIndex < m_model.m_materialMorphBuffer.size(); ++meshIndex) {
+			auto& offset = m_model.m_materialMorphBuffer[meshIndex];
+			const auto& material = m_meshes[meshIndex].material;
+			offset.ambient = material.ambient;
+			offset.diffuse = material.diffuse;
+			offset.specular = material.specular;
+			offset.edge = material.edge;
+			offset.edgeSize = material.edgeSize;
 		}
 	}
 
@@ -187,7 +197,7 @@ namespace mm
 		for (const auto& pm : m_model.m_pmxFile->GetMaterials()) {
 			uint32_t elemCount = pm.elementCount;
 
-			MaterialUBOLayout mat = {};
+			MaterialLayout mat = {};
 			mat.diffuse = glm::make_vec4(pm.diffuseColor);
 			mat.specular = glm::vec4(glm::make_vec3(pm.specularColor), pm.specularExponent);
 			mat.ambient = glm::vec4(glm::make_vec3(pm.ambientColor), 1);

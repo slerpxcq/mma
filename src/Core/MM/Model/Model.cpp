@@ -18,9 +18,11 @@ namespace mm
 		m_skinningBuffer->SetData(m_armature->GetBones().size() * sizeof(glm::mat2x4), nullptr);
 		m_skinningBuffer->SetBase(1);
 
-		m_morphOffsetBuffer = std::make_unique<GLBuffer>(GL_SHADER_STORAGE_BUFFER);
-		m_morphOffsetBuffer->SetData(m_skin->GetVertexCount() * sizeof(Morph::SSBOLayout), nullptr);
-		m_morphOffsetBuffer->SetBase(Morph::MORPH_BASE);
+		m_vertexMorphBuffer = std::make_unique<GLBuffer>(GL_SHADER_STORAGE_BUFFER);
+		m_vertexMorphBuffer->SetData(m_skin->GetVertexCount() * sizeof(Morph::VertexLayout), nullptr);
+		m_vertexMorphBuffer->SetBase(Morph::MORPH_VERTEX_BASE);
+
+		m_materialMorphBuffer.resize(m_skin->GetMeshes().size());
 
 		m_physicsData = m_world.GetPhysicsWorld().LoadModel(*this);
 	}
