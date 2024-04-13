@@ -5,7 +5,7 @@ namespace mm
 {
 	glm::vec4 Bezier::Eval(float target) const
 	{
-		constexpr float MAX_ERROR = 0.0001f;
+		constexpr float MAX_ERROR = 0.001f;
 		glm::vec4 result;
 
 		for (uint32_t i = 0; i < 4; ++i) {

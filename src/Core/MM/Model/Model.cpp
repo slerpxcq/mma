@@ -13,6 +13,7 @@ namespace mm
 		m_armature = std::make_unique<Armature>(*this);
 		m_skin = std::make_unique<Skin>(*this);
 		m_morph = std::make_unique<Morph>(*this);
+		m_animation = std::make_unique<Animation>(*this);
 
 		m_skinningBuffer = std::make_unique<GLBuffer>(GL_SHADER_STORAGE_BUFFER);
 		m_skinningBuffer->SetData(m_armature->GetBones().size() * sizeof(glm::mat2x4), nullptr);
@@ -29,6 +30,7 @@ namespace mm
 
 	Animation* Model::LoadAnimation(const std::filesystem::path& path)
 	{
+		m_animation.reset();
 		m_animation = std::make_unique<Animation>(*this, path);
 		return m_animation.get();
 	}

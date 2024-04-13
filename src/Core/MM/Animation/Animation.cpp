@@ -87,6 +87,35 @@ namespace mm
 		}
 	}
 
+	Animation::Animation(Model& model) :
+		m_model(model)
+	{
+		m_name = "default";
+
+		LoadDefaultBoneKeyframes();
+		LoadDefaultMorphKeyframes();
+
+		MM_INFO("{0}: default animation loaded", m_model.GetPMXFile().GetInfo().nameJP);
+	}
+
+	void Animation::LoadDefaultBoneKeyframes() 
+	{
+		m_boneKeyframes.resize(m_model.GetPMXFile().GetBones().size());
+
+		for (uint32_t i = 0; i < m_boneKeyframes.size(); ++i) {
+			m_boneKeyframes[i].emplace_back(0, Transform::identity(), Bezier());
+		}
+	}
+
+	void Animation::LoadDefaultMorphKeyframes()
+	{
+		m_morphKeyframes.resize(m_model.GetPMXFile().GetMorphs().size());
+
+		for (uint32_t i = 0; i < m_morphKeyframes.size(); ++i) {
+			m_morphKeyframes[i].emplace_back(0, 0.0f);
+		}
+	}
+
 	Animation::Animation(Model& model, const std::filesystem::path& path) :
 		m_vmdFile(std::make_unique<VMDFile>(path)),
 		m_model(model)
@@ -96,7 +125,7 @@ namespace mm
 		LoadBoneKeyframes();
 		LoadMorphKeyframes();
 
-		MM_INFO("{0}: animation loaded", m_name);
+		MM_INFO("{0}: animation loaded", m_model.GetPMXFile().GetInfo().nameJP);
 	}
 
 	void Animation::Update(uint32_t frame, uint32_t subframe)

@@ -10,6 +10,8 @@
 #include "PoseEditor.hpp"
 #include "KeyframeEditor.hpp"
 
+#include "CommandBuffer.hpp"
+
 #include <dexode/EventBus.hpp>
 
 namespace mm
@@ -28,6 +30,8 @@ namespace mm
 	private:
 		std::unique_ptr<World> m_world;
 		Model* m_model;
+
+		CommandBuffer m_commandBuffer;
 
 		std::unique_ptr<Viewport> m_viewport;
 		std::unique_ptr<PoseEditor> m_poseEditor;

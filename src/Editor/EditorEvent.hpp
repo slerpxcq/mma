@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "Core/MM/Transform.hpp" 
 
 namespace mm
 {
@@ -16,5 +16,9 @@ namespace mm
 		struct MotionLoaded {
 			Animation* animation;
 		};
+
+		//struct CommandIssued {
+		//	std::unique_ptr<Command> command;
+		//};
 	}
 }

@@ -5,10 +5,11 @@
 #include "Core/MM/Model/Model.hpp"
 
 #include "Core/Utility/Type.hpp"
+#include "Core/App/Input.hpp"
 
 namespace mm
 {
-	void Sequencer::ExpandButton(uint32_t rowIndex, float offsetX, bool& expanded)
+	void Sequencer::DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -48,6 +49,24 @@ namespace mm
 		m_rowStart = std::clamp(m_rowStart, -m_rowCount + 1, 1);
 	}
 
+	void Sequencer::OnMouseButtonPressed(const Event::MouseButtonPressed& e) 
+	{
+		if (!m_hovered)
+			return;
+
+		m_rectMin = ImGui::GetMousePos();
+	}
+
+	void Sequencer::DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor)
+	{
+		ImVec2 p0 = m_origin + ImVec2(center.x - radius, center.y);
+		ImVec2 p1 = m_origin + ImVec2(center.x, center.y - radius);
+		ImVec2 p2 = m_origin + ImVec2(center.x + radius, center.y);
+		ImVec2 p3 = m_origin + ImVec2(center.x, center.y + radius);
+		m_drawList->AddQuad(p0, p1, p2, p3, outlineColor, outlineSize);
+		m_drawList->AddQuadFilled(p0, p1, p2, p3, fillColor);
+	}
+
 	template <typename T>
 	void Sequencer::DrawRow(T& row, bool expandable, float textOffset)
 	{
@@ -57,7 +76,7 @@ namespace mm
 		float y = row.rowIndex * ROW_HEIGHT;
 		m_drawList->AddText(m_origin + ImVec2(LEGEND_TEXT_OFFSET + textOffset, y), RULER_MARK_COLOR, row.name.c_str());
 		if (expandable) 
-			ExpandButton(row.rowIndex, textOffset - 5, row.expanded);
+			DrawExpandButton(row.rowIndex, textOffset - 5, row.expanded);
 		// Strip
 		uint32_t stripColor = (row.rowIndex & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
 		m_drawList->AddRectFilled(
@@ -85,12 +104,7 @@ namespace mm
 			float y = item.rowIndex * ROW_HEIGHT;
 			uint32_t column = it->frame - m_minFrame;
 			ImVec2 dopePos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
-			ImVec2 p0 = m_origin + ImVec2(dopePos.x - DOPE_RADIUS, dopePos.y);
-			ImVec2 p1 = m_origin + ImVec2(dopePos.x, dopePos.y - DOPE_RADIUS);
-			ImVec2 p2 = m_origin + ImVec2(dopePos.x + DOPE_RADIUS, dopePos.y);
-			ImVec2 p3 = m_origin + ImVec2(dopePos.x, dopePos.y + DOPE_RADIUS);
-			m_drawList->AddQuad(p0, p1, p2, p3, DOPE_OUTLINE_COLOR, DOPE_OUTLINE_SIZE);
-			m_drawList->AddQuadFilled(p0, p1, p2, p3, DOPE_FILL_COLOR);
+			DrawDiamond(dopePos, DOPE_RADIUS, DOPE_OUTLINE_SIZE, DOPE_OUTLINE_COLOR, DOPE_FILL_COLOR);
 			ImVec2 buttonSize = 2.f * ImVec2(DOPE_RADIUS, DOPE_RADIUS);
 			ImVec2 buttonPos = dopePos - 0.5f * buttonSize;
 			ImGui::SetCursorScreenPos(m_origin + buttonPos);
@@ -115,6 +129,13 @@ namespace mm
 			[](const Animation::Keyframe& lhs, uint32_t rhs) {
 				return lhs.frame < rhs;
 			});
+		//auto it = std::upper_bound(
+		//	keyframeList.begin(),
+		//	keyframeList.end(),
+		//	m_minFrame,
+		//	[](uint32_t lhs, const Animation::Keyframe& rhs) {
+		//		return lhs< rhs.frame;
+		//	});
 
 		for (; it != keyframeList.end() && it->frame < m_maxFrame; ++it) {
 			// for all axes
@@ -128,12 +149,7 @@ namespace mm
 				float startX = LEGEND_LENGTH + ROW_HEIGHT / 2;
 				uint32_t column = it->frame - m_minFrame;
 				ImVec2 diamondPos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
-				ImVec2 p0 = m_origin + ImVec2(diamondPos.x - POINT_RADIUS, diamondPos.y);
-				ImVec2 p1 = m_origin + ImVec2(diamondPos.x, diamondPos.y - POINT_RADIUS);
-				ImVec2 p2 = m_origin + ImVec2(diamondPos.x + POINT_RADIUS, diamondPos.y);
-				ImVec2 p3 = m_origin + ImVec2(diamondPos.x, diamondPos.y + POINT_RADIUS);
-				m_drawList->AddQuad(p0, p1, p2, p3, POINT_OUTLINE_COLOR, POINT_OUTLINE_SIZE);
-				m_drawList->AddQuadFilled(p0, p1, p2, p3, POINT_FILL_COLOR);
+				DrawDiamond(diamondPos, POINT_RADIUS, POINT_OUTLINE_SIZE, POINT_OUTLINE_COLOR, POINT_FILL_COLOR);
 				if (it + 1 != keyframeList.end()) {
 					ImVec2 bezP0 = diamondPos;
 					float nextY = midY + (it + 1)->xform.trans[axis] * Y_GAIN;
@@ -160,7 +176,8 @@ namespace mm
 		ImGui::Begin("Sequencer", nullptr,
 			ImGuiWindowFlags_NoScrollbar |
 			ImGuiWindowFlags_NoScrollWithMouse);
-		if (ImGui::SliderInt("Min", &m_minFrame, 0, 10000)) {
+
+		if (ImGui::SliderInt("Min frame", &m_minFrame, 0, 10000)) {
 			m_minFrame = std::clamp(m_minFrame, 0, 10000);
 		}
 
@@ -231,6 +248,8 @@ namespace mm
 			ImGui::SetCursorScreenPos(m_origin + buttonPos);
 			if (ImGui::InvisibleButton(GetButtonId(), buttonSize)) {
 				m_selectedColumn = column;
+				m_keyframeEditor.m_frameCounter.Set(m_minFrame + column);
+				m_keyframeEditor.UpdateAnim();
 			}
 
 			// Draw current frame mark
@@ -293,6 +312,12 @@ namespace mm
 					}
 				}
 			}
+		}
+
+		if (Input::MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+			m_rectMax = ImGui::GetMousePos();
+			m_drawList->AddRect(m_rectMin, m_rectMax, IM_COL32(0, 130, 216, 255));
+			m_drawList->AddRectFilled(m_rectMin, m_rectMax, IM_COL32(0, 130, 216, 50));
 		}
 
 		ImGui::EndGroup();

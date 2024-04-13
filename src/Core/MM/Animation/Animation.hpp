@@ -43,6 +43,7 @@ namespace mm
 		};
 
 	public:
+		Animation(Model& model);
 		Animation(Model &model, const std::filesystem::path& path);
 		void Update(uint32_t frame, uint32_t subframe);
 		const std::string& GetName() const { return m_name; }
@@ -52,6 +53,8 @@ namespace mm
 	private:
 		void LoadBoneKeyframes();
 		void LoadMorphKeyframes();
+		void LoadDefaultBoneKeyframes();
+		void LoadDefaultMorphKeyframes();
 		void UpdateBoneTransforms(uint32_t frame, uint32_t subframe);
 		void UpdateMorphWeights(uint32_t frame, uint32_t subframe);
 		float Distance(uint32_t frame, uint32_t subframe, uint32_t prev, uint32_t next);

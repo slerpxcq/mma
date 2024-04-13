@@ -56,34 +56,22 @@ namespace mm
 	{
 		if (m_model != nullptr) {
 			m_playing = false;
-			m_frame = 0;
-			m_subframe = 0;
-
+			m_frameCounter.Set(0);
 			UpdateAnim();
 		}
 	}
 
 	void KeyframeEditor::OnUpdate(float deltaTime)
 	{
-		static float accum;
-
-		if (m_playing) {
-			accum += deltaTime;
-			while (accum >= SUBFRAME_STEP) {
-				if (++m_subframe == SUBFRAME_COUNT) {
-					m_subframe = 0;
-					++m_frame;
-				}
-				UpdateAnim();
-				accum -= SUBFRAME_STEP;
-			}
-		}
+		if (m_playing)
+			m_frameCounter.Step(deltaTime);
+		UpdateAnim();
 	}
 
 	void KeyframeEditor::UpdateAnim()
 	{
 		if (m_model != nullptr && m_model->GetAnim() != nullptr) {
-			m_model->GetAnim()->Update(m_frame, m_subframe);
+			m_model->GetAnim()->Update(m_frameCounter.GetFrame(), m_frameCounter.GetSubFrame());
 		}
 	}
 
@@ -101,17 +89,11 @@ namespace mm
 		if (ImGui::Button("Stop")) {
 			m_playing = false;
 		}
-		ImGui::SameLine();
-		if (ImGui::Button("Reset")) {
-			m_playing = false;
-			m_frame = 0;
-			m_subframe = 0;
-			UpdateAnim();
-		}
-		if (ImGui::InputInt("Frame", &m_frame)) {
-			if (m_frame < 0)
-				m_frame = 0;
-			m_subframe = 0;
+		static int32_t frame;
+		if (ImGui::InputInt("Frame", &frame)) {
+			if (frame < 0)
+				frame = 0;
+			m_frameCounter.Set(frame);
 			UpdateAnim();
 		}
 		ImGui::End();

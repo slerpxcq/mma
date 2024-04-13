@@ -68,6 +68,7 @@ namespace mm
 			m_keyframeEditor(ke),
 			m_listener(Application::Instance().GetEventBus()) {
 			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Sequencer::OnMouseScrolled));
+			m_listener.listen<Event::MouseButtonPressed>(MM_EVENT_FN(Sequencer::OnMouseButtonPressed));
 		}
 
 		void OnUIRender();
@@ -76,13 +77,16 @@ namespace mm
 
 	private:
 		void CurveEditor(Item& item);
-		void ExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);
 
+		// Events
 		void OnMouseScrolled(const Event::MouseScrolled& e);
+		void OnMouseButtonPressed(const Event::MouseButtonPressed& e);
 
+		// Drawing
+		void DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);
+		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
 		template<typename T>
 		void DrawRow(T& row, bool expandable, float textOffset);
-
 		template<typename T>
 		void DrawDope(const Item& item, const std::vector<T>& keyframeList);
 
@@ -112,6 +116,9 @@ namespace mm
 		ImVec2 m_max;
 		ImVec2 m_origin;
 		ImVec2 m_size;
+
+		ImVec2 m_rectMin;
+		ImVec2 m_rectMax;
 
 		int32_t m_minFrame = 0;
 		int32_t m_maxFrame = 0;
