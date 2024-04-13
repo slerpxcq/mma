@@ -3,6 +3,8 @@
 #include "Core/Locale/Locale.hpp"
 #include "../Model/Model.hpp"
 
+#include "Core/ResourceManager/ResourceManager.hpp"
+
 namespace mm
 {
 	float Animation::Distance(uint32_t frame, uint32_t subframe, uint32_t prev, uint32_t next)
@@ -22,6 +24,7 @@ namespace mm
 	void Animation::LoadBoneKeyframes()
 	{
 		const auto& vmdMotionDatas = m_vmdFile->GetMotionDatas();
+		m_boneKeyframes.clear();
 		m_boneKeyframes.resize(m_model.GetPMXFile().GetBones().size());
 
 		for (uint32_t i = 0; i < vmdMotionDatas.size(); ++i) {
@@ -58,6 +61,7 @@ namespace mm
 	void Animation::LoadMorphKeyframes()
 	{
 		const auto& vmdMorphDatas = m_vmdFile->GetMorphDatas();
+		m_morphKeyframes.clear();
 		m_morphKeyframes.resize(m_model.GetPMXFile().GetMorphs().size());
 
 		for (uint32_t i = 0; i < vmdMorphDatas.size(); ++i) {
@@ -100,6 +104,7 @@ namespace mm
 
 	void Animation::LoadDefaultBoneKeyframes() 
 	{
+		m_boneKeyframes.clear();
 		m_boneKeyframes.resize(m_model.GetPMXFile().GetBones().size());
 
 		for (uint32_t i = 0; i < m_boneKeyframes.size(); ++i) {
@@ -109,6 +114,7 @@ namespace mm
 
 	void Animation::LoadDefaultMorphKeyframes()
 	{
+		m_morphKeyframes.clear();
 		m_morphKeyframes.resize(m_model.GetPMXFile().GetMorphs().size());
 
 		for (uint32_t i = 0; i < m_morphKeyframes.size(); ++i) {
@@ -116,11 +122,13 @@ namespace mm
 		}
 	}
 
-	Animation::Animation(Model& model, const std::filesystem::path& path) :
-		m_vmdFile(std::make_unique<VMDFile>(path)),
-		m_model(model)
+	void Animation::LoadFromFile(const std::filesystem::path& path)
 	{
 		m_name = path.filename().u8string();
+
+		auto vmd = std::make_unique<VMDFile>(path);
+		m_vmdFile = vmd.get();
+		ResourceManager::s_instance.LoadFile(std::move(vmd));
 
 		LoadBoneKeyframes();
 		LoadMorphKeyframes();

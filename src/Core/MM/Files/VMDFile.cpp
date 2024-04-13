@@ -45,8 +45,9 @@ namespace mm
 		}
 	}
 
-	VMDFile::VMDFile(const std::filesystem::path& path)
+	VMDFile::VMDFile(const std::filesystem::path& path) 
 	{
+		m_path = path;
 		std::ifstream stream;
 		stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		stream.open(path, std::ifstream::binary);

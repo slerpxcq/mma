@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Locale/Locale.hpp"
+#include "File.hpp"
 
 namespace mm
 {
@@ -9,7 +10,7 @@ namespace mm
 		PMXParseError(const char* what = "") : std::runtime_error(what) {}
 	};
 
-	class PMXFile
+	class PMXFile : public File
 	{
 	public:
 		enum TextEncoding {
@@ -321,7 +322,8 @@ namespace mm
 
 	public:
 		explicit PMXFile(const std::filesystem::path& path);
-		const std::filesystem::path& GetPath() const { return m_path; }
+		virtual const std::string& GetName() const override { return m_info.nameJP; }
+		virtual const std::filesystem::path& GetPath() const override { return m_path; }
 		const Header& GetHeader() const { return m_header; }
 		const Info& GetInfo() const { return m_info; };
 		const std::vector<Vertex>& GetVertices() const { return m_vertices; }

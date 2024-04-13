@@ -30,8 +30,7 @@ namespace mm
 
 	Animation* Model::LoadAnimation(const std::filesystem::path& path)
 	{
-		m_animation.reset();
-		m_animation = std::make_unique<Animation>(*this, path);
+		m_animation->LoadFromFile(path);
 		return m_animation.get();
 	}
 

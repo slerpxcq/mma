@@ -101,6 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\MM\Files\File.hpp" />
     <ClInclude Include="src\Editor\CommandBuffer.hpp" />
     <ClInclude Include="src\Editor\Sequencer.hpp" />
     <ClInclude Include="src\Core\App\Application.hpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\MM\Files\File.cpp" />
     <ClCompile Include="src\Editor\CommandBuffer.cpp" />
     <ClCompile Include="src\Editor\Sequencer.cpp" />
     <ClCompile Include="src\Core\App\Application.cpp" />

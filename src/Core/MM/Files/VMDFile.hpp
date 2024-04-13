@@ -1,5 +1,7 @@
 #pragma once
 
+#include "File.hpp"
+
 namespace mm
 {
 	struct VMDParseError : public std::runtime_error
@@ -7,7 +9,7 @@ namespace mm
 		VMDParseError(const char* what = "") : std::runtime_error(what) {}
 	};
 
-	class VMDFile
+	class VMDFile : public File
 	{
 	public:
 		struct Header {
@@ -31,6 +33,8 @@ namespace mm
 
 	public:
 		explicit VMDFile(const std::filesystem::path& path);
+		virtual const std::string& GetName() const override { return m_path.filename().u8string(); }
+		virtual const std::filesystem::path& GetPath() const override { return m_path; }
 		const std::vector<MotionData>& GetMotionDatas() const { return m_motionDatas; }
 		const std::vector<MorphData>& GetMorphDatas() const { return m_morphDatas; }
 
@@ -40,6 +44,7 @@ namespace mm
 		void ParseMorphData(std::ifstream& stream);
 
 	private:
+		std::filesystem::path m_path;
 		Header                  m_header;
 		std::vector<MotionData> m_motionDatas;
 		std::vector<MorphData>  m_morphDatas;

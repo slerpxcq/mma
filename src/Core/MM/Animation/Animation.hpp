@@ -44,7 +44,7 @@ namespace mm
 
 	public:
 		Animation(Model& model);
-		Animation(Model &model, const std::filesystem::path& path);
+		void LoadFromFile(const std::filesystem::path& path);
 		void Update(uint32_t frame, uint32_t subframe);
 		const std::string& GetName() const { return m_name; }
 		const auto& GetBoneKeyframes() const { return m_boneKeyframes; }
@@ -61,28 +61,25 @@ namespace mm
 
 	private:
 		Model& m_model;
-		std::unique_ptr<VMDFile> m_vmdFile;
+		VMDFile* m_vmdFile;
 		std::string m_name;
 
 		std::vector<std::vector<BoneKeyframe>>   m_boneKeyframes;
 		std::vector<std::vector<FacialKeyframe>> m_morphKeyframes;
 	};
 
-	static inline bool operator==(uint32_t frame, const Animation::Keyframe& rhs)
+	 // For std::upper_bound and std::lower_bound
+	static inline bool operator<(uint32_t lhs, const Animation::Keyframe& rhs) 
 	{
-		return frame == rhs.frame;
+		return lhs < rhs.frame;
 	}
 
-	static inline bool operator<(uint32_t frame, const Animation::Keyframe& rhs)
+	static inline bool operator<(const Animation::Keyframe& lhs, uint32_t rhs) 
 	{
-		return frame < rhs.frame;
+		return lhs.frame < rhs;
 	}
 
-	static inline bool operator<(const Animation::Keyframe& rhs, uint32_t lhs)
-	{
-		return rhs.frame < lhs;
-	}
-
+	// for std::sort
 	static inline bool operator<(const Animation::Keyframe& lhs, const Animation::Keyframe& rhs)
 	{
 		return lhs.frame < rhs.frame;
