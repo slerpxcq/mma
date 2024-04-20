@@ -4,14 +4,14 @@ namespace mm
 {
 	class Application;
 
-	class Layer
+	class ILayer
 	{
 	public:
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnUpdate(float deltaTime) {}
 		virtual void OnUIRender() {}
-		virtual	~Layer() {}
+		virtual	~ILayer() {}
 	};
 }
 

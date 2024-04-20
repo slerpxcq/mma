@@ -18,6 +18,11 @@ namespace mm
 		void Update(float deltaTime);
 		void Reset();
 		void LoadTransforms();
+		void SetEnable(bool value) { 
+			if (value == false) 
+				Reset();
+			m_enabled = value;
+		}
 
 		ModelPhysicsData* LoadModel(Model& model);
 
@@ -30,6 +35,8 @@ namespace mm
 
 		// Per model data
 		std::vector<std::unique_ptr<ModelPhysicsData>> m_models;
+
+		bool m_enabled = false;
 	};
 }
 

@@ -13,6 +13,7 @@ namespace mm
 
 		struct KeyPressed {
 			uint32_t code;
+			uint32_t mods;
 			bool repeat;
 		};
 

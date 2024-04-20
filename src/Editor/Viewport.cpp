@@ -47,7 +47,11 @@ namespace mm
 	void Viewport::OnUIRender()
 	{
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+        ImGui::Begin("Viewport", nullptr, 
+            ImGuiWindowFlags_NoCollapse | 
+            ImGuiWindowFlags_NoBringToFrontOnFocus |
+            ImGuiWindowFlags_NoScrollbar |
+            ImGuiWindowFlags_NoScrollWithMouse);
 
         m_hovered = ImGui::IsWindowHovered();
 

@@ -16,7 +16,7 @@
 
 namespace mm
 {
-	class EditorLayer : public Layer
+	class EditorLayer : public ILayer
 	{
 	public:
 		void OnAttach() override ;

@@ -2,6 +2,8 @@
 
 #include "Core/MM/Transform.hpp" 
 
+#include "Commands.hpp"
+
 namespace mm
 {
 	class Model;
@@ -17,8 +19,8 @@ namespace mm
 			Animation* animation;
 		};
 
-		//struct CommandIssued {
-		//	std::unique_ptr<Command> command;
-		//};
+		struct CommandIssued {
+			ICommand* command;
+		};
 	}
 }

@@ -63,9 +63,10 @@ namespace mm
 
 	void KeyframeEditor::OnUpdate(float deltaTime)
 	{
-		if (m_playing)
+		if (m_playing) {
 			m_frameCounter.Step(deltaTime);
-		UpdateAnim();
+			UpdateAnim();
+		}
 	}
 
 	void KeyframeEditor::UpdateAnim()

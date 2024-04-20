@@ -66,6 +66,10 @@ namespace mm
         }
         if (ImGui::Button("Reload shader")) {
         }
+        static bool enablePhysics;
+        if (ImGui::Checkbox("Enable physics", &enablePhysics)) {
+			m_world->GetPhysicsWorld().SetEnable(enablePhysics);
+        }
         ImGui::End();
 
         m_viewport->OnUIRender();

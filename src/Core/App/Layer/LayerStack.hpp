@@ -16,13 +16,13 @@ namespace mm
 		void OnUpdate(float deltaTime);
 		void OnUIRender();
 
-		void PushLayer(std::unique_ptr<Layer> layer) {
+		void PushLayer(std::unique_ptr<ILayer> layer) {
 			layer->OnAttach();
 			m_layers.insert(m_layers.begin() + m_layerInsertPos, std::move(layer));
 			++m_layerInsertPos;
 		}
 
-		void PushOverlay(std::unique_ptr<Layer> overlay) {
+		void PushOverlay(std::unique_ptr<ILayer> overlay) {
 			overlay->OnAttach();
 			m_layers.push_back(std::move(overlay));
 		}
@@ -41,7 +41,7 @@ namespace mm
 		}
 
 	private:
-		std::vector<std::unique_ptr<Layer>> m_layers;
+		std::vector<std::unique_ptr<ILayer>> m_layers;
 		uint32_t m_layerInsertPos;
 	};
 }

@@ -27,6 +27,9 @@ namespace mm
 
 	void PhysicsWorld::Update(float deltaTime)
 	{
+		if (!m_enabled)
+			return;
+
 		static float accum = 0.0f;
 
 		accum += deltaTime;

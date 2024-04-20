@@ -42,6 +42,11 @@ namespace mm
 			glm::mat4 world = glm::mat4(1);
 			glm::mat4 worldToLocal = glm::mat4(1);
 
+			bool useLocalFrame = false;
+			bool fixedAxis = false;
+			glm::mat4 localFrame; 
+			glm::mat4 localFrameInv;
+
 			std::vector<glm::vec3> screenPos;
 		};
 
@@ -57,12 +62,15 @@ namespace mm
 
 		void MorphSliders(uint32_t panel);
 
+
 	private:
 		EditorLayer& m_editor;
 		Model* m_model = nullptr;
 		Context m_context;
 
 		dexode::EventBus::Listener m_listener;
+
+		int32_t m_selectedMorph = -1;
 
 		bool m_enabled = false;
 	};

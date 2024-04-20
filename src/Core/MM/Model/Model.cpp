@@ -3,13 +3,17 @@
 
 #include "Core/GL/GLRenderer.hpp"
 #include "../World.hpp"
+#include "Core/ResourceManager/ResourceManager.hpp"
 
 namespace mm
 {
 	Model::Model(World& world, const std::filesystem::path& path) :
-		m_pmxFile(std::make_unique<PMXFile>(path)),
 		m_world(world)
 	{
+		auto pmx = std::make_unique<PMXFile>(path);
+		m_pmxFile = pmx.get();
+		ResourceManager::s_instance.LoadFile(std::move(pmx));
+
 		m_armature = std::make_unique<Armature>(*this);
 		m_skin = std::make_unique<Skin>(*this);
 		m_morph = std::make_unique<Morph>(*this);

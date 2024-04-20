@@ -132,13 +132,13 @@ namespace mm
 			auto eb = app->GetEventBus();
 			switch (action) {
 			case GLFW_PRESS:
-				eb->postpone<Event::KeyPressed>({(uint32_t)key, false});
+				eb->postpone<Event::KeyPressed>({(uint32_t)key, (uint32_t)mods, false});
 				break;
 			case GLFW_RELEASE:
 				eb->postpone<Event::KeyReleased>({(uint32_t)key});
 				break;
 			case GLFW_REPEAT:
-				eb->postpone<Event::KeyPressed>({ (uint32_t)key, true });
+				eb->postpone<Event::KeyPressed>({ (uint32_t)key, (uint32_t)mods, true });
 				break;
 			}
 		});

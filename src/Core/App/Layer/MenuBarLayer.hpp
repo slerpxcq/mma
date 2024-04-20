@@ -6,7 +6,7 @@
 
 namespace mm
 {
-	class MenuBarLayer : public Layer
+	class MenuBarLayer : public ILayer
 	{
 	public:
 		virtual void OnAttach() override;
