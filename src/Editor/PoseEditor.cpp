@@ -341,7 +341,7 @@ namespace mm
 				float valueBeforeEdit = *valuePtr;
 				ImGui::SliderFloat(name.c_str(), valuePtr, 0.0f, 1.0f);
 
-				static float undoValue = 0.f;
+				static float undoValue;
 				if (ImGui::IsItemActivated()) {
 					undoValue = valueBeforeEdit;
 					MM_INFO("Start edit; undo={0}", undoValue);

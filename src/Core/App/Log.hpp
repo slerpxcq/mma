@@ -6,9 +6,14 @@ namespace mm
 {
 	class Logger {
 	public:
-		static std::shared_ptr<spdlog::logger> Get() {
-			static std::shared_ptr<spdlog::logger> logger = spdlog::default_logger();
-			return logger;
+		/* Workaround for exit on crash */
+		/* Keep one instance of logger on heap to avoid delete */
+		/* Causes memory leak */
+		static spdlog::logger* Get() {
+			static std::shared_ptr<spdlog::logger>* logger;
+			if (logger == nullptr)
+				logger = new std::shared_ptr<spdlog::logger>(spdlog::default_logger());
+			return logger->get();
 		}
 
 	private:
