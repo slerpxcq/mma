@@ -2,14 +2,16 @@
 
 #include <dexode/EventBus.hpp>
 #include "Core/App/Event.hpp"
+#include "EditorEvent.hpp"
 
 #include "Core/App/Application.hpp"
+#include "FrameCounter.hpp"
 
 namespace mm
 {
-	class KeyframeEditor;
 	class Animation;
 	class Model;
+	class EditorLayer;
 
 	class Sequencer
 	{
@@ -64,16 +66,24 @@ namespace mm
 		};
 
 	public:
-		Sequencer(KeyframeEditor& ke) : 
-			m_keyframeEditor(ke),
+		Sequencer(EditorLayer& editor) : 
+			m_editor(editor),
 			m_listener(Application::Instance().GetEventBus()) {
 			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Sequencer::OnMouseScrolled));
 			m_listener.listen<Event::MouseButtonPressed>(MM_EVENT_FN(Sequencer::OnMouseButtonPressed));
+			m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(Sequencer::OnModelLoaded));
+			m_listener.listen<EditorEvent::MotionLoaded>(MM_EVENT_FN(Sequencer::OnMotionLoaded));
 		}
 
 		void OnUIRender();
 		void AddGroup(const Group& group) { m_groups.push_back(group); }
 		void SetModel(Model* model) { m_model = model; }
+
+		void OnModelLoaded(const EditorEvent::ModelLoaded& e);
+		void OnMotionLoaded(const EditorEvent::MotionLoaded& e);
+		void OnUpdate(float deltaTime);
+		void UpdateAnim();
+		Model* GetModel() { return m_model; }
 
 	private:
 		void CurveEditor(Item& item);
@@ -97,7 +107,7 @@ namespace mm
 		}
 
 	private:
-		KeyframeEditor& m_keyframeEditor;
+		EditorLayer& m_editor;
 		Model* m_model = nullptr;
 		std::vector<Group> m_groups;
 
@@ -108,7 +118,11 @@ namespace mm
 
 		bool m_hovered = false;
 
-		// Drawing states
+		/* Playback states */
+		bool m_playing = false;
+		FrameCounter m_frameCounter;
+
+		/* Drawing states */
 		int32_t m_rowStart = 1;
 		int32_t m_rowCount = 0;
 		int32_t m_buttonIndex = 0;

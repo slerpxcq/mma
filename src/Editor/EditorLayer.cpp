@@ -21,7 +21,7 @@ namespace mm
         m_world = std::make_unique<World>();
         m_viewport = std::make_unique<Viewport>(*this);
         m_poseEditor = std::make_unique<PoseEditor>(*this);
-        m_keyframeEditor = std::make_unique<KeyframeEditor>(*this);
+        m_sequencer = std::make_unique<Sequencer>(*this);
     }
 
     void EditorLayer::OnDetach()
@@ -33,7 +33,7 @@ namespace mm
         m_world->OnUpdate(deltaTime);
         m_viewport->OnUpdate(deltaTime);
         m_poseEditor->OnUpdate(deltaTime);
-        m_keyframeEditor->OnUpdate(deltaTime);
+        m_sequencer->OnUpdate(deltaTime);
 
         GLRenderer& renderer = GLRenderer::s_instance;
         m_viewport->OnRender(renderer);
@@ -74,6 +74,6 @@ namespace mm
 
         m_viewport->OnUIRender();
         m_poseEditor->OnUIRender();
-        m_keyframeEditor->OnUIRender();
+        m_sequencer->OnUIRender();
     }
 }

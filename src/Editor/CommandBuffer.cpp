@@ -15,39 +15,34 @@ namespace mm
 
 	void CommandBuffer::OnCommandIssued(const EditorEvent::CommandIssued& e)
 	{
-		m_commandQueue.push_back(std::unique_ptr<ICommand>(e.command));
-		++m_commandPointer;
-		MM_INFO("Recieved command; pointer={0}", m_commandPointer);
+		m_commandQueue.push(std::unique_ptr<ICommand>(e.command));
+		MM_INFO("Stored command; size={0}", m_commandQueue.size());
 	}
 
 	void CommandBuffer::OnKeyPressed(const Event::KeyPressed& e)
 	{
 		// Ctrl + Z
-		if (e.code == GLFW_KEY_Z && (e.mods & GLFW_MOD_CONTROL)) {
+		if ((e.code == GLFW_KEY_Z) && (e.mods & GLFW_MOD_CONTROL)) {
 			OnUndo();
 		}
 
 		// Ctrl + Y
-		if (e.code == GLFW_KEY_Y && (e.mods & GLFW_MOD_CONTROL)) {
+		if ((e.code == GLFW_KEY_Y) && (e.mods & GLFW_MOD_CONTROL)) {
 			OnRedo();
 		}
 	}
 
 	void CommandBuffer::OnUndo()
 	{
-		if (m_commandPointer >= 0) {
-			MM_INFO("Undo; pointer={0}", m_commandPointer);
-			m_commandQueue[m_commandPointer]->Undo();
-			--m_commandPointer;
+		if (!m_commandQueue.empty()) {
+			MM_INFO("Undo; index={0}", m_commandQueue.size()-1);
+			m_commandQueue.top()->Undo();
+			m_commandQueue.pop();
 		}
 	}
 
 	void CommandBuffer::OnRedo()
 	{
-		if (m_commandPointer < m_commandQueue.size()) {
-			MM_INFO("Redo; pointer={0}", m_commandPointer);
-			m_commandQueue[m_commandPointer]->Redo();
-			++m_commandPointer;
-		}
+		MM_INFO("TO BE IMPLEMENTED");
 	}
 }

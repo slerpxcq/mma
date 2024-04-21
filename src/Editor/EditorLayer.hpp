@@ -8,7 +8,7 @@
 
 #include "Viewport.hpp"
 #include "PoseEditor.hpp"
-#include "KeyframeEditor.hpp"
+#include "Sequencer.hpp"
 
 #include "CommandBuffer.hpp"
 
@@ -16,7 +16,7 @@
 
 namespace mm
 {
-	class EditorLayer : public ILayer
+	class EditorLayer : public Layer
 	{
 	public:
 		void OnAttach() override ;
@@ -35,7 +35,7 @@ namespace mm
 
 		std::unique_ptr<Viewport> m_viewport;
 		std::unique_ptr<PoseEditor> m_poseEditor;
-		std::unique_ptr<KeyframeEditor> m_keyframeEditor;
+		std::unique_ptr<Sequencer> m_sequencer;
 
 		std::unique_ptr<dexode::EventBus::Listener> m_listener;
 	};

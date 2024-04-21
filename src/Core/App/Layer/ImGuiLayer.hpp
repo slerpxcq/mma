@@ -7,7 +7,7 @@ struct ImFont;
 
 namespace mm
 {
-	class ImGuiLayer : public ILayer
+	class ImGuiLayer : public Layer
 	{
 		static constexpr uint32_t FONT_SIZE = 20;
 	public:

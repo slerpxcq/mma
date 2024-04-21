@@ -85,30 +85,6 @@ namespace mm
 		m_model->GetArmature().GetPose()[m_context.selected] = Transform(local);
 	}
 
-	//void PoseEditor::Pick()
-	//{
-	//	const auto& pmxBones = m_model->GetPMXFile().GetBones();
-	//	glm::vec2 mousePos = Input::MousePos();
-	//	int32_t selected = -1;
-	//	float currZ = std::numeric_limits<float>::infinity();
-
-	//	// Use ImGui invisible button
-
-	//	// Check against each bone in screen space
-	//	for (uint32_t i = 0; i < m_context.screenPos.size(); ++i) {
-	//		glm::vec3 screenPos = m_context.screenPos[i];
-	//		if (pmxBones[i].flags & PMXFile::BONE_VISIBLE_BIT && 
-	//			pmxBones[i].flags & PMXFile::BONE_OPERABLE_BIT &&
-	//			glm::distance(glm::vec2(screenPos), mousePos) < CIRCLE_RADIUS &&
-	//			screenPos.z < currZ) {
-	//			selected = i;
-	//			currZ = screenPos.z;
-	//		}
-	//	}
-
-	//	m_context.selected = selected;
-	//}
-
 	glm::vec3 PoseEditor::WorldToScreen(const glm::vec3& world)
 	{
 		const auto& camera = m_editor.GetWorld().GetCamera();
@@ -223,10 +199,6 @@ namespace mm
 			if (e.button == GLFW_MOUSE_BUTTON_LEFT && !ImGuizmo::IsOver())
 				m_context.state = Context::PICKING;
 			break;
-		case Context::PICKING:
-			if (e.button == GLFW_MOUSE_BUTTON_LEFT)
-				//Pick();
-			break;
 		}
 	}
 
@@ -330,7 +302,6 @@ namespace mm
 				// Toggle WORLD/LOCAL
 				if (e.code == (GLFW_KEY_W)) {
 					m_context.mode ^= 1;
-					//MM_INFO("Mode: {0}", m_context.mode ? "WORLD" : "LOCAL");
 				}
 			}
 			break;
@@ -345,18 +316,16 @@ namespace mm
 
 		for (uint32_t i = 0; i < morphCount; ++i) {
 			float* weightPtr = &morph.GetWeights()[i];
+			float weightBeforeEdit = *weightPtr;
 			if (pmxMorphs[i].panel == panel) {
 				ImGui::SliderFloat(
 					m_model->GetPMXFile().GetMorphName(i).c_str(),
 					weightPtr,
 					0.0f, 1.0f);
-				static float oldValue;
-				if (ImGui::IsItemActivated()) {
-					oldValue = *weightPtr;
-				}
 				if (ImGui::IsItemDeactivatedAfterEdit()) {
+					MM_INFO("Command: oldValue={0}", weightBeforeEdit);
 					Application::Instance().GetEventBus()->postpone<EditorEvent::CommandIssued>({
-						new Command::MorphEdited(weightPtr, oldValue, *weightPtr) });
+						new Command::MorphEdited(weightPtr, *weightPtr, weightBeforeEdit) });
 				}
 			}
 		}

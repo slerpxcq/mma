@@ -148,8 +148,8 @@
     <ClInclude Include="src\Editor\Commands.hpp" />
     <ClInclude Include="src\Editor\EditorEvent.hpp" />
     <ClInclude Include="src\Editor\EditorLayer.hpp" />
+    <ClInclude Include="src\Editor\FrameCounter.hpp" />
     <ClInclude Include="src\Editor\Grid.hpp" />
-    <ClInclude Include="src\Editor\KeyframeEditor.hpp" />
     <ClInclude Include="src\Editor\PoseEditor.hpp" />
     <ClInclude Include="src\Editor\Sequencer.hpp" />
     <ClInclude Include="src\Editor\Viewport.hpp" />
@@ -195,8 +195,8 @@
     <ClCompile Include="src\Editor\CommandBuffer.cpp" />
     <ClCompile Include="src\Editor\Commands.cpp" />
     <ClCompile Include="src\Editor\EditorLayer.cpp" />
+    <ClCompile Include="src\Editor\FrameCounter.cpp" />
     <ClCompile Include="src\Editor\Grid.cpp" />
-    <ClCompile Include="src\Editor\KeyframeEditor.cpp" />
     <ClCompile Include="src\Editor\PoseEditor.cpp" />
     <ClCompile Include="src\Editor\Sequencer.cpp" />
     <ClCompile Include="src\Editor\Viewport.cpp" />

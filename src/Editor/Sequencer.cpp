@@ -1,7 +1,6 @@
 #include "mmpch.hpp"
 #include "Sequencer.hpp"
 
-#include "KeyframeEditor.hpp"
 #include "Core/MM/Model/Model.hpp"
 
 #include "Core/Utility/Type.hpp"
@@ -24,14 +23,14 @@ namespace mm
 		ImVec2 max = pos + BUTTON_SIZE;
 		ImVec2 mid = pos + 0.5f * BUTTON_SIZE;
 		if (!expanded) {
-			// Lower triangle
+			/* Lower triangle */
 			drawList->AddTriangleFilled(
 				m_origin + pos, 
 				m_origin + mid, 
 				m_origin + ImVec2(max.x, pos.y), BUTTON_COLOR);
 		}
 		else {
-			// Upper triangle
+			/* Upper triangle */
 			drawList->AddTriangleFilled(
 				m_origin + ImVec2(pos.x, mid.y),
 				m_origin + ImVec2(mid.x, pos.y),
@@ -248,8 +247,8 @@ namespace mm
 			ImGui::SetCursorScreenPos(m_origin + buttonPos);
 			if (ImGui::InvisibleButton(GetButtonId(), buttonSize)) {
 				m_selectedColumn = column;
-				m_keyframeEditor.m_frameCounter.Set(m_minFrame + column);
-				m_keyframeEditor.UpdateAnim();
+				m_frameCounter.Set(m_minFrame + column);
+				UpdateAnim();
 			}
 
 			// Draw current frame mark
@@ -322,5 +321,82 @@ namespace mm
 
 		ImGui::EndGroup();
 		ImGui::End();
+
+		ImGui::Begin("Playback");
+		std::string animName = m_model != nullptr && m_model->GetAnim() != nullptr ?
+			m_model->GetAnim()->GetName() : "--";
+		ImGui::Text("Animation: %s", animName.c_str());
+
+		if (ImGui::Button("Play")) {
+			m_playing = true;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Stop")) {
+			m_playing = false;
+		}
+		static int32_t frame;
+		if (ImGui::InputInt("Frame", &frame)) {
+			if (frame < 0)
+				frame = 0;
+			m_frameCounter.Set(frame);
+			UpdateAnim();
+		}
+		ImGui::End();
+	}
+
+	void Sequencer::OnModelLoaded(const EditorEvent::ModelLoaded& e)
+	{
+		m_model = e.model;
+
+		if (m_model != nullptr) {
+			const auto& pmx = m_model->GetPMXFile();
+			const auto& pmxClusters = m_model->GetPMXFile().GetClusters();
+			for (uint32_t i = 0; i < pmxClusters.size(); ++i) {
+				const auto& pc = pmxClusters[i];
+				Sequencer::Group group = {};
+				group.name = pc.nameJP;
+				for (uint32_t j = 0; j < pc.elements.size(); ++j) {
+					const auto& elem = pc.elements[j];
+					Sequencer::Item item = {};
+					item.type = elem.type;
+					item.index = elem.index;
+					switch (elem.type) {
+					case PMXFile::CLUSTER_BONE:
+						item.name = pmx.GetBoneName(elem.index);
+						break;
+					case PMXFile::CLUSTER_MORPH:
+						item.name = pmx.GetMorphName(elem.index);
+						break;
+					}
+					group.items.push_back(item);
+				}
+				AddGroup(std::move(group));
+			}
+		}
+	}
+
+	void Sequencer::OnMotionLoaded(const EditorEvent::MotionLoaded& e)
+	{
+		if (m_model != nullptr) {
+			m_playing = false;
+			m_frameCounter.Set(0);
+			UpdateAnim();
+		}
+	}
+
+	void Sequencer::OnUpdate(float deltaTime)
+	{
+		if (m_playing) {
+			m_frameCounter.Step(deltaTime);
+			UpdateAnim();
+		}
+	}
+
+	void Sequencer::UpdateAnim()
+	{
+		if (m_model != nullptr && m_model->GetAnim() != nullptr) {
+			m_model->GetAnim()->Update(m_frameCounter.GetFrame(), m_frameCounter.GetSubFrame());
+		}
 	}
 }
+
