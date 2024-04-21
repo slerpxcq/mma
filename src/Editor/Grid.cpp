@@ -47,7 +47,7 @@ namespace mm
 
 	void Grid::Render(GLRenderer& renderer)
 	{
-		renderer.SetShader(ResourceManager::s_instance.GetShader("grid"));
+		renderer.SetShader(ResourceManager::Instance().GetShader("grid"));
 		renderer.GetShader()->Uniform("u_color", glm::vec4(1, 1, 1, .5));
 		m_vertexArray->Bind();
 		m_vertexArray->DrawArray(GL_LINES, 0, m_vertexCount);

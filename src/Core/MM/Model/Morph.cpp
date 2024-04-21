@@ -17,7 +17,7 @@ namespace mm
 	Morph::Morph(Model& model) :
 		m_model(model)
 	{
-		m_morphShader = ResourceManager::s_instance.GetShader("morph");
+		m_morphShader = ResourceManager::Instance().GetShader("morph");
 
 		m_weights.resize(m_model.m_pmxFile->GetMorphs().size());
 		LoadTargets();

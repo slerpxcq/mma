@@ -11,6 +11,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Core/App/Application.hpp"
+#include "Core/App/EventBus.hpp"
 #include "Core/Utility/Type.hpp"
 
 #if INVISIBLE_BUTTON
@@ -23,7 +24,7 @@ namespace mm
 {
 	PoseEditor::PoseEditor(EditorLayer& editor) :
 		m_editor(editor),
-		m_listener(Application::Instance().GetEventBus())
+		m_listener(EventBus::Instance())
 	{
 		m_listener.listen<Event::MouseButtonPressed>(MM_EVENT_FN(PoseEditor::OnMouseButtonPressed));
 		m_listener.listen<Event::KeyPressed>(MM_EVENT_FN(PoseEditor::OnKeyPressed));
@@ -93,7 +94,7 @@ namespace mm
 			MM_INFO("Start edit; undo={0}", glm::to_string(undoValue.rotation));
 		}
 		if (lastFrameUsedGizmo && !thisFrameUsedGizmo) {
-			MM_APP_EVENT_BUS()->postpone<EditorEvent::CommandIssued>({
+			EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
 				new Command::BoneEdited(valuePtr, *valuePtr, undoValue) });
 			MM_INFO("End edit; undo={0}, redo={1}", glm::to_string(undoValue.rotation), glm::to_string(valuePtr->rotation));
 		}
@@ -348,7 +349,7 @@ namespace mm
 				}
 				if (ImGui::IsItemDeactivatedAfterEdit()) {
 					MM_INFO("End edit: undo={0}, redo={1}", undoValue, *valuePtr);
-					MM_APP_EVENT_BUS()->postpone<EditorEvent::CommandIssued>({
+					EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
 						new Command::MorphEdited(valuePtr, *valuePtr, undoValue) });
 				}
 			}

@@ -8,6 +8,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "Core/App/Application.hpp"
+#include "Core/App/EventBus.hpp"
 #include "Viewport.hpp"
 
 namespace mm
@@ -16,7 +17,7 @@ namespace mm
 		m_viewport(viewport),
 		m_camera(camera)
 	{
-		m_appEventListener = std::make_unique<dexode::EventBus::Listener>(Application::Instance().GetEventBus());
+		m_appEventListener = std::make_unique<dexode::EventBus::Listener>(EventBus::Instance());
 
 		m_appEventListener->listen<Event::MouseButtonPressed>(MM_EVENT_FN(CameraController::OnMouseButtonPressed));
 		m_appEventListener->listen<Event::MouseScrolled>(MM_EVENT_FN(CameraController::OnMouseScrolled));

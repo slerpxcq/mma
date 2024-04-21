@@ -28,7 +28,7 @@ namespace mm
 		GLPass pass;
 		// Outline pass
 		pass.cullFace = GL_FRONT;
-		pass.shader = ResourceManager::s_instance.GetShader("default");
+		pass.shader = ResourceManager::Instance().GetShader("default");
 		m_defaultEffect.push_back(pass);
 		// Main pass
 		pass.cullFace = GL_BACK;
@@ -61,14 +61,14 @@ namespace mm
 	GLTexture& Skin::GetTexture(int32_t idx)
 	{
 		return (idx < 0) ? 
-			*ResourceManager::s_instance.GetTexture("toon00.bmp") :
+			*ResourceManager::Instance().GetTexture("toon00.bmp") :
 			*m_textures[idx];
 	}
 
 	GLTexture& Skin::GetToon(const Mesh& mesh)
 	{
 		return ((mesh.material.flags >> 8) & PMXFile::TOON_SHARED_BIT) ?
-			*ResourceManager::s_instance.GetTexture(toonTable[mesh.toonIndex]) :
+			*ResourceManager::Instance().GetTexture(toonTable[mesh.toonIndex]) :
 			GetTexture(mesh.toonIndex);
 	}
 
@@ -83,7 +83,7 @@ namespace mm
 				GLTexture& albedo = GetTexture(mesh.albedoIndex);
 				GLTexture& sph = GetTexture(mesh.sphIndex);
 				GLTexture& toon = GetToon(mesh);
-				GLTexture& skybox = *ResourceManager::s_instance.GetTexture("skybox");
+				GLTexture& skybox = *ResourceManager::Instance().GetTexture("skybox");
 				albedo.Bind(0);
 				sph.Bind(1);
 				toon.Bind(2);

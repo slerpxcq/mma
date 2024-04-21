@@ -2,12 +2,13 @@
 #include "CommandBuffer.hpp"
 
 #include "Core/App/Application.hpp"
+#include "Core/App/EventBus.hpp"
 #include "Core/App/Event.hpp"
 
 namespace mm
 {
 	CommandBuffer::CommandBuffer() :
-		m_listener(Application::Instance().GetEventBus())
+		m_listener(EventBus::Instance())
 	{
 		m_listener.listen<EditorEvent::CommandIssued>(MM_EVENT_FN(CommandBuffer::OnCommandIssued));
 		m_listener.listen<Event::KeyPressed>(MM_EVENT_FN(CommandBuffer::OnKeyPressed));

@@ -21,6 +21,9 @@ namespace mm
 		}
 
 	public:
+		static ResourceManager& Instance() { return s_instance; }
+
+	private:
 		static ResourceManager s_instance;
 
 	private:

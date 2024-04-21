@@ -12,7 +12,7 @@ namespace mm
 	{
 		auto pmx = std::make_unique<PMXFile>(path);
 		m_pmxFile = pmx.get();
-		ResourceManager::s_instance.LoadFile(std::move(pmx));
+		ResourceManager::Instance().LoadFile(std::move(pmx));
 
 		m_armature = std::make_unique<Armature>(*this);
 		m_skin = std::make_unique<Skin>(*this);

@@ -128,7 +128,7 @@ namespace mm
 
 		auto vmd = std::make_unique<VMDFile>(path);
 		m_vmdFile = vmd.get();
-		ResourceManager::s_instance.LoadFile(std::move(vmd));
+		ResourceManager::Instance().LoadFile(std::move(vmd));
 
 		LoadBoneKeyframes();
 		LoadMorphKeyframes();

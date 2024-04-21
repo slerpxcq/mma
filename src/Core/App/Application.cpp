@@ -8,6 +8,8 @@
 #include "Editor/EditorLayer.hpp"
 #include "Core/GL/GLCubeMap.hpp"
 
+#include "EventBus.hpp"
+
 namespace mm
 {
 	Application* Application::s_instance = nullptr;
@@ -24,8 +26,7 @@ namespace mm
 		MM_ASSERT(m_window);
 
 		// Event
-		m_eventBus = std::make_unique<dexode::EventBus>();
-		m_listener = std::make_unique<dexode::EventBus::Listener>(m_eventBus);
+		m_listener = std::make_unique<dexode::EventBus::Listener>(EventBus::Instance());
 		RegisterWindowCallbacks();
 		ListenEvents();
 
@@ -72,11 +73,11 @@ namespace mm
 		gridShader->Compile("resources/shaders/grid.frag", GLShader::FRAGMENT);
 		gridShader->Link();
 
-		ResourceManager::s_instance.LoadShader("default", std::move(defaultShader));
-		ResourceManager::s_instance.LoadShader("morph", std::move(morphShader));
-		ResourceManager::s_instance.LoadShader("quad", std::move(quadShader));
-		ResourceManager::s_instance.LoadShader("skybox", std::move(skyboxShader));
-		ResourceManager::s_instance.LoadShader("grid", std::move(gridShader));
+		ResourceManager::Instance().LoadShader("default", std::move(defaultShader));
+		ResourceManager::Instance().LoadShader("morph", std::move(morphShader));
+		ResourceManager::Instance().LoadShader("quad", std::move(quadShader));
+		ResourceManager::Instance().LoadShader("skybox", std::move(skyboxShader));
+		ResourceManager::Instance().LoadShader("grid", std::move(gridShader));
 	}
 
 	void Application::LoadTextures()
@@ -92,10 +93,10 @@ namespace mm
 				std::to_string(i);
 			name += ".bmp";
 			toonPath += name;
-			ResourceManager::s_instance.LoadTexture(name.u8string(), std::make_unique<GLTexture2D>(toonPath));
+			ResourceManager::Instance().LoadTexture(name.u8string(), std::make_unique<GLTexture2D>(toonPath));
 		}
 
-		ResourceManager::s_instance.LoadTexture("uv_test", std::make_unique<GLTexture2D>("resources/textures/uvTex.png"));
+		ResourceManager::Instance().LoadTexture("uv_test", std::make_unique<GLTexture2D>("resources/textures/uvTex.png"));
 
 		GLCubeMapConstructInfo info;
 		info.paths[0] = "resources/textures/skybox/right.jpg";
@@ -106,7 +107,7 @@ namespace mm
 		info.paths[5] = "resources/textures/skybox/back.jpg";
 
 		auto skybox = std::make_unique<GLCubeMap>(info);
-		ResourceManager::s_instance.LoadTexture("skybox", std::move(skybox));
+		ResourceManager::Instance().LoadTexture("skybox", std::move(skybox));
 	}
 
 	void Application::RegisterWindowCallbacks()
@@ -119,17 +120,17 @@ namespace mm
 
 		glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			app->GetEventBus()->postpone<Event::WindowSized>({ (uint32_t)w, (uint32_t)h });
+			EventBus::Instance()->postpone<Event::WindowSized>({ (uint32_t)w, (uint32_t)h });
 		});
 
 		glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			app->GetEventBus()->postpone<Event::WindowClosed>({});
+			EventBus::Instance()->postpone<Event::WindowClosed>({});
 		});
 
 		glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			auto eb = app->GetEventBus();
+			auto& eb = EventBus::Instance();
 			switch (action) {
 			case GLFW_PRESS:
 				eb->postpone<Event::KeyPressed>({(uint32_t)key, (uint32_t)mods, false});
@@ -145,29 +146,29 @@ namespace mm
 
 		glfwSetCharCallback(m_window, [](GLFWwindow* window, unsigned int codepoint) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			app->GetEventBus()->postpone<Event::KeyTyped>({(uint32_t)codepoint});
+			EventBus::Instance()->postpone<Event::KeyTyped>({(uint32_t)codepoint});
 		});
 
 		glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
 			switch (action) {
 			case GLFW_PRESS:
-				app->GetEventBus()->postpone<Event::MouseButtonPressed>({ (uint32_t)button });
+				EventBus::Instance()->postpone<Event::MouseButtonPressed>({ (uint32_t)button });
 				break;
 			case GLFW_RELEASE:
-				app->GetEventBus()->postpone<Event::MouseButtonReleased>({ (uint32_t)button });
+				EventBus::Instance()->postpone<Event::MouseButtonReleased>({ (uint32_t)button });
 				break;
 			}
 		});
 
 		glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double xpos, double ypos) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			app->GetEventBus()->postpone<Event::MouseMoved>({ (float)xpos, (float)ypos });
+			EventBus::Instance()->postpone<Event::MouseMoved>({ (float)xpos, (float)ypos });
 		});
 
 		glfwSetScrollCallback(m_window, [](GLFWwindow* window, double xoffset, double yoffset) {
 			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-			app->GetEventBus()->postpone<Event::MouseScrolled>({ (float)yoffset });
+			EventBus::Instance()->postpone<Event::MouseScrolled>({ (float)yoffset });
 		});
 	}
 
@@ -199,7 +200,7 @@ namespace mm
 
 			m_glContext->SwapBuffers();
 			glfwPollEvents();
-			m_eventBus->process();
+			EventBus::Instance()->process();
 		}
 	}
 

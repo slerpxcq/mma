@@ -33,9 +33,9 @@ namespace mm
 
         // Skybox
         glDepthMask(GL_FALSE);
-        renderer.SetShader(ResourceManager::s_instance.GetShader("skybox"));
+        renderer.SetShader(ResourceManager::Instance().GetShader("skybox"));
         renderer.GetShader()->Uniform("u_skybox", 0);
-        ResourceManager::s_instance.GetTexture("skybox")->Bind(0);
+        ResourceManager::Instance().GetTexture("skybox")->Bind(0);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthMask(GL_TRUE);
 

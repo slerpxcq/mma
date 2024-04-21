@@ -10,13 +10,15 @@
 
 #include "Core/GL/GLRenderer.hpp"
 
+#include "Core/App/EventBus.hpp"
+
 #include <nfd.h>
 
 namespace mm
 {
     void EditorLayer::OnAttach()
     {
-        m_listener = std::make_unique<dexode::EventBus::Listener>(Application::Instance().GetEventBus());
+        m_listener = std::make_unique<dexode::EventBus::Listener>(EventBus::Instance());
 
         m_world = std::make_unique<World>();
         m_viewport = std::make_unique<Viewport>(*this);
@@ -48,7 +50,7 @@ namespace mm
             if (result == NFD_OKAY) {
                 Model* model = m_world->LoadModel(path);
                 m_model = model;
-                Application::Instance().GetEventBus()->postpone<EditorEvent::ModelLoaded>({ model });
+                EventBus::Instance()->postpone<EditorEvent::ModelLoaded>({ model });
             }
         }
         if (ImGui::Button("Load animation")) {
@@ -57,7 +59,7 @@ namespace mm
             if (result == NFD_OKAY) {
                 if (m_model != nullptr) {
                     Animation* animation = m_model->LoadAnimation(path);
-					Application::Instance().GetEventBus()->postpone<EditorEvent::MotionLoaded>({ animation });
+					EventBus::Instance()->postpone<EditorEvent::MotionLoaded>({ animation });
                 }
             }
         }

@@ -5,6 +5,7 @@
 #include "EditorEvent.hpp"
 
 #include "Core/App/Application.hpp"
+#include "Core/App/EventBus.hpp"
 #include "FrameCounter.hpp"
 
 namespace mm
@@ -68,7 +69,7 @@ namespace mm
 	public:
 		Sequencer(EditorLayer& editor) : 
 			m_editor(editor),
-			m_listener(Application::Instance().GetEventBus()) {
+			m_listener(EventBus::Instance()) {
 			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Sequencer::OnMouseScrolled));
 			m_listener.listen<Event::MouseButtonPressed>(MM_EVENT_FN(Sequencer::OnMouseButtonPressed));
 			m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(Sequencer::OnModelLoaded));

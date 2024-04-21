@@ -11,8 +11,6 @@
 
 #include "Core/ResourceManager/ResourceManager.hpp"
 
-#define MM_APP_EVENT_BUS() Application::Instance().GetEventBus()
-
 struct GLFWwindow;
 
 namespace mm 
@@ -38,8 +36,6 @@ namespace mm
 		void PushLayer(std::unique_ptr<Layer> layer) { m_layerStack.PushLayer(std::move(layer)); }
 		void PushOverlay(std::unique_ptr<Layer> overlay) { m_layerStack.PushOverlay(std::move(overlay)); }
 
-		std::shared_ptr<dexode::EventBus> GetEventBus() { return m_eventBus; }
-
 	private:
 		void LoadTextures();
 		void LoadShaders();
@@ -59,7 +55,6 @@ namespace mm
 		glm::uvec2 m_viewportSize = glm::vec2(0);
 
 		// Event
-		std::shared_ptr<dexode::EventBus> m_eventBus;
 		std::unique_ptr<dexode::EventBus::Listener> m_listener;
 
 		// Layers

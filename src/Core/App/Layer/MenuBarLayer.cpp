@@ -2,6 +2,7 @@
 #include "MenuBarLayer.hpp"
 
 #include "Core/App/Application.hpp"
+#include "Core/App/EventBus.hpp"
 #include "Core/App/Event.hpp"
 
 #include <nfd.h>
@@ -10,7 +11,6 @@ namespace mm
 {
 	void MenuBarLayer::OnAttach()
 	{
-		m_appEventBus = Application::Instance().GetEventBus();
 	}
 
 	void MenuBarLayer::OnDetach()
@@ -26,7 +26,7 @@ namespace mm
 		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				if (ImGui::MenuItem("Exit")) {
-					m_appEventBus->postpone<Event::WindowClosed>({});
+					EventBus::Instance()->postpone<Event::WindowClosed>({});
 				}
 				ImGui::EndMenu();
 			}
