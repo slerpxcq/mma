@@ -82,14 +82,29 @@ namespace mm
 			world = m_context.world;
 			
 		glm::mat4 local = m_context.worldToLocal * world;
-		m_model->GetArmature().GetPose()[m_context.selected] = Transform(local);
+		Transform* valuePtr = &m_model->GetArmature().GetPose()[m_context.selected];
+		*valuePtr = Transform(local);
+
+		static bool lastFrameUsedGizmo = false;
+		static Transform undoValue;
+		bool thisFrameUsedGizmo = ImGuizmo::IsUsingAny();
+		if (!lastFrameUsedGizmo && thisFrameUsedGizmo) {
+			undoValue = *valuePtr;
+			MM_INFO("Start edit; undo={0}", glm::to_string(undoValue.rotation));
+		}
+		if (lastFrameUsedGizmo && !thisFrameUsedGizmo) {
+			MM_APP_EVENT_BUS()->postpone<EditorEvent::CommandIssued>({
+				new Command::BoneEdited(valuePtr, *valuePtr, undoValue) });
+			MM_INFO("End edit; undo={0}, redo={1}", glm::to_string(undoValue.rotation), glm::to_string(valuePtr->rotation));
+		}
+		lastFrameUsedGizmo = thisFrameUsedGizmo;
 	}
 
 	glm::vec3 PoseEditor::WorldToScreen(const glm::vec3& world)
 	{
 		const auto& camera = m_editor.GetWorld().GetCamera();
-		glm::mat4 worldToNDC = camera.GetProj() * camera.GetView();
-		glm::vec4 ndcPos = worldToNDC * glm::vec4(world, 1.0);
+		glm::mat4 viewProj = camera.GetProj() * camera.GetView();
+		glm::vec4 ndcPos = viewProj * glm::vec4(world, 1.0);
 		ndcPos /= ndcPos.w;
         ImVec2 min = ImGui::GetWindowContentRegionMin();
         ImVec2 max = ImGui::GetWindowContentRegionMax();
@@ -113,7 +128,7 @@ namespace mm
 			const auto& pmxBone = pmxBones[i];
 			auto& boneScreenPos = m_context.screenPos[i];
 
-			boneScreenPos = WorldToScreen(bone.animWorld.trans);
+			boneScreenPos = WorldToScreen(bone.animWorld.translation);
 
 			if (pmxBone.flags & PMXFile::BONE_VISIBLE_BIT) {
 				uint32_t color = (i == m_context.selected) ?
@@ -171,8 +186,8 @@ namespace mm
 				else {
 					glm::vec3 endWorld =
 						glm::make_vec3(pmxBone.connetcionEnd.position);
-					endWorld = glm::rotate(bones[i].animWorld.rot, endWorld);
-					endWorld += bones[i].animWorld.trans;
+					endWorld = glm::rotate(bones[i].animWorld.rotation, endWorld);
+					endWorld += bones[i].animWorld.translation;
 					endPos = WorldToScreen(endWorld);
 				}
 				glm::vec2 screenPos2D(boneScreenPos);
@@ -314,18 +329,27 @@ namespace mm
 		auto& pmxMorphs = m_model->GetPMXFile().GetMorphs();
 		uint32_t morphCount = morph.GetWeights().size();
 
+		/* if last frame not active and this frame active, store undo value */
+		/* if last frame active and this frame not active, store redo value and issue command */
+		/* Problem: many sliders! */
+		/* Solution: use a variable to record which is active since only one can be active at one time */
+
 		for (uint32_t i = 0; i < morphCount; ++i) {
-			float* weightPtr = &morph.GetWeights()[i];
-			float weightBeforeEdit = *weightPtr;
+			float* valuePtr = &morph.GetWeights()[i];
 			if (pmxMorphs[i].panel == panel) {
-				ImGui::SliderFloat(
-					m_model->GetPMXFile().GetMorphName(i).c_str(),
-					weightPtr,
-					0.0f, 1.0f);
+				const std::string& name = m_model->GetPMXFile().GetMorphName(i);
+				float valueBeforeEdit = *valuePtr;
+				ImGui::SliderFloat(name.c_str(), valuePtr, 0.0f, 1.0f);
+
+				static float undoValue = 0.f;
+				if (ImGui::IsItemActivated()) {
+					undoValue = valueBeforeEdit;
+					MM_INFO("Start edit; undo={0}", undoValue);
+				}
 				if (ImGui::IsItemDeactivatedAfterEdit()) {
-					MM_INFO("Command: oldValue={0}", weightBeforeEdit);
-					Application::Instance().GetEventBus()->postpone<EditorEvent::CommandIssued>({
-						new Command::MorphEdited(weightPtr, *weightPtr, weightBeforeEdit) });
+					MM_INFO("End edit: undo={0}, redo={1}", undoValue, *valuePtr);
+					MM_APP_EVENT_BUS()->postpone<EditorEvent::CommandIssued>({
+						new Command::MorphEdited(valuePtr, *valuePtr, undoValue) });
 				}
 			}
 		}

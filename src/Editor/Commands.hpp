@@ -18,8 +18,8 @@ namespace mm
 			MorphEdited(float* valuePtr, float redoValue, float undoValue) :
 				m_valuePtr(valuePtr), m_redoValue(redoValue), m_undoValue(undoValue) {}
 
-			virtual void Undo() override { *m_valuePtr = m_redoValue; }
-			virtual void Redo() override { *m_valuePtr = m_undoValue; }
+			virtual void Undo() override { *m_valuePtr = m_undoValue; }
+			virtual void Redo() override { *m_valuePtr = m_redoValue; }
 
 		private:
 			float* m_valuePtr;
@@ -32,8 +32,8 @@ namespace mm
 			BoneEdited(Transform* valuePtr, Transform redoValue, Transform undoValue) :
 				m_valuePtr(valuePtr), m_redoValue(redoValue), m_undoValue(undoValue) {}
 
-			virtual void Undo() override { *m_valuePtr = m_redoValue; }
-			virtual void Redo() override { *m_valuePtr = m_undoValue; }
+			virtual void Undo() override { *m_valuePtr = m_undoValue; }
+			virtual void Redo() override { *m_valuePtr = m_redoValue; }
 
 		private:
 			Transform* m_valuePtr;

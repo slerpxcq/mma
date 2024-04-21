@@ -11,6 +11,8 @@
 
 #include "Core/ResourceManager/ResourceManager.hpp"
 
+#define MM_APP_EVENT_BUS() Application::Instance().GetEventBus()
+
 struct GLFWwindow;
 
 namespace mm 

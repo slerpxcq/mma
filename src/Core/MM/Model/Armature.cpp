@@ -33,8 +33,8 @@ namespace mm
 			// Bind parent space position
 			bone.bindParent = Transform(
 				bone.parent >= 0 ?
-					bone.bindWorld.trans - m_bones[bone.parent].bindWorld.trans :
-					bone.bindWorld.trans,
+					bone.bindWorld.translation - m_bones[bone.parent].bindWorld.translation :
+					bone.bindWorld.translation,
 				glm::identity<glm::quat>());
 
 			bone.invBindWorld = bone.bindWorld.inverse();
@@ -75,7 +75,7 @@ namespace mm
 			if (pmxRigidbody.physicsType == PMXFile::RB_DYNAMIC) {
 				auto& bone = m_bones[pmxRigidbody.boneIndex];
 				const btTransform& bindTransform = physicsData.m_bindTransforms[i];
-				btVector3 bindOffset = bindTransform.getOrigin() - btVec3FromGLM(bone.bindWorld.trans);
+				btVector3 bindOffset = bindTransform.getOrigin() - btVec3FromGLM(bone.bindWorld.translation);
 
 				btTransform transform;
 				physicsData.m_motionStates[i]->getWorldTransform(transform);
@@ -141,14 +141,14 @@ namespace mm
 				Transform xform = Transform::identity();
 
 				if (pmxBones[i].flags & PMXFile::BONE_ASSIGN_MOVE_BIT) {
-					xform.trans = assignment.ratio * m_bones[assignment.targetIndex].animLocal.trans;
+					xform.translation = assignment.ratio * m_bones[assignment.targetIndex].animLocal.translation;
 					doAssignment = true;
 				}
 
 				if (pmxBones[i].flags & PMXFile::BONE_ASSIGN_ROTATION_BIT) {
-					xform.rot = glm::slerp(
+					xform.rotation = glm::slerp(
 						glm::identity<glm::quat>(),
-						m_bones[assignment.targetIndex].animLocal.rot,
+						m_bones[assignment.targetIndex].animLocal.rotation,
 						assignment.ratio);
 					doAssignment = true;
 				}
@@ -176,8 +176,8 @@ namespace mm
 	{
 		for (uint32_t i = 0; i < m_bones.size(); ++i) {
 			Transform skinning = m_bones[i].animWorld * m_bones[i].invBindWorld;
-			m_skinningData[i][0] = glm::make_vec4(glm::value_ptr(skinning.rot));
-			m_skinningData[i][1] = glm::vec4(skinning.trans, 1);
+			m_skinningData[i][0] = glm::make_vec4(glm::value_ptr(skinning.rotation));
+			m_skinningData[i][1] = glm::vec4(skinning.translation, 1);
 		}
 
 		m_model.m_skinningBuffer->SetSubData(

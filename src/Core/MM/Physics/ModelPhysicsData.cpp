@@ -181,18 +181,18 @@ namespace mm
 			if (((bodyType & BT_KINEMATIC) && isKinematic) || ((bodyType & BT_DYNAMIC) && isDynamic)) {
 				const auto& bone = m_model.GetArmature().GetBones()[pmxRigidbody.boneIndex];
 				const btTransform& bindTransform = m_bindTransforms[i];
-				btVector3 bindOffset = bindTransform.getOrigin() - btVec3FromGLM(bone.invBindWorld.inverse().trans);
+				btVector3 bindOffset = bindTransform.getOrigin() - btVec3FromGLM(bone.invBindWorld.inverse().translation);
 
 				btTransform transform;
 				btQuaternion rotation;
 				btVector3 translation;
 				if (!bind) {
-					rotation = btQuatFromGLM(bone.animWorld.rot);
-					translation = btVec3FromGLM(bone.animWorld.trans);
+					rotation = btQuatFromGLM(bone.animWorld.rotation);
+					translation = btVec3FromGLM(bone.animWorld.translation);
 				}
 				else {
-					rotation = btQuatFromGLM(bone.bindWorld.rot);
-					translation = btVec3FromGLM(bone.bindWorld.trans);
+					rotation = btQuatFromGLM(bone.bindWorld.rotation);
+					translation = btVec3FromGLM(bone.bindWorld.translation);
 				}
 				transform.setOrigin(translation + bindOffset.rotate(rotation.getAxis(), rotation.getAngle()));
 				transform.setRotation(rotation * bindTransform.getRotation());

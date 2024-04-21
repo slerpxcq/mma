@@ -35,9 +35,9 @@ namespace mm
 			m_mousePos1 = Input::MousePos();
 			glm::vec2 delta = m_mousePos1 - m_mousePos0;
 			std::swap(delta.x, delta.y);
-			glm::vec3 trans = PAN_SPEED * (delta.x * m_camera.m_up + delta.y * m_right);
-			m_camera.m_eye = m_eye0 + trans;
-			m_camera.m_center = m_center0 + trans;
+			glm::vec3 translation = PAN_SPEED * (delta.x * m_camera.m_up + delta.y * m_right);
+			m_camera.m_eye = m_eye0 + translation;
+			m_camera.m_center = m_center0 + translation;
 		}
 
 		if (Input::MouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
@@ -88,9 +88,9 @@ namespace mm
 		if (!m_viewport.IsHovered())
 			return;
 
-		glm::vec3 trans = ZOOM_SPEED * e.delta * m_view;
-		m_camera.m_eye += trans;
-		m_camera.m_center += trans;
+		glm::vec3 translation = ZOOM_SPEED * e.delta * m_view;
+		m_camera.m_eye += translation;
+		m_camera.m_center += translation;
 	}
 }
 

@@ -14,32 +14,34 @@ namespace mm
 {
 	struct Transform
 	{
-		glm::vec3 trans;
-		glm::quat rot;
+	public:
+		glm::vec3 translation;
+		glm::quat rotation;
 
+	public:
 		Transform() = default;
-		Transform(const glm::vec3& trans, const glm::quat& rot) :
-			trans(trans),
-			rot(rot) {}
+		Transform(const glm::vec3& translation, const glm::quat& rotation) :
+			translation(translation),
+			rotation(rotation) {}
 
 		Transform(const glm::mat4& mat) :
-			trans(mat[3]),
-			rot(glm::toQuat(glm::mat3(mat))) {}
+			translation(mat[3]),
+			rotation(glm::toQuat(glm::mat3(mat))) {}
 
 		inline Transform inverse() const {
-			glm::quat rotInv = glm::inverse(rot);
-			return { -glm::rotate(rotInv, trans),
+			glm::quat rotInv = glm::inverse(rotation);
+			return { -glm::rotate(rotInv, translation),
 				 rotInv };
 		}
 
 		inline Transform operator*(float s) {
-			return { s * trans,
-				 glm::slerp(glm::identity<glm::quat>(), rot, s) };
+			return { s * translation,
+				 glm::slerp(glm::identity<glm::quat>(), rotation, s) };
 		}
 
 		inline Transform operator*(const Transform& rhs) const {
-			return { glm::rotate(this->rot, rhs.trans) + this->trans,
-				 this->rot * rhs.rot };
+			return { glm::rotate(this->rotation, rhs.translation) + this->translation,
+				 this->rotation * rhs.rotation };
 		}
 
 		static inline Transform identity() {
@@ -47,14 +49,14 @@ namespace mm
 		}
 
 		static inline glm::mat4 toMat4(const Transform& x) {
-			return glm::translate(glm::mat4(1.f), x.trans) * glm::toMat4(x.rot);
+			return glm::translate(glm::mat4(1.f), x.translation) * glm::toMat4(x.rotation);
 		}
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Transform& x)
 	{
-		return os << glm::to_string(x.trans) << "\n" <<
-			glm::to_string(x.rot);
+		return os << glm::to_string(x.translation) << "\n" <<
+			glm::to_string(x.rotation);
 	}
 }
 

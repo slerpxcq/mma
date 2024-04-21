@@ -144,14 +144,14 @@ namespace mm
 				IM_COL32(0, 0, 255, 128)}; // Z->B
 
 			for (uint32_t axis = 0; axis < 3; ++axis) {
-				float y = midY + it->xform.trans[axis] * Y_GAIN;
+				float y = midY + it->xform.translation[axis] * Y_GAIN;
 				float startX = LEGEND_LENGTH + ROW_HEIGHT / 2;
 				uint32_t column = it->frame - m_minFrame;
 				ImVec2 diamondPos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
 				DrawDiamond(diamondPos, POINT_RADIUS, POINT_OUTLINE_SIZE, POINT_OUTLINE_COLOR, POINT_FILL_COLOR);
 				if (it + 1 != keyframeList.end()) {
 					ImVec2 bezP0 = diamondPos;
-					float nextY = midY + (it + 1)->xform.trans[axis] * Y_GAIN;
+					float nextY = midY + (it + 1)->xform.translation[axis] * Y_GAIN;
 					uint32_t nextColumn = (it + 1)->frame - m_minFrame;
 					ImVec2 bezP3 = ImVec2(startX + nextColumn * COLUMN_WIDTH, nextY + ROW_HEIGHT / 2);
 					ImVec2 delta = bezP3 - bezP0;

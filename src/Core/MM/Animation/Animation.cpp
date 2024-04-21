@@ -178,8 +178,8 @@ namespace mm
 				std::advance(prev, -1);
 				float dist = Distance(frame, subframe, prev->frame, next->frame);
 				glm::vec4 weights = prev->bez.Eval(dist);
-				xform.trans = glm::mix(prev->xform.trans, next->xform.trans, glm::vec3(weights));
-				xform.rot = glm::slerp(prev->xform.rot, next->xform.rot, weights.w);
+				xform.translation = glm::mix(prev->xform.translation, next->xform.translation, glm::vec3(weights));
+				xform.rotation = glm::slerp(prev->xform.rotation, next->xform.rotation, weights.w);
 			}
 		}
 	}
