@@ -120,7 +120,7 @@ namespace mm
 		float midY = editorOrigin.y + editorHeight * 0.5f;
 		// NOTE: only bone keyframes are expandable.
 		MM_ASSERT(item.type == PMXFile::CLUSTER_BONE);
-		auto& keyframeList = m_model->GetAnim()->GetBoneKeyframes()[item.index];
+		auto& keyframeList = m_model->GetAnim()->GetBoneKeyframeMatrix()[item.index];
 		auto it = std::lower_bound(
 			keyframeList.begin(),
 			keyframeList.end(),
@@ -144,20 +144,20 @@ namespace mm
 				IM_COL32(0, 0, 255, 128)}; // Z->B
 
 			for (uint32_t axis = 0; axis < 3; ++axis) {
-				float y = midY + it->xform.translation[axis] * Y_GAIN;
+				float y = midY + it->transform.translation[axis] * Y_GAIN;
 				float startX = LEGEND_LENGTH + ROW_HEIGHT / 2;
 				uint32_t column = it->frame - m_minFrame;
 				ImVec2 diamondPos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
 				DrawDiamond(diamondPos, POINT_RADIUS, POINT_OUTLINE_SIZE, POINT_OUTLINE_COLOR, POINT_FILL_COLOR);
 				if (it + 1 != keyframeList.end()) {
 					ImVec2 bezP0 = diamondPos;
-					float nextY = midY + (it + 1)->xform.translation[axis] * Y_GAIN;
+					float nextY = midY + (it + 1)->transform.translation[axis] * Y_GAIN;
 					uint32_t nextColumn = (it + 1)->frame - m_minFrame;
 					ImVec2 bezP3 = ImVec2(startX + nextColumn * COLUMN_WIDTH, nextY + ROW_HEIGHT / 2);
 					ImVec2 delta = bezP3 - bezP0;
-					ImVec2 vmdP1 = ImVec2(it->bez.GetHandles()[axis][0].x, it->bez.GetHandles()[axis][0].y);
+					ImVec2 vmdP1 = ImVec2(it->bezier.GetHandles()[axis][0].x, it->bezier.GetHandles()[axis][0].y);
 					ImVec2 bezP1 = ((vmdP1 * (1.f / 127)) * delta) + bezP0;
-					ImVec2 vmdP2 = ImVec2(it->bez.GetHandles()[axis][1].x, it->bez.GetHandles()[axis][1].y);
+					ImVec2 vmdP2 = ImVec2(it->bezier.GetHandles()[axis][1].x, it->bezier.GetHandles()[axis][1].y);
 					ImVec2 bezP2 = ((vmdP2 * (1.f / 127)) * delta) + bezP0;
 					m_drawList->AddBezierCubic(
 						m_origin + bezP0, 
@@ -296,10 +296,10 @@ namespace mm
 						for (auto& item : group.items) {
 							switch (item.type) {
 							case PMXFile::CLUSTER_BONE:
-								DrawDope(item, anim->GetBoneKeyframes()[item.index]);
+								DrawDope(item, anim->GetBoneKeyframeMatrix()[item.index]);
 								break;
 							case PMXFile::CLUSTER_MORPH:
-								DrawDope(item, anim->GetMorphKeyframes()[item.index]);
+								DrawDope(item, anim->GetMorphKeyframeMatrix()[item.index]);
 								break;
 							default:
 								break;

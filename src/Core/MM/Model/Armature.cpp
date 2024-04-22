@@ -138,15 +138,15 @@ namespace mm
 			if (IsCurrentLayer(i, layer, afterPhys)) {
 				const auto& assignment = pmxBones[i].assignment;
 				bool doAssignment = false;
-				Transform xform = Transform::identity();
+				Transform transform = Transform::identity();
 
 				if (pmxBones[i].flags & PMXFile::BONE_ASSIGN_MOVE_BIT) {
-					xform.translation = assignment.ratio * m_bones[assignment.targetIndex].animLocal.translation;
+					transform.translation = assignment.ratio * m_bones[assignment.targetIndex].animLocal.translation;
 					doAssignment = true;
 				}
 
 				if (pmxBones[i].flags & PMXFile::BONE_ASSIGN_ROTATION_BIT) {
-					xform.rotation = glm::slerp(
+					transform.rotation = glm::slerp(
 						glm::identity<glm::quat>(),
 						m_bones[assignment.targetIndex].animLocal.rotation,
 						assignment.ratio);
@@ -154,7 +154,7 @@ namespace mm
 				}
 
 				if (doAssignment) {
-					m_bones[i].animLocal = xform * m_bones[i].animLocal;
+					m_bones[i].animLocal = transform * m_bones[i].animLocal;
 				}
 			}
 		}

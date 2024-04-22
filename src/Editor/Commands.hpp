@@ -6,8 +6,8 @@ namespace mm
 {
 	class ICommand {
 	public:
-		virtual void Undo() = 0;
-		virtual void Redo() = 0;
+		virtual void Undo() {};
+		virtual void Redo() {};
 		virtual ~ICommand() {}
 	};
 
@@ -39,6 +39,11 @@ namespace mm
 			Transform* m_valuePtr;
 			Transform m_redoValue;
 			Transform m_undoValue;
+		};
+
+		class KeyframeInserted : public ICommand {
+		public:
+		private:
 		};
 	}
 }

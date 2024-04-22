@@ -36,9 +36,9 @@ namespace mm
 	private:
 		World& m_world;
 		PMXFile* m_pmxFile;
-		std::unique_ptr<Animation> m_animation;
 
 		// ---------- COMPONENTS ----------
+		std::unique_ptr<Animation> m_animation;
 		std::unique_ptr<Armature> m_armature;
 		std::unique_ptr<Skin> m_skin;
 		std::unique_ptr<Morph> m_morph;

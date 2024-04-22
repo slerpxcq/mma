@@ -119,17 +119,14 @@ namespace mm
 		});
 
 		glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
-			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
 			EventBus::Instance()->postpone<Event::WindowSized>({ (uint32_t)w, (uint32_t)h });
 		});
 
 		glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) {
-			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
 			EventBus::Instance()->postpone<Event::WindowClosed>({});
 		});
 
 		glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
 			auto& eb = EventBus::Instance();
 			switch (action) {
 			case GLFW_PRESS:
@@ -145,12 +142,10 @@ namespace mm
 		});
 
 		glfwSetCharCallback(m_window, [](GLFWwindow* window, unsigned int codepoint) {
-			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
 			EventBus::Instance()->postpone<Event::KeyTyped>({(uint32_t)codepoint});
 		});
 
 		glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) {
-			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
 			switch (action) {
 			case GLFW_PRESS:
 				EventBus::Instance()->postpone<Event::MouseButtonPressed>({ (uint32_t)button });
@@ -162,12 +157,10 @@ namespace mm
 		});
 
 		glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double xpos, double ypos) {
-			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
 			EventBus::Instance()->postpone<Event::MouseMoved>({ (float)xpos, (float)ypos });
 		});
 
 		glfwSetScrollCallback(m_window, [](GLFWwindow* window, double xoffset, double yoffset) {
-			Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
 			EventBus::Instance()->postpone<Event::MouseScrolled>({ (float)yoffset });
 		});
 	}

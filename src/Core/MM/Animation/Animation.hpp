@@ -25,17 +25,17 @@ namespace mm
 		};
 
 		struct BoneKeyframe : Keyframe {
-			BoneKeyframe(uint32_t frame, const Transform& xform, const Bezier& bez) :
+			BoneKeyframe(uint32_t frame, const Transform& transform, const Bezier& bezier) :
 				Keyframe(frame),
-				xform(xform),
-				bez(bez) {}
+				transform(transform),
+				bezier(bezier) {}
 		public:
-			Transform  xform;
-			Bezier bez;
+			Transform  transform;
+			Bezier bezier;
 		};
 
-		struct FacialKeyframe : Keyframe {
-			FacialKeyframe(uint32_t frame, float weight) :
+		struct MorphKeyframe : Keyframe {
+			MorphKeyframe(uint32_t frame, float weight) :
 				Keyframe(frame),
 				weight(weight) {}
 		public:
@@ -47,8 +47,12 @@ namespace mm
 		void LoadFromFile(const std::filesystem::path& path);
 		void Update(uint32_t frame, uint32_t subframe);
 		const std::string& GetName() const { return m_name; }
-		const auto& GetBoneKeyframes() const { return m_boneKeyframes; }
-		const auto& GetMorphKeyframes() const { return m_morphKeyframes; }
+		const auto& GetBoneKeyframeMatrix() const { return m_boneKeyframeMatrix; }
+		const auto& GetMorphKeyframeMatrix() const { return m_morphKeyframeMatrix; }
+		auto& GetBoneKeyframeMatrix() { return m_boneKeyframeMatrix; }
+		auto& GetMorphKeyframeMatrix() { return m_morphKeyframeMatrix; }
+		void InsertMorphKeyframe(uint32_t morphIndex, const MorphKeyframe& keyframe);
+		void InsertBoneKeyframe(uint32_t boneIndex, const BoneKeyframe& keyframe);
 
 	private:
 		void LoadBoneKeyframes();
@@ -64,8 +68,8 @@ namespace mm
 		VMDFile* m_vmdFile;
 		std::string m_name;
 
-		std::vector<std::vector<BoneKeyframe>>   m_boneKeyframes;
-		std::vector<std::vector<FacialKeyframe>> m_morphKeyframes;
+		std::vector<std::vector<BoneKeyframe>>  m_boneKeyframeMatrix;
+		std::vector<std::vector<MorphKeyframe>> m_morphKeyframeMatrix;
 	};
 
 	 // For std::upper_bound and std::lower_bound

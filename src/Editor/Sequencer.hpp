@@ -85,6 +85,7 @@ namespace mm
 		void OnUpdate(float deltaTime);
 		void UpdateAnim();
 		Model* GetModel() { return m_model; }
+		FrameCounter& GetFrameCounter() { return m_frameCounter; }
 
 	private:
 		void CurveEditor(Item& item);

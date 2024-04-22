@@ -45,7 +45,7 @@ namespace mm
 	{
 	}
 
-	void PoseEditor::Edit()
+	void PoseEditor::EditTransform()
 	{
 		/* Axis limit and local axes */
 		const auto& camera = m_editor.GetWorld().GetCamera();
@@ -97,6 +97,26 @@ namespace mm
 			EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
 				new Command::BoneEdited(valuePtr, *valuePtr, undoValue) });
 			MM_INFO("End edit; undo={0}, redo={1}", glm::to_string(undoValue.rotation), glm::to_string(valuePtr->rotation));
+
+			/* Add or modify the keyframe, same as for morph */
+			Animation* anim = m_model->GetAnim();
+			auto& boneKeyframes = anim->GetBoneKeyframeMatrix()[m_context.selected];
+			uint32_t currFrame = m_editor.m_sequencer->GetFrameCounter().GetFrame();
+			auto it = std::find_if(boneKeyframes.begin(), boneKeyframes.end(),
+				[currFrame](const Animation::Keyframe& keyframe) {
+					return keyframe.frame == currFrame;
+				});
+
+			if (it == boneKeyframes.end()) {
+				anim->InsertBoneKeyframe(
+					m_context.selected, 
+					Animation::BoneKeyframe(currFrame, *valuePtr, Bezier()));
+				EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
+					new Command::KeyframeInserted() });
+			}
+			else {
+				it->transform = *valuePtr;
+			}
 		}
 		lastFrameUsedGizmo = thisFrameUsedGizmo;
 	}
@@ -117,7 +137,7 @@ namespace mm
 			ndcPos.z);
 	}
 
-	void PoseEditor::Draw()
+	void PoseEditor::DrawBones()
 	{
 		const auto& bones = m_model->GetArmature().GetBones();
 		const auto& pmxBones = m_model->GetPMXFile().GetBones();
@@ -332,13 +352,11 @@ namespace mm
 
 		/* if last frame not active and this frame active, store undo value */
 		/* if last frame active and this frame not active, store redo value and issue command */
-		/* Problem: many sliders! */
-		/* Solution: use a variable to record which is active since only one can be active at one time */
 
-		for (uint32_t i = 0; i < morphCount; ++i) {
-			float* valuePtr = &morph.GetWeights()[i];
-			if (pmxMorphs[i].panel == panel) {
-				const std::string& name = m_model->GetPMXFile().GetMorphName(i);
+		for (uint32_t morphIndex = 0; morphIndex < morphCount; ++morphIndex) {
+			float* valuePtr = &morph.GetWeights()[morphIndex];
+			if (pmxMorphs[morphIndex].panel == panel) {
+				const std::string& name = m_model->GetPMXFile().GetMorphName(morphIndex);
 				float valueBeforeEdit = *valuePtr;
 				ImGui::SliderFloat(name.c_str(), valuePtr, 0.0f, 1.0f);
 
@@ -349,8 +367,28 @@ namespace mm
 				}
 				if (ImGui::IsItemDeactivatedAfterEdit()) {
 					MM_INFO("End edit: undo={0}, redo={1}", undoValue, *valuePtr);
+					/* If there is no keyframe at current frame, create one */
 					EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
 						new Command::MorphEdited(valuePtr, *valuePtr, undoValue) });
+
+					/* If there is no keyframe at current frame, create one */
+					/* Else directly change the value of that keyframe */
+					Animation* anim = m_model->GetAnim();
+					auto& morphKeyframes = anim->GetMorphKeyframeMatrix()[morphIndex];
+					uint32_t currFrame = m_editor.m_sequencer->GetFrameCounter().GetFrame();
+					auto it = std::find_if(morphKeyframes.begin(), morphKeyframes.end(),
+						[currFrame](const Animation::Keyframe& keyframe) {
+							return keyframe.frame == currFrame;
+						});
+
+					if (it == morphKeyframes.end()) {
+						anim->InsertMorphKeyframe(
+							morphIndex, 
+							Animation::MorphKeyframe(currFrame, *valuePtr));
+					}
+					else {
+						it->weight = *valuePtr;
+					}
 				}
 			}
 		}
@@ -400,10 +438,10 @@ namespace mm
 		if (m_enabled && m_model != nullptr) {
 			switch (m_context.state) {
 			case Context::PICKING:
-				Draw();
+				DrawBones();
 				break;
 			case Context::EDITING:
-				Edit();
+				EditTransform();
 				break;
 			}
 		}

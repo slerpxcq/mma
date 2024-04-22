@@ -6,6 +6,7 @@ namespace mm
 	{
 	public:
 		void Set(uint32_t frame) {
+			MM_INFO("{0}: frame={1}", __FUNCTION__, frame);
 			m_subframe = 0;
 			m_frame = frame;
 		}
@@ -30,8 +31,8 @@ namespace mm
 		static constexpr uint32_t SUBFRAME_COUNT = 8;
 	
 	private:
-		uint32_t m_frame;
-		uint32_t m_subframe;
+		uint32_t m_frame = 0;
+		uint32_t m_subframe = 0;
 	};
 
 }

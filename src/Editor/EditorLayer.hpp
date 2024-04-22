@@ -18,6 +18,9 @@ namespace mm
 {
 	class EditorLayer : public Layer
 	{
+		friend class PoseEditor;
+		friend class Viewport;
+		friend class Sequencer;
 	public:
 		void OnAttach() override ;
 		void OnDetach() override ;

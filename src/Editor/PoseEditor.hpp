@@ -52,16 +52,14 @@ namespace mm
 
 	private:
 		glm::vec3 WorldToScreen(const glm::vec3& world);
-		void Edit();
-		void Pick();
-		void Draw();
+		void EditTransform();
+		void DrawBones();
 
 		void OnMouseButtonPressed(const Event::MouseButtonPressed& e);
 		void OnKeyPressed(const Event::KeyPressed& e);
 		void OnModelLoaded(const EditorEvent::ModelLoaded& e);
 
 		void MorphSliders(uint32_t panel);
-
 
 	private:
 		EditorLayer& m_editor;

@@ -104,8 +104,8 @@
     <ClInclude Include="src\Core\App\Application.hpp" />
     <ClInclude Include="src\Core\App\Core.hpp" />
     <ClInclude Include="src\Core\App\Event.hpp" />
-    <ClInclude Include="src\Core\App\Input.hpp" />
     <ClInclude Include="src\Core\App\EventBus.hpp" />
+    <ClInclude Include="src\Core\App\Input.hpp" />
     <ClInclude Include="src\Core\App\Layer\ImGuiLayer.hpp" />
     <ClInclude Include="src\Core\App\Layer\Layer.hpp" />
     <ClInclude Include="src\Core\App\Layer\LayerStack.hpp" />
@@ -158,8 +158,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\App\Application.cpp" />
-    <ClCompile Include="src\Core\App\Input.cpp" />
     <ClCompile Include="src\Core\App\EventBus.cpp" />
+    <ClCompile Include="src\Core\App\Input.cpp" />
     <ClCompile Include="src\Core\App\Layer\ImGuiLayer.cpp" />
     <ClCompile Include="src\Core\App\Layer\LayerStack.cpp" />
     <ClCompile Include="src\Core\App\Layer\MenuBarLayer.cpp" />

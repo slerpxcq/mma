@@ -24,8 +24,8 @@ namespace mm
 	void Animation::LoadBoneKeyframes()
 	{
 		const auto& vmdMotionDatas = m_vmdFile->GetMotionDatas();
-		m_boneKeyframes.clear();
-		m_boneKeyframes.resize(m_model.GetPMXFile().GetBones().size());
+		m_boneKeyframeMatrix.clear();
+		m_boneKeyframeMatrix.resize(m_model.GetPMXFile().GetBones().size());
 
 		for (uint32_t i = 0; i < vmdMotionDatas.size(); ++i) {
 			const auto& data = vmdMotionDatas[i];
@@ -36,7 +36,7 @@ namespace mm
 
 			if (it != dict.end()) {
 				int32_t boneIndex = it->second;
-				m_boneKeyframes[boneIndex].emplace_back(
+				m_boneKeyframeMatrix[boneIndex].emplace_back(
 					data.frameNumber,
 					Transform(glm::make_vec3(data.position),
 						glm::make_quat(data.rotation)),
@@ -48,21 +48,21 @@ namespace mm
 			}
 		}
 
-		for (uint32_t i = 0; i < m_boneKeyframes.size(); ++i) {
-			if (m_boneKeyframes[i].empty()) {
+		for (uint32_t i = 0; i < m_boneKeyframeMatrix.size(); ++i) {
+			if (m_boneKeyframeMatrix[i].empty()) {
 				MM_INFO("{0}: bone has no motion data", m_model.GetPMXFile().GetBoneName(i));
-				m_boneKeyframes[i].emplace_back(0, Transform::identity(), Bezier());
+				m_boneKeyframeMatrix[i].emplace_back(0, Transform::identity(), Bezier());
 			}
 
-			std::sort(m_boneKeyframes[i].begin(), m_boneKeyframes[i].end());
+			std::sort(m_boneKeyframeMatrix[i].begin(), m_boneKeyframeMatrix[i].end());
 		}
 	}
 
 	void Animation::LoadMorphKeyframes()
 	{
 		const auto& vmdMorphDatas = m_vmdFile->GetMorphDatas();
-		m_morphKeyframes.clear();
-		m_morphKeyframes.resize(m_model.GetPMXFile().GetMorphs().size());
+		m_morphKeyframeMatrix.clear();
+		m_morphKeyframeMatrix.resize(m_model.GetPMXFile().GetMorphs().size());
 
 		for (uint32_t i = 0; i < vmdMorphDatas.size(); ++i) {
 			const auto& data = vmdMorphDatas[i];
@@ -73,7 +73,7 @@ namespace mm
 
 			if (it != dict.end()) {
 				int32_t morphIndex = it->second;
-				m_morphKeyframes[morphIndex].emplace_back(data.frameNumber, data.weight);
+				m_morphKeyframeMatrix[morphIndex].emplace_back(data.frameNumber, data.weight);
 			}
 			else {
 				MM_INFO("{0}: {1}: morph does not exist in model", m_name, morphName);
@@ -81,13 +81,13 @@ namespace mm
 			}
 		}
 
-		for (uint32_t i = 0; i < m_morphKeyframes.size(); ++i) {
-			if (m_morphKeyframes[i].empty()) {
+		for (uint32_t i = 0; i < m_morphKeyframeMatrix.size(); ++i) {
+			if (m_morphKeyframeMatrix[i].empty()) {
 				MM_INFO("{0}: morph has no motion data", m_model.GetPMXFile().GetMorphName(i));
-				m_morphKeyframes[i].emplace_back(0, 0.0f);
+				m_morphKeyframeMatrix[i].emplace_back(0, 0.0f);
 			}
 
-			std::sort(m_morphKeyframes[i].begin(), m_morphKeyframes[i].end());
+			std::sort(m_morphKeyframeMatrix[i].begin(), m_morphKeyframeMatrix[i].end());
 		}
 	}
 
@@ -104,22 +104,36 @@ namespace mm
 
 	void Animation::LoadDefaultBoneKeyframes() 
 	{
-		m_boneKeyframes.clear();
-		m_boneKeyframes.resize(m_model.GetPMXFile().GetBones().size());
+		m_boneKeyframeMatrix.clear();
+		m_boneKeyframeMatrix.resize(m_model.GetPMXFile().GetBones().size());
 
-		for (uint32_t i = 0; i < m_boneKeyframes.size(); ++i) {
-			m_boneKeyframes[i].emplace_back(0, Transform::identity(), Bezier());
+		for (uint32_t i = 0; i < m_boneKeyframeMatrix.size(); ++i) {
+			m_boneKeyframeMatrix[i].emplace_back(0, Transform::identity(), Bezier());
 		}
 	}
 
 	void Animation::LoadDefaultMorphKeyframes()
 	{
-		m_morphKeyframes.clear();
-		m_morphKeyframes.resize(m_model.GetPMXFile().GetMorphs().size());
+		m_morphKeyframeMatrix.clear();
+		m_morphKeyframeMatrix.resize(m_model.GetPMXFile().GetMorphs().size());
 
-		for (uint32_t i = 0; i < m_morphKeyframes.size(); ++i) {
-			m_morphKeyframes[i].emplace_back(0, 0.0f);
+		for (uint32_t i = 0; i < m_morphKeyframeMatrix.size(); ++i) {
+			m_morphKeyframeMatrix[i].emplace_back(0, 0.0f);
 		}
+	}
+
+	void Animation::InsertMorphKeyframe(uint32_t morphIndex, const MorphKeyframe& keyframe)
+	{
+		auto& keyframes = m_morphKeyframeMatrix[morphIndex];
+		auto it = FindPrev(keyframes, keyframe.frame);
+		keyframes.insert(it, keyframe);
+	}
+
+	void Animation::InsertBoneKeyframe(uint32_t boneIndex, const BoneKeyframe& keyframe)
+	{
+		auto& keyframes = m_boneKeyframeMatrix[boneIndex];
+		auto it = FindPrev(keyframes, keyframe.frame);
+		keyframes.insert(it, keyframe);
 	}
 
 	void Animation::LoadFromFile(const std::filesystem::path& path)
@@ -144,12 +158,12 @@ namespace mm
 
 	void Animation::UpdateMorphWeights(uint32_t frame, uint32_t subframe)
 	{
-		for (uint32_t i = 0; i < m_morphKeyframes.size(); ++i) {
-			const auto& kfs = m_morphKeyframes[i];
-			auto prev = FindPrev(kfs, frame);
+		for (uint32_t i = 0; i < m_morphKeyframeMatrix.size(); ++i) {
+			const auto& keyframes = m_morphKeyframeMatrix[i];
+			auto prev = FindPrev(keyframes, frame);
 			float& weight = m_model.GetMorph().GetWeights()[i];
 
-			if (prev == kfs.cend()) {
+			if (prev == keyframes.cend()) {
 				std::advance(prev, -1);
 				weight = prev->weight;
 			}
@@ -164,22 +178,22 @@ namespace mm
 
 	void Animation::UpdateBoneTransforms(uint32_t frame, uint32_t subframe)
 	{
-		for (uint32_t i = 0; i < m_boneKeyframes.size(); ++i) {
-			auto& kfs = m_boneKeyframes[i];
-			auto prev = FindPrev(kfs, frame);
-			Transform& xform = m_model.GetArmature().GetPose()[i];
+		for (uint32_t i = 0; i < m_boneKeyframeMatrix.size(); ++i) {
+			auto& keyframes = m_boneKeyframeMatrix[i];
+			auto prev = FindPrev(keyframes, frame);
+			Transform& transform = m_model.GetArmature().GetPose()[i];
 
-			if (prev == kfs.cend()) {
+			if (prev == keyframes.cend()) {
 				std::advance(prev, -1);
-				xform = prev->xform;
+				transform = prev->transform;
 			}
 			else {
 				auto next = prev;
 				std::advance(prev, -1);
 				float dist = Distance(frame, subframe, prev->frame, next->frame);
-				glm::vec4 weights = prev->bez.Eval(dist);
-				xform.translation = glm::mix(prev->xform.translation, next->xform.translation, glm::vec3(weights));
-				xform.rotation = glm::slerp(prev->xform.rotation, next->xform.rotation, weights.w);
+				glm::vec4 weights = prev->bezier.Eval(dist);
+				transform.translation = glm::mix(prev->transform.translation, next->transform.translation, glm::vec3(weights));
+				transform.rotation = glm::slerp(prev->transform.rotation, next->transform.rotation, weights.w);
 			}
 		}
 	}
