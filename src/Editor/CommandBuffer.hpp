@@ -15,9 +15,8 @@ namespace mm
 
 	private:
 		void OnCommandIssued(const EditorEvent::CommandIssued& e);
-		void OnKeyPressed(const Event::KeyPressed& e);
-		void OnUndo();
-		void OnRedo();
+		void OnUndo(const Event::Undo& e);
+		void OnRedo(const Event::Redo& e);
 
 	private:
 		dexode::EventBus::Listener m_listener;

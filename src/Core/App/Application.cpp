@@ -176,6 +176,7 @@ namespace mm
 	{
 		m_listener->listen<Event::WindowClosed>(MM_EVENT_FN(Application::OnWindowClose));
 		m_listener->listen<Event::WindowSized>(MM_EVENT_FN(Application::OnWindowResize));
+		m_listener->listen<Event::KeyPressed>(MM_EVENT_FN(Application::OnKeyPressed));
 	}
 
 	void Application::Run()
@@ -225,5 +226,18 @@ namespace mm
 	{
 		m_minimized = (e.x == 0 || e.y == 0);
 		m_viewportSize = glm::uvec2(e.x, e.y);
+	}
+
+	void Application::OnKeyPressed(const Event::KeyPressed& e)
+	{
+		/* Ctrl + Z */
+		if ((e.code == GLFW_KEY_Z) && (e.mods & GLFW_MOD_CONTROL)) {
+			EventBus::Instance()->postpone<Event::Undo>({});
+		}
+
+		/* Ctrl + Y */
+		if ((e.code == GLFW_KEY_Y) && (e.mods & GLFW_MOD_CONTROL)) {
+			EventBus::Instance()->postpone<Event::Redo>({});
+		}
 	}
 }

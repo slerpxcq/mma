@@ -30,6 +30,15 @@ namespace mm
 				}
 				ImGui::EndMenu();
 			}
+			if (ImGui::BeginMenu("Edit")) {
+				if (ImGui::MenuItem("Undo", "Ctrl+Z")) {
+					EventBus::Instance()->postpone<Event::Undo>({});
+				}
+				if (ImGui::MenuItem("Redo", "Ctrl+Y")) {
+					EventBus::Instance()->postpone<Event::Redo>({});
+				}
+				ImGui::EndMenu();
+			}
 			ImGui::EndMainMenuBar();
 		}
 	}

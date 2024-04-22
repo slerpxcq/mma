@@ -41,6 +41,7 @@ namespace mm
 		void LoadShaders();
 		void OnWindowClose(const Event::WindowClosed& e);
 		void OnWindowResize(const Event::WindowSized& e);
+		void OnKeyPressed(const Event::KeyPressed& e);
 
 		Application() {}
 

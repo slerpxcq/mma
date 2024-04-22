@@ -44,6 +44,9 @@ namespace mm
 		struct FileOpened {
 			const char* path;
 		};
+
+		struct Undo {};
+		struct Redo {};
 	}
 }
 

@@ -11,7 +11,8 @@ namespace mm
 		m_listener(EventBus::Instance())
 	{
 		m_listener.listen<EditorEvent::CommandIssued>(MM_EVENT_FN(CommandBuffer::OnCommandIssued));
-		m_listener.listen<Event::KeyPressed>(MM_EVENT_FN(CommandBuffer::OnKeyPressed));
+		m_listener.listen<Event::Undo>(MM_EVENT_FN(CommandBuffer::OnUndo));
+		m_listener.listen<Event::Redo>(MM_EVENT_FN(CommandBuffer::OnRedo));
 	}
 
 	void CommandBuffer::OnCommandIssued(const EditorEvent::CommandIssued& e)
@@ -20,20 +21,8 @@ namespace mm
 		MM_INFO("Stored command; size={0}", m_commandQueue.size());
 	}
 
-	void CommandBuffer::OnKeyPressed(const Event::KeyPressed& e)
-	{
-		// Ctrl + Z
-		if ((e.code == GLFW_KEY_Z) && (e.mods & GLFW_MOD_CONTROL)) {
-			OnUndo();
-		}
 
-		// Ctrl + Y
-		if ((e.code == GLFW_KEY_Y) && (e.mods & GLFW_MOD_CONTROL)) {
-			OnRedo();
-		}
-	}
-
-	void CommandBuffer::OnUndo()
+	void CommandBuffer::OnUndo(const Event::Undo& e)
 	{
 		if (!m_commandQueue.empty()) {
 			MM_INFO("Undo; index={0}", m_commandQueue.size()-1);
@@ -42,7 +31,7 @@ namespace mm
 		}
 	}
 
-	void CommandBuffer::OnRedo()
+	void CommandBuffer::OnRedo(const Event::Redo& e)
 	{
 		MM_INFO("TO BE IMPLEMENTED");
 	}
