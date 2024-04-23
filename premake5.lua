@@ -16,6 +16,10 @@ workspace "MMX"
     IncDir["stb"] = "3rdparty/stb"
     IncDir["nativefiledialog"] = "3rdparty/nativefiledialog/src/include"
     IncDir["EventBus"] = "3rdparty/EventBus/lib/src"
+    IncDir["icu4c"] = "3rdparty/icu4c/include"
+
+    LibDir = {}
+    LibDir["icu4c"] = "3rdparty/icu4c/lib64"
 
     group "3rdparty"
     include "3rdparty/glfw"
@@ -39,6 +43,11 @@ workspace "MMX"
         pchheader "mmpch.hpp"
         pchsource "src/mmpch.cpp"
 
+        -- Copy icu4c dll's
+        postbuildcommands {
+            "xcopy /y /f \"3rdparty/icu4c/bin64/*.dll\" \"%{cfg.targetdir}\""
+        }
+
         links {
             "glad",
             "glfw",
@@ -48,6 +57,7 @@ workspace "MMX"
             "spdlog",
             "nativefiledialog",
             "EventBus",
+            "%{LibDir.icu4c}/*.lib",
             "opengl32.lib"
         }
 
@@ -62,6 +72,7 @@ workspace "MMX"
             "%{IncDir.stb}",
             "%{IncDir.nativefiledialog}",
             "%{IncDir.EventBus}",
+            "%{IncDir.icu4c}",
             "src"
         }
 

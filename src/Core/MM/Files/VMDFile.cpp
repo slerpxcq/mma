@@ -68,6 +68,8 @@ namespace mm
 	/* Convert name to ShiftJIS */
 	static void LoadName(const std::string& u8string, uint32_t bufSize, char* buf)
 	{
+		std::string sjfstr = Locale::UTF8ToShiftJIS(u8string);
+		std::memcpy(buf, sjfstr.c_str(), std::min(sjfstr.size(), (size_t)bufSize));
 	}
 
 	void VMDFile::LoadHeader(const Animation& anim)
@@ -75,7 +77,7 @@ namespace mm
 		std::memcpy(m_header.magic, MAGIC, sizeof(MAGIC));
 		std::string modelName = anim.GetModel().GetPMXFile().GetName();
 		/* Name should be in ShiftJIS */
-		std::memcpy(m_header.modelName, modelName.c_str(), std::min(modelName.size(), sizeof(m_header.modelName)));
+		LoadName(modelName, sizeof(m_header.modelName), m_header.modelName);
 	}
 	
 	static void LoadBezier(const Bezier& bezier, uint8_t* interpolation)
@@ -138,7 +140,7 @@ namespace mm
 				const auto& keyframe = keyframes[keyframeIndex];
 				MotionData md = {};
 				const std::string& boneName = pmx.GetBoneName(boneIndex);
-				std::memcpy(md.boneName, boneName.c_str(), std::min(boneName.size(), sizeof(md.boneName)));
+				LoadName(boneName, sizeof(md.boneName), md.boneName);
 				md.frameNumber = keyframe.frame;
 				md.position[0] = keyframe.transform.translation.x;
 				md.position[1] = keyframe.transform.translation.y;

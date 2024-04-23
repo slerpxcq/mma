@@ -74,7 +74,7 @@ namespace mm
     {
 		if (m_model != nullptr) {
 			nfdchar_t* path = nullptr;
-			nfdresult_t result = NFD_SaveDialog("vmd", "Unnamed.vmd", &path);
+			nfdresult_t result = NFD_SaveDialog("vmd", nullptr, &path);
 			if (result == NFD_OKAY) {
 				std::unique_ptr<VMDFile> vmd = std::make_unique<VMDFile>(*m_model->GetAnim());
 				vmd->Serialize(path);

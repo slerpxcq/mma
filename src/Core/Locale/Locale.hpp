@@ -12,6 +12,7 @@ namespace mm
 
 		static std::string UTF16LEToUTF8(const char* s, size_t len);
 		static std::string ShiftJISToUTF8(const char* s, size_t len);
+		static std::string UTF8ToShiftJIS(const std::string& u8string);
 	};
 }
 
