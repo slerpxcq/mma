@@ -12,6 +12,8 @@
 
 #include "Core/App/EventBus.hpp"
 
+#include "Core/MM/Files/VMDFile.hpp"
+
 #include <nfd.h>
 
 namespace mm
@@ -41,27 +43,61 @@ namespace mm
         m_viewport->OnRender(renderer);
     }
 
+    void EditorLayer::LoadModel()
+    {
+		nfdchar_t* path = nullptr;
+		nfdresult_t result = NFD_OpenDialog("pmx", nullptr, &path);
+		if (result == NFD_OKAY) {
+			Model* model = m_world->LoadModel(path);
+			m_model = model;
+			EventBus::Instance()->postpone<EditorEvent::ModelLoaded>({ model });
+		}
+    }
+
+    void EditorLayer::LoadAnimation()
+    {
+		if (m_model != nullptr) {
+			nfdchar_t* path = nullptr;
+			nfdresult_t result = NFD_OpenDialog("vmd", nullptr, &path);
+			if (result == NFD_OKAY) {
+				Animation* animation = m_model->LoadAnimation(path);
+				EventBus::Instance()->postpone<EditorEvent::MotionLoaded>({ animation });
+				std::free(path);
+			}
+		}
+		else {
+			MM_WARN("{0}: Could not load motion: no model is loaded", __FUNCTION__);
+		}
+    }
+
+    void EditorLayer::ExportAnimation()
+    {
+		if (m_model != nullptr) {
+			nfdchar_t* path = nullptr;
+			nfdresult_t result = NFD_SaveDialog("vmd", "Unnamed.vmd", &path);
+			if (result == NFD_OKAY) {
+				std::unique_ptr<VMDFile> vmd = std::make_unique<VMDFile>(*m_model->GetAnim());
+				vmd->Serialize(path);
+				MM_INFO("{0}: Animation exported successfully", path);
+				std::free(path);
+			}
+		}
+		else {
+			MM_WARN("{0}: Could not export animation: no model is loaded", __FUNCTION__);
+		}
+    }
+
     void EditorLayer::OnUIRender()
     {
         ImGui::Begin("Editor");
         if (ImGui::Button("Load model")) {
-            nfdchar_t* path = nullptr;
-            nfdresult_t result = NFD_OpenDialog("pmx", nullptr, &path);
-            if (result == NFD_OKAY) {
-                Model* model = m_world->LoadModel(path);
-                m_model = model;
-                EventBus::Instance()->postpone<EditorEvent::ModelLoaded>({ model });
-            }
+            LoadModel();
         }
         if (ImGui::Button("Load animation")) {
-            nfdchar_t* path = nullptr;
-            nfdresult_t result = NFD_OpenDialog("vmd", nullptr, &path);
-            if (result == NFD_OKAY) {
-                if (m_model != nullptr) {
-                    Animation* animation = m_model->LoadAnimation(path);
-					EventBus::Instance()->postpone<EditorEvent::MotionLoaded>({ animation });
-                }
-            }
+            LoadAnimation();
+        }
+        if (ImGui::Button("Export animation")) {
+            ExportAnimation();
         }
         if (ImGui::Button("Reset physics")) {
             m_world->GetPhysicsWorld().Reset();

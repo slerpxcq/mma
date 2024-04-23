@@ -31,6 +31,11 @@ namespace mm
 		const Viewport& GetViewport() { return *m_viewport; }
 
 	private:
+		void LoadModel();
+		void LoadAnimation();
+		void ExportAnimation();
+
+	private:
 		std::unique_ptr<World> m_world;
 		Model* m_model;
 

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../Transform.hpp"
-#include "../Files/VMDFile.hpp"
-#include "../Files/PMXFile.hpp"
 #include "Bezier.hpp"
 
 namespace mm
 {
 	class Model;
+	class VMDFile;
+	class PMXFile;
 
 	class Animation
 	{
@@ -53,6 +53,9 @@ namespace mm
 		auto& GetMorphKeyframeMatrix() { return m_morphKeyframeMatrix; }
 		void InsertMorphKeyframe(uint32_t morphIndex, const MorphKeyframe& keyframe);
 		void InsertBoneKeyframe(uint32_t boneIndex, const BoneKeyframe& keyframe);
+		void RemoveMorphKeyframe(uint32_t morphIndex, uint32_t frame);
+		void RemoveBoneKeyframe(uint32_t boneIndex, uint32_t frame);
+		const Model& GetModel() const { return m_model; }
 
 	private:
 		void LoadBoneKeyframes();

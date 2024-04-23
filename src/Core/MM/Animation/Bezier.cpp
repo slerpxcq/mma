@@ -56,11 +56,12 @@ namespace mm
 
 	Bezier::Bezier(const uint8_t* interp)
 	{
+		uint8_t (*mem)[16] = (decltype(mem))interp;
 		for (uint32_t i = 0; i < 4; ++i) {
-			m_handles[i][0].x = interp[16 * i];
-			m_handles[i][0].y = interp[16 * i + 4];
-			m_handles[i][1].x = interp[16 * i + 8];
-			m_handles[i][1].y = interp[16 * i + 12];
+			m_handles[i][0].x = mem[i][0];
+			m_handles[i][0].y = mem[i][4];
+			m_handles[i][1].x = mem[i][8];
+			m_handles[i][1].y = mem[i][12];
 		}
 	}
 }

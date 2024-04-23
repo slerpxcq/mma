@@ -101,6 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Editor\Clipboard.hpp" />
     <ClInclude Include="src\Core\App\Application.hpp" />
     <ClInclude Include="src\Core\App\Core.hpp" />
     <ClInclude Include="src\Core\App\Event.hpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Editor\Clipboard.cpp" />
     <ClCompile Include="src\Core\App\Application.cpp" />
     <ClCompile Include="src\Core\App\EventBus.cpp" />
     <ClCompile Include="src\Core\App\Input.cpp" />

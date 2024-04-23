@@ -9,8 +9,11 @@ namespace mm
 		VMDParseError(const char* what = "") : std::runtime_error(what) {}
 	};
 
+	class Animation;
+
 	class VMDFile : public File
 	{
+		static constexpr char MAGIC[] = "Vocaloid Motion Data 0002";
 	public:
 		struct Header {
 			char magic[30];
@@ -32,7 +35,11 @@ namespace mm
 		};
 
 	public:
+		/* Load from file */
 		explicit VMDFile(const std::filesystem::path& path);
+		/* Load from Animation */
+		explicit VMDFile(const Animation& anim);
+		void Serialize(const std::filesystem::path& path);
 		virtual const std::string& GetName() const override { return m_path.filename().u8string(); }
 		virtual const std::filesystem::path& GetPath() const override { return m_path; }
 		const std::vector<MotionData>& GetMotionDatas() const { return m_motionDatas; }
@@ -42,6 +49,14 @@ namespace mm
 		void ParseHeader(std::ifstream& stream);
 		void ParseMotionData(std::ifstream& stream);
 		void ParseMorphData(std::ifstream& stream);
+
+		void LoadHeader(const Animation& anim);
+		void LoadMotionData(const Animation& anim);
+		void LoadMorphData(const Animation& anim);
+
+		void SerializeHeader(std::ofstream& stream);
+		void SerializeMotionData(std::ofstream& stream);
+		void SerializeMorphData(std::ofstream& stream);
 
 	private:
 		std::filesystem::path m_path;

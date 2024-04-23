@@ -31,6 +31,12 @@ namespace mm
 		for (std::size_t i = 0; i < N; ++i)
 			Read(stream, buffer[i], size);
 	}
+
+	template <typename T>
+	static void Write(std::ofstream& stream, const T& object) 
+	{
+		stream.write((char*)&object, sizeof(object));
+	}
 }
 
 

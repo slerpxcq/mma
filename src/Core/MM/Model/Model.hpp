@@ -20,7 +20,6 @@ namespace mm
 		friend class Morph;
 
 	public:
-		// Model file should be managed by resource manager
 		Model(World& world, const std::filesystem::path& path);
 		Animation* LoadAnimation(const std::filesystem::path& path);
 		void Render(GLRenderer& renderer);

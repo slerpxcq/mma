@@ -1,9 +1,10 @@
 #include "mmpch.hpp"
 #include "Animation.hpp"
-#include "Core/Locale/Locale.hpp"
-#include "../Model/Model.hpp"
 
+#include "Core/Locale/Locale.hpp"
+#include "Core/MM/Model/Model.hpp"
 #include "Core/ResourceManager/ResourceManager.hpp"
+#include "Core/MM/Files/VMDFile.hpp"
 
 namespace mm
 {
@@ -134,6 +135,24 @@ namespace mm
 		auto& keyframes = m_boneKeyframeMatrix[boneIndex];
 		auto it = FindPrev(keyframes, keyframe.frame);
 		keyframes.insert(it, keyframe);
+	}
+
+	void Animation::RemoveMorphKeyframe(uint32_t morphIndex, uint32_t frame)
+	{
+		auto& keyframes = m_morphKeyframeMatrix[morphIndex];
+		std::remove_if(keyframes.begin(), keyframes.end(), 
+			[frame](const Keyframe& keyframe) {
+				return keyframe.frame == frame;
+			});
+	}
+
+	void Animation::RemoveBoneKeyframe(uint32_t boneIndex, uint32_t frame)
+	{
+		auto& keyframes = m_boneKeyframeMatrix[boneIndex];
+		std::remove_if(keyframes.begin(), keyframes.end(), 
+			[frame](const Keyframe& keyframe) {
+				return keyframe.frame == frame;
+			});
 	}
 
 	void Animation::LoadFromFile(const std::filesystem::path& path)
