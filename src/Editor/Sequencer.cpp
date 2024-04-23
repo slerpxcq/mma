@@ -15,8 +15,8 @@ namespace mm
 
 		ImVec2 pos = ImVec2(offsetX, rowIndex * ROW_HEIGHT + 8);
 
-		ImGui::SetCursorScreenPos(m_origin + pos);
-		if (ImGui::InvisibleButton(GetButtonId(), BUTTON_SIZE)) {
+		ImGui::SetCursorScreenPos(m_canvasOrigin + pos);
+		if (ImGui::InvisibleButton(GenButtonId(), BUTTON_SIZE)) {
 			expanded = !expanded;
 		}
 
@@ -25,16 +25,16 @@ namespace mm
 		if (!expanded) {
 			/* Lower triangle */
 			drawList->AddTriangleFilled(
-				m_origin + pos, 
-				m_origin + mid, 
-				m_origin + ImVec2(max.x, pos.y), BUTTON_COLOR);
+				m_canvasOrigin + pos, 
+				m_canvasOrigin + mid, 
+				m_canvasOrigin + ImVec2(max.x, pos.y), BUTTON_COLOR);
 		}
 		else {
 			/* Upper triangle */
 			drawList->AddTriangleFilled(
-				m_origin + ImVec2(pos.x, mid.y),
-				m_origin + ImVec2(mid.x, pos.y),
-				m_origin + ImVec2(max.x, mid.y),
+				m_canvasOrigin + ImVec2(pos.x, mid.y),
+				m_canvasOrigin + ImVec2(mid.x, pos.y),
+				m_canvasOrigin + ImVec2(max.x, mid.y),
 				BUTTON_COLOR);
 		}
 	}
@@ -45,7 +45,7 @@ namespace mm
 			return;
 
 		m_rowStart += e.delta;
-		m_rowStart = std::clamp(m_rowStart, -m_rowCount + 1, 1);
+		m_rowStart = std::clamp(m_rowStart, -m_dopeSheetRowCount + 1, 1);
 	}
 
 	void Sequencer::OnMouseButtonPressed(const Event::MouseButtonPressed& e) 
@@ -58,10 +58,10 @@ namespace mm
 
 	void Sequencer::DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor)
 	{
-		ImVec2 p0 = m_origin + ImVec2(center.x - radius, center.y);
-		ImVec2 p1 = m_origin + ImVec2(center.x, center.y - radius);
-		ImVec2 p2 = m_origin + ImVec2(center.x + radius, center.y);
-		ImVec2 p3 = m_origin + ImVec2(center.x, center.y + radius);
+		ImVec2 p0 = m_canvasOrigin + ImVec2(center.x - radius, center.y);
+		ImVec2 p1 = m_canvasOrigin + ImVec2(center.x, center.y - radius);
+		ImVec2 p2 = m_canvasOrigin + ImVec2(center.x + radius, center.y);
+		ImVec2 p3 = m_canvasOrigin + ImVec2(center.x, center.y + radius);
 		m_drawList->AddQuad(p0, p1, p2, p3, outlineColor, outlineSize);
 		m_drawList->AddQuadFilled(p0, p1, p2, p3, fillColor);
 	}
@@ -73,20 +73,25 @@ namespace mm
 			return;
 
 		float y = row.rowIndex * ROW_HEIGHT;
-		m_drawList->AddText(m_origin + ImVec2(LEGEND_TEXT_OFFSET + textOffset, y), RULER_MARK_COLOR, row.name.c_str());
+		m_drawList->AddText(m_canvasOrigin + ImVec2(LEGEND_TEXT_OFFSET + textOffset, y), RULER_MARK_COLOR, row.name.c_str());
 		if (expandable) 
 			DrawExpandButton(row.rowIndex, textOffset - 5, row.expanded);
 		// Strip
 		uint32_t stripColor = (row.rowIndex & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
 		m_drawList->AddRectFilled(
-			m_origin + ImVec2(LEGEND_LENGTH, y),
-			m_origin + ImVec2(m_size.x, y + ROW_HEIGHT),
+			m_canvasOrigin + ImVec2(LEGEND_LENGTH, y),
+			m_canvasOrigin + ImVec2(m_canvasSize.x, y + ROW_HEIGHT),
 			stripColor);
+	}
+
+	void Sequencer::DrawGroupDope(const Group& group)
+	{
 	}
 
 	template <typename T>
 	void Sequencer::DrawDope(const Item& item, const std::vector<T>& keyframeList)
 	{
+		/* The first row is the ruler, don't draw on it! */
 		if (item.rowIndex < 1)
 			return;
 
@@ -106,8 +111,9 @@ namespace mm
 			DrawDiamond(dopePos, DOPE_RADIUS, DOPE_OUTLINE_SIZE, DOPE_OUTLINE_COLOR, DOPE_FILL_COLOR);
 			ImVec2 buttonSize = 2.f * ImVec2(DOPE_RADIUS, DOPE_RADIUS);
 			ImVec2 buttonPos = dopePos - 0.5f * buttonSize;
-			ImGui::SetCursorScreenPos(m_origin + buttonPos);
-			if (ImGui::InvisibleButton(GetButtonId(), buttonSize)) {
+			ImGui::SetCursorScreenPos(m_canvasOrigin + buttonPos);
+			if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
+				/* Dope selected */
 			}
 		}
 	}
@@ -160,10 +166,10 @@ namespace mm
 					ImVec2 vmdP2 = ImVec2(it->bezier.GetHandles()[axis][1].x, it->bezier.GetHandles()[axis][1].y);
 					ImVec2 bezP2 = ((vmdP2 * (1.f / 127)) * delta) + bezP0;
 					m_drawList->AddBezierCubic(
-						m_origin + bezP0, 
-						m_origin + bezP1, 
-						m_origin + bezP2, 
-						m_origin + bezP3,
+						m_canvasOrigin + bezP0, 
+						m_canvasOrigin + bezP1, 
+						m_canvasOrigin + bezP2, 
+						m_canvasOrigin + bezP3,
 						axisColor[axis], 3.0f);
 				}
 			}
@@ -177,24 +183,27 @@ namespace mm
 			ImGuiWindowFlags_NoScrollWithMouse);
 
 		if (ImGui::SliderInt("Min frame", &m_minFrame, 0, 10000)) {
-			m_minFrame = std::clamp(m_minFrame, 0, 10000);
 		}
+		ImGui::SameLine();
+		if (ImGui::InputInt(" ", &m_minFrame)) {
+		}
+		m_minFrame = std::clamp(m_minFrame, 0, 10000);
 
 		m_hovered = ImGui::IsWindowHovered();
 		m_drawList = ImGui::GetWindowDrawList();
 
 		// Init states
-		m_min = ImGui::GetCursorPos();
-		m_max = ImGui::GetWindowContentRegionMax();
-		m_origin = ImGui::GetWindowPos() + m_min;
-		m_size = m_max - m_min;
-		m_rowCount = 0;
+		m_canvasMin = ImGui::GetCursorPos();
+		m_canvasMax = ImGui::GetWindowContentRegionMax();
+		m_canvasOrigin = ImGui::GetWindowPos() + m_canvasMin;
+		m_canvasSize = m_canvasMax - m_canvasMin;
+		m_dopeSheetRowCount = 0;
 		m_buttonIndex = 0;
 
 		ImGui::BeginGroup();
 
 		// Background
-		m_drawList->AddRectFilled(m_origin, m_origin + m_size, BACKGROUND_COLOR);
+		m_drawList->AddRectFilled(m_canvasOrigin, m_canvasOrigin + m_canvasSize, BACKGROUND_COLOR);
 
 		// Get row index of each entry
 		int32_t rowIndex = m_rowStart;
@@ -209,12 +218,7 @@ namespace mm
 				}
 			}
 		}
-		m_rowCount = rowIndex - 1;
-
-		// Draw groups
-		for (auto& group : m_groups) {
-			DrawRow(group, true, INDENT_BASE);
-		}
+		m_dopeSheetRowCount = rowIndex - 1;
 
 		// Draw items
 		for (auto& group : m_groups) {
@@ -232,56 +236,61 @@ namespace mm
 			}
 		}
 
+		// Draw groups
+		for (auto& group : m_groups) {
+			DrawRow(group, true, INDENT_BASE);
+		}
+
 		// Ruler
 		float rulerBeginX = LEGEND_LENGTH + ROW_HEIGHT / 2;
-		float rulerEndX = m_size.x;
+		float rulerEndX = m_canvasSize.x;
 		uint32_t column = m_minFrame;
 		uint32_t columnCount = 0;
-		m_drawList->AddRectFilled(m_origin, ImVec2(m_origin.x + m_size.x, m_origin.y + ROW_HEIGHT), HEADER_COLOR);
+		m_drawList->AddRectFilled(m_canvasOrigin, ImVec2(m_canvasOrigin.x + m_canvasSize.x, m_canvasOrigin.y + ROW_HEIGHT), HEADER_COLOR);
 		for (uint32_t rulerX = rulerBeginX; rulerX <= rulerEndX; rulerX += COLUMN_WIDTH, ++column, ++columnCount) {
 			float lineBeginY = ROW_HEIGHT;
-			float lineEndY = lineBeginY + ROW_HEIGHT * m_rowCount;
-			// Button for selecting current frame
+			float lineEndY = lineBeginY + ROW_HEIGHT * m_dopeSheetRowCount;
+			/* Button for selecting frame */
 			ImVec2 buttonPos = ImVec2(rulerX - COLUMN_WIDTH / 2, 0);
 			ImVec2 buttonSize = ImVec2(COLUMN_WIDTH, ROW_HEIGHT);
-			ImGui::SetCursorScreenPos(m_origin + buttonPos);
-			if (ImGui::InvisibleButton(GetButtonId(), buttonSize)) {
+			ImGui::SetCursorScreenPos(m_canvasOrigin + buttonPos);
+			if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
 				m_selectedColumn = column;
-				m_frameCounter.Set(m_minFrame + column);
+				m_frameCounter.Set(column);
 				UpdateAnim();
 			}
 
 			// Draw current frame mark
 			if (column == m_selectedColumn) {
 				m_drawList->AddLine(
-					m_origin + ImVec2(rulerX, lineBeginY),
-					m_origin + ImVec2(rulerX, lineEndY),
+					m_canvasOrigin + ImVec2(rulerX, lineBeginY),
+					m_canvasOrigin + ImVec2(rulerX, lineEndY),
 					IM_COL32(255, 0, 0, 64), ROW_HEIGHT / 2);
 			}
 
 			// Long mark
 			if (column % RULER_LONG_MARK_MULTIPLIER == 0) {
 				m_drawList->AddLine(
-					m_origin + ImVec2(rulerX, ROW_HEIGHT),
-					m_origin + ImVec2(rulerX, ROW_HEIGHT - RULER_LONG_MARK_LENGTH),
+					m_canvasOrigin + ImVec2(rulerX, ROW_HEIGHT),
+					m_canvasOrigin + ImVec2(rulerX, ROW_HEIGHT - RULER_LONG_MARK_LENGTH),
 					RULER_MARK_COLOR);
 				char buf[16];
 				std::snprintf(buf, sizeof(buf), "%i", column);
-				m_drawList->AddText(m_origin + ImVec2(rulerX + RULER_TEXT_OFFSET, 0), RULER_MARK_COLOR, buf);
+				m_drawList->AddText(m_canvasOrigin + ImVec2(rulerX + RULER_TEXT_OFFSET, 0), RULER_MARK_COLOR, buf);
 				m_drawList->AddLine(
-					m_origin + ImVec2(rulerX, lineBeginY),
-					m_origin + ImVec2(rulerX, lineEndY),
+					m_canvasOrigin + ImVec2(rulerX, lineBeginY),
+					m_canvasOrigin + ImVec2(rulerX, lineEndY),
 					VERTICAL_MARK_COLOR, 2.0f);
 			}
 			// Short mark
 			else {
 				m_drawList->AddLine(
-					m_origin + ImVec2(rulerX, ROW_HEIGHT),
-					m_origin + ImVec2(rulerX, ROW_HEIGHT - RULER_SHORT_MARK_LENGTH),
+					m_canvasOrigin + ImVec2(rulerX, ROW_HEIGHT),
+					m_canvasOrigin + ImVec2(rulerX, ROW_HEIGHT - RULER_SHORT_MARK_LENGTH),
 					RULER_MARK_COLOR);
 				m_drawList->AddLine(
-					m_origin + ImVec2(rulerX, lineBeginY),
-					m_origin + ImVec2(rulerX, lineEndY),
+					m_canvasOrigin + ImVec2(rulerX, lineBeginY),
+					m_canvasOrigin + ImVec2(rulerX, lineEndY),
 					VERTICAL_MARK_COLOR);
 			}
 		}
@@ -313,11 +322,11 @@ namespace mm
 			}
 		}
 
-		if (Input::MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-			m_rectMax = ImGui::GetMousePos();
-			m_drawList->AddRect(m_rectMin, m_rectMax, IM_COL32(0, 130, 216, 255));
-			m_drawList->AddRectFilled(m_rectMin, m_rectMax, IM_COL32(0, 130, 216, 50));
-		}
+		//if (Input::MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+		//	m_rectMax = ImGui::GetMousePos();
+		//	m_drawList->AddRect(m_rectMin, m_rectMax, IM_COL32(0, 130, 216, 255));
+		//	m_drawList->AddRectFilled(m_rectMin, m_rectMax, IM_COL32(0, 130, 216, 50));
+		//}
 
 		ImGui::EndGroup();
 		ImGui::End();
@@ -351,15 +360,16 @@ namespace mm
 		if (m_model != nullptr) {
 			const auto& pmx = m_model->GetPMXFile();
 			const auto& pmxClusters = m_model->GetPMXFile().GetClusters();
-			for (uint32_t i = 0; i < pmxClusters.size(); ++i) {
-				const auto& pc = pmxClusters[i];
+			for (uint32_t clusterIndex = 0; clusterIndex < pmxClusters.size(); ++clusterIndex) {
+				const auto& pc = pmxClusters[clusterIndex];
 				Sequencer::Group group = {};
 				group.name = pc.nameJP;
-				for (uint32_t j = 0; j < pc.elements.size(); ++j) {
-					const auto& elem = pc.elements[j];
+				for (uint32_t elemIndex = 0; elemIndex < pc.elements.size(); ++elemIndex) {
+					const auto& elem = pc.elements[elemIndex];
 					Sequencer::Item item = {};
 					item.type = elem.type;
 					item.index = elem.index;
+					item.groupIndex = clusterIndex;
 					switch (elem.type) {
 					case PMXFile::CLUSTER_BONE:
 						item.name = pmx.GetBoneName(elem.index);

@@ -48,7 +48,7 @@ namespace mm
 
 	VMDFile::VMDFile(const std::filesystem::path& path) 
 	{
-		//m_path = path;
+		m_path = path;
 		std::ifstream stream;
 		stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		stream.open(path, std::ifstream::binary);
@@ -165,7 +165,7 @@ namespace mm
 				const auto& keyframe = keyframes[keyframeIndex];
 				MorphData md = {};
 				const std::string& morphName = pmx.GetMorphName(morphIndex);
-				std::memcpy(md.morphName, morphName.c_str(), std::min(morphName.size(), sizeof(md.morphName)));
+				LoadName(morphName, sizeof(md.morphName), md.morphName);
 				md.frameNumber = keyframe.frame;
 				md.weight = keyframe.weight;
 				m_morphDatas.push_back(md);

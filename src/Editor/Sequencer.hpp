@@ -49,12 +49,15 @@ namespace mm
 		static constexpr uint32_t CURVE_EDITOR_ROW_COUNT = 16;
 
 	public:
+		struct Group;
 		struct Item {
+			uint32_t groupIndex;
 			std::string name;
 			int32_t type;
 			int32_t index;
 			bool expanded = false;
-			// For drawing
+
+			/* For drawing */
 			int32_t rowIndex;
 		};
 
@@ -62,7 +65,8 @@ namespace mm
 			std::string name;
 			bool expanded = false;
 			std::vector<Item> items;
-			// For drawing
+
+			/* For drawing */
 			int32_t rowIndex;
 		};
 
@@ -90,11 +94,11 @@ namespace mm
 	private:
 		void CurveEditor(Item& item);
 
-		// Events
+		/* Events */
 		void OnMouseScrolled(const Event::MouseScrolled& e);
 		void OnMouseButtonPressed(const Event::MouseButtonPressed& e);
 
-		// Drawing
+		/* Drawing */
 		void DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);
 		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
 		template<typename T>
@@ -102,7 +106,9 @@ namespace mm
 		template<typename T>
 		void DrawDope(const Item& item, const std::vector<T>& keyframeList);
 
-		const char* GetButtonId() {
+		void DrawGroupDope(const Group& group);
+
+		const char* GenButtonId() {
 			static char buf[16];
 			std::snprintf(buf, sizeof(buf), "B_%u", m_buttonIndex++);
 			return buf;
@@ -126,12 +132,12 @@ namespace mm
 
 		/* Drawing states */
 		int32_t m_rowStart = 1;
-		int32_t m_rowCount = 0;
+		int32_t m_dopeSheetRowCount = 0;
 		int32_t m_buttonIndex = 0;
-		ImVec2 m_min;
-		ImVec2 m_max;
-		ImVec2 m_origin;
-		ImVec2 m_size;
+		ImVec2 m_canvasMin;
+		ImVec2 m_canvasMax;
+		ImVec2 m_canvasOrigin;
+		ImVec2 m_canvasSize;
 
 		ImVec2 m_rectMin;
 		ImVec2 m_rectMax;

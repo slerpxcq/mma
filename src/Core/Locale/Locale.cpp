@@ -13,7 +13,6 @@ namespace mm
 	{
 		static std::wstring_convert<std::codecvt_utf8_utf16<char16_t, 0x10ffffu, std::codecvt_mode::little_endian>, char16_t> conv;
 		std::string str(conv.to_bytes(std::u16string((char16_t*)s, (char16_t*)&s[len])));
-		str.push_back(0);
 		return str;
 	}
 
@@ -28,7 +27,7 @@ namespace mm
 		std::vector<char> result(length + 1);
 		src.extract(0, src.length(), &result[0], "utf8");
 
-		return std::string(result.begin(), result.end() - 1);
+		return std::string(result.begin(), result.end() - 1).append("");
 	}
 
 	std::string Locale::UTF8ToShiftJIS(const std::string& u8string)
@@ -39,7 +38,7 @@ namespace mm
 		std::vector<char> result(length + 1);
 		src.extract(0, src.length(), &result[0], "shift_jis");
 
-		return std::string(result.begin(), result.end() - 1);
+		return std::string(result.begin(), result.end() - 1).append("");
 	}
 }
 

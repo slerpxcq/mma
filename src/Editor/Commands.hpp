@@ -2,6 +2,8 @@
 
 #include "Core/MM/Transform.hpp"
 
+#include "Core/MM/Animation/Animation.hpp"
+
 namespace mm
 {
 	class ICommand {
@@ -43,7 +45,37 @@ namespace mm
 
 		class KeyframeInserted : public ICommand {
 		public:
+			enum {
+				TYPE_BONE,
+				TYPE_MORPH
+			};
+
+		public:
+			KeyframeInserted(Animation& anim, uint8_t type, uint32_t index, uint32_t frame) :
+				m_animation(anim),
+				m_type(type),
+				m_index(index),
+				m_frame(frame) {}
+
+			virtual void Undo() override { 
+				MM_INFO("{0}", __FUNCTION__);
+				switch (m_type) {
+				case TYPE_BONE:
+					m_animation.RemoveBoneKeyframe(m_index, m_frame);
+					break;
+				case TYPE_MORPH:
+					m_animation.RemoveMorphKeyframe(m_index, m_frame);
+					break;
+				}
+			}
+
+			virtual void Redo() override {}
+
 		private:
+			Animation& m_animation;
+			uint8_t m_type;
+			uint32_t m_index;
+			uint32_t m_frame;
 		};
 	}
 }

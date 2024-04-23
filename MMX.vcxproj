@@ -75,7 +75,10 @@
       <AdditionalDependencies>3rdparty\icu4c\lib64\*.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /f "3rdparty/icu4c/bin64/*.dll" "bin/MMX/Debug"</Command>
+      <Command>xcopy /y /f "3rdparty/icu4c/bin64/icudt75.dll" "bin/MMX/Debug"
+xcopy /y /f "3rdparty/icu4c/bin64/icuin75.dll" "bin/MMX/Debug"
+xcopy /y /f "3rdparty/icu4c/bin64/icutu75.dll" "bin/MMX/Debug"
+xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Debug"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -103,7 +106,10 @@
       <AdditionalDependencies>3rdparty\icu4c\lib64\*.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /f "3rdparty/icu4c/bin64/*.dll" "bin/MMX/Release"</Command>
+      <Command>xcopy /y /f "3rdparty/icu4c/bin64/icudt75.dll" "bin/MMX/Release"
+xcopy /y /f "3rdparty/icu4c/bin64/icuin75.dll" "bin/MMX/Release"
+xcopy /y /f "3rdparty/icu4c/bin64/icutu75.dll" "bin/MMX/Release"
+xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

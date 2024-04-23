@@ -40,7 +40,7 @@ namespace mm
 				m_boneKeyframeMatrix[boneIndex].emplace_back(
 					data.frameNumber,
 					Transform(glm::make_vec3(data.position),
-						glm::make_quat(data.rotation)),
+						      glm::make_quat(data.rotation)),
 					Bezier(data.interpolation));
 			}
 			else {
@@ -140,19 +140,23 @@ namespace mm
 	void Animation::RemoveMorphKeyframe(uint32_t morphIndex, uint32_t frame)
 	{
 		auto& keyframes = m_morphKeyframeMatrix[morphIndex];
-		std::remove_if(keyframes.begin(), keyframes.end(), 
-			[frame](const Keyframe& keyframe) {
-				return keyframe.frame == frame;
-			});
+		auto it = std::find_if(keyframes.begin(), keyframes.end(),
+			[frame](const Keyframe& keyframe) { return keyframe.frame == frame; });
+		if (it == keyframes.end()) {
+			MM_WARN("{0}: keyframe not found", __FUNCTION__);
+		}
+		keyframes.erase(it);
 	}
 
 	void Animation::RemoveBoneKeyframe(uint32_t boneIndex, uint32_t frame)
 	{
 		auto& keyframes = m_boneKeyframeMatrix[boneIndex];
-		std::remove_if(keyframes.begin(), keyframes.end(), 
-			[frame](const Keyframe& keyframe) {
-				return keyframe.frame == frame;
-			});
+		auto it = std::find_if(keyframes.begin(), keyframes.end(),
+			[frame](const Keyframe& keyframe) { return keyframe.frame == frame; });
+		if (it == keyframes.end()) {
+			MM_WARN("{0}: keyframe not found", __FUNCTION__);
+		}
+		keyframes.erase(it);
 	}
 
 	void Animation::LoadFromFile(const std::filesystem::path& path)

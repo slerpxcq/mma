@@ -45,7 +45,10 @@ workspace "MMX"
 
         -- Copy icu4c dll's
         postbuildcommands {
-            "xcopy /y /f \"3rdparty/icu4c/bin64/*.dll\" \"%{cfg.targetdir}\""
+            "xcopy /y /f \"3rdparty/icu4c/bin64/icudt75.dll\" \"%{cfg.targetdir}\"",
+            "xcopy /y /f \"3rdparty/icu4c/bin64/icuin75.dll\" \"%{cfg.targetdir}\"",
+            "xcopy /y /f \"3rdparty/icu4c/bin64/icutu75.dll\" \"%{cfg.targetdir}\"",
+            "xcopy /y /f \"3rdparty/icu4c/bin64/icuuc75.dll\" \"%{cfg.targetdir}\""
         }
 
         links {

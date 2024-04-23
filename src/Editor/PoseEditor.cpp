@@ -8,11 +8,11 @@
 #include "Core/App/Input.hpp"
 #include "Core/Locale/Locale.hpp"
 
-#include <glm/gtc/type_ptr.hpp>
-
 #include "Core/App/Application.hpp"
 #include "Core/App/EventBus.hpp"
 #include "Core/Utility/Type.hpp"
+
+#include "Commands.hpp"
 
 #if INVISIBLE_BUTTON
 #define IMGUI_BUTTON(x, y) ImGui::InvisibleButton(x, y)
@@ -112,7 +112,8 @@ namespace mm
 					m_context.selected, 
 					Animation::BoneKeyframe(currFrame, *valuePtr, Bezier()));
 				EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-					new Command::KeyframeInserted() });
+					new Command::KeyframeInserted(*anim, Command::KeyframeInserted::TYPE_BONE,
+						m_context.selected, currFrame) });
 			}
 			else {
 				it->transform = *valuePtr;
@@ -383,8 +384,11 @@ namespace mm
 
 					if (it == morphKeyframes.end()) {
 						anim->InsertMorphKeyframe(
-							morphIndex, 
+							morphIndex,
 							Animation::MorphKeyframe(currFrame, *valuePtr));
+						EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
+							new Command::KeyframeInserted(
+								*anim, Command::KeyframeInserted::TYPE_MORPH, morphIndex, currFrame) });
 					}
 					else {
 						it->weight = *valuePtr;
