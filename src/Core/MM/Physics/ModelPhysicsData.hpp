@@ -12,15 +12,16 @@ namespace mm
 		friend class Armature;
 	public:
 		enum BodyType {
-			BT_KINEMATIC = 1 << 0,
-			BT_DYNAMIC = 1 << 1,
-			BT_ALL = BT_KINEMATIC | BT_DYNAMIC
+			BODY_TYPE_KINEMATIC = 1 << 0,
+			BODY_TYPE_DYNAMIC = 1 << 1,
+			BODY_TYPE_ALL = BODY_TYPE_KINEMATIC | BODY_TYPE_DYNAMIC
 		};
 
 	public:
 		ModelPhysicsData(PhysicsWorld& world, Model& model);
 		~ModelPhysicsData();
-		void LoadTransforms(uint32_t bodyType, bool bind);
+		Model& GetModel() { return m_model; }
+		void LoadTransforms(uint32_t bodyType);
 	
 	private:
 		void LoadRigidbodies();

@@ -170,7 +170,7 @@ namespace mm
 		}
 	}
 
-	void ModelPhysicsData::LoadTransforms(uint32_t bodyType, bool bind)
+	void ModelPhysicsData::LoadTransforms(uint32_t bodyType)
 	{
 		const auto& pmxRigidbodies = m_model.GetPMXFile().GetRigidbodies();
 
@@ -178,7 +178,7 @@ namespace mm
 			const auto& pmxRigidbody = pmxRigidbodies[i];
 			bool isKinematic = pmxRigidbody.physicsType == PMXFile::RB_KINEMATIC;
 			bool isDynamic = pmxRigidbody.physicsType == PMXFile::RB_DYNAMIC;
-			if (((bodyType & BT_KINEMATIC) && isKinematic) || ((bodyType & BT_DYNAMIC) && isDynamic)) {
+			if (((bodyType & BODY_TYPE_KINEMATIC) && isKinematic) || ((bodyType & BODY_TYPE_DYNAMIC) && isDynamic)) {
 				const auto& bone = m_model.GetArmature().GetBones()[pmxRigidbody.boneIndex];
 				const btTransform& bindTransform = m_bindTransforms[i];
 				btVector3 bindOffset = bindTransform.getOrigin() - btVec3FromGLM(bone.invBindWorld.inverse().translation);
@@ -186,14 +186,8 @@ namespace mm
 				btTransform transform;
 				btQuaternion rotation;
 				btVector3 translation;
-				if (!bind) {
-					rotation = btQuatFromGLM(bone.animWorld.rotation);
-					translation = btVec3FromGLM(bone.animWorld.translation);
-				}
-				else {
-					rotation = btQuatFromGLM(bone.bindWorld.rotation);
-					translation = btVec3FromGLM(bone.bindWorld.translation);
-				}
+				rotation = btQuatFromGLM(bone.animWorld.rotation);
+				translation = btVec3FromGLM(bone.animWorld.translation);
 				transform.setOrigin(translation + bindOffset.rotate(rotation.getAxis(), rotation.getAngle()));
 				transform.setRotation(rotation * bindTransform.getRotation());
 

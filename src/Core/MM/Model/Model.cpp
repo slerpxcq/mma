@@ -47,6 +47,11 @@ namespace mm
 	void Model::Update(float deltaTime)
 	{
 		m_armature->UpdatePose();
-		//m_armature->CalcSkinning();
+	}
+
+	void Model::SyncWithPhysics()
+	{
+		if (m_physicsData != nullptr && m_world.GetPhysicsWorld().IsEnabled()) 
+			m_armature->SyncWithPhysics(*m_physicsData); 
 	}
 }

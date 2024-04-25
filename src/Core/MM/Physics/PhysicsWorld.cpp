@@ -4,6 +4,8 @@
 #include "Core/MM/Files/PMXFile.hpp"
 #include "Core/Utility/Type.hpp"
 
+#include "Core/MM/Model/Model.hpp"
+
 namespace mm
 {
 	PhysicsWorld::PhysicsWorld() 
@@ -42,14 +44,18 @@ namespace mm
 
 	void PhysicsWorld::Reset()
 	{
-		for (auto& model : m_models)
-			model->LoadTransforms(ModelPhysicsData::BT_ALL, true);
+		/* Apply FK once */
+		/* Load animated positions */
+		for (auto& physicsData : m_models) {
+			physicsData->GetModel().GetArmature().UpdatePose();
+			physicsData->LoadTransforms(ModelPhysicsData::BODY_TYPE_ALL);
+		}
 	}
 
 	void PhysicsWorld::LoadTransforms()
 	{
 		for (auto& model : m_models)
-			model->LoadTransforms(ModelPhysicsData::BT_KINEMATIC, false);
+			model->LoadTransforms(ModelPhysicsData::BODY_TYPE_KINEMATIC);
 	}
 
 	ModelPhysicsData* PhysicsWorld::LoadModel(Model& model)

@@ -19,10 +19,11 @@ namespace mm
 		void Reset();
 		void LoadTransforms();
 		void SetEnable(bool value) { 
-			if (value == false) 
+			if (value == true) 
 				Reset();
 			m_enabled = value;
 		}
+		bool IsEnabled() { return m_enabled; }
 
 		ModelPhysicsData* LoadModel(Model& model);
 
