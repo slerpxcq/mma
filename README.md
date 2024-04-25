@@ -35,6 +35,9 @@ Spherical blending
 
 MMD SDEF:
 - https://github.com/powroupi/blender_mmd_tools/issues/162
+- https://jbbs.shitaraba.net/bbs/read.cgi/music/23040/1285499541/472-474
+- https://mikumikuonline.blogspot.com/2012/05/sdefhlsl.html
+- https://gist.github.com/nagadomi/aa39745ae6716b50c2a60288b093d14b
 
 Morph (SSBO):
 - https://techblog.sega.jp/entry/2016/10/27/140454

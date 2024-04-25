@@ -16,6 +16,8 @@ namespace mm
 		glVertexArrayAttribIFormat(vaoid, 3, 4, GL_INT, offsetof(Layout, bones));
 		glVertexArrayAttribFormat(vaoid, 4, 3, GL_FLOAT, GL_FALSE, offsetof(Layout, weights));
 		glVertexArrayAttribFormat(vaoid, 5, 3, GL_FLOAT, GL_FALSE, offsetof(Layout, sdef_c));
+		glVertexArrayAttribFormat(vaoid, 6, 3, GL_FLOAT, GL_FALSE, offsetof(Layout, sdef_r0));
+		glVertexArrayAttribFormat(vaoid, 7, 3, GL_FLOAT, GL_FALSE, offsetof(Layout, sdef_r1));
 
 		glEnableVertexArrayAttrib(vaoid, 0);
 		glEnableVertexArrayAttrib(vaoid, 1);
@@ -23,6 +25,8 @@ namespace mm
 		glEnableVertexArrayAttrib(vaoid, 3);
 		glEnableVertexArrayAttrib(vaoid, 4);
 		glEnableVertexArrayAttrib(vaoid, 5);
+		glEnableVertexArrayAttrib(vaoid, 6);
+		glEnableVertexArrayAttrib(vaoid, 7);
 
 		glVertexArrayAttribBinding(vaoid, 0, 0);
 		glVertexArrayAttribBinding(vaoid, 1, 0);
@@ -30,5 +34,7 @@ namespace mm
 		glVertexArrayAttribBinding(vaoid, 3, 0);
 		glVertexArrayAttribBinding(vaoid, 4, 0);
 		glVertexArrayAttribBinding(vaoid, 5, 0);
+		glVertexArrayAttribBinding(vaoid, 6, 0);
+		glVertexArrayAttribBinding(vaoid, 7, 0);
 	}
 }

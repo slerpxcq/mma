@@ -53,7 +53,11 @@ namespace mm
 		std::vector<Bone> m_bones;
 		std::vector<Transform> m_pose;
 
-		// [q t]
+		/* skinning  local */
+		/* [qx tx qx tx] */
+		/* [qy ty qy ty] */
+		/* [qz tz qz tz] */
+		/* [qw 1  qw 1 ] */
 		std::vector<glm::mat2x4> m_skinningData;
 	}; 
 }

@@ -6,6 +6,8 @@ layout (location = 2) in vec2 a_texCoord;
 layout (location = 3) in ivec4 a_bones;
 layout (location = 4) in vec3 a_weights;
 layout (location = 5) in vec3 a_sdef_c;
+layout (location = 6) in vec3 a_sdef_r0;
+layout (location = 7) in vec3 a_sdef_r1;
 
 out VS_OUT {
 	vec2 texCoord;
@@ -59,17 +61,14 @@ mat3 QuatToMat(in vec4 q)
 	return mat;
 }
 
-mat4 QVPairToMatrix(in mat2x4 pair)
+mat4 QVPairToMatrix(vec4 q, vec3 t)
 {
-	vec4 q = pair[0];
-	vec4 t = pair[1];
-
 	mat3 Q = QuatToMat(q);
 	mat4 mat = mat4(1);
 	mat[0] = vec4(Q[0], 0);
 	mat[1] = vec4(Q[1], 0);
 	mat[2] = vec4(Q[2], 0);
-	mat[3] = t;
+	mat[3] = vec4(t, 1);
 
 	return mat;
 }
@@ -82,23 +81,24 @@ void Skin(in vec3 inPos, in vec3 inNormal, out vec3 outPos, out vec3 outNormal)
 	for (int i = 0; i < 4; i++) {
 		if (a_bones[i] < 0) 
 			break;
-		matSum += weights[i] * QVPairToMatrix(u_skinning.data[a_bones[i]]);
+		vec4 q = u_skinning.data[a_bones[i]][0];
+		vec3 t = vec3(u_skinning.data[a_bones[i]][1]);
+		matSum += weights[i] * QVPairToMatrix(q, t);
 	}
 
 	if (!IsSDEF(a_bones)) { 
 		outPos = vec3(matSum * vec4(inPos, 1));
-		outNormal = inverse(transpose(mat3(matSum))) * inNormal;
+		outNormal = mat3(matSum) * inNormal;
 	} else { 
 		vec4 q0 = u_skinning.data[a_bones[0]][0];
 		vec4 q1 = u_skinning.data[a_bones[1]][0];
 		vec4 q = normalize(mix(q0, q1, weights[0]));
-		//q = vec4(-q.x, -q.y, q.z, q.w);
 		mat3 Q = QuatToMat(q);
 		vec3 v0 = Q * (inPos - a_sdef_c);
 		vec3 v1 = vec3(matSum*vec4(a_sdef_c, 1));
 
 		outPos = v0 + v1;
-		outNormal = inverse(transpose(Q)) * inNormal;
+		outNormal = Q * inNormal;
 	}
 }
 

@@ -14,6 +14,8 @@ namespace mm
 			glm::ivec4 bones;
 			glm::vec3 weights;
 			glm::vec3 sdef_c;
+			glm::vec3 sdef_r0;
+			glm::vec3 sdef_r1;
 		};
 
 	public:

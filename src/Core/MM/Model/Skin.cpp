@@ -172,11 +172,14 @@ namespace mm
 			case PMXFile::VERTEX_SDEF:
 				v.bones[0] = pv.blending.sdef.boneIndices[0];
 				v.bones[1] = pv.blending.sdef.boneIndices[1];
-				// SDEF indication
+
+				/* SDEF indication */
 				v.bones[3] = 0;
 				v.weights[0] = pv.blending.sdef.weight;
 				v.weights[1] = 1.f - v.weights[0];
 				v.sdef_c = glm::make_vec3(pv.blending.sdef.c);
+				v.sdef_r0 = glm::make_vec3(pv.blending.sdef.r0);
+				v.sdef_r1 = glm::make_vec3(pv.blending.sdef.r1);
 				break;
 			}
 
