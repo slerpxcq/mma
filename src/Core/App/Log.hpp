@@ -21,7 +21,6 @@ namespace mm
 	};
 }
 
-// TODO: Debug levels
 #ifdef MM_DEBUG
 #define MM_DBG(...) Logger::Get()->debug(__VA_ARGS__)
 #define MM_INFO(...) Logger::Get()->info(__VA_ARGS__)

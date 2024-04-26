@@ -102,7 +102,7 @@ namespace mm
 		void DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);
 		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
 		template<typename T>
-		void DrawRow(T& row, bool expandable, float textOffset);
+		void DrawRowHeader(T& row, bool expandable, float textOffset);
 		template<typename T>
 		void DrawDope(const Item& item, const std::vector<T>& keyframeList);
 

@@ -217,6 +217,7 @@ namespace mm
 			mesh.sphIndex = pm.sphereIndex;
 			mesh.toonIndex = pm.toonIndex;
 			mesh.effect = &m_defaultEffect;
+			mesh.name = pm.nameJP;
 			//mesh.shader = m_defaultShader;
 
 			m_meshes.push_back(std::move(mesh));

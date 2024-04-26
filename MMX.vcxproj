@@ -113,6 +113,8 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Editor\Properties.hpp" />
+    <ClInclude Include="src\Editor\SceneHierarchy.hpp" />
     <ClInclude Include="src\Core\App\Application.hpp" />
     <ClInclude Include="src\Core\App\Core.hpp" />
     <ClInclude Include="src\Core\App\Event.hpp" />
@@ -169,6 +171,8 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Editor\Properties.cpp" />
+    <ClCompile Include="src\Editor\SceneHierarchy.cpp" />
     <ClCompile Include="src\Core\App\Application.cpp" />
     <ClCompile Include="src\Core\App\EventBus.cpp" />
     <ClCompile Include="src\Core\App\Input.cpp" />

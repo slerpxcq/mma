@@ -9,6 +9,7 @@
 #include "Viewport.hpp"
 #include "PoseEditor.hpp"
 #include "Sequencer.hpp"
+#include "SceneHierarchy.hpp"
 
 #include "CommandBuffer.hpp"
 
@@ -44,6 +45,7 @@ namespace mm
 		std::unique_ptr<Viewport> m_viewport;
 		std::unique_ptr<PoseEditor> m_poseEditor;
 		std::unique_ptr<Sequencer> m_sequencer;
+		std::unique_ptr<SceneHierarchy> m_sceneHierarchy;
 
 		std::unique_ptr<dexode::EventBus::Listener> m_listener;
 	};

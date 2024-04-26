@@ -9,7 +9,7 @@ namespace mm
 	class GLRenderer;
 	class World
 	{
-		using ModelContainer = std::map<std::string, std::unique_ptr<Model>>;
+		using ModelContainer = std::vector<std::unique_ptr<Model>>;
 	public:
 		World();
 		void OnUpdate(float deltaTime);

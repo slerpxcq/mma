@@ -26,6 +26,9 @@ namespace mm
         m_viewport = std::make_unique<Viewport>(*this);
         m_poseEditor = std::make_unique<PoseEditor>(*this);
         m_sequencer = std::make_unique<Sequencer>(*this);
+        m_sceneHierarchy = std::make_unique<SceneHierarchy>(*this);
+
+        m_sceneHierarchy->SetWorld(m_world.get());
     }
 
     void EditorLayer::OnDetach()
@@ -113,5 +116,6 @@ namespace mm
         m_viewport->OnUIRender();
         m_poseEditor->OnUIRender();
         m_sequencer->OnUIRender();
+        m_sceneHierarchy->OnUIRender();
     }
 }

@@ -67,7 +67,7 @@ namespace mm
 	}
 
 	template <typename T>
-	void Sequencer::DrawRow(T& row, bool expandable, float textOffset)
+	void Sequencer::DrawRowHeader(T& row, bool expandable, float textOffset)
 	{
 		if (row.rowIndex < 1)
 			return;
@@ -76,12 +76,6 @@ namespace mm
 		m_drawList->AddText(m_canvasOrigin + ImVec2(LEGEND_TEXT_OFFSET + textOffset, y), RULER_MARK_COLOR, row.name.c_str());
 		if (expandable) 
 			DrawExpandButton(row.rowIndex, textOffset - 5, row.expanded);
-		// Strip
-		uint32_t stripColor = (row.rowIndex & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
-		m_drawList->AddRectFilled(
-			m_canvasOrigin + ImVec2(LEGEND_LENGTH, y),
-			m_canvasOrigin + ImVec2(m_canvasSize.x, y + ROW_HEIGHT),
-			stripColor);
 	}
 
 	void Sequencer::DrawGroupDope(const Group& group)
@@ -189,59 +183,31 @@ namespace mm
 		}
 		m_minFrame = std::clamp(m_minFrame, 0, 10000);
 
+		/* Init states */
 		m_hovered = ImGui::IsWindowHovered();
 		m_drawList = ImGui::GetWindowDrawList();
-
-		// Init states
 		m_canvasMin = ImGui::GetCursorPos();
 		m_canvasMax = ImGui::GetWindowContentRegionMax();
 		m_canvasOrigin = ImGui::GetWindowPos() + m_canvasMin;
 		m_canvasSize = m_canvasMax - m_canvasMin;
-		m_dopeSheetRowCount = 0;
 		m_buttonIndex = 0;
 
 		ImGui::BeginGroup();
 
-		// Background
+		/* Background */
 		m_drawList->AddRectFilled(m_canvasOrigin, m_canvasOrigin + m_canvasSize, BACKGROUND_COLOR);
 
-		// Get row index of each entry
-		int32_t rowIndex = m_rowStart;
-		for (auto& group : m_groups) {
-			group.rowIndex = rowIndex++;
-			if (group.expanded) {
-				for (auto& item : group.items) {
-					item.rowIndex = rowIndex++;
-					if (item.expanded) {
-						rowIndex += CURVE_EDITOR_ROW_COUNT;
-					}
-				}
-			}
-		}
-		m_dopeSheetRowCount = rowIndex - 1;
-
-		// Draw items
-		for (auto& group : m_groups) {
-			if (group.expanded) {
-				for (auto& item : group.items) {
-					switch (item.type) {
-					case PMXFile::CLUSTER_BONE:
-						DrawRow(item, true, 2 * INDENT_BASE);
-						break;
-					case PMXFile::CLUSTER_MORPH:
-						DrawRow(item, false, 2 * INDENT_BASE);
-						break;
-					}
-				}
-			}
+		/* Strip */
+		for (uint32_t row = 1; row < m_canvasSize.y / ROW_HEIGHT - 1; ++row) {
+			uint32_t stripColor = (row & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
+			float y = row * ROW_HEIGHT;
+			m_drawList->AddRectFilled(
+				m_canvasOrigin + ImVec2(LEGEND_LENGTH, y),
+				m_canvasOrigin + ImVec2(m_canvasSize.x, y + ROW_HEIGHT),
+				stripColor);
 		}
 
-		// Draw groups
-		for (auto& group : m_groups) {
-			DrawRow(group, true, INDENT_BASE);
-		}
-
-		// Ruler
+		/* Ruler */
 		float rulerBeginX = LEGEND_LENGTH + ROW_HEIGHT / 2;
 		float rulerEndX = m_canvasSize.x;
 		uint32_t column = m_minFrame;
@@ -249,7 +215,7 @@ namespace mm
 		m_drawList->AddRectFilled(m_canvasOrigin, ImVec2(m_canvasOrigin.x + m_canvasSize.x, m_canvasOrigin.y + ROW_HEIGHT), HEADER_COLOR);
 		for (uint32_t rulerX = rulerBeginX; rulerX <= rulerEndX; rulerX += COLUMN_WIDTH, ++column, ++columnCount) {
 			float lineBeginY = ROW_HEIGHT;
-			float lineEndY = lineBeginY + ROW_HEIGHT * m_dopeSheetRowCount;
+			float lineEndY = m_canvasSize.y;
 			/* Button for selecting frame */
 			ImVec2 buttonPos = ImVec2(rulerX - COLUMN_WIDTH / 2, 0);
 			ImVec2 buttonSize = ImVec2(COLUMN_WIDTH, ROW_HEIGHT);
@@ -260,7 +226,7 @@ namespace mm
 				UpdateAnim();
 			}
 
-			// Draw current frame mark
+			/* Draw current frame mark (red vertical line) */
 			if (column == m_selectedColumn) {
 				m_drawList->AddLine(
 					m_canvasOrigin + ImVec2(rulerX, lineBeginY),
@@ -268,7 +234,7 @@ namespace mm
 					IM_COL32(255, 0, 0, 64), ROW_HEIGHT / 2);
 			}
 
-			// Long mark
+			/* Rule long mark */
 			if (column % RULER_LONG_MARK_MULTIPLIER == 0) {
 				m_drawList->AddLine(
 					m_canvasOrigin + ImVec2(rulerX, ROW_HEIGHT),
@@ -282,7 +248,7 @@ namespace mm
 					m_canvasOrigin + ImVec2(rulerX, lineEndY),
 					VERTICAL_MARK_COLOR, 2.0f);
 			}
-			// Short mark
+			/* Ruler short mark */
 			else {
 				m_drawList->AddLine(
 					m_canvasOrigin + ImVec2(rulerX, ROW_HEIGHT),
@@ -296,31 +262,36 @@ namespace mm
 		}
 		m_maxFrame = m_minFrame + columnCount;
 
-		// Dope and curve editor
-		if (m_model != nullptr) {
-			Animation* anim = m_model->GetAnim();
-			if (anim != nullptr) {
-				for (auto& group : m_groups) {
-					if (group.expanded) {
-						for (auto& item : group.items) {
-							switch (item.type) {
-							case PMXFile::CLUSTER_BONE:
-								DrawDope(item, anim->GetBoneKeyframeMatrix()[item.index]);
-								break;
-							case PMXFile::CLUSTER_MORPH:
-								DrawDope(item, anim->GetMorphKeyframeMatrix()[item.index]);
-								break;
-							default:
-								break;
-							}
-							if (item.expanded) {
-								CurveEditor(item);
-							}
-						}
+		int32_t rowIndex = m_rowStart;
+		for (auto& group : m_groups) {
+			DrawRowHeader(group, true, INDENT_BASE);
+			group.rowIndex = rowIndex++;
+			if (group.expanded) {
+				for (auto& item : group.items) {
+					item.rowIndex = rowIndex++;
+					if (item.expanded) {
+						rowIndex += CURVE_EDITOR_ROW_COUNT;
+					}
+					Animation* anim = m_model->GetAnim();
+					switch (item.type) {
+					case PMXFile::CLUSTER_BONE:
+						DrawRowHeader(item, true, 2 * INDENT_BASE);
+						if (anim != nullptr)
+							DrawDope(item, anim->GetBoneKeyframeMatrix()[item.index]);
+						break;
+					case PMXFile::CLUSTER_MORPH:
+						DrawRowHeader(item, false, 2 * INDENT_BASE);
+						if (anim != nullptr)
+							DrawDope(item, anim->GetMorphKeyframeMatrix()[item.index]);
+						break;
+					}
+					if (item.expanded) {
+						CurveEditor(item);
 					}
 				}
 			}
 		}
+		m_dopeSheetRowCount = rowIndex - 1;
 
 		//if (Input::MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 		//	m_rectMax = ImGui::GetMousePos();

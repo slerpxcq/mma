@@ -12,12 +12,12 @@ namespace mm
 
 	void World::OnUpdate(float deltaTime)
 	{
-		for (auto&& [_, model] : m_models) 
+		for (auto& model : m_models) 
 			model->Update(deltaTime);
 
 		m_physicsWorld.Update(deltaTime);
 
-		for (auto&& [_, model] : m_models) {
+		for (auto& model : m_models) {
 			model->SyncWithPhysics();
 			model->CalcSkinning();
 		}
@@ -29,7 +29,7 @@ namespace mm
 		try {
 			auto model = std::make_unique<Model>(*this, path);
 			ret = model.get();
-			m_models.insert({ model->GetPMXFile().GetInfo().nameJP, std::move(model) });
+			m_models.push_back(std::move(model));
 		}
 		catch (const PMXParseError& e) {
 			MM_FATAL("{0}: invalid file", path.u8string().c_str());
@@ -42,7 +42,7 @@ namespace mm
 
 	void World::Render(GLRenderer& renderer) 
 	{
-		for (auto&& [_, model] : m_models) {
+		for (auto& model : m_models) {
 			model->Render(renderer);
 		}
 	}
