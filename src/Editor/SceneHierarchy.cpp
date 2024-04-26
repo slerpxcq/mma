@@ -3,6 +3,11 @@
 
 #include "Core/MM/World.hpp"
 
+#include "EditorEvent.hpp"
+#include "Core/App/EventBus.hpp"
+
+#include "Properties.hpp"
+
 namespace mm
 {
 	void SceneHierarchy::OnUIRender()
@@ -11,6 +16,7 @@ namespace mm
 		ImGui::Begin("Scene heirarchy");
 
 		uint32_t leafFlag = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		uint32_t nonLeafFlag = ImGuiTreeNodeFlags_OpenOnArrow;
 
 		if (ImGui::TreeNodeEx("World")) {
 			if (ImGui::TreeNodeEx("Camera")) {
@@ -25,24 +31,55 @@ namespace mm
 					const std::string& name = pmx.GetName();
 					if (ImGui::TreeNodeEx(name.c_str())) {
 						if (ImGui::TreeNodeEx("Skin")) {
-							for (auto& mesh : model->GetSkin().GetMeshes()) {
+							auto& meshes = model->GetSkin().GetMeshes();
+							for (uint32_t i=0; i < meshes.size(); ++i) {
+								auto& mesh = meshes[i];
 								ImGui::TreeNodeEx(mesh.name.c_str(), leafFlag);
 								if (ImGui::IsItemClicked()) {
-									MM_INFO("Item clicked");
+									EditorEvent::ItemSelected e = {};
+									e.index = i;
+									e.item = (void*)&mesh;
+									e.type = Properties::TYPE_MESH;
+									EventBus::Instance()->postpone(e);
 								}
 							}
 							ImGui::TreePop();
 						}
+
 						if (ImGui::TreeNodeEx("Armature")) {
-							auto& bones = model->GetArmature().GetBones();
+							auto& armature = model->GetArmature();
+							auto& bones = armature.GetBones();
 							for (uint32_t i = 0; i < bones.size(); ++i) {
 								ImGui::TreeNodeEx(pmx.GetBoneName(i).c_str(), leafFlag);
 								if (ImGui::IsItemClicked()) {
-									MM_INFO("Item clicked");
+									EditorEvent::ItemSelected e = {};
+									e.index = i;
+									e.item = (void*)&armature.GetPose()[i];
+									e.type = Properties::TYPE_BONE;
+									EventBus::Instance()->postpone(e);
 								}
 							}
 							ImGui::TreePop();
 						}
+
+						ImGui::TreeNodeEx("Morph", leafFlag);
+						if (ImGui::IsItemClicked()) {
+							EditorEvent::ItemSelected e = {};
+							/* Need pass model because extra information needed */
+							/* from PMX file */
+							e.item = model.get();
+							e.type = Properties::TYPE_MORPH;
+							EventBus::Instance()->postpone(e);
+						}
+
+						ImGui::TreeNodeEx("Animation", leafFlag);
+						if (ImGui::IsItemClicked()) {
+							EditorEvent::ItemSelected e = {};
+							e.item = &model->GetAnim();
+							e.type = Properties::TYPE_ANIMATION;
+							EventBus::Instance()->postpone(e);
+						}
+
 						ImGui::TreePop();
 					}
 				}

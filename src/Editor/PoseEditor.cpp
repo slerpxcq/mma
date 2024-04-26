@@ -99,8 +99,8 @@ namespace mm
 			MM_INFO("End edit; undo={0}, redo={1}", glm::to_string(undoValue.rotation), glm::to_string(valuePtr->rotation));
 
 			/* Add or modify the keyframe, same as for morph */
-			Animation* anim = m_model->GetAnim();
-			auto& boneKeyframes = anim->GetBoneKeyframeMatrix()[m_context.selected];
+			Animation& anim = m_model->GetAnim();
+			auto& boneKeyframes = anim.GetBoneKeyframeMatrix()[m_context.selected];
 			uint32_t currFrame = m_editor.m_sequencer->GetFrameCounter().GetFrame();
 			auto it = std::find_if(boneKeyframes.begin(), boneKeyframes.end(),
 				[currFrame](const Animation::Keyframe& keyframe) {
@@ -108,11 +108,11 @@ namespace mm
 				});
 
 			if (it == boneKeyframes.end()) {
-				anim->InsertBoneKeyframe(
+				anim.InsertBoneKeyframe(
 					m_context.selected, 
 					Animation::BoneKeyframe(currFrame, *valuePtr, Bezier()));
 				EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-					new Command::KeyframeInserted(*anim, Command::KeyframeInserted::TYPE_BONE,
+					new Command::KeyframeInserted(anim, Command::KeyframeInserted::TYPE_BONE,
 						m_context.selected, currFrame) });
 			}
 			else {
@@ -345,58 +345,6 @@ namespace mm
 		}
 	}
 
-	void PoseEditor::MorphSliders(uint32_t panel)
-	{
-		auto& morph = m_model->GetMorph();
-		auto& pmxMorphs = m_model->GetPMXFile().GetMorphs();
-		uint32_t morphCount = morph.GetWeights().size();
-
-		/* if last frame not active and this frame active, store undo value */
-		/* if last frame active and this frame not active, store redo value and issue command */
-
-		for (uint32_t morphIndex = 0; morphIndex < morphCount; ++morphIndex) {
-			float* valuePtr = &morph.GetWeights()[morphIndex];
-			if (pmxMorphs[morphIndex].panel == panel) {
-				const std::string& name = m_model->GetPMXFile().GetMorphName(morphIndex);
-				float valueBeforeEdit = *valuePtr;
-				ImGui::SliderFloat(name.c_str(), valuePtr, 0.0f, 1.0f);
-
-				static float undoValue;
-				if (ImGui::IsItemActivated()) {
-					undoValue = valueBeforeEdit;
-					MM_INFO("Start edit; undo={0}", undoValue);
-				}
-				if (ImGui::IsItemDeactivatedAfterEdit()) {
-					MM_INFO("End edit: undo={0}, redo={1}", undoValue, *valuePtr);
-					/* If there is no keyframe at current frame, create one */
-					EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-						new Command::MorphEdited(valuePtr, *valuePtr, undoValue) });
-
-					/* If there is no keyframe at current frame, create one */
-					/* Else directly change the value of that keyframe */
-					Animation* anim = m_model->GetAnim();
-					auto& morphKeyframes = anim->GetMorphKeyframeMatrix()[morphIndex];
-					uint32_t currFrame = m_editor.m_sequencer->GetFrameCounter().GetFrame();
-					auto it = std::find_if(morphKeyframes.begin(), morphKeyframes.end(),
-						[currFrame](const Animation::Keyframe& keyframe) {
-							return keyframe.frame == currFrame;
-						});
-
-					if (it == morphKeyframes.end()) {
-						anim->InsertMorphKeyframe(
-							morphIndex,
-							Animation::MorphKeyframe(currFrame, *valuePtr));
-						EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-							new Command::KeyframeInserted(
-								*anim, Command::KeyframeInserted::TYPE_MORPH, morphIndex, currFrame) });
-					}
-					else {
-						it->weight = *valuePtr;
-					}
-				}
-			}
-		}
-	}
 
 	void PoseEditor::OnUIRender()
 	{
@@ -409,27 +357,6 @@ namespace mm
 			m_model->GetPMXFile().GetInfo().nameJP.c_str() : "--");
 		ImGui::Text("Bone: %s", m_model != nullptr && m_context.selected >= 0 ?
 			m_model->GetPMXFile().GetBoneName(m_context.selected).c_str() : "--");
-		ImGui::End();
-
-		ImGui::Begin("Morph edit");
-		if (m_model != nullptr) {
-			if (ImGui::TreeNode("Eye")) {
-				MorphSliders(PMXFile::PANEL_EYE);
-				ImGui::TreePop();
-			}
-			if (ImGui::TreeNode("Eyebrow")) {
-				MorphSliders(PMXFile::PANEL_EYEBROW);
-				ImGui::TreePop();
-			}
-			if (ImGui::TreeNode("Lip")) {
-				MorphSliders(PMXFile::PANEL_MOUTH);
-				ImGui::TreePop();
-			}
-			if (ImGui::TreeNode("Other")) {
-				MorphSliders(PMXFile::PANEL_OTHER);
-				ImGui::TreePop();
-			}
-		}
 		ImGui::End();
 
 		ImGui::Begin("Viewport");

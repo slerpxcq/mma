@@ -22,5 +22,11 @@ namespace mm
 		struct CommandIssued {
 			ICommand* command;
 		};
+
+		struct ItemSelected {
+			uint8_t type;
+			uint32_t index;
+			void* item;
+		};
 	}
 }

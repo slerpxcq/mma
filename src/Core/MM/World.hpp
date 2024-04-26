@@ -20,6 +20,7 @@ namespace mm
 
 		PhysicsWorld& GetPhysicsWorld() { return m_physicsWorld; }
 		const ModelContainer& GetModels() const { return m_models; }
+		ModelContainer& GetModels() { return m_models; }
 
 	private:
 		Camera m_mainCamera;

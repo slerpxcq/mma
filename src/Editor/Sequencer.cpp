@@ -120,7 +120,7 @@ namespace mm
 		float midY = editorOrigin.y + editorHeight * 0.5f;
 		// NOTE: only bone keyframes are expandable.
 		MM_ASSERT(item.type == PMXFile::CLUSTER_BONE);
-		auto& keyframeList = m_model->GetAnim()->GetBoneKeyframeMatrix()[item.index];
+		auto& keyframeList = m_model->GetAnim().GetBoneKeyframeMatrix()[item.index];
 		auto it = std::lower_bound(
 			keyframeList.begin(),
 			keyframeList.end(),
@@ -272,17 +272,15 @@ namespace mm
 					if (item.expanded) {
 						rowIndex += CURVE_EDITOR_ROW_COUNT;
 					}
-					Animation* anim = m_model->GetAnim();
+					Animation& anim = m_model->GetAnim();
 					switch (item.type) {
 					case PMXFile::CLUSTER_BONE:
 						DrawRowHeader(item, true, 2 * INDENT_BASE);
-						if (anim != nullptr)
-							DrawDope(item, anim->GetBoneKeyframeMatrix()[item.index]);
+							DrawDope(item, anim.GetBoneKeyframeMatrix()[item.index]);
 						break;
 					case PMXFile::CLUSTER_MORPH:
 						DrawRowHeader(item, false, 2 * INDENT_BASE);
-						if (anim != nullptr)
-							DrawDope(item, anim->GetMorphKeyframeMatrix()[item.index]);
+						DrawDope(item, anim.GetMorphKeyframeMatrix()[item.index]);
 						break;
 					}
 					if (item.expanded) {
@@ -303,8 +301,7 @@ namespace mm
 		ImGui::End();
 
 		ImGui::Begin("Playback");
-		std::string animName = m_model != nullptr && m_model->GetAnim() != nullptr ?
-			m_model->GetAnim()->GetName() : "--";
+		std::string animName = m_model != nullptr ? m_model->GetAnim().GetName() : "--";
 		ImGui::Text("Animation: %s", animName.c_str());
 
 		if (ImGui::Button("Play")) {
@@ -375,8 +372,8 @@ namespace mm
 
 	void Sequencer::UpdateAnim()
 	{
-		if (m_model != nullptr && m_model->GetAnim() != nullptr) {
-			m_model->GetAnim()->Update(m_frameCounter.GetFrame(), m_frameCounter.GetSubFrame());
+		if (m_model != nullptr) {
+			m_model->GetAnim().Update(m_frameCounter.GetFrame(), m_frameCounter.GetSubFrame());
 		}
 	}
 }

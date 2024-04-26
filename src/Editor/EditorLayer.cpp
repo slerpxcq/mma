@@ -27,6 +27,7 @@ namespace mm
         m_poseEditor = std::make_unique<PoseEditor>(*this);
         m_sequencer = std::make_unique<Sequencer>(*this);
         m_sceneHierarchy = std::make_unique<SceneHierarchy>(*this);
+        m_properties = std::make_unique<Properties>(*this);
 
         m_sceneHierarchy->SetWorld(m_world.get());
     }
@@ -79,7 +80,7 @@ namespace mm
 			nfdchar_t* path = nullptr;
 			nfdresult_t result = NFD_SaveDialog("vmd", nullptr, &path);
 			if (result == NFD_OKAY) {
-				std::unique_ptr<VMDFile> vmd = std::make_unique<VMDFile>(*m_model->GetAnim());
+				std::unique_ptr<VMDFile> vmd = std::make_unique<VMDFile>(m_model->GetAnim());
 				vmd->Serialize(path);
 				MM_INFO("{0}: Animation exported successfully", path);
 				std::free(path);
@@ -117,5 +118,6 @@ namespace mm
         m_poseEditor->OnUIRender();
         m_sequencer->OnUIRender();
         m_sceneHierarchy->OnUIRender();
+        m_properties->OnUIRender();
     }
 }

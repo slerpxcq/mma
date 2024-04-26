@@ -10,6 +10,7 @@
 #include "PoseEditor.hpp"
 #include "Sequencer.hpp"
 #include "SceneHierarchy.hpp"
+#include "Properties.hpp"
 
 #include "CommandBuffer.hpp"
 
@@ -22,6 +23,9 @@ namespace mm
 		friend class PoseEditor;
 		friend class Viewport;
 		friend class Sequencer;
+		friend class SceneHierarchy;
+		friend class Properties;
+
 	public:
 		void OnAttach() override ;
 		void OnDetach() override ;
@@ -46,6 +50,7 @@ namespace mm
 		std::unique_ptr<PoseEditor> m_poseEditor;
 		std::unique_ptr<Sequencer> m_sequencer;
 		std::unique_ptr<SceneHierarchy> m_sceneHierarchy;
+		std::unique_ptr<Properties> m_properties;
 
 		std::unique_ptr<dexode::EventBus::Listener> m_listener;
 	};
