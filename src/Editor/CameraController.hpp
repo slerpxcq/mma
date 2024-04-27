@@ -20,8 +20,6 @@ namespace mm
 		void Update();
 		Camera& GetCamera() { return m_camera; }
 
-		void OnUIRender();
-
 	private:
 		void OnMouseButtonPressed(const Event::MouseButtonPressed& e);
 		void OnMouseScrolled(const Event::MouseScrolled& e);

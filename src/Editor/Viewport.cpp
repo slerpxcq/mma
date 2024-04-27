@@ -73,7 +73,5 @@ namespace mm
 
         ImGui::End();
         ImGui::PopStyleVar();
-
-        m_cameraController.OnUIRender();
 	}
 }

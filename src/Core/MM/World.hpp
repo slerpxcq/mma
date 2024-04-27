@@ -12,6 +12,7 @@ namespace mm
 		using ModelContainer = std::vector<std::unique_ptr<Model>>;
 	public:
 		World();
+		~World();
 		void OnUpdate(float deltaTime);
 		Model* LoadModel(const std::filesystem::path& path);
 		void Render(GLRenderer&);

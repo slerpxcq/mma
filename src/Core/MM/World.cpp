@@ -10,6 +10,10 @@ namespace mm
 	{
 	}
 
+	World::~World()
+	{
+	}
+
 	void World::OnUpdate(float deltaTime)
 	{
 		for (auto& model : m_models) 

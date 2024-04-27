@@ -92,7 +92,9 @@ void Skin(in vec3 inPos, in vec3 inNormal, out vec3 outPos, out vec3 outNormal)
 	} else { 
 		vec4 q0 = u_skinning.data[a_bones[0]][0];
 		vec4 q1 = u_skinning.data[a_bones[1]][0];
-		vec4 q = normalize(mix(q0, q1, weights[0]));
+		if (dot(q0, q1) < 0) 
+			q1 = -q1;
+		vec4 q = normalize(mix(q1, q0, weights[0]));
 		mat3 Q = QuatToMat(q);
 		vec3 v0 = Q * (inPos - a_sdef_c);
 		vec3 v1 = vec3(matSum*vec4(a_sdef_c, 1));

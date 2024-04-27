@@ -3,9 +3,13 @@
 
 #include "Core/MM/Model/Skin.hpp"
 #include "Core/MM/Model/Armature.hpp"
+#include "Core/MM/Physics/PhysicsWorld.hpp"
+#include "Core/MM/Files/VMDFile.hpp"
 
 #include "EditorLayer.hpp"
 #include "Sequencer.hpp"
+
+#include <nfd.h>
 
 namespace mm
 {
@@ -16,6 +20,29 @@ namespace mm
 	{
 		m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(Properties::OnItemSelected));
 	}
+
+    void Properties::LoadAnimation(Model& model)
+    {
+		nfdchar_t* path = nullptr;
+		nfdresult_t result = NFD_OpenDialog("vmd", nullptr, &path);
+		if (result == NFD_OKAY) {
+			Animation* animation = model.LoadAnimation(path);
+			EventBus::Instance()->postpone<EditorEvent::MotionLoaded>({ animation });
+			std::free(path);
+		}
+    }
+
+    void Properties::ExportAnimation(Model& model)
+    {
+		nfdchar_t* path = nullptr;
+		nfdresult_t result = NFD_SaveDialog("vmd", nullptr, &path);
+		if (result == NFD_OKAY) {
+			std::unique_ptr<VMDFile> vmd = std::make_unique<VMDFile>(model.GetAnim());
+			vmd->Serialize(path);
+			MM_INFO("{0}: Animation exported successfully", path);
+			std::free(path);
+		}
+    }
 
 	void Properties::MorphSliders(Model& model, uint32_t panel)
 	{
@@ -70,14 +97,24 @@ namespace mm
 		}
 	}
 
+    void Properties::LoadModel(World& world)
+    {
+		nfdchar_t* path = nullptr;
+		nfdresult_t result = NFD_OpenDialog("pmx", nullptr, &path);
+		if (result == NFD_OKAY) {
+			Model* model = world.LoadModel(path);
+			EventBus::Instance()->postpone<EditorEvent::ModelLoaded>({ model });
+		}
+    }
+
 	void Properties::OnUIRender()
 	{
 		ImGui::Begin("Properties");
-		if (m_item != nullptr) {
+		if (m_item.has_value()) {
 			switch (m_type) {
 			case TYPE_MESH:
 				{
-					Skin::Mesh& mesh = *(Skin::Mesh*)m_item;
+					Skin::Mesh& mesh = *std::any_cast<Skin::Mesh*>(m_item);
 					ImGui::InputFloat3("Diffuse", glm::value_ptr(mesh.material.diffuse));
 					ImGui::InputFloat4("Specular", glm::value_ptr(mesh.material.specular));
 					ImGui::InputFloat3("Ambient", glm::value_ptr(mesh.material.ambient));
@@ -88,7 +125,7 @@ namespace mm
 			case TYPE_BONE:
 				{
 					//Armature::Bone& bone = *(Armature::Bone*)m_item;
-					Transform& transform = *(Transform*)m_item;
+					Transform& transform = *std::any_cast<Transform*>(m_item);
 					static glm::vec3 euler;
 					euler = glm::eulerAngles(transform.rotation) * glm::degrees(1.f);
 					ImGui::InputFloat3("Rotation", glm::value_ptr(euler));
@@ -97,7 +134,7 @@ namespace mm
 				break;
 			case TYPE_MORPH:
 				{
-					Model& model = *(Model*)m_item;
+					Model& model = *std::any_cast<Model*>(m_item);
 					if (ImGui::TreeNode("Eye")) {
 						MorphSliders(model, PMXFile::PANEL_EYE);
 						ImGui::TreePop();
@@ -118,11 +155,49 @@ namespace mm
 				break;
 			case TYPE_ANIMATION:
 				{
-					Animation& anim = *(Animation*)m_item;
-					ImGui::Text("Animation name: %s", anim.GetName().c_str());
-					if (ImGui::Button("Load")) {
+					Model& model = *std::any_cast<Model*>(m_item);
+					Animation& anim = model.GetAnim();
 
+					ImGui::Text("name: %s", anim.GetName().c_str());
+					if (ImGui::Button("Load")) {
+						LoadAnimation(model);
 					}
+					if (ImGui::Button("Export")) {
+						ExportAnimation(model);
+					}
+				}
+				break;
+			case TYPE_PHYSICS_WORLD:
+				{
+					PhysicsWorld& physicsWorld = *std::any_cast<PhysicsWorld*>(m_item);
+					static bool enable;
+					static float gravity;
+					if (ImGui::Checkbox("Enable", &enable)) {
+						physicsWorld.SetEnable(enable);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Reset")) {
+						physicsWorld.Reset();
+					}
+					ImGui::InputFloat("Gravity", &gravity);
+				}
+				break;
+			case TYPE_ARMATURE:
+				{
+
+				}
+				break;
+			case TYPE_WORLD:
+				{
+					World& world = *std::any_cast<World*>(m_item);
+					if (ImGui::Button("LoadModel")) {
+						LoadModel(world);
+					}
+				}
+				break;
+			case TYPE_CAMERA:
+				{
+					CameraController& cc = *std::any_cast<CameraController*>(m_item);
 				}
 				break;
 			default:

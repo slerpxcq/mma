@@ -26,7 +26,7 @@ namespace mm
 		struct ItemSelected {
 			uint8_t type;
 			uint32_t index;
-			void* item;
+			std::any item;
 		};
 	}
 }

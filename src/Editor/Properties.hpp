@@ -6,6 +6,8 @@
 namespace mm
 {
 	class EditorLayer;
+	class Model;
+	class World;
 
 	class Properties
 	{
@@ -16,7 +18,10 @@ namespace mm
 			TYPE_CAMERA,
 			TYPE_LIGHT,
 			TYPE_MORPH,
-			TYPE_ANIMATION
+			TYPE_ANIMATION,
+			TYPE_ARMATURE,
+			TYPE_WORLD,
+			TYPE_PHYSICS_WORLD,
 		} ItemType;
 
 	public:
@@ -24,6 +29,9 @@ namespace mm
 		void OnUIRender();
 
 	private:
+		void LoadModel(World& world);
+		void LoadAnimation(Model&);
+		void ExportAnimation(Model&);
 		void MorphSliders(Model& model, uint32_t panel);
 		void OnItemSelected(const EditorEvent::ItemSelected& e);
 
@@ -33,7 +41,7 @@ namespace mm
 		dexode::EventBus::Listener m_listener;
 
 		/* Context */
-		void* m_item = nullptr;
+		std::any m_item;
 		uint8_t m_type;
 	};
 }
