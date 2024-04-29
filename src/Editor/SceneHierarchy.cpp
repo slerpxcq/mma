@@ -53,7 +53,7 @@ namespace mm
 								if (ImGui::IsItemClicked()) {
 									EditorEvent::ItemSelected e = {};
 									e.index = i;
-									e.item = (void*)&mesh;
+									e.item = &mesh;
 									e.type = Properties::TYPE_MESH;
 									EventBus::Instance()->postpone(e);
 								}
@@ -81,7 +81,7 @@ namespace mm
 											if (ImGui::IsItemClicked()) {
 												EditorEvent::ItemSelected e = {};
 												e.index = elem.index;
-												e.item = (void*)&armature.GetPose()[elem.index];
+												e.item = &armature.GetPose()[elem.index];
 												e.type = Properties::TYPE_BONE;
 												EventBus::Instance()->postpone(e);
 											}

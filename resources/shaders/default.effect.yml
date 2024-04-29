@@ -1,0 +1,16 @@
+---
+effect: 
+  name: default
+  techniques:
+    - technique: 
+      name: MainTec
+      passes:
+        - name: MainPass
+          vertex_shader: resources/shaders/default.vert
+          fragment_shader: resources/shaders/default.frag
+        - name: OutlinePass
+          vertex_shader: resources/shaders/default.vert
+          fragment_shader: resources/shaders/default.frag
+
+    
+

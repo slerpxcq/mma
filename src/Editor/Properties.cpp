@@ -124,7 +124,6 @@ namespace mm
 				break;
 			case TYPE_BONE:
 				{
-					//Armature::Bone& bone = *(Armature::Bone*)m_item;
 					Transform& transform = *std::any_cast<Transform*>(m_item);
 					static glm::vec3 euler;
 					euler = glm::eulerAngles(transform.rotation) * glm::degrees(1.f);
@@ -190,7 +189,7 @@ namespace mm
 			case TYPE_WORLD:
 				{
 					World& world = *std::any_cast<World*>(m_item);
-					if (ImGui::Button("LoadModel")) {
+					if (ImGui::Button("Load model")) {
 						LoadModel(world);
 					}
 				}

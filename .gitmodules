@@ -26,3 +26,6 @@
 	path = 3rdparty/imgui
 	url = https://github.com/slerpxcq/imgui.git
 	branch = docking
+[submodule "3rdparty/yaml-cpp"]
+	path = 3rdparty/yaml-cpp
+	url = https://github.com/slerpxcq/yaml-cpp.git

@@ -15,12 +15,11 @@ namespace mm
 {
 	CameraController::CameraController(Viewport& viewport, Camera& camera) :
 		m_viewport(viewport),
-		m_camera(camera)
+		m_camera(camera),
+		m_listener(EventBus::Instance())
 	{
-		m_appEventListener = std::make_unique<dexode::EventBus::Listener>(EventBus::Instance());
-
-		m_appEventListener->listen<Event::MouseButtonPressed>(MM_EVENT_FN(CameraController::OnMouseButtonPressed));
-		m_appEventListener->listen<Event::MouseScrolled>(MM_EVENT_FN(CameraController::OnMouseScrolled));
+		m_listener.listen<Event::MouseButtonPressed>(MM_EVENT_FN(CameraController::OnMouseButtonPressed));
+		m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(CameraController::OnMouseScrolled));
 	}
 
 	void CameraController::Update()

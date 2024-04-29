@@ -14,12 +14,6 @@
 
 #include "Commands.hpp"
 
-#if INVISIBLE_BUTTON
-#define IMGUI_BUTTON(x, y) ImGui::InvisibleButton(x, y)
-#else
-#define IMGUI_BUTTON(x, y) ImGui::Button(x, y)
-#endif 
-
 namespace mm
 {
 	PoseEditor::PoseEditor(EditorLayer& editor) :
@@ -31,9 +25,20 @@ namespace mm
 		m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(PoseEditor::OnModelLoaded));
 	}
 
+	/* This does not need to be an event */
 	void PoseEditor::OnModelLoaded(const EditorEvent::ModelLoaded& e)
 	{
 		m_model = e.model;
+
+		if (m_model != nullptr) {
+			m_context.screenPos.clear();
+			m_context.screenPos.resize(m_model->GetArmature().GetBones().size());
+		}
+	}
+
+	void PoseEditor::SetModel(Model* model)
+	{
+		m_model = model;
 
 		if (m_model != nullptr) {
 			m_context.screenPos.clear();
@@ -52,6 +57,7 @@ namespace mm
 		const float* view = glm::value_ptr(camera.GetView());
 		const float* proj = glm::value_ptr(camera.GetProj());
 
+		/* Gizmo */
 		ImGuizmo::Enable(true);
 		if (m_context.fixedAxis) {
 			ImGuizmo::Manipulate(

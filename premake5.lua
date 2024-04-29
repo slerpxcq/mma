@@ -17,6 +17,7 @@ workspace "MMX"
     IncDir["nativefiledialog"] = "3rdparty/nativefiledialog/src/include"
     IncDir["EventBus"] = "3rdparty/EventBus/lib/src"
     IncDir["icu4c"] = "3rdparty/icu4c/include"
+    IncDir["yaml"] = "3rdparty/yaml-cpp/include"
 
     LibDir = {}
     LibDir["icu4c"] = "3rdparty/icu4c/lib64"
@@ -30,6 +31,7 @@ workspace "MMX"
     include "3rdparty/spdlog"
     include "3rdparty/nativefiledialog"
     include "3rdparty/EventBus"
+    include "3rdparty/yaml-cpp"
     group ""
 
     project "MMX"
@@ -61,6 +63,7 @@ workspace "MMX"
             "nativefiledialog",
             "EventBus",
             "%{LibDir.icu4c}/*.lib",
+            "yaml-cpp",
             "opengl32.lib"
         }
 
@@ -76,7 +79,12 @@ workspace "MMX"
             "%{IncDir.nativefiledialog}",
             "%{IncDir.EventBus}",
             "%{IncDir.icu4c}",
+            "%{IncDir.yaml}",
             "src"
+        }
+
+        defines {
+
         }
 
         files { 

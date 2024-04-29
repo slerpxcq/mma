@@ -24,17 +24,27 @@ namespace mm
 		ImVec2 mid = pos + 0.5f * BUTTON_SIZE;
 		if (!expanded) {
 			/* Lower triangle */
-			drawList->AddTriangleFilled(
-				m_canvasOrigin + pos, 
-				m_canvasOrigin + mid, 
-				m_canvasOrigin + ImVec2(max.x, pos.y), BUTTON_COLOR);
+			//drawList->AddTriangleFilled(
+			//	m_canvasOrigin + pos, 
+			//	m_canvasOrigin + mid, 
+			//	m_canvasOrigin + ImVec2(max.x, pos.y), BUTTON_COLOR);
+			drawList->AddTriangle(
+				m_canvasOrigin + ImVec2(mid.x, pos.y), 
+				m_canvasOrigin + ImVec2(max.x, mid.y),
+				m_canvasOrigin + ImVec2(mid.x, max.y), BUTTON_COLOR);
 		}
 		else {
 			/* Upper triangle */
+			//drawList->AddTriangleFilled(
+			//	m_canvasOrigin + ImVec2(pos.x, mid.y),
+			//	m_canvasOrigin + ImVec2(mid.x, pos.y),
+			//	m_canvasOrigin + ImVec2(max.x, mid.y),
+			//	BUTTON_COLOR);
+			static constexpr float RATIO = 0.8f;
 			drawList->AddTriangleFilled(
-				m_canvasOrigin + ImVec2(pos.x, mid.y),
-				m_canvasOrigin + ImVec2(mid.x, pos.y),
-				m_canvasOrigin + ImVec2(max.x, mid.y),
+				m_canvasOrigin + ImVec2(max.x, max.y - RATIO * BUTTON_SIZE.y),
+				m_canvasOrigin + ImVec2(max.x, max.y),
+				m_canvasOrigin + ImVec2(max.x - RATIO * BUTTON_SIZE.x, max.y),
 				BUTTON_COLOR);
 		}
 	}
@@ -45,7 +55,7 @@ namespace mm
 			return;
 
 		m_rowStart += e.delta;
-		m_rowStart = std::clamp(m_rowStart, -m_dopeSheetRowCount + 1, 1);
+		m_rowStart = std::clamp(m_rowStart, -m_totalRowCount + 1, 1);
 	}
 
 	void Sequencer::OnMouseButtonPressed(const Event::MouseButtonPressed& e) 
@@ -114,10 +124,12 @@ namespace mm
 
 	void Sequencer::CurveEditor(Item& item)
 	{
-		// Curve editor
+		/* Curve editor */
 		ImVec2 editorOrigin = ImVec2(LEGEND_LENGTH, (item.rowIndex + 1) * ROW_HEIGHT);
 		float editorHeight = CURVE_EDITOR_ROW_COUNT * ROW_HEIGHT;
 		float midY = editorOrigin.y + editorHeight * 0.5f;
+
+
 		// NOTE: only bone keyframes are expandable.
 		MM_ASSERT(item.type == PMXFile::CLUSTER_BONE);
 		auto& keyframeList = m_model->GetAnim().GetBoneKeyframeMatrix()[item.index];
@@ -128,14 +140,28 @@ namespace mm
 			[](const Animation::Keyframe& lhs, uint32_t rhs) {
 				return lhs.frame < rhs;
 			});
-		//auto it = std::upper_bound(
-		//	keyframeList.begin(),
-		//	keyframeList.end(),
-		//	m_minFrame,
-		//	[](uint32_t lhs, const Animation::Keyframe& rhs) {
-		//		return lhs< rhs.frame;
-		//	});
+			//[](uint32_t lhs, const Animation::Keyframe& rhs) {
+			//	return lhs < rhs.frame;
+			//});
 
+		/* Bezier */
+		/* Background */
+		ImVec2 pos = ImVec2(LEGEND_LENGTH / 2, midY);
+		ImVec2 p1 = pos - ImVec2(BEZIER_EDITOR_SIZE/2, BEZIER_EDITOR_SIZE/2);
+		ImVec2 p2 = pos + ImVec2(BEZIER_EDITOR_SIZE/2, BEZIER_EDITOR_SIZE/2);
+		m_drawList->AddRectFilled(m_canvasOrigin + p1, m_canvasOrigin + p2, IM_COL32(32, 32, 32, 255));
+		m_drawList->AddRect(m_canvasOrigin + p1, m_canvasOrigin + p2, VERTICAL_MARK_COLOR, 0.0f, 0, 3.0f);
+		/* Grid */
+		for (int32_t x = pos.x - BEZIER_EDITOR_SIZE / 2; x <= pos.x + BEZIER_EDITOR_SIZE / 2; x += BEZIER_EDITOR_SIZE / BEZIER_EDITOR_GRID_COUNT)
+			m_drawList->AddLine(m_canvasOrigin + ImVec2(x, p1.y), m_canvasOrigin + ImVec2(x, p2.y), VERTICAL_MARK_COLOR);
+		//for (int32_t y = pos.y - BEZIER_EDITOR_SIZE / 2; y <= pos.y + BEZIER_EDITOR_SIZE / 2; y += BEZIER_EDITOR_SIZE / BEZIER_EDITOR_GRID_COUNT)
+		//	m_drawList->AddLine(m_canvasOrigin + ImVec2(p1.x, y), m_canvasOrigin + ImVec2(p2.x, y), VERTICAL_MARK_COLOR);
+		/* Handle */
+
+		/* Curve */
+		m_drawList->PushClipRect(m_canvasOrigin + editorOrigin, m_canvasOrigin + ImVec2(m_canvasSize.x, editorOrigin.y + editorHeight));
+		//if (it != keyframeList.begin())
+		//	it -= 1;
 		for (; it != keyframeList.end() && it->frame < m_maxFrame; ++it) {
 			// for all axes
 			static constexpr uint32_t axisColor[] = {
@@ -168,6 +194,21 @@ namespace mm
 				}
 			}
 		}
+
+		m_drawList->PopClipRect();
+	}
+
+	void Sequencer::DrawStrip(uint32_t row)
+	{
+		if (row >= m_visibleRowCount)
+			return;
+
+		uint32_t stripColor = (row & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
+		float y = row * ROW_HEIGHT;
+		m_drawList->AddRectFilled(
+			m_canvasOrigin + ImVec2(LEGEND_LENGTH, y),
+			m_canvasOrigin + ImVec2(m_canvasSize.x, y + ROW_HEIGHT),
+			stripColor);
 	}
 
 	void Sequencer::OnUIRender()
@@ -175,6 +216,22 @@ namespace mm
 		ImGui::Begin("Sequencer", nullptr,
 			ImGuiWindowFlags_NoScrollbar |
 			ImGuiWindowFlags_NoScrollWithMouse);
+
+		if (ImGui::Button("Play")) {
+			m_playing = true;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Stop")) {
+			m_playing = false;
+		}
+		ImGui::SameLine();
+		static int32_t frame;
+		if (ImGui::InputInt("Frame", &frame)) {
+			if (frame < 0)
+				frame = 0;
+			m_frameCounter.Set(frame);
+			UpdateAnim();
+		}
 
 		if (ImGui::SliderInt("Min frame", &m_minFrame, 0, 10000)) {
 		}
@@ -191,20 +248,22 @@ namespace mm
 		m_canvasOrigin = ImGui::GetWindowPos() + m_canvasMin;
 		m_canvasSize = m_canvasMax - m_canvasMin;
 		m_buttonIndex = 0;
+		m_visibleRowCount = m_canvasSize.y / ROW_HEIGHT;
 
 		ImGui::BeginGroup();
 
 		/* Background */
 		m_drawList->AddRectFilled(m_canvasOrigin, m_canvasOrigin + m_canvasSize, BACKGROUND_COLOR);
 
-		/* Strip */
-		for (uint32_t row = 1; row < m_canvasSize.y / ROW_HEIGHT - 1; ++row) {
-			uint32_t stripColor = (row & 1) ? STRIP_COLOR_ODD : STRIP_COLOR_EVEN;
-			float y = row * ROW_HEIGHT;
-			m_drawList->AddRectFilled(
-				m_canvasOrigin + ImVec2(LEGEND_LENGTH, y),
-				m_canvasOrigin + ImVec2(m_canvasSize.x, y + ROW_HEIGHT),
-				stripColor);
+		//for (uint32_t i = 1; i < m_visibleRowCount; ++i)
+		//	DrawStrip(i);
+		for (auto& group : m_groups) {
+			DrawStrip(group.rowIndex);
+			if (group.expanded) {
+				for (auto& item : group.items) {
+					DrawStrip(item.rowIndex);
+				}
+			}
 		}
 
 		/* Ruler */
@@ -215,7 +274,7 @@ namespace mm
 		m_drawList->AddRectFilled(m_canvasOrigin, ImVec2(m_canvasOrigin.x + m_canvasSize.x, m_canvasOrigin.y + ROW_HEIGHT), HEADER_COLOR);
 		for (uint32_t rulerX = rulerBeginX; rulerX <= rulerEndX; rulerX += COLUMN_WIDTH, ++column, ++columnCount) {
 			float lineBeginY = ROW_HEIGHT;
-			float lineEndY = m_canvasSize.y;
+			float lineEndY = ROW_HEIGHT * m_visibleRowCount;
 			/* Button for selecting frame */
 			ImVec2 buttonPos = ImVec2(rulerX - COLUMN_WIDTH / 2, 0);
 			ImVec2 buttonSize = ImVec2(COLUMN_WIDTH, ROW_HEIGHT);
@@ -264,19 +323,22 @@ namespace mm
 
 		int32_t rowIndex = m_rowStart;
 		for (auto& group : m_groups) {
-			DrawRowHeader(group, true, INDENT_BASE);
 			group.rowIndex = rowIndex++;
+			if (group.rowIndex >= m_visibleRowCount)
+				break;
+			DrawRowHeader(group, true, INDENT_BASE);
 			if (group.expanded) {
 				for (auto& item : group.items) {
 					item.rowIndex = rowIndex++;
-					if (item.expanded) {
+					if (item.expanded) 
 						rowIndex += CURVE_EDITOR_ROW_COUNT;
-					}
+					if (item.rowIndex >= m_visibleRowCount)
+						break;
 					Animation& anim = m_model->GetAnim();
 					switch (item.type) {
 					case PMXFile::CLUSTER_BONE:
 						DrawRowHeader(item, true, 2 * INDENT_BASE);
-							DrawDope(item, anim.GetBoneKeyframeMatrix()[item.index]);
+						DrawDope(item, anim.GetBoneKeyframeMatrix()[item.index]);
 						break;
 					case PMXFile::CLUSTER_MORPH:
 						DrawRowHeader(item, false, 2 * INDENT_BASE);
@@ -289,7 +351,7 @@ namespace mm
 				}
 			}
 		}
-		m_dopeSheetRowCount = rowIndex - 1;
+		m_totalRowCount = rowIndex - 1;
 
 		//if (Input::MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 		//	m_rectMax = ImGui::GetMousePos();
@@ -298,26 +360,6 @@ namespace mm
 		//}
 
 		ImGui::EndGroup();
-		ImGui::End();
-
-		ImGui::Begin("Playback");
-		std::string animName = m_model != nullptr ? m_model->GetAnim().GetName() : "--";
-		ImGui::Text("Animation: %s", animName.c_str());
-
-		if (ImGui::Button("Play")) {
-			m_playing = true;
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Stop")) {
-			m_playing = false;
-		}
-		static int32_t frame;
-		if (ImGui::InputInt("Frame", &frame)) {
-			if (frame < 0)
-				frame = 0;
-			m_frameCounter.Set(frame);
-			UpdateAnim();
-		}
 		ImGui::End();
 	}
 

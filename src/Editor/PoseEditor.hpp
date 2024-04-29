@@ -22,9 +22,20 @@ namespace mm
 
 	public:
 		PoseEditor(EditorLayer& editor);
+		void SetModel(Model* model);
 		Model* GetModel() { return m_model; }
 		void OnUpdate(float deltaTime);
 		void OnUIRender();
+
+	private:
+		glm::vec3 WorldToScreen(const glm::vec3& world);
+		void EditTransform();
+		void DrawBones();
+
+		/* Events */
+		void OnMouseButtonPressed(const Event::MouseButtonPressed& e);
+		void OnKeyPressed(const Event::KeyPressed& e);
+		void OnModelLoaded(const EditorEvent::ModelLoaded& e);
 
 	private:
 		struct Context {
@@ -51,24 +62,11 @@ namespace mm
 		};
 
 	private:
-		glm::vec3 WorldToScreen(const glm::vec3& world);
-		void EditTransform();
-		void DrawBones();
-
-		void OnMouseButtonPressed(const Event::MouseButtonPressed& e);
-		void OnKeyPressed(const Event::KeyPressed& e);
-		void OnModelLoaded(const EditorEvent::ModelLoaded& e);
-
-		void MorphSliders(uint32_t panel);
-
-	private:
 		EditorLayer& m_editor;
 		Model* m_model = nullptr;
 		Context m_context;
 
 		dexode::EventBus::Listener m_listener;
-
-		int32_t m_selectedMorph = -1;
 
 		bool m_enabled = false;
 	};

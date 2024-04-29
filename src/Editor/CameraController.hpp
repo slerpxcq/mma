@@ -25,16 +25,16 @@ namespace mm
 		void OnMouseScrolled(const Event::MouseScrolled& e);
 
 	private:
-		std::unique_ptr<dexode::EventBus::Listener> m_appEventListener;
-
 		Viewport& m_viewport;
+
+		dexode::EventBus::Listener m_listener;
+
 		Camera& m_camera;
 
-		// helper states
+		/* helper states */
 		glm::vec3 m_view;
 		glm::vec3 m_right;
 
-		// states
 		glm::vec2 m_mousePos0;
 		glm::vec2 m_mousePos1;
 		glm::vec3 m_eye0;

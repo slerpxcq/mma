@@ -21,7 +21,7 @@ namespace mm
 		static constexpr uint32_t ROW_HEIGHT = 20;
 		static constexpr uint32_t BACKGROUND_COLOR = 0xff242424;
 		static constexpr uint32_t HEADER_COLOR = 0xff3d3837;
-		static constexpr uint32_t LEGEND_LENGTH = 150;
+		static constexpr uint32_t LEGEND_LENGTH = 300;
 		static constexpr uint32_t COLUMN_WIDTH = 20;
 		static constexpr uint32_t RULER_LONG_MARK_MULTIPLIER = 5;
 		static constexpr uint32_t RULER_LONG_MARK_LENGTH = 10;
@@ -47,6 +47,8 @@ namespace mm
 		static constexpr uint32_t INDENT_BASE = 15;
 
 		static constexpr uint32_t CURVE_EDITOR_ROW_COUNT = 16;
+		static constexpr int32_t BEZIER_EDITOR_SIZE = 250;
+		static constexpr uint32_t BEZIER_EDITOR_GRID_COUNT = 5;
 
 	public:
 		struct Group;
@@ -107,6 +109,7 @@ namespace mm
 		void DrawDope(const Item& item, const std::vector<T>& keyframeList);
 
 		void DrawGroupDope(const Group& group);
+		void DrawStrip(uint32_t row);
 
 		const char* GenButtonId() {
 			static char buf[16];
@@ -132,7 +135,8 @@ namespace mm
 
 		/* Drawing states */
 		int32_t m_rowStart = 1;
-		int32_t m_dopeSheetRowCount = 0;
+		int32_t m_totalRowCount = 0;
+		int32_t m_visibleRowCount = 0;
 		int32_t m_buttonIndex = 0;
 		ImVec2 m_canvasMin;
 		ImVec2 m_canvasMax;

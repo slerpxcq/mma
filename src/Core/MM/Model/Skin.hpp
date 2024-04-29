@@ -13,7 +13,6 @@ namespace mm
 {
 	class Model;
 	class GLRenderer;
-	class Effect;
 
 	class Skin
 	{
@@ -37,6 +36,7 @@ namespace mm
 		void Render(GLRenderer& renderer);
 		uint32_t GetVertexCount() const { return m_vertexCount;  }
 		const std::vector<Mesh>& GetMeshes() const { return m_meshes; }
+		std::vector<Mesh>& GetMeshes() { return m_meshes; }
 		const GLVertexArray& GetVertexArray() const { return *m_vertexArray; }
 		GLTexture& GetTexture(int32_t idx);
 		GLTexture& GetToon(const Mesh& mesh);
