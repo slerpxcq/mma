@@ -1,7 +1,7 @@
 #include "mmpch.hpp"
 #include "Viewport.hpp"
 
-#include "Core/GL/GLRenderer.hpp"
+#include "Core/MM/Renderer/Renderer.hpp"
 
 #include "EditorLayer.hpp"
 #include "Core/ResourceManager/ResourceManager.hpp"
@@ -23,7 +23,7 @@ namespace mm
         m_cameraController.Update();
     }
 
-	void Viewport::OnRender(GLRenderer& renderer)
+	void Viewport::OnRender(Renderer& renderer)
 	{
         renderer.SetCamera(m_cameraController.GetCamera());
         renderer.SetFramebuffer(m_framebuffer.get());
@@ -34,7 +34,7 @@ namespace mm
         // Skybox
         glDepthMask(GL_FALSE);
         renderer.SetShader(ResourceManager::Instance().GetShader("skybox"));
-        renderer.GetShader()->Uniform("u_skybox", 0);
+        renderer.GetActiveShader()->Uniform("u_skybox", 0);
         ResourceManager::Instance().GetTexture("skybox")->Bind(0);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthMask(GL_TRUE);

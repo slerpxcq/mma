@@ -5,7 +5,7 @@
 #include "Model.hpp"
 
 #include "Core/App/Application.hpp"
-#include "Core/GL/GLRenderer.hpp"
+#include "Core/MM/Renderer/Renderer.hpp"
 #include "Core/GL/GLVertexArray.hpp"
 #include "Core/GL/GLVertexAttrib.hpp"
 #include "Core/MM/Camera/Camera.hpp"
@@ -64,16 +64,18 @@ namespace mm
 			GetTexture(mesh.toonIndex);
 	}
 
-	void Skin::Render(GLRenderer& renderer)
+	void Skin::Render(Renderer& renderer)
 	{
 		for (uint32_t meshIndex = 0; meshIndex < m_meshes.size(); ++meshIndex) {
 			auto& mesh = m_meshes[meshIndex];
 
-			mesh.effect->BeginTechnique("MainTec");
-			const auto& passes = mesh.effect->GetActiveTechniquePasses();
+			renderer.BeginEffect(mesh.effect);
+			renderer.BeginTechnique("MainTec");
+
+			const auto& passes = renderer.GetActiveTechniquePasses();
 			uint32_t passCnt = 0;
 			for (const auto& pass : passes) {
-				mesh.effect->BeginPass(pass);
+				renderer.BeginPass(pass);
 				GLTexture& albedo = GetTexture(mesh.albedoIndex);
 				GLTexture& sph = GetTexture(mesh.sphIndex);
 				GLTexture& toon = GetToon(mesh);
@@ -114,9 +116,11 @@ namespace mm
 				}
 
 				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-				mesh.effect->EndPass();
+				renderer.EndPass();
 			}
-			mesh.effect->EndTechnique();
+
+			renderer.EndTechnique();
+			renderer.EndEffect();
 		}
 
 		// Reset material morph offsets

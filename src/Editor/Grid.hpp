@@ -7,7 +7,7 @@
 namespace mm
 {
 	class Viewport;
-	class GLRenderer;
+	class Renderer;
 	class GridShader;
 
 	class GridVertex : public GLVertexAttrib {
@@ -28,7 +28,7 @@ namespace mm
 	public:
 		Grid(Viewport&);
 		void LoadGrid();
-		void Render(GLRenderer&);
+		void Render(Renderer&);
 
 	private:
 		Viewport& m_viewport;

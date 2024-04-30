@@ -9,7 +9,7 @@
 
 namespace mm
 {
-	class GLRenderer;
+	class Renderer;
 	class World;
 	class ModelPhysicsData;
 
@@ -22,7 +22,7 @@ namespace mm
 	public:
 		Model(World& world, const std::filesystem::path& path);
 		Animation* LoadAnimation(const std::filesystem::path& path);
-		void Render(GLRenderer& renderer);
+		void Render(Renderer& renderer);
 		void Update(float deltaTime);
 		const PMXFile& GetPMXFile() const { return *m_pmxFile; }
 		Armature& GetArmature() { return *m_armature; }

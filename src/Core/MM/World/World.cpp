@@ -1,8 +1,8 @@
 #include "mmpch.hpp"
 #include "World.hpp"
 
-#include "Core/GL/GLRenderer.hpp"
-#include "Model/Armature.hpp"
+#include "Core/MM/Renderer/Renderer.hpp"
+#include "Core/MM/Model/Armature.hpp"
 
 namespace mm
 {
@@ -44,7 +44,7 @@ namespace mm
 		return ret;
 	}
 
-	void World::Render(GLRenderer& renderer) 
+	void World::Render(Renderer& renderer) 
 	{
 		for (auto& model : m_models) {
 			model->Render(renderer);

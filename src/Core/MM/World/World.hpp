@@ -6,7 +6,7 @@
 
 namespace mm
 {
-	class GLRenderer;
+	class Renderer;
 	class World
 	{
 		using ModelContainer = std::vector<std::unique_ptr<Model>>;
@@ -15,7 +15,7 @@ namespace mm
 		~World();
 		void OnUpdate(float deltaTime);
 		Model* LoadModel(const std::filesystem::path& path);
-		void Render(GLRenderer&);
+		void Render(Renderer&);
 		const Camera& GetCamera() const { return m_mainCamera; }
 		Camera& GetCamera() { return m_mainCamera; }
 

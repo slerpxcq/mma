@@ -6,7 +6,9 @@
 
 #include "Core/App/Application.hpp"
 #include "Core/App/EventBus.hpp"
+
 #include "FrameCounter.hpp"
+#include "SelectionBox.hpp"
 
 namespace mm
 {
@@ -21,7 +23,7 @@ namespace mm
 		static constexpr uint32_t ROW_HEIGHT = 20;
 		static constexpr uint32_t BACKGROUND_COLOR = 0xff242424;
 		static constexpr uint32_t HEADER_COLOR = 0xff3d3837;
-		static constexpr uint32_t LEGEND_LENGTH = 300;
+		static constexpr uint32_t LEGEND_LENGTH = 200;
 		static constexpr uint32_t COLUMN_WIDTH = 20;
 		static constexpr uint32_t RULER_LONG_MARK_MULTIPLIER = 5;
 		static constexpr uint32_t RULER_LONG_MARK_LENGTH = 10;
@@ -37,7 +39,9 @@ namespace mm
 		static constexpr float DOPE_RADIUS = 7.5f;
 		static constexpr uint32_t DOPE_FILL_COLOR = 0xffc0c0c0;
 		static constexpr uint32_t DOPE_OUTLINE_COLOR = 0xff101010;
+		static constexpr uint32_t DOPE_OUTLINE_COLOR_SELECTED = 0xff0080ff;
 		static constexpr float DOPE_OUTLINE_SIZE = 1.5f;
+		static constexpr float DOPE_OUTLINE_SIZE_SELECTED = 3.0f;
 
 		static constexpr float POINT_RADIUS = 4.5f;
 		static constexpr uint32_t POINT_FILL_COLOR = 0xff000000;
@@ -77,8 +81,8 @@ namespace mm
 			m_editor(editor),
 			m_listener(EventBus::Instance()) {
 			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Sequencer::OnMouseScrolled));
-			m_listener.listen<Event::MouseButtonPressed>(MM_EVENT_FN(Sequencer::OnMouseButtonPressed));
 			m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(Sequencer::OnModelLoaded));
+
 			m_listener.listen<EditorEvent::MotionLoaded>(MM_EVENT_FN(Sequencer::OnMotionLoaded));
 		}
 
@@ -94,11 +98,13 @@ namespace mm
 		FrameCounter& GetFrameCounter() { return m_frameCounter; }
 
 	private:
+		template <typename T>
+		decltype(auto) LowerBoundKeyframe(std::vector<T>& keyframeList);
+
 		void CurveEditor(Item& item);
 
 		/* Events */
 		void OnMouseScrolled(const Event::MouseScrolled& e);
-		void OnMouseButtonPressed(const Event::MouseButtonPressed& e);
 
 		/* Drawing */
 		void DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);
@@ -106,7 +112,7 @@ namespace mm
 		template<typename T>
 		void DrawRowHeader(T& row, bool expandable, float textOffset);
 		template<typename T>
-		void DrawDope(const Item& item, const std::vector<T>& keyframeList);
+		void DrawDope(const Item& item, std::vector<T>& keyframeList);
 
 		void DrawGroupDope(const Group& group);
 		void DrawStrip(uint32_t row);
@@ -129,6 +135,11 @@ namespace mm
 
 		bool m_hovered = false;
 
+		SelectionBox m_selectionBox;
+
+		/* Editing states */
+		std::unordered_set<Animation::Keyframe*> m_selectedKeyframes;
+
 		/* Playback states */
 		bool m_playing = false;
 		FrameCounter m_frameCounter;
@@ -142,9 +153,6 @@ namespace mm
 		ImVec2 m_canvasMax;
 		ImVec2 m_canvasOrigin;
 		ImVec2 m_canvasSize;
-
-		ImVec2 m_rectMin;
-		ImVec2 m_rectMax;
 
 		int32_t m_minFrame = 0;
 		int32_t m_maxFrame = 0;

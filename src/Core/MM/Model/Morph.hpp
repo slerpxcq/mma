@@ -1,14 +1,14 @@
 #pragma once
 
 #include "../Files/PMXFile.hpp"
-#include "../Transform.hpp"
+#include "Core/MM/Math/Transform.hpp" 
 
 #include "Core/GL/GLVertexArray.hpp"
 
 namespace mm
 {
 	class Model;
-	class GLRenderer;
+	class Renderer;
 	class GLShader;
 
 	class Morph
@@ -70,7 +70,7 @@ namespace mm
 		const std::vector<MaterialTarget>& GetMaterialTargets() const { return m_materialTargets; }
 		const Dict& GetDict() { return m_dict;  }
 
-		void Render(GLRenderer& renderer) const;
+		void Render(Renderer& renderer) const;
 
 	private:
 		void LoadTargets();

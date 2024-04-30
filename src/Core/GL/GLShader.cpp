@@ -47,7 +47,7 @@ namespace mm
 
 	void GLShader::AttachAllShaders() 
 	{ 
-		for (uint32_t& id : m_shaderIds) {
+		for (uint32_t id : m_shaderIds) {
 			if (id > 0) {
 				glAttachShader(m_programId, id);
 			}
@@ -56,7 +56,7 @@ namespace mm
 
 	void GLShader::DeleteAllShaders()
 	{
-		for (uint32_t& id : m_shaderIds) {
+		for (uint32_t id : m_shaderIds) {
 			if (id > 0) {
 				glDeleteShader(id);
 				id = 0;

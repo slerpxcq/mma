@@ -4,14 +4,21 @@ effect:
   techniques:
     - technique: 
       name: MainTec
+      #framebuffers:
+      #  - name: ShadowMap
+      #    width: 2048
+      #    height: 2048
+      #    format: D24S8
+      #    address_u: Clamp
+      #    address_v: Clamp
+      #    min_filter: Linear
+      #    mag_filter: Linear
       passes:
         - name: OutlinePass
           vertex_shader: resources/shaders/default.vert
           fragment_shader: resources/shaders/default.frag
           depth_test: true
           blend: false
-          #blend_src: SrcAlpha
-          #blend_dst: OneMinusSrcAlpha
           cull_face: true
           front_face: CW
           uniforms:
@@ -27,5 +34,6 @@ effect:
           front_face: CCW
           uniforms:
             - u_outlinePass: 0
+    
     
 

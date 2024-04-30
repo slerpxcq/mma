@@ -7,7 +7,7 @@
 #include "Layer/MenuBarLayer.hpp"
 #include "Editor/EditorLayer.hpp"
 #include "Core/GL/GLCubeMap.hpp"
-#include "Core/MM/Effect.hpp"
+#include "Core/MM/Renderer/Effect.hpp"
 
 #include "EventBus.hpp"
 
@@ -33,7 +33,7 @@ namespace mm
 
 		// context and renderer
 		m_glContext = std::make_unique<GLContext>(m_window);
-		GLRenderer::s_instance.Init();
+		Renderer::Instance().Init();
 
 		// Resources
 		LoadTextures();

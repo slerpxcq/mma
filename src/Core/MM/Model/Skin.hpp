@@ -7,14 +7,14 @@
 #include "Core/GL/GLTexture2D.hpp"
 #include "Core/GL/GLVertexArray.hpp"
 #include "Core/GL/GLFrameBuffer.hpp"
-#include "Core/GL/GLRenderer.hpp"
+#include "Core/MM/Renderer/Renderer.hpp"
 
-#include "Core/MM/Effect.hpp"
+#include "Core/MM/Renderer/Effect.hpp"
 
 namespace mm
 {
 	class Model;
-	class GLRenderer;
+	class Renderer;
 
 	class Skin
 	{
@@ -35,7 +35,7 @@ namespace mm
 
 	public:
 		Skin(Model &model);
-		void Render(GLRenderer& renderer);
+		void Render(Renderer& renderer);
 		uint32_t GetVertexCount() const { return m_vertexCount;  }
 		const std::vector<Mesh>& GetMeshes() const { return m_meshes; }
 		std::vector<Mesh>& GetMeshes() { return m_meshes; }

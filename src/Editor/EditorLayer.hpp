@@ -3,20 +3,17 @@
 #include "Core/App/Layer/Layer.hpp"
 #include "Core/App/Event.hpp"
 
-#include "Core/MM/World.hpp"
-#include "Core/GL/GLFrameBuffer.hpp"
+#include "Core/MM/World/World.hpp"
 
+#include "CommandBuffer.hpp"
 #include "Viewport.hpp"
 #include "PoseEditor.hpp"
 #include "Sequencer.hpp"
 #include "SceneHierarchy.hpp"
 #include "Properties.hpp"
-
-#include "CommandBuffer.hpp"
+#include "CurveEditor.hpp"
 
 #include <dexode/EventBus.hpp>
-
-#include "Core/MM/Effect.hpp"
 
 namespace mm
 {
@@ -25,6 +22,7 @@ namespace mm
 		friend class PoseEditor;
 		friend class Viewport;
 		friend class Sequencer;
+		friend class CurveEditor;
 		friend class SceneHierarchy;
 		friend class Properties;
 
@@ -47,6 +45,7 @@ namespace mm
 		std::unique_ptr<Sequencer> m_sequencer;
 		std::unique_ptr<SceneHierarchy> m_sceneHierarchy;
 		std::unique_ptr<Properties> m_properties;
+		std::unique_ptr<CurveEditor> m_curveEditor;
 
 		std::unique_ptr<dexode::EventBus::Listener> m_listener;
 	};

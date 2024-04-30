@@ -1,8 +1,8 @@
 #include "mmpch.hpp"
 #include "Model.hpp"
 
-#include "Core/GL/GLRenderer.hpp"
-#include "../World.hpp"
+#include "Core/MM/Renderer/Renderer.hpp"
+#include "Core/MM/World/World.hpp"
 #include "Core/ResourceManager/ResourceManager.hpp"
 
 namespace mm
@@ -38,7 +38,7 @@ namespace mm
 		return m_animation.get();
 	}
 
-	void Model::Render(GLRenderer& renderer)
+	void Model::Render(Renderer& renderer)
 	{
 		m_morph->Render(renderer);
 		m_skin->Render(renderer);

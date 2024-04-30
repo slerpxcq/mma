@@ -24,10 +24,6 @@ namespace mm
 		ImVec2 mid = pos + 0.5f * BUTTON_SIZE;
 		if (!expanded) {
 			/* Lower triangle */
-			//drawList->AddTriangleFilled(
-			//	m_canvasOrigin + pos, 
-			//	m_canvasOrigin + mid, 
-			//	m_canvasOrigin + ImVec2(max.x, pos.y), BUTTON_COLOR);
 			drawList->AddTriangle(
 				m_canvasOrigin + ImVec2(mid.x, pos.y), 
 				m_canvasOrigin + ImVec2(max.x, mid.y),
@@ -35,11 +31,6 @@ namespace mm
 		}
 		else {
 			/* Upper triangle */
-			//drawList->AddTriangleFilled(
-			//	m_canvasOrigin + ImVec2(pos.x, mid.y),
-			//	m_canvasOrigin + ImVec2(mid.x, pos.y),
-			//	m_canvasOrigin + ImVec2(max.x, mid.y),
-			//	BUTTON_COLOR);
 			static constexpr float RATIO = 0.8f;
 			drawList->AddTriangleFilled(
 				m_canvasOrigin + ImVec2(max.x, max.y - RATIO * BUTTON_SIZE.y),
@@ -56,14 +47,6 @@ namespace mm
 
 		m_rowStart += e.delta;
 		m_rowStart = std::clamp(m_rowStart, -m_totalRowCount + 1, 1);
-	}
-
-	void Sequencer::OnMouseButtonPressed(const Event::MouseButtonPressed& e) 
-	{
-		if (!m_hovered)
-			return;
-
-		m_rectMin = ImGui::GetMousePos();
 	}
 
 	void Sequencer::DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor)
@@ -88,17 +71,9 @@ namespace mm
 			DrawExpandButton(row.rowIndex, textOffset - 5, row.expanded);
 	}
 
-	void Sequencer::DrawGroupDope(const Group& group)
-	{
-	}
-
 	template <typename T>
-	void Sequencer::DrawDope(const Item& item, const std::vector<T>& keyframeList)
+	decltype(auto) Sequencer::LowerBoundKeyframe(std::vector<T>& keyframeList)
 	{
-		/* The first row is the ruler, don't draw on it! */
-		if (item.rowIndex < 1)
-			return;
-
 		auto it = std::lower_bound(
 			keyframeList.begin(), 
 			keyframeList.end(), 
@@ -106,19 +81,44 @@ namespace mm
 			[](const T& lhs, uint32_t rhs) {
 				return lhs.frame < rhs;
 			});
+		return it;
+	}
+
+	void Sequencer::DrawGroupDope(const Group& group)
+	{
+	}
+
+	template <typename T>
+	void Sequencer::DrawDope(const Item& item, std::vector<T>& keyframeList)
+	{
+		/* The first row is the ruler, don't draw on it! */
+		if (item.rowIndex < 1)
+			return;
+
+		auto it = LowerBoundKeyframe(keyframeList);
 
 		for (; it != keyframeList.end() && it->frame < m_maxFrame; ++it) {
 			float startX = LEGEND_LENGTH + ROW_HEIGHT / 2;
 			float y = item.rowIndex * ROW_HEIGHT;
 			uint32_t column = it->frame - m_minFrame;
+
 			ImVec2 dopePos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
-			DrawDiamond(dopePos, DOPE_RADIUS, DOPE_OUTLINE_SIZE, DOPE_OUTLINE_COLOR, DOPE_FILL_COLOR);
 			ImVec2 buttonSize = 2.f * ImVec2(DOPE_RADIUS, DOPE_RADIUS);
 			ImVec2 buttonPos = dopePos - 0.5f * buttonSize;
+
 			ImGui::SetCursorScreenPos(m_canvasOrigin + buttonPos);
 			if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
-				/* Dope selected */
+				m_selectedKeyframes.insert(&(*it));
 			}
+			if (m_selectionBox.CheckIntersection(m_canvasOrigin + buttonPos, DOPE_RADIUS)) {
+				m_selectedKeyframes.insert(&(*it));
+			}
+
+			auto it2 = m_selectedKeyframes.find(&(*it));
+			if (it2 != m_selectedKeyframes.end())
+				DrawDiamond(dopePos, DOPE_RADIUS, DOPE_OUTLINE_SIZE_SELECTED, DOPE_OUTLINE_COLOR_SELECTED, DOPE_FILL_COLOR);
+			else
+				DrawDiamond(dopePos, DOPE_RADIUS, DOPE_OUTLINE_SIZE, DOPE_OUTLINE_COLOR, DOPE_FILL_COLOR);
 		}
 	}
 
@@ -321,6 +321,14 @@ namespace mm
 		}
 		m_maxFrame = m_minFrame + columnCount;
 
+		m_selectionBox.OnUIRender();
+		/* Cherry picking reset condition */
+		if (ImGui::IsMouseClicked(0) && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) 
+			m_selectedKeyframes.clear();
+		/* Box selecting reset condition */
+		if (m_selectionBox.IsLastFrameUsed())
+			m_selectedKeyframes.clear();
+
 		int32_t rowIndex = m_rowStart;
 		for (auto& group : m_groups) {
 			group.rowIndex = rowIndex++;
@@ -330,8 +338,6 @@ namespace mm
 			if (group.expanded) {
 				for (auto& item : group.items) {
 					item.rowIndex = rowIndex++;
-					if (item.expanded) 
-						rowIndex += CURVE_EDITOR_ROW_COUNT;
 					if (item.rowIndex >= m_visibleRowCount)
 						break;
 					Animation& anim = m_model->GetAnim();
@@ -345,21 +351,13 @@ namespace mm
 						DrawDope(item, anim.GetMorphKeyframeMatrix()[item.index]);
 						break;
 					}
-					if (item.expanded) {
-						CurveEditor(item);
-					}
 				}
 			}
 		}
 		m_totalRowCount = rowIndex - 1;
 
-		//if (Input::MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-		//	m_rectMax = ImGui::GetMousePos();
-		//	m_drawList->AddRect(m_rectMin, m_rectMax, IM_COL32(0, 130, 216, 255));
-		//	m_drawList->AddRectFilled(m_rectMin, m_rectMax, IM_COL32(0, 130, 216, 50));
-		//}
-
 		ImGui::EndGroup();
+
 		ImGui::End();
 	}
 

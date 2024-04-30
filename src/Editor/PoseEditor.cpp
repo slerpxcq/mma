@@ -153,10 +153,14 @@ namespace mm
 
 		for (uint32_t i = 0; i < bones.size(); ++i) {
 			const auto& bone = bones[i];
+			auto& boneScreenPos = m_context.screenPos[i];
+			boneScreenPos = WorldToScreen(bone.animWorld.translation);
+		}
+
+		for (uint32_t i = 0; i < bones.size(); ++i) {
+			const auto& bone = bones[i];
 			const auto& pmxBone = pmxBones[i];
 			auto& boneScreenPos = m_context.screenPos[i];
-
-			boneScreenPos = WorldToScreen(bone.animWorld.translation);
 
 			if (pmxBone.flags & PMXFile::BONE_VISIBLE_BIT) {
 				uint32_t color = (i == m_context.selected) ?
@@ -167,7 +171,7 @@ namespace mm
 				char buf[16];
 				std::snprintf(buf, sizeof(buf), "B_%u", i);
 				ImGui::SetCursorScreenPos(ImVec2(boneScreenPos.x - CIRCLE_RADIUS, boneScreenPos.y - CIRCLE_RADIUS));
-				if (ImGui::Button(buf, ImVec2(CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2))) {
+				if (ImGui::InvisibleButton(buf, ImVec2(CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2))) {
 					m_context.selected = i;
 				}
 

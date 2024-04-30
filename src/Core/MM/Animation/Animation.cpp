@@ -137,7 +137,7 @@ namespace mm
 		keyframes.insert(it, keyframe);
 	}
 
-	/* Repetition */
+	/* Code Repetition */
 	void Animation::RemoveMorphKeyframe(uint32_t morphIndex, uint32_t frame)
 	{
 		auto& keyframes = m_morphKeyframeMatrix[morphIndex];

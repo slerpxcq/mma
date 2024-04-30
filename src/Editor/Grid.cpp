@@ -5,7 +5,7 @@
 
 #include "Viewport.hpp"
 
-#include "Core/GL/GLRenderer.hpp"
+#include "Core/MM/Renderer/Renderer.hpp"
 
 namespace mm
 {
@@ -45,10 +45,10 @@ namespace mm
 		m_vertexCount = vertices.size();
 	}
 
-	void Grid::Render(GLRenderer& renderer)
+	void Grid::Render(Renderer& renderer)
 	{
 		renderer.SetShader(ResourceManager::Instance().GetShader("grid"));
-		renderer.GetShader()->Uniform("u_color", glm::vec4(1, 1, 1, .5));
+		renderer.GetActiveShader()->Uniform("u_color", glm::vec4(1, 1, 1, .5));
 		m_vertexArray->Bind();
 		m_vertexArray->DrawArray(GL_LINES, 0, m_vertexCount);
 	}

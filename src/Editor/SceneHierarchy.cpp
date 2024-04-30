@@ -1,7 +1,7 @@
 #include "mmpch.hpp"
 #include "SceneHierarchy.hpp"
 
-#include "Core/MM/World.hpp"
+#include "Core/MM/World/World.hpp"
 
 #include "EditorEvent.hpp"
 #include "Core/App/EventBus.hpp"

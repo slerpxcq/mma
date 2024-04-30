@@ -113,6 +113,8 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Editor\SelectionBox.hpp" />
+    <ClInclude Include="src\Editor\CurveEditor.hpp" />
     <ClInclude Include="src\Core\App\Application.hpp" />
     <ClInclude Include="src\Core\App\Core.hpp" />
     <ClInclude Include="src\Core\App\Event.hpp" />
@@ -127,7 +129,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Core\GL\GLContext.hpp" />
     <ClInclude Include="src\Core\GL\GLCubeMap.hpp" />
     <ClInclude Include="src\Core\GL\GLFrameBuffer.hpp" />
-    <ClInclude Include="src\Core\GL\GLRenderer.hpp" />
+    <ClInclude Include="src\Core\MM\Renderer\Renderer.hpp" />
     <ClInclude Include="src\Core\GL\GLShader.hpp" />
     <ClInclude Include="src\Core\GL\GLTexture.hpp" />
     <ClInclude Include="src\Core\GL\GLTexture2D.hpp" />
@@ -137,7 +139,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Core\MM\Animation\Animation.hpp" />
     <ClInclude Include="src\Core\MM\Animation\Bezier.hpp" />
     <ClInclude Include="src\Core\MM\Camera\Camera.hpp" />
-    <ClInclude Include="src\Core\MM\Effect.hpp" />
+    <ClInclude Include="src\Core\MM\Renderer\Effect.hpp" />
     <ClInclude Include="src\Core\MM\Files\File.hpp" />
     <ClInclude Include="src\Core\MM\Files\PMXFile.hpp" />
     <ClInclude Include="src\Core\MM\Files\VMDFile.hpp" />
@@ -150,8 +152,8 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Core\MM\Model\SkinVertex.hpp" />
     <ClInclude Include="src\Core\MM\Physics\ModelPhysicsData.hpp" />
     <ClInclude Include="src\Core\MM\Physics\PhysicsWorld.hpp" />
-    <ClInclude Include="src\Core\MM\Transform.hpp" />
-    <ClInclude Include="src\Core\MM\World.hpp" />
+    <ClInclude Include="src\Core\MM\Math\Transform.hpp" />
+    <ClInclude Include="src\Core\MM\World\World.hpp" />
     <ClInclude Include="src\Core\ResourceManager\Library.hpp" />
     <ClInclude Include="src\Core\ResourceManager\ResourceManager.hpp" />
     <ClInclude Include="src\Core\Utility\Stream.hpp" />
@@ -170,8 +172,11 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Editor\Sequencer.hpp" />
     <ClInclude Include="src\Editor\Viewport.hpp" />
     <ClInclude Include="src\mmpch.hpp" />
+    <ClInclude Include="src\Core\MM\World\WorldSerDes.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Editor\SelectionBox.cpp" />
+    <ClCompile Include="src\Editor\CurveEditor.cpp" />
     <ClCompile Include="src\Core\App\Application.cpp" />
     <ClCompile Include="src\Core\App\EventBus.cpp" />
     <ClCompile Include="src\Core\App\Input.cpp" />
@@ -183,7 +188,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClCompile Include="src\Core\GL\GLContext.cpp" />
     <ClCompile Include="src\Core\GL\GLCubeMap.cpp" />
     <ClCompile Include="src\Core\GL\GLFrameBuffer.cpp" />
-    <ClCompile Include="src\Core\GL\GLRenderer.cpp" />
+    <ClCompile Include="src\Core\MM\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Core\GL\GLShader.cpp" />
     <ClCompile Include="src\Core\GL\GLTexture.cpp" />
     <ClCompile Include="src\Core\GL\GLTexture2D.cpp" />
@@ -192,7 +197,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClCompile Include="src\Core\MM\Animation\Animation.cpp" />
     <ClCompile Include="src\Core\MM\Animation\Bezier.cpp" />
     <ClCompile Include="src\Core\MM\Camera\Camera.cpp" />
-    <ClCompile Include="src\Core\MM\Effect.cpp" />
+    <ClCompile Include="src\Core\MM\Renderer\Effect.cpp" />
     <ClCompile Include="src\Core\MM\Files\File.cpp" />
     <ClCompile Include="src\Core\MM\Files\PMXFile.cpp" />
     <ClCompile Include="src\Core\MM\Files\VMDFile.cpp" />
@@ -205,7 +210,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClCompile Include="src\Core\MM\Model\SkinVertex.cpp" />
     <ClCompile Include="src\Core\MM\Physics\ModelPhysicsData.cpp" />
     <ClCompile Include="src\Core\MM\Physics\PhysicsWorld.cpp" />
-    <ClCompile Include="src\Core\MM\World.cpp" />
+    <ClCompile Include="src\Core\MM\World\World.cpp" />
     <ClCompile Include="src\Core\ResourceManager\Library.cpp" />
     <ClCompile Include="src\Core\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="src\Editor\CameraController.cpp" />
@@ -223,6 +228,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClCompile Include="src\mmpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Core\MM\World\WorldSerDes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="3rdparty\glad\glad.vcxproj">

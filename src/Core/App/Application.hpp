@@ -4,7 +4,7 @@
 
 #include "Core/GL/GLContext.hpp"
 #include "Core/GL/GLTexture.hpp"
-#include "Core/GL/GLRenderer.hpp"
+#include "Core/MM/Renderer/Renderer.hpp"
 #include "Core/GL/GLShader.hpp"
 
 #include <dexode/EventBus.hpp>

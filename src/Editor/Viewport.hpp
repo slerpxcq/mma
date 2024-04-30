@@ -7,7 +7,7 @@
 
 namespace mm
 {
-	class GLRenderer;
+	class Renderer;
 	class EditorLayer;
 
 	class Viewport
@@ -15,7 +15,7 @@ namespace mm
 	public:
 		Viewport(EditorLayer& editor);
 		void OnUpdate(float deltaTime);
-		void OnRender(GLRenderer& renderer);
+		void OnRender(Renderer& renderer);
 		void OnUIRender();
 		ImVec2 GetSize() const { return m_size; }
 		bool IsHovered() const { return m_hovered; }

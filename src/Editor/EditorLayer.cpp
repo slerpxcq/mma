@@ -8,7 +8,7 @@
 #include "Core/App/Event.hpp"
 #include "Core/App/EventBus.hpp"
 
-#include "Core/GL/GLRenderer.hpp"
+#include "Core/MM/Renderer/Renderer.hpp"
 
 #include "Core/MM/Files/VMDFile.hpp"
 
@@ -26,6 +26,7 @@ namespace mm
         m_sequencer = std::make_unique<Sequencer>(*this);
         m_sceneHierarchy = std::make_unique<SceneHierarchy>(*this);
         m_properties = std::make_unique<Properties>(*this);
+        m_curveEditor = std::make_unique<CurveEditor>(*this);
 
         m_sceneHierarchy->SetWorld(m_world.get());
     }
@@ -44,7 +45,7 @@ namespace mm
 
     void EditorLayer::OnUIRender()
     {
-        GLRenderer& renderer = GLRenderer::s_instance;
+        Renderer& renderer = Renderer::Instance();
         m_viewport->OnRender(renderer);
 
         m_viewport->OnUIRender();
@@ -52,5 +53,6 @@ namespace mm
         m_sequencer->OnUIRender();
         m_sceneHierarchy->OnUIRender();
         m_properties->OnUIRender();
+        m_curveEditor->OnUIRender();
     }
 }

@@ -24,6 +24,13 @@ namespace mm
 			TYPE_PHYSICS_WORLD,
 		} ItemType;
 
+		struct Item {
+			std::string name;
+			uint32_t index;
+			uint8_t type;
+			std::any data;
+		};
+
 	public:
 		Properties(EditorLayer& editor);
 		void OnUIRender();

@@ -5,7 +5,7 @@
 #include "Core/GL/GLTexture.hpp"
 #include "Core/GL/GLShader.hpp"
 #include "Core/MM/Files/File.hpp"
-#include "Core/MM/Effect.hpp"
+#include "Core/MM/Renderer/Effect.hpp"
 
 namespace mm
 {

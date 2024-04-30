@@ -4,7 +4,7 @@
 #include "Model.hpp"
 
 #include "Core/GL/GLVertexArray.hpp"
-#include "Core/GL/GLRenderer.hpp"
+#include "Core/MM/Renderer/Renderer.hpp"
 #include "Core/GL/GLBuffer.hpp"
 #include "Core/GL/GLContext.hpp"
 
@@ -25,7 +25,7 @@ namespace mm
 		MM_INFO("{0}: morph loaded", m_model.m_pmxFile->GetInfo().nameJP);
 	}
 
-	void Morph::Render(GLRenderer& renderer) const
+	void Morph::Render(Renderer& renderer) const
 	{
 		// Material targets
 		for (const auto& target : m_materialTargets) {
@@ -57,7 +57,7 @@ namespace mm
 		glEnable(GL_RASTERIZER_DISCARD);
 
 		for (const auto& target : m_vertexTargets) {
-			renderer.GetShader()->Uniform("u_weight", 1, &m_weights[target.index]);
+			renderer.GetActiveShader()->Uniform("u_weight", 1, &m_weights[target.index]);
 			target.vertexArray->Bind();
 			target.vertexArray->DrawArray(GL_POINTS, 0, target.offsetCount);
 			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);

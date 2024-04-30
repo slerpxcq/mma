@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/GL/GLBuffer.hpp"
+#include "Effect.hpp"
 
 namespace mm
 {
@@ -11,24 +12,6 @@ namespace mm
 	class GLFrameBuffer;
 
 	class Camera;
-
-	struct GLPass
-	{
-		GLShader* shader;
-
-		bool depthTest = true;
-
-		bool blend = true;
-		uint32_t blendS = GL_SRC_ALPHA;
-		uint32_t blendD = GL_ONE_MINUS_SRC_ALPHA;
-
-		bool cull = true;
-		uint32_t frontFace = GL_CCW;
-		uint32_t cullFace = GL_BACK;
-
-		bool scissorTest = false;
-		bool stencilTest = false;
-	};
 
 	// std140
 	struct MaterialLayout 
@@ -49,46 +32,50 @@ namespace mm
 		glm::mat4 viewProj;
 	};
 
-	class GLRenderer
+	class Renderer
 	{
 	public:
 		static constexpr uint32_t MATERIAL_BASE = 0;
 		static constexpr uint32_t CAMERA_BASE = 1;
 
 	public:
+		static Renderer& Instance() { return s_instance; }
 		void Init();
 
 		void SetCamera(const Camera& camera);
 		void SetMaterial(const MaterialLayout& material);
 
-		// nullptr for default shader
 		void SetShader(GLShader* shader);
-		// nullptr for default framebuffer
 		void SetFramebuffer(GLFrameBuffer* framebuffer);
 
-		void BeginPass(const GLPass& pass);
+		void BeginEffect(Effect* effect) { m_activeEffect = effect; }
+		void BeginTechnique(const std::string& name);
+		const auto& GetActiveTechniquePasses() { return m_activeTechnique->passes; };
+		void BeginPass(const Effect::Pass& pass);
 		void EndPass();
+		void EndTechnique();
+		void EndEffect() { m_activeEffect = nullptr; }
 
-		GLShader* GetShader() const { return m_shader; }
-		GLFrameBuffer* GetFrameBuffer() { return m_framebuffer; }
-
-	public:
-		void SetEnable(uint32_t cap, bool enable);
-		static GLRenderer s_instance;
+		GLShader* GetActiveShader() const { return m_shader; }
+		GLFrameBuffer* GetActiveFrameBuffer() { return m_framebuffer; }
 
 	private:
-		GLRenderer() {};
+		Renderer() {};
 
 	private:
-		//const Camera* m_camera = nullptr;
+		static Renderer s_instance;
+
+	private:
 		GLShader* m_shader = nullptr;
 		GLFrameBuffer* m_framebuffer = nullptr;
 
 		std::unique_ptr<GLBuffer> m_materialUBO;
 		std::unique_ptr<GLBuffer> m_cameraUBO;
-		//std::unique_ptr<GLBuffer> m_lightUBO;
 
-		GLPass m_backup;
+		Effect* m_activeEffect = nullptr;
+		Effect::Technique* m_activeTechnique = nullptr;
+		Effect::Pass* m_activePass = nullptr;
+		Effect::Pass m_backupState;
 	};
 }
 

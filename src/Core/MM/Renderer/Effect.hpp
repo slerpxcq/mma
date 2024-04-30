@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Core/GL/GLShader.hpp"
-
 namespace mm
 {
 	struct EffectParseError : public std::runtime_error 
 	{
 		EffectParseError(const char* what) : std::runtime_error(what) {}
 	};
+
+	class GLShader;
 
 	class Effect
 	{
@@ -31,18 +31,17 @@ namespace mm
 	public:
 		Effect(const std::filesystem::path& path);
 		std::string GetName() { return m_name; };
-		void BeginTechnique(const std::string& name);
-		const auto& GetActiveTechniquePasses() { return m_activeTechnique->passes; };
-		void BeginPass(const Pass& pass);
-		void EndPass();
-		void EndTechnique();
+		Technique* GetTechnique(const std::string& name) { 
+			auto it = m_techniques.find(name);
+			if (it != m_techniques.end())
+				return &(it->second);
+			else
+				return nullptr;
+		}
 
 	private:
 		std::string m_name;
-		std::map<std::string, Technique> m_techniques;
-		Technique* m_activeTechnique = nullptr;
-		Pass* m_activePass = nullptr;
-		Pass m_backupState;
+		std::unordered_map<std::string, Technique> m_techniques;
 	};
 }
 
