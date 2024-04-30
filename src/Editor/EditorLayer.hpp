@@ -49,9 +49,6 @@ namespace mm
 		std::unique_ptr<Properties> m_properties;
 
 		std::unique_ptr<dexode::EventBus::Listener> m_listener;
-
-		/* For test */
-		std::unique_ptr<Effect> m_effect;
 	};
 }
 

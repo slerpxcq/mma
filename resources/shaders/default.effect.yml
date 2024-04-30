@@ -1,16 +1,31 @@
 ---
 effect: 
-  name: default
+  name: DefaultEffect
   techniques:
     - technique: 
       name: MainTec
       passes:
-        - name: MainPass
-          vertex_shader: resources/shaders/default.vert
-          fragment_shader: resources/shaders/default.frag
         - name: OutlinePass
           vertex_shader: resources/shaders/default.vert
           fragment_shader: resources/shaders/default.frag
-
+          depth_test: true
+          blend: false
+          #blend_src: SrcAlpha
+          #blend_dst: OneMinusSrcAlpha
+          cull_face: true
+          front_face: CW
+          uniforms:
+            - u_outlinePass: 1
+        - name: MainPass
+          vertex_shader: resources/shaders/default.vert
+          fragment_shader: resources/shaders/default.frag
+          depth_test: true
+          blend: true
+          blend_src: SrcAlpha
+          blend_dst: OneMinusSrcAlpha
+          cull_face: true
+          front_face: CCW
+          uniforms:
+            - u_outlinePass: 0
     
 

@@ -28,8 +28,6 @@ namespace mm
         m_properties = std::make_unique<Properties>(*this);
 
         m_sceneHierarchy->SetWorld(m_world.get());
-
-        m_effect = std::make_unique<Effect>("resources/shaders/default.effect.yml");
     }
 
     void EditorLayer::OnDetach()

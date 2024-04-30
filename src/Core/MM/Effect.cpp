@@ -27,18 +27,19 @@ namespace mm
 		auto effect = root["effect"];
 
 		std::string name = effect["name"].as<std::string>();
+		m_name = name;
 		MM_INFO("{0}: Effect: {1}", __FUNCTION__, name);
 
 		auto techniques = effect["techniques"];
 		MM_ASSERT(techniques.IsSequence());
 
-		for (auto technique : techniques) {
+		for (const auto& technique : techniques) {
 			std::string name = technique["name"].as<std::string>();
 			Technique tec = {};
 			tec.name = name;
 			MM_INFO("{0}:   Technique: {1}", __FUNCTION__, name);
 
-			for (auto pass : technique["passes"]) {
+			for (const auto& pass : technique["passes"]) {
 				std::string name = pass["name"].as<std::string>();
 				std::string vertexShaderPath = pass["vertex_shader"].as<std::string>();
 				std::string fragmentShaderPath = pass["fragment_shader"].as<std::string>();
@@ -47,24 +48,59 @@ namespace mm
 				MM_INFO("{0}:     Vertex shader: {1}", __FUNCTION__, vertexShaderPath);
 				MM_INFO("{0}:     Fragment shader: {1}", __FUNCTION__, fragmentShaderPath);
 
+				Pass p = {};
+				p.name = name;
+
 				if (pass["blend"].IsDefined()) {
 					bool blend = pass["blend"].as<bool>();
-					std::string blendSrc = pass["blend_src"].as<std::string>();
-					if (blendSrc == "SrcAlpha") {
-					}
-					else {
-						throw EffectParseError("Unknown blend_src value");
-					}
-					std::string blendDst = pass["blend_dst"].as<std::string>();
-					if (blendSrc == "OneMinusSrcAlpha") {
-					}
-					else {
-						throw EffectParseError("Unknown blend_dst value");
+					p.blend = blend;
+					if (blend) {
+						if (!pass["blend_src"].IsDefined()) {
+							throw EffectParseError("blend_src not defined");
+						}
+						std::string blendSrc = pass["blend_src"].as<std::string>();
+						if (blendSrc == "SrcAlpha") {
+							p.blendSrc = GL_SRC_ALPHA;
+						}
+						else {
+							throw EffectParseError("Unknown blend_src value");
+						}
+						if (!pass["blend_dst"].IsDefined()) {
+							throw EffectParseError("Unknown blend_dst value");
+						}
+						std::string blendDst = pass["blend_dst"].as<std::string>();
+						if (blendDst == "OneMinusSrcAlpha") {
+							p.blendDst = GL_ONE_MINUS_SRC_ALPHA;
+						}
+						else {
+							throw EffectParseError("Unknown blend_dst value");
+						}
 					}
 				}
 
 				if (pass["depth_test"].IsDefined()) {
 					bool depthTest = pass["depth_test"].as<bool>();
+					p.depthTest = depthTest;
+				}
+
+				if (pass["cull_face"].IsDefined()) {
+					bool cullFace = pass["cull_face"].as<bool>();
+					p.cullFace = cullFace;
+					if (!pass["front_face"].IsDefined()) {
+						throw EffectParseError("front_face undefined");
+					}
+					else {
+						std::string frontFace = pass["front_face"].as<std::string>();
+						if (frontFace == "CW") {
+							p.frontFace = GL_CW;
+						}
+						else if (frontFace == "CCW") {
+							p.frontFace = GL_CCW;
+						}
+						else {
+							throw EffectParseError("Unknown front_face value");
+						}
+					}
 				}
 
 				std::unique_ptr<GLShader> shader = std::make_unique<GLShader>();
@@ -72,8 +108,6 @@ namespace mm
 				shader->Compile(fragmentShaderPath, GLShader::FRAGMENT);
 				shader->Link();
 
-				Pass p = {};
-				p.name = name;
 				p.program = shader.get();
 				ResourceManager::Instance().LoadShader(name, std::move(shader));
 
@@ -81,8 +115,55 @@ namespace mm
 			}
 			m_techniques.insert({ name, std::move(tec) });
 		}
+	}
 
-		for (const auto& tec : m_techniques) {
-		}
+	void Effect::BeginTechnique(const std::string& name)
+	{
+		m_activeTechnique = &m_techniques[name];
+	}
+
+	void Effect::EndTechnique()
+	{
+		m_activeTechnique = nullptr;
+	}
+
+	static void SetEnable(uint32_t cap, bool enable)
+	{
+		if (enable)
+			glEnable(cap);
+		else
+			glDisable(cap);
+	}
+
+	void Effect::BeginPass(const Pass& pass)
+	{
+		/* Backup states */
+		/* Depth test */
+		m_backupState.depthTest = glIsEnabled(GL_DEPTH_TEST);
+
+		/* Blend */
+		m_backupState.blend = glIsEnabled(GL_BLEND);
+		glGetIntegerv(GL_BLEND_SRC_ALPHA, (int32_t*)&m_backupState.blendSrc);
+		glGetIntegerv(GL_BLEND_DST_ALPHA, (int32_t*)&m_backupState.blendDst);
+
+		/* Cull face */
+		m_backupState.cullFace = glIsEnabled(GL_CULL_FACE);
+
+		/* Set states */
+		SetEnable(GL_DEPTH_TEST, pass.depthTest);
+		SetEnable(GL_BLEND, pass.blend);
+		glBlendFunc(pass.blendSrc, pass.blendDst);
+		SetEnable(GL_CULL_FACE, pass.cullFace);
+		glFrontFace(pass.frontFace);
+
+		pass.program->Use();
+	}
+
+	void Effect::EndPass()
+	{
+		SetEnable(GL_DEPTH_TEST, m_backupState.depthTest);
+		SetEnable(GL_BLEND, m_backupState.blend);
+		glBlendFunc(m_backupState.blendSrc, m_backupState.blendDst);
+		SetEnable(GL_CULL_FACE, m_backupState.cullFace);
 	}
 }

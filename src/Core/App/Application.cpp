@@ -7,6 +7,7 @@
 #include "Layer/MenuBarLayer.hpp"
 #include "Editor/EditorLayer.hpp"
 #include "Core/GL/GLCubeMap.hpp"
+#include "Core/MM/Effect.hpp"
 
 #include "EventBus.hpp"
 
@@ -78,6 +79,8 @@ namespace mm
 		ResourceManager::Instance().LoadShader("quad", std::move(quadShader));
 		ResourceManager::Instance().LoadShader("skybox", std::move(skyboxShader));
 		ResourceManager::Instance().LoadShader("grid", std::move(gridShader));
+
+		ResourceManager::Instance().LoadEffect(std::make_unique<Effect>("resources/shaders/default.effect.yml"));
 	}
 
 	void Application::LoadTextures()

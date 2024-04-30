@@ -9,6 +9,8 @@
 #include "Core/GL/GLFrameBuffer.hpp"
 #include "Core/GL/GLRenderer.hpp"
 
+#include "Core/MM/Effect.hpp"
+
 namespace mm
 {
 	class Model;
@@ -23,7 +25,7 @@ namespace mm
 		struct Mesh {
 			std::string name;
 			MaterialLayout material;
-			std::vector<GLPass>* effect;
+			Effect* effect;
 			uint32_t elemCount;
 			uint32_t elemOffset;
 			int32_t albedoIndex;
@@ -58,7 +60,7 @@ namespace mm
 		std::unique_ptr<GLBuffer> m_vertexBuffer;
 		std::unique_ptr<GLBuffer> m_elemBuffer;
 
-		std::vector<GLPass> m_defaultEffect;
+		Effect& m_defaultEffect;
 
 		std::unique_ptr<GLFrameBuffer> m_renderBuffer;
 	};

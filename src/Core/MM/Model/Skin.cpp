@@ -23,17 +23,9 @@ static constexpr const char* toonTable[] = {
 namespace mm
 {
 	Skin::Skin(Model& model) :
-		m_model(model)
+		m_model(model),
+		m_defaultEffect(*ResourceManager::Instance().GetEffect("DefaultEffect"))
 	{
-		GLPass pass;
-		// Outline pass
-		pass.cullFace = GL_FRONT;
-		pass.shader = ResourceManager::Instance().GetShader("default");
-		m_defaultEffect.push_back(pass);
-		// Main pass
-		pass.cullFace = GL_BACK;
-		m_defaultEffect.push_back(pass);
-
 		LoadVertices();
 		LoadIndices();
 		LoadMeshes();
@@ -77,9 +69,11 @@ namespace mm
 		for (uint32_t meshIndex = 0; meshIndex < m_meshes.size(); ++meshIndex) {
 			auto& mesh = m_meshes[meshIndex];
 
-			for (uint32_t pass = 0; pass < mesh.effect->size(); ++pass) {
-				renderer.BeginPass((*mesh.effect)[pass]);
-
+			mesh.effect->BeginTechnique("MainTec");
+			const auto& passes = mesh.effect->GetActiveTechniquePasses();
+			uint32_t passCnt = 0;
+			for (const auto& pass : passes) {
+				mesh.effect->BeginPass(pass);
 				GLTexture& albedo = GetTexture(mesh.albedoIndex);
 				GLTexture& sph = GetTexture(mesh.sphIndex);
 				GLTexture& toon = GetToon(mesh);
@@ -91,7 +85,8 @@ namespace mm
 
 				renderer.SetMaterial(m_model.m_materialMorphBuffer[meshIndex]);
 
-				GLShader* shader = renderer.GetShader();
+				//GLShader* shader = renderer.GetShader();
+				GLShader* shader = pass.program;
 				shader->Uniform("u_albedo", 0);
 				shader->Uniform("u_sph", 1);
 				shader->Uniform("u_toon", 2);
@@ -101,10 +96,8 @@ namespace mm
 				shader->Uniform("u_lightColor", glm::vec3(.6, .6, .6));
 
 				// TODO: SPECIFY UNIFORMS IN PASS PARAMETERS
-				bool outlinePass = (pass == 0);
+				bool outlinePass = (passCnt++ == 0);
 				shader->Uniform("u_outlinePass", (int32_t)outlinePass);
-
-				bool draw = false;
 
 				if (!outlinePass) {
 					if (mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT)
@@ -121,8 +114,9 @@ namespace mm
 				}
 
 				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-				renderer.EndPass();
+				mesh.effect->EndPass();
 			}
+			mesh.effect->EndTechnique();
 		}
 
 		// Reset material morph offsets
