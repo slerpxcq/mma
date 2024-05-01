@@ -4,6 +4,14 @@ effect:
   techniques:
     - technique: 
       name: MainTec
+      textures:
+        - name: UVTest
+          type: 2D
+          path: resources/textures/uvTex.png
+          address_u: Wrap
+          address_v: Wrap
+          min_filter: Linear
+          mag_filter: Linear
       #framebuffers:
       #  - name: ShadowMap
       #    width: 2048

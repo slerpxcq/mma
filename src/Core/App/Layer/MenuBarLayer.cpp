@@ -37,6 +37,12 @@ namespace mm
 				if (ImGui::MenuItem("Redo", "Ctrl+Y")) {
 					EventBus::Instance()->postpone<Event::Redo>({});
 				}
+				if (ImGui::MenuItem("Copy", "Ctrl+C")) {
+					EventBus::Instance()->postpone<Event::Copy>({});
+				}
+				if (ImGui::MenuItem("Paste", "Ctrl+V")) {
+					EventBus::Instance()->postpone<Event::Paste>({});
+				}
 				ImGui::EndMenu();
 			}
 			ImGui::EndMainMenuBar();

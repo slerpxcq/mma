@@ -50,26 +50,35 @@ void main()
 	vec3 R = reflect(I, N);
 	R.z = -R.z;
 
-	vec2 toonUV = vec2(0, max(0,dot(N,L)));
-
 	vec4 color = vec4(0);
-	color.rgb = u_lightColor * texture(u_toon, toonUV).rgb * u_material.diffuse.rgb + u_material.ambient.rgb*0.1;
+	/* Ambient */
+	color.rgb += u_material.ambient.rgb * u_lightColor;
+	/* Diffuse */
+	//color.rgb += max(0, dot(fs_in.normal, L)) * u_material.diffuse.rgb;
 	color.a = u_material.diffuse.a;
-	vec3 specular = pow(max(0, dot(N,H)), u_material.specular.w) * u_material.specular.rgb * u_lightColor;
+	color = clamp(color, 0.0, 1.0);
+
+	/* Albedo */
 	color *= texture(u_albedo, fs_in.texCoord);
 
-	// Sphere
+	/* Sphere */
 	vec3 vN = mat3(u_camera.view) * N;
 	vec2 sphTexCoord = vN.xy*0.5 + 0.5;
 	uint sphMode = (u_material.flags >> 8) & 3;
 	vec3 sphColor = texture(u_sph, sphTexCoord).rgb;
-	vec3 sphMul = (sphMode == 1) ? sphColor : vec3(1);
-	vec3 sphAdd = (sphMode == 2) ? sphColor : vec3(0);
+	if (sphMode == 1) {
+		color.rgb *= sphColor;
+	} else if (sphMode == 2) {
+		color.rgb += sphColor;
+	}
 
-	color.rgb = sphMul * color.rgb + sphAdd;
+	/* Toon */
+	float toonFactor = max(0, dot(fs_in.normal, L));
+	color.rgb *= texture(u_toon, vec2(0, 0.5 - toonFactor * 0.5)).rgb;
+
+	/* Specular */
+	vec3 specular = pow(max(0, dot(N,H)), u_material.specular.w) * u_material.specular.rgb * u_lightColor;
 	color.rgb += specular;
 
-	//f_fragColor = color * texture(u_skybox, R);
-	//f_fragColor = texture(u_skybox, R);
 	f_fragColor = color;
 }

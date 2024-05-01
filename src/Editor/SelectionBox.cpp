@@ -9,8 +9,8 @@ namespace mm
 	{
 		m_drawList = ImGui::GetWindowDrawList();
 
-		m_thisFrameUsed = ImGui::IsMouseDragging(ImGuiMouseButton_Left);
-		m_lastFrameUsed = m_thisFrameUsed;
+		m_using = ImGui::IsMouseDragging(ImGuiMouseButton_Left);
+		m_lastFrameUsed = m_using;
 
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 			m_p1 = ImGui::GetMousePos();

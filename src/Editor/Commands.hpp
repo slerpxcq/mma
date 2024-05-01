@@ -77,5 +77,13 @@ namespace mm
 			uint32_t m_index;
 			uint32_t m_frame;
 		};
+
+		class KeyframeMoved : public ICommand {
+
+		};
+
+		class KeyframeDeleted : public ICommand {
+
+		};
 	}
 }

@@ -10,8 +10,10 @@ namespace mm
 	public:
 		void OnUIRender();
 		bool CheckIntersection(const ImVec2& center, float radius);
-		bool IsLastFrameUsed() { return m_lastFrameUsed; }
-		bool IsThisFrameUsed() { return m_thisFrameUsed; }
+		bool IsUsing() { return m_using; }
+
+		/* Should be call before OnUIRender */
+		bool IsLastFrameUsed() { return m_lastFrameUsed; };
 
 	private:
 		ImDrawList* m_drawList;
@@ -19,8 +21,8 @@ namespace mm
 		ImVec2 m_p2;
 		ImVec2 m_min;
 		ImVec2 m_max;
+		bool m_using = false;
 		bool m_lastFrameUsed = false;
-		bool m_thisFrameUsed = false;
 	};
 }
 

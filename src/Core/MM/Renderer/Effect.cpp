@@ -39,6 +39,12 @@ namespace mm
 			tec.name = name;
 			MM_INFO("{0}:   Technique: {1}", __FUNCTION__, name);
 
+			if (technique["textures"].IsDefined()) {
+				for (const auto& texture : technique["textures"]) {
+					std::string name = texture["name"].as<std::string>();
+				}
+			}
+
 			for (const auto& pass : technique["passes"]) {
 				std::string name = pass["name"].as<std::string>();
 				std::string vertexShaderPath = pass["vertex_shader"].as<std::string>();

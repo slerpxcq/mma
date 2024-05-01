@@ -99,7 +99,7 @@ namespace mm
 
 	private:
 		template <typename T>
-		decltype(auto) LowerBoundKeyframe(std::vector<T>& keyframeList);
+		decltype(auto) GetFirstKeyframeToDraw(std::vector<T>& keyframeList);
 
 		void CurveEditor(Item& item);
 
@@ -112,10 +112,14 @@ namespace mm
 		template<typename T>
 		void DrawRowHeader(T& row, bool expandable, float textOffset);
 		template<typename T>
-		void DrawDope(const Item& item, std::vector<T>& keyframeList);
+		void DrawItemDope(const Item& item, std::vector<T>& keyframeList);
 
 		void DrawGroupDope(const Group& group);
 		void DrawStrip(uint32_t row);
+		void DrawScale();
+		void DrawRows();
+		void DrawExpandedGroup(Group& group);
+		bool IsKeyframeSelected(Animation::Keyframe& keyframe);
 
 		const char* GenButtonId() {
 			static char buf[16];
@@ -137,15 +141,28 @@ namespace mm
 
 		SelectionBox m_selectionBox;
 
+
 		/* Editing states */
 		std::unordered_set<Animation::Keyframe*> m_selectedKeyframes;
+		std::unordered_set<Animation::Keyframe*> m_selectedKeyframesByBox;
 
 		/* Playback states */
 		bool m_playing = false;
 		FrameCounter m_frameCounter;
 
+		/* Dragging */
+		std::unordered_map<Animation::Keyframe*, uint32_t> m_keyframeFrameNumberMap;
+		bool m_lastFrameMouseDragged = false;
+		bool m_thisFrameMouseDragging = false;
+
+		bool m_mouseClickedOnItem = false;
+		float m_mouseXWhenStartDragging = 0.0f;
+
+		bool m_dragging = false;
+
 		/* Drawing states */
 		int32_t m_rowStart = 1;
+		int32_t m_currRowIndex;
 		int32_t m_totalRowCount = 0;
 		int32_t m_visibleRowCount = 0;
 		int32_t m_buttonIndex = 0;
@@ -153,7 +170,6 @@ namespace mm
 		ImVec2 m_canvasMax;
 		ImVec2 m_canvasOrigin;
 		ImVec2 m_canvasSize;
-
 		int32_t m_minFrame = 0;
 		int32_t m_maxFrame = 0;
 

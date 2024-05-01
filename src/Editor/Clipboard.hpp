@@ -1,5 +1,9 @@
 #pragma once
-class Clipboard
+
+namespace mm
 {
-};
+	class Clipboard
+	{
+	};
+}
 

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Core/GL/GLTexture.hpp"
+#include "Core/GL/GLFrameBuffer.hpp"
+
 namespace mm
 {
 	struct EffectParseError : public std::runtime_error 
@@ -42,6 +45,8 @@ namespace mm
 	private:
 		std::string m_name;
 		std::unordered_map<std::string, Technique> m_techniques;
+		std::unordered_map<std::string, std::unique_ptr<GLTexture>> m_textures;
+		std::unordered_map<std::string, std::unique_ptr<GLFrameBuffer>> m_framebuffers;
 	};
 }
 

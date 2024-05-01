@@ -6,6 +6,7 @@
 #include <dexode/EventBus.hpp>
 
 #include "EditorEvent.hpp"
+#include "SelectionBox.hpp"
 
 namespace mm
 {

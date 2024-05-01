@@ -10,9 +10,6 @@ namespace mm
 {
 	void Sequencer::DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded)
 	{
-		ImGuiIO& io = ImGui::GetIO();
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-
 		ImVec2 pos = ImVec2(offsetX, rowIndex * ROW_HEIGHT + 8);
 
 		ImGui::SetCursorScreenPos(m_canvasOrigin + pos);
@@ -24,7 +21,7 @@ namespace mm
 		ImVec2 mid = pos + 0.5f * BUTTON_SIZE;
 		if (!expanded) {
 			/* Lower triangle */
-			drawList->AddTriangle(
+			m_drawList->AddTriangle(
 				m_canvasOrigin + ImVec2(mid.x, pos.y), 
 				m_canvasOrigin + ImVec2(max.x, mid.y),
 				m_canvasOrigin + ImVec2(mid.x, max.y), BUTTON_COLOR);
@@ -32,7 +29,7 @@ namespace mm
 		else {
 			/* Upper triangle */
 			static constexpr float RATIO = 0.8f;
-			drawList->AddTriangleFilled(
+			m_drawList->AddTriangleFilled(
 				m_canvasOrigin + ImVec2(max.x, max.y - RATIO * BUTTON_SIZE.y),
 				m_canvasOrigin + ImVec2(max.x, max.y),
 				m_canvasOrigin + ImVec2(max.x - RATIO * BUTTON_SIZE.x, max.y),
@@ -40,6 +37,7 @@ namespace mm
 		}
 	}
 
+	/* Use ImGui events */
 	void Sequencer::OnMouseScrolled(const Event::MouseScrolled& e)
 	{
 		if (!m_hovered)
@@ -72,7 +70,7 @@ namespace mm
 	}
 
 	template <typename T>
-	decltype(auto) Sequencer::LowerBoundKeyframe(std::vector<T>& keyframeList)
+	decltype(auto) Sequencer::GetFirstKeyframeToDraw(std::vector<T>& keyframeList)
 	{
 		auto it = std::lower_bound(
 			keyframeList.begin(), 
@@ -84,38 +82,68 @@ namespace mm
 		return it;
 	}
 
+	bool Sequencer::IsKeyframeSelected(Animation::Keyframe& keyframe)
+	{
+		auto it = m_selectedKeyframes.find(&keyframe);
+		return it != m_selectedKeyframes.end();
+	}
+
 	void Sequencer::DrawGroupDope(const Group& group)
 	{
 	}
 
 	template <typename T>
-	void Sequencer::DrawDope(const Item& item, std::vector<T>& keyframeList)
+	void Sequencer::DrawItemDope(const Item& item, std::vector<T>& keyframeList)
 	{
 		/* The first row is the ruler, don't draw on it! */
 		if (item.rowIndex < 1)
 			return;
 
-		auto it = LowerBoundKeyframe(keyframeList);
+		auto currKeyframe = GetFirstKeyframeToDraw(keyframeList);
 
-		for (; it != keyframeList.end() && it->frame < m_maxFrame; ++it) {
-			float startX = LEGEND_LENGTH + ROW_HEIGHT / 2;
+		for (; currKeyframe != keyframeList.end() && currKeyframe->frame < m_maxFrame; ++currKeyframe) {
+			float x = LEGEND_LENGTH + ROW_HEIGHT / 2;
 			float y = item.rowIndex * ROW_HEIGHT;
-			uint32_t column = it->frame - m_minFrame;
+			uint32_t column = currKeyframe->frame - m_minFrame;
 
-			ImVec2 dopePos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
+			ImVec2 dopePos = ImVec2(x + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
 			ImVec2 buttonSize = 2.f * ImVec2(DOPE_RADIUS, DOPE_RADIUS);
 			ImVec2 buttonPos = dopePos - 0.5f * buttonSize;
 
+			bool startDragging = !m_lastFrameMouseDragged && m_thisFrameMouseDragging;
+			if (startDragging)
+				;
 			ImGui::SetCursorScreenPos(m_canvasOrigin + buttonPos);
 			if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
-				m_selectedKeyframes.insert(&(*it));
+				if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyframeSelected(*currKeyframe) && !startDragging)
+					m_selectedKeyframes.erase(&(*currKeyframe));
+				else
+					m_selectedKeyframes.insert(&(*currKeyframe));
+			}
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && IsKeyframeSelected(*currKeyframe) && ImGui::IsItemHovered()) {
+				m_mouseClickedOnItem = true;
 			}
 			if (m_selectionBox.CheckIntersection(m_canvasOrigin + buttonPos, DOPE_RADIUS)) {
-				m_selectedKeyframes.insert(&(*it));
+				m_selectedKeyframes.insert(&(*currKeyframe));
+			}
+			/* Detect start dragging on a selected dope */
+			/* Should be one shot */
+			/* 0. Not dragging now */
+			/* 1. It is selected */
+			/* 2. Mouse on it */
+			/* 3. Mouse start dragging */
+			if (!m_dragging && IsKeyframeSelected(*currKeyframe) && ImGui::IsItemHovered() && startDragging) {
+				m_dragging = true;
+				m_mouseXWhenStartDragging = ImGui::GetMousePos().x;
+				/* Store frame number of all keyframes being dragged */
+				for (auto& keyframe : m_selectedKeyframes) {
+					m_keyframeFrameNumberMap.insert({ keyframe, keyframe->frame });
+				}
+				MM_INFO("Start dragging");
 			}
 
-			auto it2 = m_selectedKeyframes.find(&(*it));
-			if (it2 != m_selectedKeyframes.end())
+			/* if the keyframe is in selected set or selected by the box */
+			if (IsKeyframeSelected(*currKeyframe))
 				DrawDiamond(dopePos, DOPE_RADIUS, DOPE_OUTLINE_SIZE_SELECTED, DOPE_OUTLINE_COLOR_SELECTED, DOPE_FILL_COLOR);
 			else
 				DrawDiamond(dopePos, DOPE_RADIUS, DOPE_OUTLINE_SIZE, DOPE_OUTLINE_COLOR, DOPE_FILL_COLOR);
@@ -211,61 +239,8 @@ namespace mm
 			stripColor);
 	}
 
-	void Sequencer::OnUIRender()
+	void Sequencer::DrawScale()
 	{
-		ImGui::Begin("Sequencer", nullptr,
-			ImGuiWindowFlags_NoScrollbar |
-			ImGuiWindowFlags_NoScrollWithMouse);
-
-		if (ImGui::Button("Play")) {
-			m_playing = true;
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Stop")) {
-			m_playing = false;
-		}
-		ImGui::SameLine();
-		static int32_t frame;
-		if (ImGui::InputInt("Frame", &frame)) {
-			if (frame < 0)
-				frame = 0;
-			m_frameCounter.Set(frame);
-			UpdateAnim();
-		}
-
-		if (ImGui::SliderInt("Min frame", &m_minFrame, 0, 10000)) {
-		}
-		ImGui::SameLine();
-		if (ImGui::InputInt(" ", &m_minFrame)) {
-		}
-		m_minFrame = std::clamp(m_minFrame, 0, 10000);
-
-		/* Init states */
-		m_hovered = ImGui::IsWindowHovered();
-		m_drawList = ImGui::GetWindowDrawList();
-		m_canvasMin = ImGui::GetCursorPos();
-		m_canvasMax = ImGui::GetWindowContentRegionMax();
-		m_canvasOrigin = ImGui::GetWindowPos() + m_canvasMin;
-		m_canvasSize = m_canvasMax - m_canvasMin;
-		m_buttonIndex = 0;
-		m_visibleRowCount = m_canvasSize.y / ROW_HEIGHT;
-
-		ImGui::BeginGroup();
-
-		/* Background */
-		m_drawList->AddRectFilled(m_canvasOrigin, m_canvasOrigin + m_canvasSize, BACKGROUND_COLOR);
-
-		//for (uint32_t i = 1; i < m_visibleRowCount; ++i)
-		//	DrawStrip(i);
-		for (auto& group : m_groups) {
-			DrawStrip(group.rowIndex);
-			if (group.expanded) {
-				for (auto& item : group.items) {
-					DrawStrip(item.rowIndex);
-				}
-			}
-		}
-
 		/* Ruler */
 		float rulerBeginX = LEGEND_LENGTH + ROW_HEIGHT / 2;
 		float rulerEndX = m_canvasSize.x;
@@ -320,44 +295,144 @@ namespace mm
 			}
 		}
 		m_maxFrame = m_minFrame + columnCount;
+	}
 
-		m_selectionBox.OnUIRender();
-		/* Cherry picking reset condition */
-		if (ImGui::IsMouseClicked(0) && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) 
-			m_selectedKeyframes.clear();
-		/* Box selecting reset condition */
-		if (m_selectionBox.IsLastFrameUsed())
-			m_selectedKeyframes.clear();
+	void Sequencer::DrawExpandedGroup(Group& group)
+	{
+		for (auto& item : group.items) {
+			item.rowIndex = m_currRowIndex++;
+			if (item.rowIndex >= m_visibleRowCount)
+				break;
+			Animation& anim = m_model->GetAnim();
+			DrawRowHeader(item, false, 2 * INDENT_BASE);
+			switch (item.type) {
+			case PMXFile::CLUSTER_BONE:
+				DrawItemDope(item, anim.GetBoneKeyframeMatrix()[item.index]);
+				break;
+			case PMXFile::CLUSTER_MORPH:
+				DrawItemDope(item, anim.GetMorphKeyframeMatrix()[item.index]);
+				break;
+			}
+		}
+	}
 
-		int32_t rowIndex = m_rowStart;
+	void Sequencer::DrawRows()
+	{
+		m_currRowIndex = m_rowStart;
 		for (auto& group : m_groups) {
-			group.rowIndex = rowIndex++;
+			group.rowIndex = m_currRowIndex++;
 			if (group.rowIndex >= m_visibleRowCount)
 				break;
 			DrawRowHeader(group, true, INDENT_BASE);
 			if (group.expanded) {
+				DrawExpandedGroup(group);
+			}
+		}
+		m_totalRowCount = m_currRowIndex - 1;
+	}
+
+	void Sequencer::OnUIRender()
+	{
+
+		ImGui::Begin("Sequencer", nullptr,
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoScrollWithMouse);
+
+		if (ImGui::Button("Play")) {
+			m_playing = true;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Stop")) {
+			m_playing = false;
+		}
+		ImGui::SameLine();
+		static int32_t frame;
+		if (ImGui::InputInt("Frame", &frame)) {
+			if (frame < 0)
+				frame = 0;
+			m_frameCounter.Set(frame);
+			UpdateAnim();
+		}
+
+		if (ImGui::SliderInt("Min frame", &m_minFrame, 0, 10000)) {
+		}
+		ImGui::SameLine();
+		if (ImGui::InputInt(" ", &m_minFrame)) {
+		}
+		m_minFrame = std::clamp(m_minFrame, 0, 10000);
+
+		/* Init states */
+		m_hovered = ImGui::IsWindowHovered();
+		m_drawList = ImGui::GetWindowDrawList();
+		m_canvasMin = ImGui::GetCursorPos();
+		m_canvasMax = ImGui::GetWindowContentRegionMax();
+		m_canvasOrigin = ImGui::GetWindowPos() + m_canvasMin;
+		m_canvasSize = m_canvasMax - m_canvasMin;
+		m_buttonIndex = 0;
+		m_visibleRowCount = m_canvasSize.y / ROW_HEIGHT;
+
+		ImGui::BeginGroup();
+
+		/* Background */
+		m_drawList->AddRectFilled(m_canvasOrigin, m_canvasOrigin + m_canvasSize, BACKGROUND_COLOR);
+
+		/* Strip */
+		for (auto& group : m_groups) {
+			DrawStrip(group.rowIndex);
+			if (group.expanded) {
 				for (auto& item : group.items) {
-					item.rowIndex = rowIndex++;
-					if (item.rowIndex >= m_visibleRowCount)
-						break;
-					Animation& anim = m_model->GetAnim();
-					switch (item.type) {
-					case PMXFile::CLUSTER_BONE:
-						DrawRowHeader(item, true, 2 * INDENT_BASE);
-						DrawDope(item, anim.GetBoneKeyframeMatrix()[item.index]);
-						break;
-					case PMXFile::CLUSTER_MORPH:
-						DrawRowHeader(item, false, 2 * INDENT_BASE);
-						DrawDope(item, anim.GetMorphKeyframeMatrix()[item.index]);
-						break;
-					}
+					DrawStrip(item.rowIndex);
 				}
 			}
 		}
-		m_totalRowCount = rowIndex - 1;
+
+		DrawScale();
+
+		m_thisFrameMouseDragging = ImGui::IsMouseDragging(ImGuiMouseButton_Left);
+
+		DrawRows();
+
+		if (!m_dragging)
+		{
+			/* Selection */
+			bool lastFrameUsed = m_selectionBox.IsLastFrameUsed();
+			m_selectionBox.OnUIRender();
+			bool thisFrameUsing = m_selectionBox.IsUsing();
+
+			/* Begin box select */
+			if (!lastFrameUsed && thisFrameUsing) {
+				if (!ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+					m_selectedKeyframes.clear();
+			}
+
+			/* End box select */
+			if (lastFrameUsed && !thisFrameUsing) {
+				/* Merge box select result */
+			}
+
+			/* Cherry picking reset condition */
+			/* Only click on nothing will clear the set*/
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !m_mouseClickedOnItem && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) 
+				m_selectedKeyframes.clear();
+		}
+
+		if (m_dragging) {
+			float deltaX = ImGui::GetMousePos().x - m_mouseXWhenStartDragging;
+			for (auto& keyframe : m_selectedKeyframes) {
+				keyframe->frame = m_keyframeFrameNumberMap[keyframe] + deltaX / COLUMN_WIDTH;
+			}
+		}
+
+		if (m_dragging && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+			MM_INFO("End dragging");
+			m_dragging = false;
+			m_keyframeFrameNumberMap.clear();
+		}
+
+		m_lastFrameMouseDragged = m_thisFrameMouseDragging;
+		m_mouseClickedOnItem = false;
 
 		ImGui::EndGroup();
-
 		ImGui::End();
 	}
 

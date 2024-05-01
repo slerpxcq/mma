@@ -47,6 +47,8 @@ namespace mm
 
 		struct Undo {};
 		struct Redo {};
+		struct Copy {};
+		struct Paste {};
 	}
 }
 
