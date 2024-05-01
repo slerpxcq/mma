@@ -35,12 +35,12 @@ namespace mm
 		glm::vec3 m_view;
 		glm::vec3 m_right;
 
-		glm::vec2 m_mousePos0;
-		glm::vec2 m_mousePos1;
-		glm::vec3 m_eye0;
-		glm::vec3 m_center0;
-		glm::vec3 m_up0;
-		glm::vec3 m_right0;
+		glm::vec2 m_mousePosWhenMouseClicked;
+		glm::vec2 m_mousePosWhenMouseReleased;
+		glm::vec3 m_eyeOnWhenMouseClicked;
+		glm::vec3 m_centerWhenMouseClicked;
+		glm::vec3 m_upWhenMouseClicked;
+		glm::vec3 m_rightWhenMouseClicked;
 	};
 }
 

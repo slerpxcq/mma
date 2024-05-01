@@ -419,6 +419,9 @@ namespace mm
 		if (m_dragging) {
 			float deltaX = ImGui::GetMousePos().x - m_mouseXWhenStartDragging;
 			for (auto& keyframe : m_selectedKeyframes) {
+				/* Don't touch the first keyframe! */
+				if (keyframe->frame == 0)
+					continue;
 				keyframe->frame = m_keyframeFrameNumberMap[keyframe] + deltaX / COLUMN_WIDTH;
 			}
 		}
@@ -432,7 +435,24 @@ namespace mm
 		m_lastFrameMouseDragged = m_thisFrameMouseDragging;
 		m_mouseClickedOnItem = false;
 
+		/* Copy */
+		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_C)) {
+			m_copiedKeyframes = std::set<Animation::Keyframe*>(m_selectedKeyframes.begin(), m_selectedKeyframes.end());
+			MM_INFO("Copied selection");
+		}
+
+		/* Paste */
+		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_V)) {
+			Animation& anim = m_model->GetAnim();
+			uint32_t minFrameNumber = (*m_copiedKeyframes.begin())->frame;
+			for (auto& keyframe : m_copiedKeyframes) {
+				/* How to distinct between bone or morph (or possibly other) keyframes? */
+			}
+			MM_INFO("Pasted selection");
+		}
+
 		ImGui::EndGroup();
+
 		ImGui::End();
 	}
 

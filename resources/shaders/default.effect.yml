@@ -3,34 +3,35 @@ effect:
   name: DefaultEffect
   techniques:
     - technique: 
-      name: MainTec
-      textures:
-        - name: UVTest
-          type: 2D
-          path: resources/textures/uvTex.png
-          address_u: Wrap
-          address_v: Wrap
-          min_filter: Linear
-          mag_filter: Linear
-      #framebuffers:
-      #  - name: ShadowMap
-      #    width: 2048
-      #    height: 2048
-      #    format: D24S8
-      #    address_u: Clamp
-      #    address_v: Clamp
-      #    min_filter: Linear
-      #    mag_filter: Linear
+      name: OutlineTec
       passes:
         - name: OutlinePass
           vertex_shader: resources/shaders/default.vert
-          fragment_shader: resources/shaders/default.frag
+          fragment_shader: resources/shaders/outline.frag
           depth_test: true
           blend: false
           cull_face: true
           front_face: CW
           uniforms:
-            - u_outlinePass: 1
+            - name: u_outlinePass
+              type: int
+              value: 1
+        #- name: MainPass
+        #  vertex_shader: resources/shaders/default.vert
+        #  fragment_shader: resources/shaders/default.frag
+        #  depth_test: true
+        #  blend: true
+        #  blend_src: SrcAlpha
+        #  blend_dst: OneMinusSrcAlpha
+        #  cull_face: true
+        #  front_face: CCW
+        #  uniforms:
+        #    - name: u_outlinePass
+        #      type: int
+        #      value: 0
+    - technique: 
+      name: MainTec
+      passes:
         - name: MainPass
           vertex_shader: resources/shaders/default.vert
           fragment_shader: resources/shaders/default.frag
@@ -41,7 +42,9 @@ effect:
           cull_face: true
           front_face: CCW
           uniforms:
-            - u_outlinePass: 0
+            - name: u_outlinePass
+              type: int
+              value: 0
     
     
 

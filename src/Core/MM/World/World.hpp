@@ -9,6 +9,8 @@ namespace mm
 	class Renderer;
 	class World
 	{
+		friend class WorldSerDes;
+
 		using ModelContainer = std::vector<std::unique_ptr<Model>>;
 	public:
 		World();
@@ -26,6 +28,7 @@ namespace mm
 	private:
 		Camera m_mainCamera;
 		ModelContainer m_models;
+		//std::vector<std::unique_ptr<Light>> m_lights;
 		PhysicsWorld m_physicsWorld;
 	};
 }

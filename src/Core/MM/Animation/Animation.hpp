@@ -71,8 +71,11 @@ namespace mm
 		VMDFile* m_vmdFile;
 		std::string m_name;
 
+		/* Why split? */
 		std::vector<std::vector<BoneKeyframe>>  m_boneKeyframeMatrix;
 		std::vector<std::vector<MorphKeyframe>> m_morphKeyframeMatrix;
+
+		//std::vector<std::vector<std::unique_ptr<Keyframe>>> m_keyframeMatrix;
 	};
 
 	 // For std::upper_bound and std::lower_bound

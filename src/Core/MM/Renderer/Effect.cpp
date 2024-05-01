@@ -109,13 +109,33 @@ namespace mm
 					}
 				}
 
+				if (pass["uniforms"].IsDefined()) {
+					for (auto& uniform : pass["uniforms"]) {
+						std::string name = uniform["name"].as<std::string>();
+						std::string type = uniform["type"].as<std::string>();
+						Uniform u = {};
+						u.name = name;
+						if (type == "int") {
+							u.type = Uniform::TYPE_INT;
+							u.value = uniform["value"].as<int32_t>();
+							MM_INFO("{0}:     Uniform: name={1}, type={2}, value={3}", __FUNCTION__, name, "int", std::any_cast<int32_t>(u.value));
+						}
+						else {
+							throw EffectParseError("Unknown uniform type");
+						}
+						p.uniforms.push_back(std::move(u));
+					}
+				}
+
 				std::unique_ptr<GLShader> shader = std::make_unique<GLShader>();
 				shader->Compile(vertexShaderPath, GLShader::VERTEX);
 				shader->Compile(fragmentShaderPath, GLShader::FRAGMENT);
 				shader->Link();
 
 				p.program = shader.get();
-				ResourceManager::Instance().LoadShader(name, std::move(shader));
+				/* Should be unique name! */
+				/* Otherwise it causes the shader with same name being deleted */
+				ResourceManager::Instance().LoadShader(tec.name + "_" + name, std::move(shader));
 
 				tec.passes.push_back(std::move(p));
 			}

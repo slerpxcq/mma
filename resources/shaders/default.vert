@@ -36,6 +36,7 @@ layout (binding = 2, std140) buffer Morph
 } u_morph;
 
 uniform bool u_outlinePass;
+uniform bool u_resetMorph;
 
 bool IsSDEF(in ivec4 bones)
 {

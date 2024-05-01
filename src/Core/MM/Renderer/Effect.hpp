@@ -15,6 +15,16 @@ namespace mm
 	class Effect
 	{
 	public:
+		struct Uniform {
+			enum {
+				TYPE_INT
+			};
+			std::string name;
+			int32_t location;
+			uint8_t type;
+			std::any value;
+		};
+
 		struct Pass {
 			std::string name;
 			GLShader* program = nullptr;
@@ -24,6 +34,7 @@ namespace mm
 			uint32_t blendDst = 0;
 			bool cullFace = false;
 			uint32_t frontFace = 0;
+			std::vector<Uniform> uniforms;
 		};
 
 		struct Technique { 

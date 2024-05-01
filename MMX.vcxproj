@@ -113,6 +113,8 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\MM\Lights\Light.hpp" />
+    <ClInclude Include="src\Core\MM\Lights\PointLight.hpp" />
     <ClInclude Include="src\Editor\SelectionBox.hpp" />
     <ClInclude Include="src\Editor\CurveEditor.hpp" />
     <ClInclude Include="src\Core\App\Application.hpp" />
@@ -175,6 +177,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Core\MM\World\WorldSerDes.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\MM\Lights\PointLight.cpp" />
     <ClCompile Include="src\Editor\SelectionBox.cpp" />
     <ClCompile Include="src\Editor\CurveEditor.cpp" />
     <ClCompile Include="src\Core\App\Application.cpp" />

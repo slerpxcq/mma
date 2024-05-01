@@ -9,6 +9,9 @@
 
 #include "FrameCounter.hpp"
 #include "SelectionBox.hpp"
+#include "Clipboard.hpp"
+
+#include <set>
 
 namespace mm
 {
@@ -141,10 +144,12 @@ namespace mm
 
 		SelectionBox m_selectionBox;
 
+		/* Clipboard */
+		std::set<Animation::Keyframe*> m_copiedKeyframes;
 
 		/* Editing states */
 		std::unordered_set<Animation::Keyframe*> m_selectedKeyframes;
-		std::unordered_set<Animation::Keyframe*> m_selectedKeyframesByBox;
+		//std::unordered_set<Animation::Keyframe*> m_selectedKeyframesByBox;
 
 		/* Playback states */
 		bool m_playing = false;

@@ -21,7 +21,7 @@ namespace mm
 
 		m_cameraUBO = std::make_unique<GLBuffer>(GL_UNIFORM_BUFFER);
 		m_cameraUBO->SetBase(CAMERA_BASE);
-		m_cameraUBO->SetData(sizeof(CameraUBOLayout), nullptr);
+		m_cameraUBO->SetData(sizeof(CameraLayout), nullptr);
 	}
 
 	void Renderer::SetMaterial(const MaterialLayout& material)
@@ -31,12 +31,12 @@ namespace mm
 
 	void Renderer::SetCamera(const Camera& camera)
 	{
-		CameraUBOLayout ubo = {};
+		CameraLayout ubo = {};
 		ubo.proj = camera.GetProj();
 		ubo.view = camera.GetView();
 		ubo.viewProj = ubo.proj * ubo.view;
 
-		m_cameraUBO->SetSubData(0, sizeof(CameraUBOLayout), &ubo);
+		m_cameraUBO->SetSubData(0, sizeof(CameraLayout), &ubo);
 	}
 
 	void Renderer::SetShader(GLShader* shader)
@@ -62,6 +62,7 @@ namespace mm
 	void Renderer::BeginTechnique(const std::string& name)
 	{
 		m_activeTechnique = m_activeEffect->GetTechnique(name);
+		MM_ASSERT(m_activeTechnique);
 	}
 
 	void Renderer::EndTechnique()
@@ -79,6 +80,7 @@ namespace mm
 
 	void Renderer::BeginPass(const Effect::Pass& pass)
 	{
+		m_activePass = &pass;
 		/* Backup states */
 		/* Depth test */
 		m_backupState.depthTest = glIsEnabled(GL_DEPTH_TEST);
@@ -98,11 +100,24 @@ namespace mm
 		SetEnable(GL_CULL_FACE, pass.cullFace);
 		glFrontFace(pass.frontFace);
 
+		/* Use shader */
 		pass.program->Use();
+
+		/* Set uniforms*/
+		for (auto& u : pass.uniforms) {
+			switch (u.type) {
+			case Effect::Uniform::TYPE_INT:
+				pass.program->Uniform(u.name, std::any_cast<int32_t>(u.value));
+				break;
+			default:
+				MM_ASSERT(0 && "Unknown uniform type");
+			}
+		}
 	}
 
 	void Renderer::EndPass()
 	{
+		m_activePass = nullptr;
 		SetEnable(GL_DEPTH_TEST, m_backupState.depthTest);
 		SetEnable(GL_BLEND, m_backupState.blend);
 		glBlendFunc(m_backupState.blendSrc, m_backupState.blendDst);

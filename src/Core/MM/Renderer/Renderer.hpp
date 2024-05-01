@@ -21,11 +21,13 @@ namespace mm
 		glm::vec4 ambient;
 		glm::vec4 edge;
 		float edgeSize;
+		//                [23:16]                [15:8]                  [7:0]
+		//mat.flags = (pm.toonFlag << 16) | (pm.sphereMode << 8) | (pm.drawFlag);
 		uint32_t flags;
 	};
 
 	// std140
-	struct CameraUBOLayout 
+	struct CameraLayout 
 	{
 		glm::mat4 view;
 		glm::mat4 proj;
@@ -74,7 +76,7 @@ namespace mm
 
 		Effect* m_activeEffect = nullptr;
 		Effect::Technique* m_activeTechnique = nullptr;
-		Effect::Pass* m_activePass = nullptr;
+		const Effect::Pass* m_activePass = nullptr;
 		Effect::Pass m_backupState;
 	};
 }

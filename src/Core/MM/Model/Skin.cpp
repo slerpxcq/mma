@@ -66,16 +66,36 @@ namespace mm
 
 	void Skin::Render(Renderer& renderer)
 	{
+		/* Outline pass */
+		for (auto& mesh : m_meshes) {
+			if (!(mesh.material.flags & PMXFile::MATERIAL_EDGE_BIT))
+				continue;
+			renderer.BeginEffect(mesh.effect);
+			renderer.BeginTechnique("OutlineTec");
+			for (auto& pass : renderer.GetActiveTechniquePasses()) {
+				renderer.BeginPass(pass);
+				m_vertexArray->Bind();
+				m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
+				renderer.EndPass();
+			}
+			renderer.EndTechnique();
+			renderer.EndEffect();
+		}
+
+		/* Main pass */
 		for (uint32_t meshIndex = 0; meshIndex < m_meshes.size(); ++meshIndex) {
 			auto& mesh = m_meshes[meshIndex];
 
 			renderer.BeginEffect(mesh.effect);
 			renderer.BeginTechnique("MainTec");
 
-			const auto& passes = renderer.GetActiveTechniquePasses();
-			uint32_t passCnt = 0;
-			for (const auto& pass : passes) {
+			for (const auto& pass : renderer.GetActiveTechniquePasses()) {
 				renderer.BeginPass(pass);
+
+				if (mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT)
+					glDisable(GL_CULL_FACE);
+
+				/* These should be set in BeginPass */
 				GLTexture& albedo = GetTexture(mesh.albedoIndex);
 				GLTexture& sph = GetTexture(mesh.sphIndex);
 				GLTexture& toon = GetToon(mesh);
@@ -87,7 +107,6 @@ namespace mm
 
 				renderer.SetMaterial(m_model.m_materialMorphBuffer[meshIndex]);
 
-				//GLShader* shader = renderer.GetShader();
 				GLShader* shader = pass.program;
 				shader->Uniform("u_albedo", 0);
 				shader->Uniform("u_sph", 1);
@@ -97,23 +116,8 @@ namespace mm
 				shader->Uniform("u_lightDir", glm::vec3(-.5, -1, .5));
 				shader->Uniform("u_lightColor", glm::vec3(.6, .6, .6));
 
-				// TODO: SPECIFY UNIFORMS IN PASS PARAMETERS
-				bool outlinePass = (passCnt++ == 0);
-				shader->Uniform("u_outlinePass", (int32_t)outlinePass);
-
-				if (!outlinePass) {
-					if (mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT)
-						glDisable(GL_CULL_FACE);
-
-					m_vertexArray->Bind();
-					m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
-				}
-				else {
-					if (mesh.material.flags & PMXFile::MATERIAL_EDGE_BIT) {
-						m_vertexArray->Bind();
-						m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
-					}
-				}
+				m_vertexArray->Bind();
+				m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
 
 				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 				renderer.EndPass();

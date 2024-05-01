@@ -369,6 +369,7 @@ namespace mm
 			m_model->GetPMXFile().GetBoneName(m_context.selected).c_str() : "--");
 		ImGui::End();
 
+		/* Draw overlay on viewport */
 		ImGui::Begin("Viewport");
         ImVec2 min = ImGui::GetWindowContentRegionMin();
         ImVec2 max = ImGui::GetWindowContentRegionMax();
@@ -386,6 +387,20 @@ namespace mm
 				break;
 			}
 		}
+
+		/* Copy */
+		if (ImGui::IsKeyPressed(ImGuiKey_C) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
+
+		}
+
+		/* paste */
+		if (ImGui::IsKeyPressed(ImGuiKey_V) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
+
+		}
+
+		/* Mirror paste*/
+
+
 		ImGui::End();
 	}
 }
