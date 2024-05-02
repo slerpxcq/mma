@@ -7,6 +7,7 @@ namespace mm
 		m_target(target)
 	{
 		glCreateTextures(m_target, 1, &m_id);
+		MM_INFO("id={0}: texture loaded", m_id);
 	}
 
 	void GLTexture::Bind(uint32_t unit) const

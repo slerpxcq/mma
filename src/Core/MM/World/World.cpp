@@ -3,11 +3,16 @@
 
 #include "Core/MM/Renderer/Renderer.hpp"
 #include "Core/MM/Model/Armature.hpp"
+#include "Core/MM/Lights/DirectionalLight.hpp"
 
 namespace mm
 {
 	World::World()
 	{
+		auto directionalLight = std::make_unique<DirectionalLight>();
+		directionalLight->SetColor(glm::vec3(.6, .6, .6));
+		directionalLight->SetDirection(glm::vec3(-.5, -1, .5));
+		m_lights.push_back(std::move(directionalLight));
 	}
 
 	World::~World()

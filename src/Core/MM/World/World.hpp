@@ -3,6 +3,7 @@
 #include "Core/MM/Camera/Camera.hpp"
 #include "Core/MM/Model/Model.hpp"
 #include "Core/MM/Physics/PhysicsWorld.hpp"
+#include "Core/MM/Lights/Light.hpp"
 
 namespace mm
 {
@@ -24,11 +25,12 @@ namespace mm
 		PhysicsWorld& GetPhysicsWorld() { return m_physicsWorld; }
 		const ModelContainer& GetModels() const { return m_models; }
 		ModelContainer& GetModels() { return m_models; }
+		std::vector<std::unique_ptr<Light>>& GetLights() { return m_lights; }
 
 	private:
 		Camera m_mainCamera;
 		ModelContainer m_models;
-		//std::vector<std::unique_ptr<Light>> m_lights;
+		std::vector<std::unique_ptr<Light>> m_lights;
 		PhysicsWorld m_physicsWorld;
 	};
 }

@@ -199,6 +199,8 @@ namespace mm
 					CameraController& cc = *std::any_cast<CameraController*>(m_item);
 				}
 				break;
+			case TYPE_LIGHT:
+				break;
 			default:
 				MM_ASSERT(0 && "Unknown type");
 			}

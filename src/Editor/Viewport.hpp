@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/GL/GLFrameBuffer.hpp"
+#include "Core/GL/GLFrameBufferMS.hpp"
 
 #include "CameraController.hpp"
 #include "Grid.hpp"
@@ -26,6 +27,8 @@ namespace mm
 
 		std::unique_ptr<Grid> m_grid;
 		std::unique_ptr<GLFrameBuffer> m_framebuffer;
+
+		std::unique_ptr<GLFrameBufferMS> m_framebufferMS;
 
 		ImVec2 m_size;
 

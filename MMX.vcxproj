@@ -113,6 +113,9 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\GL\GLFrameBufferMS.hpp" />
+    <ClInclude Include="src\Core\GL\GLTexture2DMS.hpp" />
+    <ClInclude Include="src\Core\MM\Lights\DirectionalLight.hpp" />
     <ClInclude Include="src\Core\MM\Lights\Light.hpp" />
     <ClInclude Include="src\Core\MM\Lights\PointLight.hpp" />
     <ClInclude Include="src\Editor\SelectionBox.hpp" />
@@ -177,6 +180,9 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Core\MM\World\WorldSerDes.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\GL\GLFrameBufferMS.cpp" />
+    <ClCompile Include="src\Core\GL\GLTexture2DMS.cpp" />
+    <ClCompile Include="src\Core\MM\Lights\DirectionalLight.cpp" />
     <ClCompile Include="src\Core\MM\Lights\PointLight.cpp" />
     <ClCompile Include="src\Editor\SelectionBox.cpp" />
     <ClCompile Include="src\Editor\CurveEditor.cpp" />

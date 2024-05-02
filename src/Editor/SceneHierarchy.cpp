@@ -35,6 +35,14 @@ namespace mm
 				EventBus::Instance()->postpone(e);
 			}
 			if (ImGui::TreeNodeEx("Lights", nonLeafFlag)) {
+				for (auto& light : m_world->GetLights()) {
+					if (ImGui::TreeNodeEx(light->GetName().c_str(), leafFlag)) {
+						EditorEvent::ItemSelected e = {};
+						e.item = light.get();
+						e.type = Properties::TYPE_LIGHT;
+						EventBus::Instance()->postpone(e);
+					}
+				}
 				ImGui::TreePop();
 			}
 			if (ImGui::TreeNodeEx("Models", nonLeafFlag)) {

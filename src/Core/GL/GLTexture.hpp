@@ -9,6 +9,7 @@ namespace mm
 		GLTexture(const GLTexture&) = delete;
 		GLTexture(GLTexture&&) = default;
 
+		uint32_t GetId() const { return m_id; }
 		void Bind(uint32_t unit) const;
 		void Parameteri(uint32_t name, uint32_t param);
 

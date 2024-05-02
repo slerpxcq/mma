@@ -20,4 +20,12 @@ namespace mm
 		MM_INFO("id={0}, path={1}: texture loaded: size={2}x{3}", 
 			m_id, path.u8string().c_str(), x, y);
 	}
+
+	GLTexture2D::GLTexture2D(glm::uvec2 size, uint32_t format) :
+		GLTexture(GL_TEXTURE_2D),
+		m_size(size),
+		m_format(format)
+	{
+		glTextureStorage2D(m_id, 1, format, size.x, size.y);
+	}
 }
