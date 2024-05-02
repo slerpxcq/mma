@@ -22,6 +22,10 @@ namespace mm
 		m_cameraUBO = std::make_unique<GLBuffer>(GL_UNIFORM_BUFFER);
 		m_cameraUBO->SetBase(CAMERA_BASE);
 		m_cameraUBO->SetData(sizeof(CameraLayout), nullptr);
+
+		m_lightUBO = std::make_unique<GLBuffer>(GL_UNIFORM_BUFFER);
+		m_lightUBO->SetBase(LIGHT_BASE);
+		m_lightUBO->SetData(sizeof(LightLayout), nullptr);
 	}
 
 	void Renderer::SetMaterial(const MaterialLayout& material)

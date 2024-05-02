@@ -7,9 +7,6 @@ uniform sampler2D u_sph;
 uniform sampler2D u_toon;
 uniform samplerCube u_skybox;
 
-uniform vec3 u_lightDir;
-uniform vec3 u_lightColor;
-
 in VS_OUT {
 	vec2 texCoord;
 	vec3 position;
@@ -33,10 +30,16 @@ layout (binding = 1, std140) uniform Camera
 	mat4 viewProj;
 } u_camera;
 
+layout (binding = 2, std140) uniform Light 
+{
+	vec3 color;
+	vec3 direction;
+} u_light;
+
 void main()
 {
 	vec3 N = fs_in.normal;
-	vec3 L = -normalize(u_lightDir);
+	vec3 L = -normalize(u_light.direction);
 	vec3 V = normalize(vec3(u_camera.view[3]) - fs_in.position);
 	vec3 H = normalize(L+V);
 	vec3 I = -V;
@@ -45,7 +48,7 @@ void main()
 
 	vec4 color = vec4(0);
 	/* Ambient */
-	color.rgb += u_material.ambient.rgb * u_lightColor;
+	color.rgb += u_material.ambient.rgb * u_light.color;
 	/* Diffuse */
 	//color.rgb += max(0, dot(fs_in.normal, L)) * u_material.diffuse.rgb;
 	color.a = u_material.diffuse.a;
@@ -70,7 +73,7 @@ void main()
 	color.rgb *= texture(u_toon, vec2(0, 0.5 - toonFactor * 0.5)).rgb;
 
 	/* Specular */
-	vec3 specular = pow(max(0, dot(N,H)), u_material.specular.w) * u_material.specular.rgb * u_lightColor;
+	vec3 specular = pow(max(0, dot(N,H)), u_material.specular.w) * u_material.specular.rgb * u_light.color;
 	color.rgb += specular;
 
 	f_fragColor = color;

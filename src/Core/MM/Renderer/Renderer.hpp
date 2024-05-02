@@ -13,7 +13,14 @@ namespace mm
 
 	class Camera;
 
-	// std140
+	/* std140 */
+	struct LightLayout
+	{
+		glm::vec4 color;
+		glm::vec4 direction;
+	};
+
+	/* std140 */
 	struct MaterialLayout 
 	{
 		glm::vec4 diffuse;
@@ -26,7 +33,7 @@ namespace mm
 		uint32_t flags;
 	};
 
-	// std140
+	/* std140 */
 	struct CameraLayout 
 	{
 		glm::mat4 view;
@@ -39,10 +46,15 @@ namespace mm
 	public:
 		static constexpr uint32_t MATERIAL_BASE = 0;
 		static constexpr uint32_t CAMERA_BASE = 1;
+		static constexpr uint32_t LIGHT_BASE = 2;
 
 	public:
 		static Renderer& Instance() { return s_instance; }
 		void Init();
+
+		void SetLight(const LightLayout& light) { 
+			m_lightUBO->SetSubData(0, sizeof(LightLayout), (void*)&light);
+		};
 
 		void SetCamera(const Camera& camera);
 		void SetMaterial(const MaterialLayout& material);
@@ -73,6 +85,7 @@ namespace mm
 
 		std::unique_ptr<GLBuffer> m_materialUBO;
 		std::unique_ptr<GLBuffer> m_cameraUBO;
+		std::unique_ptr<GLBuffer> m_lightUBO;
 
 		Effect* m_activeEffect = nullptr;
 		Effect::Technique* m_activeTechnique = nullptr;

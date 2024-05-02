@@ -41,6 +41,13 @@ namespace mm
 		void ExportAnimation(Model&);
 		void MorphSliders(Model& model, uint32_t panel);
 		void OnItemSelected(const EditorEvent::ItemSelected& e);
+		void MeshPanel();
+		void BonePanel();
+		void MorphPanel();
+		void AnimationPanel();
+		void PhysicsWorldPanel();
+		void WorldPanel();
+		void LightPanel();
 
 	private:
 		EditorLayer& m_editor;

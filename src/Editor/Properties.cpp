@@ -5,6 +5,7 @@
 #include "Core/MM/Model/Armature.hpp"
 #include "Core/MM/Physics/PhysicsWorld.hpp"
 #include "Core/MM/Files/VMDFile.hpp"
+#include "Core/MM/Lights/DirectionalLight.hpp"
 
 #include "EditorLayer.hpp"
 #include "Sequencer.hpp"
@@ -66,6 +67,8 @@ namespace mm
 					MM_INFO("Start edit; undo={0}", undoValue);
 				}
 				if (ImGui::IsItemDeactivatedAfterEdit()) {
+				{
+				}
 					MM_INFO("End edit: undo={0}, redo={1}", undoValue, *valuePtr);
 					/* If there is no keyframe at current frame, create one */
 					EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
@@ -107,92 +110,114 @@ namespace mm
 		}
     }
 
+	void Properties::MeshPanel()
+	{
+		Skin::Mesh& mesh = *std::any_cast<Skin::Mesh*>(m_item);
+		ImGui::InputFloat3("Diffuse", glm::value_ptr(mesh.material.diffuse));
+		ImGui::InputFloat4("Specular", glm::value_ptr(mesh.material.specular));
+		ImGui::InputFloat3("Ambient", glm::value_ptr(mesh.material.ambient));
+		ImGui::InputFloat3("Edge", glm::value_ptr(mesh.material.edge));
+		ImGui::InputFloat("Edge size", &mesh.material.edgeSize);
+	}
+
+	void Properties::BonePanel()
+	{
+		Transform& transform = *std::any_cast<Transform*>(m_item);
+		static glm::vec3 euler;
+		euler = glm::eulerAngles(transform.rotation) * glm::degrees(1.f);
+		ImGui::InputFloat3("Rotation", glm::value_ptr(euler));
+		ImGui::InputFloat3("Translation", glm::value_ptr(transform.translation));
+	}
+
+	void Properties::MorphPanel()
+	{
+		Model& model = *std::any_cast<Model*>(m_item);
+		if (ImGui::TreeNode("Eye")) {
+			MorphSliders(model, PMXFile::PANEL_EYE);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Eyebrow")) {
+			MorphSliders(model, PMXFile::PANEL_EYEBROW);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Lip")) {
+			MorphSliders(model, PMXFile::PANEL_MOUTH);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Other")) {
+			MorphSliders(model, PMXFile::PANEL_OTHER);
+			ImGui::TreePop();
+		}
+	}
+
+	void Properties::AnimationPanel()
+	{
+		Model& model = *std::any_cast<Model*>(m_item);
+		Animation& anim = model.GetAnim();
+
+		ImGui::Text("name: %s", anim.GetName().c_str());
+		if (ImGui::Button("Load")) {
+			LoadAnimation(model);
+		}
+		if (ImGui::Button("Export")) {
+			ExportAnimation(model);
+		}
+	}
+
+	void Properties::PhysicsWorldPanel()
+	{
+		PhysicsWorld& physicsWorld = *std::any_cast<PhysicsWorld*>(m_item);
+		static bool enable;
+		static float gravity;
+		if (ImGui::Checkbox("Enable", &enable)) {
+			physicsWorld.SetEnable(enable);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset")) {
+			physicsWorld.Reset();
+		}
+		ImGui::InputFloat("Gravity", &gravity);
+	}
+
+	void Properties::WorldPanel()
+	{
+		World& world = *std::any_cast<World*>(m_item);
+		if (ImGui::Button("Load model")) {
+			LoadModel(world);
+		}
+	}
+
+	void Properties::LightPanel()
+	{
+		DirectionalLight& light = *std::any_cast<DirectionalLight*>(m_item);
+		ImGui::InputFloat3("Color", glm::value_ptr(light.GetColor()));
+		ImGui::InputFloat3("Direction", glm::value_ptr(light.GetDirection()));
+	}
+
 	void Properties::OnUIRender()
 	{
 		ImGui::Begin("Properties");
 		if (m_item.has_value()) {
 			switch (m_type) {
 			case TYPE_MESH:
-				{
-					Skin::Mesh& mesh = *std::any_cast<Skin::Mesh*>(m_item);
-					ImGui::InputFloat3("Diffuse", glm::value_ptr(mesh.material.diffuse));
-					ImGui::InputFloat4("Specular", glm::value_ptr(mesh.material.specular));
-					ImGui::InputFloat3("Ambient", glm::value_ptr(mesh.material.ambient));
-					ImGui::InputFloat3("Edge", glm::value_ptr(mesh.material.edge));
-					ImGui::InputFloat("Edge size", &mesh.material.edgeSize);
-				}
+				MeshPanel();
 				break;
 			case TYPE_BONE:
-				{
-					Transform& transform = *std::any_cast<Transform*>(m_item);
-					static glm::vec3 euler;
-					euler = glm::eulerAngles(transform.rotation) * glm::degrees(1.f);
-					ImGui::InputFloat3("Rotation", glm::value_ptr(euler));
-					ImGui::InputFloat3("Translation", glm::value_ptr(transform.translation));
-				}
+				BonePanel();
 				break;
 			case TYPE_MORPH:
-				{
-					Model& model = *std::any_cast<Model*>(m_item);
-					if (ImGui::TreeNode("Eye")) {
-						MorphSliders(model, PMXFile::PANEL_EYE);
-						ImGui::TreePop();
-					}
-					if (ImGui::TreeNode("Eyebrow")) {
-						MorphSliders(model, PMXFile::PANEL_EYEBROW);
-						ImGui::TreePop();
-					}
-					if (ImGui::TreeNode("Lip")) {
-						MorphSliders(model, PMXFile::PANEL_MOUTH);
-						ImGui::TreePop();
-					}
-					if (ImGui::TreeNode("Other")) {
-						MorphSliders(model, PMXFile::PANEL_OTHER);
-						ImGui::TreePop();
-					}
-				}
+				MorphPanel();
 				break;
 			case TYPE_ANIMATION:
-				{
-					Model& model = *std::any_cast<Model*>(m_item);
-					Animation& anim = model.GetAnim();
-
-					ImGui::Text("name: %s", anim.GetName().c_str());
-					if (ImGui::Button("Load")) {
-						LoadAnimation(model);
-					}
-					if (ImGui::Button("Export")) {
-						ExportAnimation(model);
-					}
-				}
+				AnimationPanel();
 				break;
 			case TYPE_PHYSICS_WORLD:
-				{
-					PhysicsWorld& physicsWorld = *std::any_cast<PhysicsWorld*>(m_item);
-					static bool enable;
-					static float gravity;
-					if (ImGui::Checkbox("Enable", &enable)) {
-						physicsWorld.SetEnable(enable);
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Reset")) {
-						physicsWorld.Reset();
-					}
-					ImGui::InputFloat("Gravity", &gravity);
-				}
+				PhysicsWorldPanel();
 				break;
 			case TYPE_ARMATURE:
-				{
-
-				}
 				break;
 			case TYPE_WORLD:
-				{
-					World& world = *std::any_cast<World*>(m_item);
-					if (ImGui::Button("Load model")) {
-						LoadModel(world);
-					}
-				}
+				WorldPanel();
 				break;
 			case TYPE_CAMERA:
 				{
@@ -200,6 +225,7 @@ namespace mm
 				}
 				break;
 			case TYPE_LIGHT:
+				LightPanel();
 				break;
 			default:
 				MM_ASSERT(0 && "Unknown type");

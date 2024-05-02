@@ -113,9 +113,6 @@ namespace mm
 				shader->Uniform("u_toon", 2);
 				shader->Uniform("u_skybox", 3);
 
-				shader->Uniform("u_lightDir", glm::vec3(-.5, -1, .5));
-				shader->Uniform("u_lightColor", glm::vec3(.6, .6, .6));
-
 				m_vertexArray->Bind();
 				m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
 

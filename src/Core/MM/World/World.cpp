@@ -9,10 +9,8 @@ namespace mm
 {
 	World::World()
 	{
-		auto directionalLight = std::make_unique<DirectionalLight>();
-		directionalLight->SetColor(glm::vec3(.6, .6, .6));
-		directionalLight->SetDirection(glm::vec3(-.5, -1, .5));
-		m_lights.push_back(std::move(directionalLight));
+		m_directionalLight.SetColor(glm::vec3(.6, .6, .6));
+		m_directionalLight.SetDirection(glm::vec3(-.5, -1, .5));
 	}
 
 	World::~World()
@@ -51,6 +49,11 @@ namespace mm
 
 	void World::Render(Renderer& renderer) 
 	{
+		LightLayout l = {};
+		l.color = glm::vec4(m_directionalLight.GetColor(), 0);
+		l.direction = glm::vec4(m_directionalLight.GetDirection(), 0);
+		renderer.SetLight(l);
+
 		for (auto& model : m_models) {
 			model->Render(renderer);
 		}
