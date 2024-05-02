@@ -87,7 +87,8 @@ namespace mm
 			auto& mesh = m_meshes[meshIndex];
 
 			renderer.BeginEffect(mesh.effect);
-			renderer.BeginTechnique("MainTec");
+			//renderer.BeginTechnique("MainTec");
+			renderer.BeginTechnique("PBRTec");
 
 			for (const auto& pass : renderer.GetActiveTechniquePasses()) {
 				renderer.BeginPass(pass);
@@ -116,7 +117,6 @@ namespace mm
 				m_vertexArray->Bind();
 				m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
 
-				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 				renderer.EndPass();
 			}
 

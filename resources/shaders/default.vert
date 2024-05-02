@@ -89,7 +89,7 @@ void Skin(in vec3 inPos, in vec3 inNormal, out vec3 outPos, out vec3 outNormal)
 
 	if (!IsSDEF(a_bones)) { 
 		outPos = vec3(matSum * vec4(inPos, 1));
-		outNormal = mat3(matSum) * inNormal;
+		outNormal = inverse(transpose(mat3(matSum))) * inNormal;
 	} else { 
 		vec4 q0 = u_skinning.data[a_bones[0]][0];
 		vec4 q1 = u_skinning.data[a_bones[1]][0];

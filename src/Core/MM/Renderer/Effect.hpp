@@ -17,7 +17,8 @@ namespace mm
 	public:
 		struct Uniform {
 			enum {
-				TYPE_INT
+				TYPE_INT,
+				TYPE_FLOAT
 			};
 			std::string name;
 			int32_t location;

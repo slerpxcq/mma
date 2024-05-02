@@ -118,7 +118,12 @@ namespace mm
 						if (type == "int") {
 							u.type = Uniform::TYPE_INT;
 							u.value = uniform["value"].as<int32_t>();
-							MM_INFO("{0}:     Uniform: name={1}, type={2}, value={3}", __FUNCTION__, name, "int", std::any_cast<int32_t>(u.value));
+							//MM_INFO("{0}:     Uniform: name={1}, type={2}, value={3}", __FUNCTION__, name, "int", std::any_cast<int32_t>(u.value));
+						}
+						else if (type == "float") {
+							u.type = Uniform::TYPE_FLOAT;
+							u.value = uniform["value"].as<float>();
+							//MM_INFO("{0}:     Uniform: name={1}, type={2}, value={3}", __FUNCTION__, name, "int", std::any_cast<int32_t>(u.value));
 						}
 						else {
 							throw EffectParseError("Unknown uniform type");

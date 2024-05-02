@@ -113,6 +113,9 @@ namespace mm
 			case Effect::Uniform::TYPE_INT:
 				pass.program->Uniform(u.name, std::any_cast<int32_t>(u.value));
 				break;
+			case Effect::Uniform::TYPE_FLOAT:
+				pass.program->Uniform(u.name, std::any_cast<float>(u.value));
+				break;
 			default:
 				MM_ASSERT(0 && "Unknown uniform type");
 			}
@@ -121,6 +124,8 @@ namespace mm
 
 	void Renderer::EndPass()
 	{
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
 		m_activePass = nullptr;
 		SetEnable(GL_DEPTH_TEST, m_backupState.depthTest);
 		SetEnable(GL_BLEND, m_backupState.blend);

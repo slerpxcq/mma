@@ -45,6 +45,28 @@ effect:
             - name: u_outlinePass
               type: int
               value: 0
+    - technique: 
+      name: PBRTec
+      passes:
+        - name: MainPass
+          vertex_shader: resources/shaders/default.vert
+          fragment_shader: resources/shaders/pbr.frag
+          depth_test: true
+          blend: true
+          blend_src: SrcAlpha
+          blend_dst: OneMinusSrcAlpha
+          cull_face: true
+          front_face: CCW
+          uniforms:
+            - name: u_outlinePass
+              type: int
+              value: 0
+            - name: u_metallic
+              type: float
+              value: 0.5
+            - name: u_roughness
+              type: float
+              value: 0.5
     
     
 
