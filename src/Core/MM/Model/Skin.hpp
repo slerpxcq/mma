@@ -61,8 +61,6 @@ namespace mm
 		std::unique_ptr<GLBuffer> m_elemBuffer;
 
 		Effect& m_defaultEffect;
-
-		std::unique_ptr<GLFrameBuffer> m_renderBuffer;
 	};
 }
 

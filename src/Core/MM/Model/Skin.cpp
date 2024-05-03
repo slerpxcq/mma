@@ -36,8 +36,6 @@ namespace mm
 		m_vertexArray->SetVertexAttrib(SkinVertex::s_instance);
 		m_vertexArray->SetElemBuffer(*m_elemBuffer);
 		m_vertexArray->SetElemType(GL_UNSIGNED_INT);
-
-		m_renderBuffer = std::make_unique<GLFrameBuffer>(glm::uvec2(1, 1));
 	}
 
 	void Skin::LoadIndices()

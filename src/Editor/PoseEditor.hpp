@@ -15,11 +15,18 @@ namespace mm
 	
 	class PoseEditor
 	{
-		static constexpr uint32_t SELECTED_COLOR = 0x7f0000ff;
-		static constexpr uint32_t UNSELECTED_COLOR = 0x7fc0c0c0;
-		static constexpr uint32_t OUTLINE_COLOR = 0x7f101010;
+		static constexpr uint32_t UNSELECTED_OUTLINE_COLOR = 0x7fc0c0c0;
+		static constexpr uint32_t UNSELECTED_FILL_COLOR = 0x3fc0c0c0;
+		static constexpr float UNSELECTED_OUTLINE_SIZE = 1.5f;
+
+		static constexpr uint32_t SELECTED_FILL_COLOR = 0x7f0080ff;
+		static constexpr uint32_t SELECTED_OUTLINE_COLOR = 0xff0080ff;
+		static constexpr float SELECTED_OUTLINE_SIZE = 3.0f;
+
+		static constexpr uint32_t DIRTY_OUTLINE_COLOR = IM_COL32(0, 255, 0, 255);
+		static constexpr uint32_t DIRTY_FILL_COLOR = IM_COL32(0, 255, 0, 127);
+
 		static constexpr float CIRCLE_RADIUS = 7.5f;
-		static constexpr float OUTLINE_SIZE = 1.5f;
 
 	public:
 		PoseEditor(EditorLayer& editor);
@@ -29,14 +36,19 @@ namespace mm
 		void OnUIRender();
 
 	private:
+		void CommitEdited();
 		glm::vec3 WorldToScreen(const glm::vec3& world);
 		void EditTransform();
 		void DrawBones();
 
+		void CalcStartTransform();
+
+		/* Inputs */
+		void ProcessKeys();
+		void ProcessMouseButton();
+
 		/* Events */
-		void OnMouseButtonPressed(const Event::MouseButtonPressed& e);
-		void OnKeyPressed(const Event::KeyPressed& e);
-		void OnModelLoaded(const EditorEvent::ModelLoaded& e);
+		void OnItemSelected(const EditorEvent::ItemSelected& e);
 
 	private:
 		struct Context {
@@ -45,14 +57,21 @@ namespace mm
 				EDITING
 			};
 
+			/* Gizmo */
 			uint8_t state = PICKING;
 			uint8_t operation = 0;
 			uint8_t mode = 0;
-			int32_t selected = -1;
-			int32_t hovered = -1;
 
+			int32_t currSelectedBone = -1;
+
+			bool thisFrameClickedOnAnyBone = false;
+			std::unordered_set<int32_t> selectedBones;
+			std::unordered_set<int32_t> editedBones;
+
+			/* Context for currSelectedBone */
 			glm::mat4 world = glm::mat4(1);
 			glm::mat4 worldToLocal = glm::mat4(1);
+
 
 			bool useLocalFrame = false;
 			bool fixedAxis = false;
@@ -65,6 +84,7 @@ namespace mm
 	private:
 		EditorLayer& m_editor;
 		Model* m_model = nullptr;
+
 		Context m_context;
 
 		dexode::EventBus::Listener m_listener;

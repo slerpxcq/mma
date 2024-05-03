@@ -20,19 +20,13 @@ namespace mm
 		m_editor(editor),
 		m_listener(EventBus::Instance())
 	{
-		m_listener.listen<Event::MouseButtonPressed>(MM_EVENT_FN(PoseEditor::OnMouseButtonPressed));
-		m_listener.listen<Event::KeyPressed>(MM_EVENT_FN(PoseEditor::OnKeyPressed));
-		m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(PoseEditor::OnModelLoaded));
+		m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(PoseEditor::OnItemSelected));
 	}
 
-	/* This does not need to be an event */
-	void PoseEditor::OnModelLoaded(const EditorEvent::ModelLoaded& e)
+	void PoseEditor::OnItemSelected(const EditorEvent::ItemSelected& e)
 	{
-		m_model = e.model;
-
-		if (m_model != nullptr) {
-			m_context.screenPos.clear();
-			m_context.screenPos.resize(m_model->GetArmature().GetBones().size());
+		if (e.type == Properties::TYPE_MODEL) {
+			SetModel(std::any_cast<Model*>(e.item));
 		}
 	}
 
@@ -42,6 +36,7 @@ namespace mm
 
 		if (m_model != nullptr) {
 			m_context.screenPos.clear();
+			m_context.editedBones.clear();
 			m_context.screenPos.resize(m_model->GetArmature().GetBones().size());
 		}
 	}
@@ -89,43 +84,66 @@ namespace mm
 			world = m_context.world;
 			
 		glm::mat4 local = m_context.worldToLocal * world;
-		Transform* valuePtr = &m_model->GetArmature().GetPose()[m_context.selected];
+		Transform* valuePtr = &m_model->GetArmature().GetPose()[m_context.currSelectedBone];
 		*valuePtr = Transform(local);
 
 		static bool lastFrameUsedGizmo = false;
 		static Transform undoValue;
 		bool thisFrameUsedGizmo = ImGuizmo::IsUsingAny();
+
+		/* "Rising edge" */
 		if (!lastFrameUsedGizmo && thisFrameUsedGizmo) {
 			undoValue = *valuePtr;
-			MM_INFO("Start edit; undo={0}", glm::to_string(undoValue.rotation));
 		}
+		/* "Falling edge" */
 		if (lastFrameUsedGizmo && !thisFrameUsedGizmo) {
+			m_context.editedBones.insert(m_context.currSelectedBone);
 			EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
 				new Command::BoneEdited(valuePtr, *valuePtr, undoValue) });
-			MM_INFO("End edit; undo={0}, redo={1}", glm::to_string(undoValue.rotation), glm::to_string(valuePtr->rotation));
+		}
+		lastFrameUsedGizmo = thisFrameUsedGizmo;
+	}
 
-			/* Add or modify the keyframe, same as for morph */
-			Animation& anim = m_model->GetAnim();
-			auto& boneKeyframes = anim.GetBoneKeyframeMatrix()[m_context.selected];
+	void PoseEditor::CommitEdited()
+	{
+		/* For all edited bones */
+		Animation& anim = m_model->GetAnim();
+
+		for (auto& bone : m_context.editedBones) {
+			auto& boneKeyframes = anim.GetBoneKeyframeMatrix()[bone];
+
 			uint32_t currFrame = m_editor.m_sequencer->GetFrameCounter().GetFrame();
 			auto it = std::find_if(boneKeyframes.begin(), boneKeyframes.end(),
 				[currFrame](const Animation::Keyframe& keyframe) {
 					return keyframe.frame == currFrame;
 				});
 
+			Transform& transform = m_model->GetArmature().GetPose()[bone];
 			if (it == boneKeyframes.end()) {
-				anim.InsertBoneKeyframe(
-					m_context.selected, 
-					Animation::BoneKeyframe(currFrame, *valuePtr, Bezier()));
-				EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-					new Command::KeyframeInserted(anim, Command::KeyframeInserted::TYPE_BONE,
-						m_context.selected, currFrame) });
+				anim.InsertBoneKeyframe(bone, Animation::BoneKeyframe(currFrame, transform, Bezier()));
+				//EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
+				//	new Command::KeyframeInserted(anim, Command::KeyframeInserted::TYPE_BONE,
+				//		m_context.currSelectedBone, currFrame) });
 			}
 			else {
-				it->transform = *valuePtr;
+				it->transform = transform;
 			}
 		}
-		lastFrameUsedGizmo = thisFrameUsedGizmo;
+
+		m_context.editedBones.clear();
+
+		/* TODO: Undo/Redo for CommitEdit */
+		//if (it == boneKeyframes.end()) {
+		//	anim.InsertBoneKeyframe(
+		//		m_context.currSelectedBone, 
+		//		Animation::BoneKeyframe(currFrame, *valuePtr, Bezier()));
+		//	EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
+		//		new Command::KeyframeInserted(anim, Command::KeyframeInserted::TYPE_BONE,
+		//			m_context.currSelectedBone, currFrame) });
+		//}
+		//else {
+		//	it->transform = *valuePtr;
+		//}
 	}
 
 	glm::vec3 PoseEditor::WorldToScreen(const glm::vec3& world)
@@ -151,38 +169,54 @@ namespace mm
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-		for (uint32_t i = 0; i < bones.size(); ++i) {
-			const auto& bone = bones[i];
-			auto& boneScreenPos = m_context.screenPos[i];
+		for (uint32_t boneIndex = 0; boneIndex < bones.size(); ++boneIndex) {
+			const auto& bone = bones[boneIndex];
+			auto& boneScreenPos = m_context.screenPos[boneIndex];
 			boneScreenPos = WorldToScreen(bone.animWorld.translation);
 		}
 
-		for (uint32_t i = 0; i < bones.size(); ++i) {
-			const auto& bone = bones[i];
-			const auto& pmxBone = pmxBones[i];
-			auto& boneScreenPos = m_context.screenPos[i];
+		for (uint32_t boneIndex = 0; boneIndex < bones.size(); ++boneIndex) {
+			const auto& bone = bones[boneIndex];
+			const auto& pmxBone = pmxBones[boneIndex];
+			auto& boneScreenPos = m_context.screenPos[boneIndex];
 
 			if (pmxBone.flags & PMXFile::BONE_VISIBLE_BIT) {
-				uint32_t color = (i == m_context.selected) ?
-					SELECTED_COLOR : 
-					UNSELECTED_COLOR;
+				//bool isCurrSelected = boneIndex == m_context.currSelectedBone;
+				bool isSelected = m_context.selectedBones.find(boneIndex) != m_context.selectedBones.end();
+				//isSelected |= isCurrSelected;
+				bool isDirty = m_context.editedBones.find(boneIndex) != m_context.editedBones.end();
+
+				uint32_t outlineColor = 
+					isSelected ? SELECTED_OUTLINE_COLOR :
+					isDirty ? DIRTY_OUTLINE_COLOR : UNSELECTED_OUTLINE_COLOR;
+
+				uint32_t fillColor = 
+					isSelected ? SELECTED_FILL_COLOR :
+					isDirty ? DIRTY_FILL_COLOR : UNSELECTED_FILL_COLOR;
+
+				float outlineSize = 
+					isSelected ? SELECTED_OUTLINE_SIZE : UNSELECTED_OUTLINE_SIZE;
 
 				/* Button to select bone */
 				char buf[16];
-				std::snprintf(buf, sizeof(buf), "B_%u", i);
+				std::snprintf(buf, sizeof(buf), "B_%u", boneIndex);
 				ImGui::SetCursorScreenPos(ImVec2(boneScreenPos.x - CIRCLE_RADIUS, boneScreenPos.y - CIRCLE_RADIUS));
 				if (ImGui::InvisibleButton(buf, ImVec2(CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2))) {
-					m_context.selected = i;
+					m_context.thisFrameClickedOnAnyBone = true;
+					m_context.currSelectedBone = boneIndex;
+					m_context.selectedBones.insert(boneIndex);
 				}
 
 				/* Moveable bones: square */
 				if (pmxBone.flags & PMXFile::BONE_MOVEABLE_BIT) {
 					drawList->AddRectFilled(
 						ImVec2(boneScreenPos.x - CIRCLE_RADIUS, boneScreenPos.y - CIRCLE_RADIUS),
-						ImVec2(boneScreenPos.x + CIRCLE_RADIUS, boneScreenPos.y + CIRCLE_RADIUS), color);
+						ImVec2(boneScreenPos.x + CIRCLE_RADIUS, boneScreenPos.y + CIRCLE_RADIUS), 
+						fillColor);
 					drawList->AddRect(
 						ImVec2(boneScreenPos.x - CIRCLE_RADIUS, boneScreenPos.y - CIRCLE_RADIUS),
-						ImVec2(boneScreenPos.x + CIRCLE_RADIUS, boneScreenPos.y + CIRCLE_RADIUS), OUTLINE_COLOR, OUTLINE_SIZE);
+						ImVec2(boneScreenPos.x + CIRCLE_RADIUS, boneScreenPos.y + CIRCLE_RADIUS), 
+						outlineColor, 0, 0, outlineSize);
 				}
 				/* Fixed axis bones: triangle */
 				else if (pmxBone.flags & PMXFile::BONE_FIXED_AXIS_BIT) {
@@ -191,21 +225,21 @@ namespace mm
 						ImVec2(boneScreenPos.x - HALF_SQRT3 * CIRCLE_RADIUS, boneScreenPos.y + 0.5f * CIRCLE_RADIUS),
 						ImVec2(boneScreenPos.x, boneScreenPos.y - CIRCLE_RADIUS),
 						ImVec2(boneScreenPos.x + HALF_SQRT3 * CIRCLE_RADIUS, boneScreenPos.y + 0.5f * CIRCLE_RADIUS),
-						color);
+						fillColor);
 					drawList->AddTriangle(
 						ImVec2(boneScreenPos.x - HALF_SQRT3 * CIRCLE_RADIUS, boneScreenPos.y + 0.5f * CIRCLE_RADIUS),
 						ImVec2(boneScreenPos.x, boneScreenPos.y - CIRCLE_RADIUS),
 						ImVec2(boneScreenPos.x + HALF_SQRT3 * CIRCLE_RADIUS, boneScreenPos.y + 0.5f * CIRCLE_RADIUS),
-						color, OUTLINE_SIZE);
+						outlineColor, outlineSize);
 				}
 				/* Rotatable bones: circle */
 				else {
 					drawList->AddCircleFilled(
 						ImVec2(boneScreenPos.x, boneScreenPos.y),
-						CIRCLE_RADIUS, color);
+						CIRCLE_RADIUS, fillColor);
 					drawList->AddCircle(
 						ImVec2(boneScreenPos.x, boneScreenPos.y),
-						CIRCLE_RADIUS, OUTLINE_COLOR, 0, OUTLINE_SIZE);
+						CIRCLE_RADIUS, outlineColor, 0, outlineSize);
 				}
 
 				glm::vec2 endPos(0.0f);
@@ -218,8 +252,8 @@ namespace mm
 				else {
 					glm::vec3 endWorld =
 						glm::make_vec3(pmxBone.connetcionEnd.position);
-					endWorld = glm::rotate(bones[i].animWorld.rotation, endWorld);
-					endWorld += bones[i].animWorld.translation;
+					endWorld = glm::rotate(bones[boneIndex].animWorld.rotation, endWorld);
+					endWorld += bones[boneIndex].animWorld.translation;
 					endPos = WorldToScreen(endWorld);
 				}
 				glm::vec2 screenPos2D(boneScreenPos);
@@ -229,78 +263,87 @@ namespace mm
 				glm::vec2 p2 = screenPos2D - CIRCLE_RADIUS * n;
 
 				/* Draw the stick */
-				drawList->AddLine(ImVec2(p1.x, p1.y), ImVec2(p2.x, p2.y), color, OUTLINE_SIZE);
-				drawList->AddLine(ImVec2(p2.x, p2.y), ImVec2(endPos.x, endPos.y), color, OUTLINE_SIZE);
-				drawList->AddLine(ImVec2(endPos.x, endPos.y), ImVec2(p1.x, p1.y), color, OUTLINE_SIZE);
+				//drawList->AddLine(ImVec2(p1.x, p1.y), ImVec2(p2.x, p2.y), outlineColor, outlineSize);
+				drawList->AddLine(ImVec2(p2.x, p2.y), ImVec2(endPos.x, endPos.y), outlineColor, outlineSize);
+				drawList->AddLine(ImVec2(endPos.x, endPos.y), ImVec2(p1.x, p1.y), outlineColor, outlineSize);
 			}
 		}
 	}
 
-	void PoseEditor::OnMouseButtonPressed(const Event::MouseButtonPressed& e)
+	void PoseEditor::ProcessMouseButton()
 	{
 		if (!m_enabled || m_model == nullptr)
 			return;
 
 		switch (m_context.state) {
 		case Context::EDITING:
-			if (e.button == GLFW_MOUSE_BUTTON_LEFT && !ImGuizmo::IsOver())
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGuizmo::IsOver())
 				m_context.state = Context::PICKING;
 			break;
 		}
 	}
 
-	void PoseEditor::OnKeyPressed(const Event::KeyPressed& e)
+	void PoseEditor::CalcStartTransform()
+	{
+		const auto& bones = m_model->GetArmature().GetBones();
+		const auto& pmxBones = m_model->GetPMXFile().GetBones();
+		const auto& pmxBone = pmxBones[m_context.currSelectedBone];
+
+		int32_t parent = bones[m_context.currSelectedBone].parent;
+
+		glm::mat4 parentAnimWorld = parent >= 0 ?
+			Transform::toMat4(bones[parent].animWorld) :
+			glm::identity<glm::mat4>();
+
+		glm::mat4 bindParent = Transform::toMat4(bones[m_context.currSelectedBone].bindParent);
+		m_context.world = Transform::toMat4(bones[m_context.currSelectedBone].animWorld);
+		m_context.worldToLocal = glm::inverse(parentAnimWorld * bindParent);
+
+		/* Axis limit and local frame */
+		m_context.fixedAxis = pmxBone.flags & PMXFile::BONE_FIXED_AXIS_BIT;
+		m_context.useLocalFrame = pmxBone.flags & PMXFile::BONE_LOCAL_AXIS_BIT;
+		if (m_context.fixedAxis || m_context.useLocalFrame) {
+			glm::vec3 x, y, z;
+			if (m_context.fixedAxis) {
+				x = glm::make_vec3(pmxBone.fixedAxis);
+				z = glm::normalize(glm::cross(glm::vec3(0, 1, 0), x));
+				y = glm::cross(z, x);
+			}
+			else if (m_context.useLocalFrame) {
+				x = glm::make_vec3(pmxBone.localAxisX);
+				z = glm::make_vec3(pmxBone.localAxisZ);
+				y = glm::cross(z, x);
+			}
+			glm::mat4 bindLocalFrame;
+			bindLocalFrame[0] = glm::vec4(x, 0);
+			bindLocalFrame[1] = glm::vec4(y, 0);
+			bindLocalFrame[2] = glm::vec4(z, 0);
+			bindLocalFrame[3] = glm::vec4(0, 0, 0, 1);
+			m_context.localFrame = m_context.world * bindLocalFrame;
+			m_context.localFrameInv = glm::inverse(bindLocalFrame);
+		}
+	}
+
+	/* Can use ImGui Event */
+	void PoseEditor::ProcessKeys()
 	{
 		if (!m_enabled || m_model == nullptr)
 			return;
 
-		const auto& bones = m_model->GetArmature().GetBones();
 		const auto& pmxBones = m_model->GetPMXFile().GetBones();
-		const auto& pmxBone = pmxBones[m_context.selected];
 
 		switch (m_context.state) {
 		case Context::PICKING:
-			if (m_context.selected >= 0) {
-				if (e.code == GLFW_KEY_R || e.code == GLFW_KEY_T) {  
-					int32_t parent = bones[m_context.selected].parent;
-
-					glm::mat4 parentAnimWorld = parent >= 0 ?
-						Transform::toMat4(bones[parent].animWorld) :
-						glm::identity<glm::mat4>();
-
-					glm::mat4 bindParent = Transform::toMat4(bones[m_context.selected].bindParent);
-					m_context.world = Transform::toMat4(bones[m_context.selected].animWorld);
-					m_context.worldToLocal = glm::inverse(parentAnimWorld * bindParent);
-
-					/* Axis limit and local frame */
-					m_context.fixedAxis = pmxBone.flags & PMXFile::BONE_FIXED_AXIS_BIT;
-					m_context.useLocalFrame = pmxBone.flags & PMXFile::BONE_LOCAL_AXIS_BIT;
-					if (m_context.fixedAxis || m_context.useLocalFrame) {
-						glm::vec3 x, y, z;
-						if (m_context.fixedAxis) {
-							x = glm::make_vec3(pmxBone.fixedAxis);
-							z = glm::normalize(glm::cross(glm::vec3(0, 1, 0), x));
-							y = glm::cross(z, x);
-						}
-						else if (m_context.useLocalFrame) {
-							x = glm::make_vec3(pmxBone.localAxisX);
-							z = glm::make_vec3(pmxBone.localAxisZ);
-							y = glm::cross(z, x);
-						}
-						glm::mat4 bindLocalFrame;
-						bindLocalFrame[0] = glm::vec4(x, 0);
-						bindLocalFrame[1] = glm::vec4(y, 0);
-						bindLocalFrame[2] = glm::vec4(z, 0);
-						bindLocalFrame[3] = glm::vec4(0, 0, 0, 1);
-						m_context.localFrame = m_context.world * bindLocalFrame;
-						m_context.localFrameInv = glm::inverse(bindLocalFrame);
-					}
-					
-					if (e.code == GLFW_KEY_T && (pmxBone.flags & PMXFile::BONE_MOVEABLE_BIT)) {
+			/* Select bone */
+			if (m_context.currSelectedBone >= 0) {
+				const auto& pmxBone = pmxBones[m_context.currSelectedBone];
+				if (ImGui::IsKeyPressed(ImGuiKey_R) || ImGui::IsKeyPressed(ImGuiKey_T)) {
+					CalcStartTransform();
+					if (ImGui::IsKeyPressed(ImGuiKey_T) && (pmxBone.flags & PMXFile::BONE_MOVEABLE_BIT)) {
 						m_context.operation = ImGuizmo::TRANSLATE;
 						m_context.state = Context::EDITING;
 					}
-					if (e.code == GLFW_KEY_R && (pmxBone.flags & PMXFile::BONE_ROTATABLE_BIT)) {
+					if (ImGui::IsKeyPressed(ImGuiKey_R) && (pmxBone.flags & PMXFile::BONE_ROTATABLE_BIT)) {
 						m_context.operation = ImGuizmo::ROTATE;
 						m_context.state = Context::EDITING;
 					}
@@ -309,9 +352,9 @@ namespace mm
 			break;
 		case Context::EDITING:
 			{
-				if (e.code == GLFW_KEY_ESCAPE) {
+				const auto& pmxBone = pmxBones[m_context.currSelectedBone];
+				if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
 					m_context.state = Context::PICKING;
-					//m_context.selected = -1;
 					break;
 				}
 
@@ -320,13 +363,13 @@ namespace mm
 				case ImGuizmo::TRANSLATE_X:
 				case ImGuizmo::TRANSLATE_Y:
 				case ImGuizmo::TRANSLATE_Z:
-					if (e.code == (GLFW_KEY_X)) 
+					if (ImGui::IsKeyPressed(ImGuiKey_X))
 						m_context.operation = ImGuizmo::TRANSLATE_X;
-					if (e.code == (GLFW_KEY_Y)) 
+					if (ImGui::IsKeyPressed(ImGuiKey_Y))
 						m_context.operation = ImGuizmo::TRANSLATE_Y;
-					if (e.code == (GLFW_KEY_Z)) 
+					if (ImGui::IsKeyPressed(ImGuiKey_Z))
 						m_context.operation = ImGuizmo::TRANSLATE_Z;
-					if (e.code == GLFW_KEY_R && 
+					if (ImGui::IsKeyPressed(ImGuiKey_R) &&
 						pmxBone.flags & PMXFile::BONE_ROTATABLE_BIT)
 						m_context.operation = ImGuizmo::ROTATE;
 					break;
@@ -334,27 +377,25 @@ namespace mm
 				case ImGuizmo::ROTATE_X:
 				case ImGuizmo::ROTATE_Y:
 				case ImGuizmo::ROTATE_Z:
-					if (e.code == (GLFW_KEY_X)) 
+					if (ImGui::IsKeyPressed(ImGuiKey_X))
 						m_context.operation = ImGuizmo::ROTATE_X;
-					if (e.code == (GLFW_KEY_Y)) 
+					if (ImGui::IsKeyPressed(ImGuiKey_Y))
 						m_context.operation = ImGuizmo::ROTATE_Y;
-					if (e.code == (GLFW_KEY_Z)) 
+					if (ImGui::IsKeyPressed(ImGuiKey_Z))
 						m_context.operation = ImGuizmo::ROTATE_Z;
-					if (e.code == GLFW_KEY_T &&
+					if (ImGui::IsKeyPressed(ImGuiKey_T) &&
 						pmxBone.flags & PMXFile::BONE_MOVEABLE_BIT)
 						m_context.operation = ImGuizmo::TRANSLATE;
 					break;
 				}
 
-				// Toggle WORLD/LOCAL
-				if (e.code == (GLFW_KEY_W)) {
+				/* Toggle WORLD/LOCAL */
+				if (ImGui::IsKeyPressed(ImGuiKey_W)) 
 					m_context.mode ^= 1;
-				}
 			}
 			break;
 		}
 	}
-
 
 	void PoseEditor::OnUIRender()
 	{
@@ -363,10 +404,14 @@ namespace mm
 		if (ImGui::Button("Reset pose")) {
 			m_model->GetArmature().ResetPose();
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Commit")) {
+			CommitEdited();
+		}
 		ImGui::Text("Model: %s", m_model != nullptr ?
 			m_model->GetPMXFile().GetInfo().nameJP.c_str() : "--");
-		ImGui::Text("Bone: %s", m_model != nullptr && m_context.selected >= 0 ?
-			m_model->GetPMXFile().GetBoneName(m_context.selected).c_str() : "--");
+		ImGui::Text("Bone: %s", m_model != nullptr && m_context.currSelectedBone >= 0 ?
+			m_model->GetPMXFile().GetBoneName(m_context.currSelectedBone).c_str() : "--");
 		ImGui::End();
 
 		/* Draw overlay on viewport */
@@ -381,12 +426,24 @@ namespace mm
 			switch (m_context.state) {
 			case Context::PICKING:
 				DrawBones();
+
+				if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && 
+					!ImGui::IsKeyDown(ImGuiKey_LeftCtrl) &&
+					!m_context.thisFrameClickedOnAnyBone) {
+					m_context.currSelectedBone = -1;
+					m_context.selectedBones.clear();
+				}
+				m_context.thisFrameClickedOnAnyBone = false;
+
 				break;
 			case Context::EDITING:
 				EditTransform();
 				break;
 			}
 		}
+
+		ProcessKeys();
+		ProcessMouseButton();
 
 		/* Copy */
 		if (ImGui::IsKeyPressed(ImGuiKey_C) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {

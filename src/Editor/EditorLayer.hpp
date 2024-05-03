@@ -19,6 +19,7 @@ namespace mm
 {
 	class EditorLayer : public Layer
 	{
+		/* Panels */
 		friend class PoseEditor;
 		friend class Viewport;
 		friend class Sequencer;

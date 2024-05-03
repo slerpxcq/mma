@@ -35,7 +35,7 @@ namespace mm
         glClearColor(.05, .05, .05, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Skybox
+        // Skybox; SHOULD BE BELONG TO WORLD
         glDepthMask(GL_FALSE);
         renderer.SetShader(ResourceManager::Instance().GetShader("skybox"));
         renderer.GetActiveShader()->Uniform("u_skybox", 0);

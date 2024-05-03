@@ -22,6 +22,7 @@ namespace mm
 			TYPE_ARMATURE,
 			TYPE_WORLD,
 			TYPE_PHYSICS_WORLD,
+			TYPE_MODEL
 		} ItemType;
 
 		struct Item {

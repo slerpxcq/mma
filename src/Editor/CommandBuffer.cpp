@@ -21,7 +21,6 @@ namespace mm
 		MM_INFO("Stored command; size={0}", m_commandQueue.size());
 	}
 
-
 	void CommandBuffer::OnUndo(const Event::Undo& e)
 	{
 		if (!m_commandQueue.empty()) {

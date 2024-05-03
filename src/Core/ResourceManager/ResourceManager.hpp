@@ -27,6 +27,11 @@ namespace mm
 			m_effects.Insert(name, std::move(effect)); 
 		}
 
+		//.template <typename T, typename... Args>
+		//.T* Load(const std::string& name, Args&&... args) {
+		//.	std::forward<Args>(args...);
+		//.}
+
 	public:
 		static ResourceManager& Instance() { return s_instance; }
 
@@ -34,6 +39,8 @@ namespace mm
 		static ResourceManager s_instance;
 
 	private:
+		//Library<std::string, Resource> m_resources;
+
 		Library<std::string, GLTexture> m_textures;
 		Library<std::string, GLShader> m_shaders;
 		Library<std::string, File> m_files;

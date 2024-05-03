@@ -83,18 +83,20 @@ namespace mm
 		Sequencer(EditorLayer& editor) : 
 			m_editor(editor),
 			m_listener(EventBus::Instance()) {
+			/* Should use ImGui inputs */
 			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Sequencer::OnMouseScrolled));
-			m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(Sequencer::OnModelLoaded));
+			m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(Sequencer::OnItemSelected));
 
-			m_listener.listen<EditorEvent::MotionLoaded>(MM_EVENT_FN(Sequencer::OnMotionLoaded));
+			//m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(Sequencer::OnModelLoaded));
+			//m_listener.listen<EditorEvent::MotionLoaded>(MM_EVENT_FN(Sequencer::OnMotionLoaded));
 		}
 
 		void OnUIRender();
 		void AddGroup(const Group& group) { m_groups.push_back(group); }
-		void SetModel(Model* model) { m_model = model; }
+		void SetModel(Model* model);
 
-		void OnModelLoaded(const EditorEvent::ModelLoaded& e);
-		void OnMotionLoaded(const EditorEvent::MotionLoaded& e);
+		//void OnModelLoaded(const EditorEvent::ModelLoaded& e);
+		//void OnMotionLoaded(const EditorEvent::MotionLoaded& e);
 		void OnUpdate(float deltaTime);
 		void UpdateAnim();
 		Model* GetModel() { return m_model; }
@@ -108,6 +110,7 @@ namespace mm
 
 		/* Events */
 		void OnMouseScrolled(const Event::MouseScrolled& e);
+		void OnItemSelected(const EditorEvent::ItemSelected& e);
 
 		/* Drawing */
 		void DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);

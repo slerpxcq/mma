@@ -11,14 +11,6 @@ namespace mm
 
 	namespace EditorEvent
 	{
-		struct ModelLoaded {
-			Model* model;
-		};
-
-		struct MotionLoaded {
-			Animation* animation;
-		};
-
 		struct CommandIssued {
 			ICommand* command;
 		};

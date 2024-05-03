@@ -9,6 +9,11 @@ namespace mm
 {
 	class Clipboard
 	{
+	public:
+
+	private:
+
+	private:
 	};
 }
 

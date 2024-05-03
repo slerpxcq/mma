@@ -37,13 +37,12 @@ namespace mm
 		void PushOverlay(std::unique_ptr<Layer> overlay) { m_layerStack.PushOverlay(std::move(overlay)); }
 
 	private:
+		Application() {}
 		void LoadTextures();
 		void LoadShaders();
 		void OnWindowClose(const Event::WindowClosed& e);
 		void OnWindowResize(const Event::WindowSized& e);
 		void OnKeyPressed(const Event::KeyPressed& e);
-
-		Application() {}
 
 		void RegisterWindowCallbacks();
 		void ListenEvents();

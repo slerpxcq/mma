@@ -28,7 +28,7 @@ namespace mm
 		nfdresult_t result = NFD_OpenDialog("vmd", nullptr, &path);
 		if (result == NFD_OKAY) {
 			Animation* animation = model.LoadAnimation(path);
-			EventBus::Instance()->postpone<EditorEvent::MotionLoaded>({ animation });
+			//EventBus::Instance()->postpone<EditorEvent::MotionLoaded>({ animation });
 			std::free(path);
 		}
     }
@@ -106,7 +106,12 @@ namespace mm
 		nfdresult_t result = NFD_OpenDialog("pmx", nullptr, &path);
 		if (result == NFD_OKAY) {
 			Model* model = world.LoadModel(path);
-			EventBus::Instance()->postpone<EditorEvent::ModelLoaded>({ model });
+			/* Should use ItemSelected */
+			//EventBus::Instance()->postpone<EditorEvent::ModelLoaded>({ model });
+			EditorEvent::ItemSelected e = {};
+			e.item = model;
+			e.type = Properties::TYPE_MODEL;
+			EventBus::Instance()->postpone(e);
 		}
     }
 
@@ -226,6 +231,8 @@ namespace mm
 				break;
 			case TYPE_LIGHT:
 				LightPanel();
+				break;
+			case TYPE_MODEL:
 				break;
 			default:
 				MM_ASSERT(0 && "Unknown type");

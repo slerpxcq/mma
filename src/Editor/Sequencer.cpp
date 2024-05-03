@@ -6,6 +6,8 @@
 #include "Core/Utility/Type.hpp"
 #include "Core/App/Input.hpp"
 
+#include "Properties.hpp"
+
 namespace mm
 {
 	void Sequencer::DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded)
@@ -86,6 +88,13 @@ namespace mm
 	{
 		auto it = m_selectedKeyframes.find(&keyframe);
 		return it != m_selectedKeyframes.end();
+	}
+
+	void Sequencer::OnItemSelected(const EditorEvent::ItemSelected& e)
+	{
+		if (e.type == Properties::TYPE_MODEL) {
+			SetModel(std::any_cast<Model*>(e.item));
+		}
 	}
 
 	void Sequencer::DrawGroupDope(const Group& group)
@@ -456,9 +465,43 @@ namespace mm
 		ImGui::End();
 	}
 
-	void Sequencer::OnModelLoaded(const EditorEvent::ModelLoaded& e)
+	/* Should not be event */
+	//void Sequencer::OnModelLoaded(const EditorEvent::ModelLoaded& e)
+	//{
+	//	m_model = e.model;
+
+	//	if (m_model != nullptr) {
+	//		const auto& pmx = m_model->GetPMXFile();
+	//		const auto& pmxClusters = m_model->GetPMXFile().GetClusters();
+	//		for (uint32_t clusterIndex = 0; clusterIndex < pmxClusters.size(); ++clusterIndex) {
+	//			const auto& pc = pmxClusters[clusterIndex];
+	//			Sequencer::Group group = {};
+	//			group.name = pc.nameJP;
+	//			for (uint32_t elemIndex = 0; elemIndex < pc.elements.size(); ++elemIndex) {
+	//				const auto& elem = pc.elements[elemIndex];
+	//				Sequencer::Item item = {};
+	//				item.type = elem.type;
+	//				item.index = elem.index;
+	//				item.groupIndex = clusterIndex;
+	//				switch (elem.type) {
+	//				case PMXFile::CLUSTER_BONE:
+	//					item.name = pmx.GetBoneName(elem.index);
+	//					break;
+	//				case PMXFile::CLUSTER_MORPH:
+	//					item.name = pmx.GetMorphName(elem.index);
+	//					break;
+	//				}
+	//				group.items.push_back(item);
+	//			}
+	//			AddGroup(std::move(group));
+	//		}
+	//	}
+	//}
+	 
+	void Sequencer::SetModel(Model* model)
 	{
-		m_model = e.model;
+		m_groups.clear();
+		m_model = model;
 
 		if (m_model != nullptr) {
 			const auto& pmx = m_model->GetPMXFile();
@@ -488,14 +531,14 @@ namespace mm
 		}
 	}
 
-	void Sequencer::OnMotionLoaded(const EditorEvent::MotionLoaded& e)
-	{
-		if (m_model != nullptr) {
-			m_playing = false;
-			m_frameCounter.Set(0);
-			UpdateAnim();
-		}
-	}
+	//void Sequencer::OnMotionLoaded(const EditorEvent::MotionLoaded& e)
+	//{
+	//	if (m_model != nullptr) {
+	//		m_playing = false;
+	//		m_frameCounter.Set(0);
+	//		UpdateAnim();
+	//	}
+	//}
 
 	void Sequencer::OnUpdate(float deltaTime)
 	{
