@@ -85,8 +85,8 @@ namespace mm
 			auto& mesh = m_meshes[meshIndex];
 
 			renderer.BeginEffect(mesh.effect);
-			//renderer.BeginTechnique("MainTec");
-			renderer.BeginTechnique("PBRTec");
+			renderer.BeginTechnique("MainTec");
+			//renderer.BeginTechnique("PBRTec");
 
 			for (const auto& pass : renderer.GetActiveTechniquePasses()) {
 				renderer.BeginPass(pass);

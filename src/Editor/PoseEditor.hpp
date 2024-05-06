@@ -8,10 +8,21 @@
 #include "EditorEvent.hpp"
 #include "SelectionBox.hpp"
 
+#include "Core/App/Clipboard.hpp"
+
 namespace mm
 {
 	class Model;
 	class EditorLayer;
+
+	struct PoseEditorClipboardContent : public ClipboardContent {
+		struct Item {
+			int32_t boneIndex;
+			Transform transform;
+		};
+
+		std::vector<Item> items;
+	};
 	
 	class PoseEditor
 	{
@@ -49,16 +60,17 @@ namespace mm
 
 		/* Events */
 		void OnItemSelected(const EditorEvent::ItemSelected& e);
+		void OnFrameSet(const EditorEvent::FrameSet& e);
 
 	private:
 		struct Context {
-			enum State {
+			enum class State {
 				PICKING = 0,
 				EDITING
 			};
 
 			/* Gizmo */
-			uint8_t state = PICKING;
+			State state = State::PICKING;
 			uint8_t operation = 0;
 			uint8_t mode = 0;
 

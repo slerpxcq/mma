@@ -164,7 +164,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Core\Utility\Stream.hpp" />
     <ClInclude Include="src\Core\Utility\Type.hpp" />
     <ClInclude Include="src\Editor\CameraController.hpp" />
-    <ClInclude Include="src\Editor\Clipboard.hpp" />
+    <ClInclude Include="src\Core\App\Clipboard.hpp" />
     <ClInclude Include="src\Editor\CommandBuffer.hpp" />
     <ClInclude Include="src\Editor\Commands.hpp" />
     <ClInclude Include="src\Editor\EditorEvent.hpp" />
@@ -223,7 +223,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClCompile Include="src\Core\ResourceManager\Library.cpp" />
     <ClCompile Include="src\Core\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="src\Editor\CameraController.cpp" />
-    <ClCompile Include="src\Editor\Clipboard.cpp" />
+    <ClCompile Include="src\Core\App\Clipboard.cpp" />
     <ClCompile Include="src\Editor\CommandBuffer.cpp" />
     <ClCompile Include="src\Editor\Commands.cpp" />
     <ClCompile Include="src\Editor\EditorLayer.cpp" />

@@ -20,5 +20,9 @@ namespace mm
 			uint32_t index;
 			std::any item;
 		};
+
+		struct FrameSet {
+			uint32_t frame;
+		};
 	}
 }

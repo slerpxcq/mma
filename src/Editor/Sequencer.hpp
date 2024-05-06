@@ -9,7 +9,7 @@
 
 #include "FrameCounter.hpp"
 #include "SelectionBox.hpp"
-#include "Clipboard.hpp"
+#include "Core/App/Clipboard.hpp"
 
 #include <set>
 
@@ -86,9 +86,6 @@ namespace mm
 			/* Should use ImGui inputs */
 			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Sequencer::OnMouseScrolled));
 			m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(Sequencer::OnItemSelected));
-
-			//m_listener.listen<EditorEvent::ModelLoaded>(MM_EVENT_FN(Sequencer::OnModelLoaded));
-			//m_listener.listen<EditorEvent::MotionLoaded>(MM_EVENT_FN(Sequencer::OnMotionLoaded));
 		}
 
 		void OnUIRender();
@@ -111,12 +108,15 @@ namespace mm
 		/* Events */
 		void OnMouseScrolled(const Event::MouseScrolled& e);
 		void OnItemSelected(const EditorEvent::ItemSelected& e);
+		void ProcessKeys();
+		void ProcessMouseScroll();
 
 		/* Drawing */
 		void DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);
 		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
 		template<typename T>
 		void DrawRowHeader(T& row, bool expandable, float textOffset);
+		/* Morph and bone keyframes should be treated the same */
 		template<typename T>
 		void DrawItemDope(const Item& item, std::vector<T>& keyframeList);
 
@@ -129,46 +129,34 @@ namespace mm
 
 		const char* GenButtonId() {
 			static char buf[16];
-			std::snprintf(buf, sizeof(buf), "B_%u", m_buttonIndex++);
+			std::snprintf(buf, sizeof(buf), "##B%u", m_buttonIndex++);
 			return buf;
 		}
 
 	private:
+		enum class State {
+			IDLE,
+			CHERRY_PICK,
+			BOX_SELECT,
+			DOPE_DRAG
+		};
+
+	private:
 		EditorLayer& m_editor;
 		Model* m_model = nullptr;
+
 		std::vector<Group> m_groups;
-
-		ImDrawList* m_drawList = nullptr;
-
-		int32_t m_selectedRow = -1;
-		int32_t m_selectedColumn = -1;
-
-		bool m_hovered = false;
 
 		SelectionBox m_selectionBox;
 
-		/* Clipboard */
-		std::set<Animation::Keyframe*> m_copiedKeyframes;
-
 		/* Editing states */
 		std::unordered_set<Animation::Keyframe*> m_selectedKeyframes;
-		//std::unordered_set<Animation::Keyframe*> m_selectedKeyframesByBox;
 
-		/* Playback states */
-		bool m_playing = false;
-		FrameCounter m_frameCounter;
-
-		/* Dragging */
-		std::unordered_map<Animation::Keyframe*, uint32_t> m_keyframeFrameNumberMap;
-		bool m_lastFrameMouseDragged = false;
-		bool m_thisFrameMouseDragging = false;
-
-		bool m_mouseClickedOnItem = false;
-		float m_mouseXWhenStartDragging = 0.0f;
-
-		bool m_dragging = false;
-
-		/* Drawing states */
+		/* Drawing */
+		int32_t m_selectedRow = -1;
+		int32_t m_selectedColumn = -1;
+		bool m_hovered = false;
+		ImDrawList* m_drawList = nullptr;
 		int32_t m_rowStart = 1;
 		int32_t m_currRowIndex;
 		int32_t m_totalRowCount = 0;
@@ -181,7 +169,33 @@ namespace mm
 		int32_t m_minFrame = 0;
 		int32_t m_maxFrame = 0;
 
+		/* Playback states */
+		bool m_playing = false;
+		FrameCounter m_frameCounter;
+
+		State m_state = State::IDLE;
+
+		/* Editing */
+		std::unordered_map<Animation::Keyframe*, uint32_t> m_keyframeFrameOnStartDragging;
+		bool m_lastFrameMouseDragged = false;
+		bool m_thisFrameMouseDragged = false;
+		bool m_thisFrameAnyDopeClicked = false;
+		bool m_thisFrameAnyDopeHovered = false;
+		Animation::Keyframe* m_currSelectedKeyframe = nullptr;
+
+		bool m_draggingKeyframes;
+		float m_mouseXWhenStartDragging = 0.0f;
+
 		dexode::EventBus::Listener m_listener;
+	};
+
+	struct SequencerClipboardContent : public ClipboardContent {
+		struct Item {
+		//	Sequencer::Dope dope;
+			//Animation::Keyframe* keyframe;
+		};
+
+		std::vector<Item> items;
 	};
 }
 

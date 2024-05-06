@@ -26,6 +26,7 @@ namespace mm
 		friend class CurveEditor;
 		friend class SceneHierarchy;
 		friend class Properties;
+		friend class Sequencer2;
 
 	public:
 		void OnAttach() override ;

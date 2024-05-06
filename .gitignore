@@ -1,7 +1,8 @@
 bin
 obj
 *.sln
-*.vcxproj.*
 *.vcxproj
+*.user
+*.filters
 .vs
 resources/model

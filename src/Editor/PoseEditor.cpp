@@ -14,6 +14,8 @@
 
 #include "Commands.hpp"
 
+// TODO: State machine code too scattered
+
 namespace mm
 {
 	PoseEditor::PoseEditor(EditorLayer& editor) :
@@ -21,6 +23,7 @@ namespace mm
 		m_listener(EventBus::Instance())
 	{
 		m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(PoseEditor::OnItemSelected));
+		m_listener.listen<EditorEvent::FrameSet>(MM_EVENT_FN(PoseEditor::OnFrameSet));
 	}
 
 	void PoseEditor::OnItemSelected(const EditorEvent::ItemSelected& e)
@@ -28,6 +31,15 @@ namespace mm
 		if (e.type == Properties::TYPE_MODEL) {
 			SetModel(std::any_cast<Model*>(e.item));
 		}
+	}
+
+	void PoseEditor::OnFrameSet(const EditorEvent::FrameSet& e)
+	{
+		m_context.editedBones.clear();
+	}
+
+	void PoseEditor::OnUpdate(float deltaTime)
+	{
 	}
 
 	void PoseEditor::SetModel(Model* model)
@@ -39,10 +51,6 @@ namespace mm
 			m_context.editedBones.clear();
 			m_context.screenPos.resize(m_model->GetArmature().GetBones().size());
 		}
-	}
-
-	void PoseEditor::OnUpdate(float deltaTime)
-	{
 	}
 
 	void PoseEditor::EditTransform()
@@ -276,9 +284,9 @@ namespace mm
 			return;
 
 		switch (m_context.state) {
-		case Context::EDITING:
+		case Context::State::EDITING:
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGuizmo::IsOver())
-				m_context.state = Context::PICKING;
+				m_context.state = Context::State::PICKING;
 			break;
 		}
 	}
@@ -333,7 +341,7 @@ namespace mm
 		const auto& pmxBones = m_model->GetPMXFile().GetBones();
 
 		switch (m_context.state) {
-		case Context::PICKING:
+		case Context::State::PICKING:
 			/* Select bone */
 			if (m_context.currSelectedBone >= 0) {
 				const auto& pmxBone = pmxBones[m_context.currSelectedBone];
@@ -341,20 +349,20 @@ namespace mm
 					CalcStartTransform();
 					if (ImGui::IsKeyPressed(ImGuiKey_T) && (pmxBone.flags & PMXFile::BONE_MOVEABLE_BIT)) {
 						m_context.operation = ImGuizmo::TRANSLATE;
-						m_context.state = Context::EDITING;
+						m_context.state = Context::State::EDITING;
 					}
 					if (ImGui::IsKeyPressed(ImGuiKey_R) && (pmxBone.flags & PMXFile::BONE_ROTATABLE_BIT)) {
 						m_context.operation = ImGuizmo::ROTATE;
-						m_context.state = Context::EDITING;
+						m_context.state = Context::State::EDITING;
 					}
 				}
 			}
 			break;
-		case Context::EDITING:
+		case Context::State::EDITING:
 			{
 				const auto& pmxBone = pmxBones[m_context.currSelectedBone];
 				if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
-					m_context.state = Context::PICKING;
+					m_context.state = Context::State::PICKING;
 					break;
 				}
 
@@ -422,12 +430,13 @@ namespace mm
         ImVec2 pos = ImGui::GetWindowPos() + min;
 		ImGuizmo::SetDrawlist();
 		ImGuizmo::SetRect(pos.x, pos.y, size.x, size.y);
+
 		if (m_enabled && m_model != nullptr) {
 			switch (m_context.state) {
-			case Context::PICKING:
+			case Context::State::PICKING:
 				DrawBones();
 
-				if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && 
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && 
 					!ImGui::IsKeyDown(ImGuiKey_LeftCtrl) &&
 					!m_context.thisFrameClickedOnAnyBone) {
 					m_context.currSelectedBone = -1;
@@ -436,7 +445,7 @@ namespace mm
 				m_context.thisFrameClickedOnAnyBone = false;
 
 				break;
-			case Context::EDITING:
+			case Context::State::EDITING:
 				EditTransform();
 				break;
 			}
@@ -447,16 +456,29 @@ namespace mm
 
 		/* Copy */
 		if (ImGui::IsKeyPressed(ImGuiKey_C) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
-
+			auto content = std::make_unique<PoseEditorClipboardContent>();
+			for (auto& bone : m_context.selectedBones) {
+				content->items.push_back({
+					bone,
+					m_model->GetArmature().GetPose()[bone]
+				});
+			}
+			Clipboard::Instance().SetContent(std::move(content));
 		}
 
-		/* paste */
+		/* Paste */
 		if (ImGui::IsKeyPressed(ImGuiKey_V) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
-
+			PoseEditorClipboardContent* content = dynamic_cast<PoseEditorClipboardContent*>(Clipboard::Instance().GetContent());
+			if (content != nullptr) {
+				for (const auto& item : content->items) {
+					m_model->GetArmature().GetPose()[item.boneIndex] = item.transform;
+				}
+			}
 		}
 
-		/* Mirror paste*/
-
+		/* Mirror paste */
+		if (ImGui::IsKeyPressed(ImGuiKey_V) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_LeftShift)) {
+		}
 
 		ImGui::End();
 	}
