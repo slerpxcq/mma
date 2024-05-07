@@ -136,8 +136,8 @@ namespace mm
 		const auto& pmx = anim.GetModel().GetPMXFile();
 		for (uint32_t boneIndex = 0; boneIndex < boneKeyframeMatrix.size(); ++boneIndex) {
 			const auto& keyframes = boneKeyframeMatrix[boneIndex];
-			for (uint32_t keyframeIndex = 0; keyframeIndex < keyframes.size(); ++keyframeIndex) {
-				const auto& keyframe = keyframes[keyframeIndex];
+			for (const auto &keyframe : keyframes) {
+				//const auto& keyframe = keyframes[keyframeIndex];
 				MotionData md = {};
 				const std::string& boneName = pmx.GetBoneName(boneIndex);
 				LoadName(boneName, sizeof(md.boneName), md.boneName);
@@ -161,8 +161,8 @@ namespace mm
 		const auto& pmx = anim.GetModel().GetPMXFile();
 		for (uint32_t morphIndex = 0; morphIndex < morphKeyframeMatrix.size(); ++morphIndex) {
 			const auto& keyframes = morphKeyframeMatrix[morphIndex];
-			for (uint32_t keyframeIndex = 0; keyframeIndex < keyframes.size(); ++keyframeIndex) {
-				const auto& keyframe = keyframes[keyframeIndex];
+			for (const auto& keyframe : keyframes) {
+				//const auto& keyframe = keyframes[keyframeIndex];
 				MorphData md = {};
 				const std::string& morphName = pmx.GetMorphName(morphIndex);
 				LoadName(morphName, sizeof(md.morphName), md.morphName);

@@ -13,15 +13,6 @@ namespace mm
 		return (frame + ((float)subframe / SUBFRAME_COUNT) - prev) / (next - prev);
 	}
 
-	template <typename T>
-	decltype(auto) FindPrev(const std::vector<T>& vec, uint32_t frame)
-	{
-		return std::upper_bound(
-			vec.begin(),
-			vec.end(),
-			frame);
-	}
-
 	void Animation::LoadBoneKeyframes()
 	{
 		const auto& vmdMotionDatas = m_vmdFile->GetMotionDatas();
@@ -55,7 +46,8 @@ namespace mm
 				m_boneKeyframeMatrix[i].emplace_back(0, Transform::identity(), Bezier());
 			}
 
-			std::sort(m_boneKeyframeMatrix[i].begin(), m_boneKeyframeMatrix[i].end());
+			//std::sort(m_boneKeyframeMatrix[i].begin(), m_boneKeyframeMatrix[i].end());
+			m_boneKeyframeMatrix[i].sort();
 		}
 	}
 
@@ -88,7 +80,8 @@ namespace mm
 				m_morphKeyframeMatrix[i].emplace_back(0, 0.0f);
 			}
 
-			std::sort(m_morphKeyframeMatrix[i].begin(), m_morphKeyframeMatrix[i].end());
+			//std::sort(m_morphKeyframeMatrix[i].begin(), m_morphKeyframeMatrix[i].end());
+			m_morphKeyframeMatrix[i].sort();
 		}
 	}
 
@@ -121,6 +114,18 @@ namespace mm
 		for (uint32_t i = 0; i < m_morphKeyframeMatrix.size(); ++i) {
 			m_morphKeyframeMatrix[i].emplace_back(0, 0.0f);
 		}
+	}
+
+	template <typename T>
+	void Animation::InsertKeyframe(KeyframeContainer<T>& container, const T& keyframe)
+	{
+
+	}
+
+	template <typename T>
+	void Animation::RemoveKeyframe(KeyframeContainer<T>& container, uint32_t frame) 
+	{
+
 	}
 
 	void Animation::InsertMorphKeyframe(uint32_t morphIndex, const MorphKeyframe& keyframe)

@@ -7,16 +7,11 @@ So it should be called FileManager to be precise
 
 - Better logging info
 
+- ImGuizmo Local ring and Screen ring radius too close
 
 # DOING
-- The sequencer class is too messy, try to refractor
-    - Refactor selection logic: State machine
-
 - Sequencer copy and paste
-    - Find a uniform way to handle morph and bone keyframes
-    - How to get the container that a keyframe is belong to? Need type and index;
-      The underlying Animation class has a seperate storage for different types of keyframes.
-      However, they should be treated as one type in the Sequencer
+    - Duplicated dopes needs to be eliminated
 
 # 2024/5/3
 # DONE
@@ -33,3 +28,21 @@ So it should be called FileManager to be precise
 - OnFrameSet event
 
 # 2024/5/6
+# DONE
+- The sequencer class is too messy, try to refractor
+    - Refactor selection logic: State machine
+
+    - Find a uniform way to handle morph and bone keyframes
+    - How to get the container that a keyframe is belong to? Need type and index;
+      The underlying Animation class has a seperate storage for different types of keyframes.
+      However, they should be treated as one type in the Sequencer
+    - Solved with template
+
+# 2024/5/7
+# DONE
+- Need other method to identify keyframes - solved by using std::list instead of std::vector
+    - Underlying pointer changed due to insertion!
+
+    - Box select has too many items - Check existance before emplace
+
+    - Added auto-scrolling when click on scale

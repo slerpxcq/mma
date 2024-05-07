@@ -9,7 +9,7 @@
 
 #include "FrameCounter.hpp"
 #include "SelectionBox.hpp"
-#include "Core/App/Clipboard.hpp"
+#include "Clipboard.hpp"
 
 #include <set>
 
@@ -18,6 +18,15 @@ namespace mm
 	class Animation;
 	class Model;
 	class EditorLayer;
+
+	template <typename T>
+	void DuplicateKeyframe(Animation::KeyframeContainer<T>& container, const T& keyframe, uint32_t frame)
+	{
+		auto it = FindPrev(container, frame);
+		T newKeyframe = keyframe;
+		newKeyframe.frame = frame;
+		container.insert(it, newKeyframe);
+	}
 
 	class Sequencer
 	{
@@ -46,16 +55,15 @@ namespace mm
 		static constexpr float DOPE_OUTLINE_SIZE = 1.5f;
 		static constexpr float DOPE_OUTLINE_SIZE_SELECTED = 3.0f;
 
-		static constexpr float POINT_RADIUS = 4.5f;
-		static constexpr uint32_t POINT_FILL_COLOR = 0xff000000;
-		static constexpr uint32_t POINT_OUTLINE_COLOR = 0xff0080ff;
-		static constexpr float POINT_OUTLINE_SIZE = 3.f;
-		static constexpr float Y_GAIN = 5.f;
+		//static constexpr float POINT_RADIUS = 4.5f;
+		//static constexpr uint32_t POINT_FILL_COLOR = 0xff000000;
+		//static constexpr uint32_t POINT_OUTLINE_COLOR = 0xff0080ff;
+		//static constexpr float POINT_OUTLINE_SIZE = 3.f;
+		//static constexpr float Y_GAIN = 5.f;
 		static constexpr uint32_t INDENT_BASE = 15;
 
-		static constexpr uint32_t CURVE_EDITOR_ROW_COUNT = 16;
-		static constexpr int32_t BEZIER_EDITOR_SIZE = 250;
-		static constexpr uint32_t BEZIER_EDITOR_GRID_COUNT = 5;
+		static constexpr uint32_t AUTO_SCROLL_THRESHOLD = 5;
+		static constexpr uint32_t AUTO_SCROLL_STEP = 15;
 
 	public:
 		struct Group;
@@ -77,6 +85,31 @@ namespace mm
 
 			/* For drawing */
 			int32_t rowIndex;
+		};
+
+		struct DopeBase {
+		public:
+			DopeBase(Animation::Keyframe* keyframe) :
+				keyframe(keyframe) {}
+
+			virtual void Duplicate(uint32_t frame) = 0;
+			virtual ~DopeBase() {}
+
+		public:
+			Animation::Keyframe* keyframe;
+		};
+
+		template <typename T>
+		struct Dope : public DopeBase {
+			Dope(Animation::KeyframeContainer<T>& container, T* keyframe) :
+				DopeBase(keyframe),
+				container(container) {}
+
+			virtual void Duplicate(uint32_t frame) override {
+				DuplicateKeyframe(container, *dynamic_cast<T*>(keyframe), frame);
+			}
+
+			Animation::KeyframeContainer<T>& container;
 		};
 
 	public:
@@ -101,15 +134,16 @@ namespace mm
 
 	private:
 		template <typename T>
-		decltype(auto) GetFirstKeyframeToDraw(std::vector<T>& keyframeList);
-
-		void CurveEditor(Item& item);
+		typename Animation::KeyframeContainer<T>::iterator FirstKeyframeOnCanvas(Animation::KeyframeContainer<T>& keyframeList);
 
 		/* Events */
 		void OnMouseScrolled(const Event::MouseScrolled& e);
 		void OnItemSelected(const EditorEvent::ItemSelected& e);
 		void ProcessKeys();
-		void ProcessMouseScroll();
+
+		void CheckAutoScroll(uint32_t frame);
+
+		void SetFrame(uint32_t frame);
 
 		/* Drawing */
 		void DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);
@@ -117,15 +151,18 @@ namespace mm
 		template<typename T>
 		void DrawRowHeader(T& row, bool expandable, float textOffset);
 		/* Morph and bone keyframes should be treated the same */
+
 		template<typename T>
-		void DrawItemDope(const Item& item, std::vector<T>& keyframeList);
+		void DrawItemDope(const Item& item, Animation::KeyframeContainer<T>& keyframeList);
 
 		void DrawGroupDope(const Group& group);
 		void DrawStrip(uint32_t row);
 		void DrawScale();
 		void DrawRows();
 		void DrawExpandedGroup(Group& group);
-		bool IsKeyframeSelected(Animation::Keyframe& keyframe);
+
+		//template <typename T>
+		bool IsKeyframeSelected(Animation::Keyframe*);
 
 		const char* GenButtonId() {
 			static char buf[16];
@@ -133,12 +170,19 @@ namespace mm
 			return buf;
 		}
 
+
 	private:
 		enum class State {
 			IDLE,
 			CHERRY_PICK,
 			BOX_SELECT,
 			DOPE_DRAG
+		};
+
+		struct DopeHash {
+			size_t operator()(const std::shared_ptr<Sequencer::DopeBase>& dope) const {
+				return std::hash<size_t>()((size_t)dope->keyframe);
+			}
 		};
 
 	private:
@@ -150,11 +194,12 @@ namespace mm
 		SelectionBox m_selectionBox;
 
 		/* Editing states */
-		std::unordered_set<Animation::Keyframe*> m_selectedKeyframes;
+		/* Need custom hash function that only hash the underlying keyframe pointer */
+		std::unordered_set<std::shared_ptr<DopeBase>, DopeHash> m_selectedDopes;
 
 		/* Drawing */
 		int32_t m_selectedRow = -1;
-		int32_t m_selectedColumn = -1;
+		int32_t m_selectedFrame = -1;
 		bool m_hovered = false;
 		ImDrawList* m_drawList = nullptr;
 		int32_t m_rowStart = 1;
@@ -173,29 +218,24 @@ namespace mm
 		bool m_playing = false;
 		FrameCounter m_frameCounter;
 
-		State m_state = State::IDLE;
-
 		/* Editing */
-		std::unordered_map<Animation::Keyframe*, uint32_t> m_keyframeFrameOnStartDragging;
+		State m_state = State::IDLE;
+		std::unordered_map<DopeBase*, uint32_t> m_keyframeFrameOnStartDragging;
 		bool m_lastFrameMouseDragged = false;
 		bool m_thisFrameMouseDragged = false;
 		bool m_thisFrameAnyDopeClicked = false;
 		bool m_thisFrameAnyDopeHovered = false;
-		Animation::Keyframe* m_currSelectedKeyframe = nullptr;
-
-		bool m_draggingKeyframes;
-		float m_mouseXWhenStartDragging = 0.0f;
 
 		dexode::EventBus::Listener m_listener;
 	};
 
 	struct SequencerClipboardContent : public ClipboardContent {
-		struct Item {
-		//	Sequencer::Dope dope;
-			//Animation::Keyframe* keyframe;
-		};
-
-		std::vector<Item> items;
+		std::vector<std::shared_ptr<Sequencer::DopeBase>> dopes;
 	};
+
+	/* Hash for selected dopes */
+	//static bool operator==(const std::shared_ptr<Sequencer::DopeBase>& lhs, const std::shared_ptr<Sequencer::DopeBase>& rhs) {
+	//	return lhs->keyframe == rhs->keyframe;
+	//}
 }
 

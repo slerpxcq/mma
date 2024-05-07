@@ -14,6 +14,11 @@ namespace mm
 	public:
 		static constexpr uint32_t SUBFRAME_COUNT = 8;
 
+		template <typename T>
+		using KeyframeContainer = std::list<T>;
+		//template <typename T>
+		//using KeyframeIterator = std::list<T>::iterator;
+
 		struct Keyframe {
 		public:
 			virtual ~Keyframe() {};
@@ -57,6 +62,13 @@ namespace mm
 		void RemoveBoneKeyframe(uint32_t boneIndex, uint32_t frame);
 		const Model& GetModel() const { return m_model; }
 
+		template<typename T> 
+		void InsertKeyframe(KeyframeContainer<T>& container, const T& keyframe);
+
+		template<typename T>
+		void RemoveKeyframe(KeyframeContainer<T>& container, uint32_t frame);
+
+
 	private:
 		void LoadBoneKeyframes();
 		void LoadMorphKeyframes();
@@ -71,12 +83,18 @@ namespace mm
 		VMDFile* m_vmdFile;
 		std::string m_name;
 
-		/* Why split? */
-		std::vector<std::vector<BoneKeyframe>>  m_boneKeyframeMatrix;
-		std::vector<std::vector<MorphKeyframe>> m_morphKeyframeMatrix;
-
-		//std::vector<std::vector<std::unique_ptr<Keyframe>>> m_keyframeMatrix;
+		std::vector<KeyframeContainer<BoneKeyframe>>  m_boneKeyframeMatrix;
+		std::vector<KeyframeContainer<MorphKeyframe>> m_morphKeyframeMatrix;
 	};
+
+	template <typename T>
+	decltype(auto) FindPrev(const Animation::KeyframeContainer<T>& vec, uint32_t frame)
+	{
+		return std::upper_bound(
+			vec.begin(),
+			vec.end(),
+			frame);
+	}
 
 	 // For std::upper_bound and std::lower_bound
 	static inline bool operator<(uint32_t lhs, const Animation::Keyframe& rhs) 

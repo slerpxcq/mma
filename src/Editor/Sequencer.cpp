@@ -72,7 +72,7 @@ namespace mm
 	}
 
 	template <typename T>
-	decltype(auto) Sequencer::GetFirstKeyframeToDraw(std::vector<T>& keyframeList)
+	typename Animation::KeyframeContainer<T>::iterator Sequencer::FirstKeyframeOnCanvas(Animation::KeyframeContainer<T>& keyframeList)
 	{
 		auto it = std::lower_bound(
 			keyframeList.begin(), 
@@ -84,10 +84,13 @@ namespace mm
 		return it;
 	}
 
-	bool Sequencer::IsKeyframeSelected(Animation::Keyframe& keyframe)
+	bool Sequencer::IsKeyframeSelected(Animation::Keyframe* keyframe)
 	{
-		auto it = m_selectedKeyframes.find(&keyframe);
-		return it != m_selectedKeyframes.end();
+		auto it = std::find_if(m_selectedDopes.begin(), m_selectedDopes.end(),
+			[keyframe](const std::shared_ptr<DopeBase>& dp) {
+				return dp->keyframe == keyframe;
+			});
+		return it != m_selectedDopes.end();
 	}
 
 	void Sequencer::OnItemSelected(const EditorEvent::ItemSelected& e)
@@ -102,13 +105,13 @@ namespace mm
 	}
 
 	template <typename T>
-	void Sequencer::DrawItemDope(const Item& item, std::vector<T>& keyframeList)
+	void Sequencer::DrawItemDope(const Item& item, Animation::KeyframeContainer<T>& keyframeList)
 	{
 		/* The first row is the ruler, don't draw on it! */
 		if (item.rowIndex < 1)
 			return;
 
-		auto keyframe = GetFirstKeyframeToDraw(keyframeList);
+		auto keyframe = FirstKeyframeOnCanvas(keyframeList);
 
 		for (; keyframe != keyframeList.end() && keyframe->frame < m_maxFrame; ++keyframe) {
 			float x = LEGEND_LENGTH + ROW_HEIGHT / 2;
@@ -122,100 +125,25 @@ namespace mm
 			ImGui::SetCursorScreenPos(m_canvasOrigin + buttonPos);
 			if (ImGui::Button(GenButtonId(), buttonSize)) {
 				m_thisFrameAnyDopeClicked = true;
-				m_currSelectedKeyframe = &(*keyframe);
-				m_selectedKeyframes.insert(&(*keyframe));
+				if (!IsKeyframeSelected(&(*keyframe)))
+					m_selectedDopes.emplace(std::make_shared<Dope<T>>(keyframeList, &(*keyframe)));
 			}
 			if (ImGui::IsItemHovered()) {
 				m_thisFrameAnyDopeHovered = true;
 			}
 			if (m_state == State::BOX_SELECT && m_selectionBox.CheckIntersection(m_canvasOrigin + buttonPos, DOPE_RADIUS)) {
-				m_selectedKeyframes.insert(&(*keyframe));
+				if (!IsKeyframeSelected(&(*keyframe)))
+					m_selectedDopes.emplace(std::make_shared<Dope<T>>(keyframeList, &(*keyframe)));
 			}
 
 			/* Draw */
-			if (IsKeyframeSelected(*keyframe)) {
+			if (IsKeyframeSelected(&(*keyframe))) {
 				DrawDiamond(dopePos, DOPE_RADIUS, DOPE_OUTLINE_SIZE_SELECTED, DOPE_OUTLINE_COLOR_SELECTED, DOPE_FILL_COLOR);
 			}
 			else {
 				DrawDiamond(dopePos, DOPE_RADIUS, DOPE_OUTLINE_SIZE, DOPE_OUTLINE_COLOR, DOPE_FILL_COLOR);
 			}
 		}
-	}
-
-	void Sequencer::CurveEditor(Item& item)
-	{
-		/* Curve editor */
-		ImVec2 editorOrigin = ImVec2(LEGEND_LENGTH, (item.rowIndex + 1) * ROW_HEIGHT);
-		float editorHeight = CURVE_EDITOR_ROW_COUNT * ROW_HEIGHT;
-		float midY = editorOrigin.y + editorHeight * 0.5f;
-
-
-		// NOTE: only bone keyframes are expandable.
-		MM_ASSERT(item.type == PMXFile::CLUSTER_BONE);
-		auto& keyframeList = m_model->GetAnim().GetBoneKeyframeMatrix()[item.index];
-		auto it = std::lower_bound(
-			keyframeList.begin(),
-			keyframeList.end(),
-			m_minFrame,
-			[](const Animation::Keyframe& lhs, uint32_t rhs) {
-				return lhs.frame < rhs;
-			});
-			//[](uint32_t lhs, const Animation::Keyframe& rhs) {
-			//	return lhs < rhs.frame;
-			//});
-
-		/* Bezier */
-		/* Background */
-		ImVec2 pos = ImVec2(LEGEND_LENGTH / 2, midY);
-		ImVec2 p1 = pos - ImVec2(BEZIER_EDITOR_SIZE/2, BEZIER_EDITOR_SIZE/2);
-		ImVec2 p2 = pos + ImVec2(BEZIER_EDITOR_SIZE/2, BEZIER_EDITOR_SIZE/2);
-		m_drawList->AddRectFilled(m_canvasOrigin + p1, m_canvasOrigin + p2, IM_COL32(32, 32, 32, 255));
-		m_drawList->AddRect(m_canvasOrigin + p1, m_canvasOrigin + p2, VERTICAL_MARK_COLOR, 0.0f, 0, 3.0f);
-		/* Grid */
-		for (int32_t x = pos.x - BEZIER_EDITOR_SIZE / 2; x <= pos.x + BEZIER_EDITOR_SIZE / 2; x += BEZIER_EDITOR_SIZE / BEZIER_EDITOR_GRID_COUNT)
-			m_drawList->AddLine(m_canvasOrigin + ImVec2(x, p1.y), m_canvasOrigin + ImVec2(x, p2.y), VERTICAL_MARK_COLOR);
-		//for (int32_t y = pos.y - BEZIER_EDITOR_SIZE / 2; y <= pos.y + BEZIER_EDITOR_SIZE / 2; y += BEZIER_EDITOR_SIZE / BEZIER_EDITOR_GRID_COUNT)
-		//	m_drawList->AddLine(m_canvasOrigin + ImVec2(p1.x, y), m_canvasOrigin + ImVec2(p2.x, y), VERTICAL_MARK_COLOR);
-		/* Handle */
-
-		/* Curve */
-		m_drawList->PushClipRect(m_canvasOrigin + editorOrigin, m_canvasOrigin + ImVec2(m_canvasSize.x, editorOrigin.y + editorHeight));
-		//if (it != keyframeList.begin())
-		//	it -= 1;
-		for (; it != keyframeList.end() && it->frame < m_maxFrame; ++it) {
-			// for all axes
-			static constexpr uint32_t axisColor[] = {
-				IM_COL32(255, 0, 0, 128), // X->R
-				IM_COL32(0, 255, 0, 128), // Y->G
-				IM_COL32(0, 0, 255, 128)}; // Z->B
-
-			for (uint32_t axis = 0; axis < 3; ++axis) {
-				float y = midY + it->transform.translation[axis] * Y_GAIN;
-				float startX = LEGEND_LENGTH + ROW_HEIGHT / 2;
-				uint32_t column = it->frame - m_minFrame;
-				ImVec2 diamondPos = ImVec2(startX + column * COLUMN_WIDTH, y + ROW_HEIGHT / 2);
-				DrawDiamond(diamondPos, POINT_RADIUS, POINT_OUTLINE_SIZE, POINT_OUTLINE_COLOR, POINT_FILL_COLOR);
-				if (it + 1 != keyframeList.end()) {
-					ImVec2 bezP0 = diamondPos;
-					float nextY = midY + (it + 1)->transform.translation[axis] * Y_GAIN;
-					uint32_t nextColumn = (it + 1)->frame - m_minFrame;
-					ImVec2 bezP3 = ImVec2(startX + nextColumn * COLUMN_WIDTH, nextY + ROW_HEIGHT / 2);
-					ImVec2 delta = bezP3 - bezP0;
-					ImVec2 vmdP1 = ImVec2(it->bezier.GetHandles()[axis][0].x, it->bezier.GetHandles()[axis][0].y);
-					ImVec2 bezP1 = ((vmdP1 * (1.f / 127)) * delta) + bezP0;
-					ImVec2 vmdP2 = ImVec2(it->bezier.GetHandles()[axis][1].x, it->bezier.GetHandles()[axis][1].y);
-					ImVec2 bezP2 = ((vmdP2 * (1.f / 127)) * delta) + bezP0;
-					m_drawList->AddBezierCubic(
-						m_canvasOrigin + bezP0, 
-						m_canvasOrigin + bezP1, 
-						m_canvasOrigin + bezP2, 
-						m_canvasOrigin + bezP3,
-						axisColor[axis], 3.0f);
-				}
-			}
-		}
-
-		m_drawList->PopClipRect();
 	}
 
 	void Sequencer::DrawStrip(uint32_t row)
@@ -238,23 +166,26 @@ namespace mm
 		float rulerEndX = m_canvasSize.x;
 		uint32_t column = m_minFrame;
 		uint32_t columnCount = 0;
+
+		/* Ruler background */
 		m_drawList->AddRectFilled(m_canvasOrigin, ImVec2(m_canvasOrigin.x + m_canvasSize.x, m_canvasOrigin.y + ROW_HEIGHT), HEADER_COLOR);
+
 		for (uint32_t rulerX = rulerBeginX; rulerX <= rulerEndX; rulerX += COLUMN_WIDTH, ++column, ++columnCount) {
 			float lineBeginY = ROW_HEIGHT;
 			float lineEndY = ROW_HEIGHT * m_visibleRowCount;
-			/* Button for selecting frame */
+
 			ImVec2 buttonPos = ImVec2(rulerX - COLUMN_WIDTH / 2, 0);
 			ImVec2 buttonSize = ImVec2(COLUMN_WIDTH, ROW_HEIGHT);
+
 			ImGui::SetCursorScreenPos(m_canvasOrigin + buttonPos);
 			if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
 				EventBus::Instance()->postpone<EditorEvent::FrameSet>({ column });
-				m_selectedColumn = column;
-				m_frameCounter.Set(column);
-				UpdateAnim();
+				m_selectedFrame = column;
+				SetFrame(m_selectedFrame);
 			}
 
 			/* Draw current frame mark (red vertical line) */
-			if (column == m_selectedColumn) {
+			if (column == m_selectedFrame) {
 				m_drawList->AddLine(
 					m_canvasOrigin + ImVec2(rulerX, lineBeginY),
 					m_canvasOrigin + ImVec2(rulerX, lineEndY),
@@ -327,21 +258,70 @@ namespace mm
 	void Sequencer::ProcessKeys()
 	{
 		/* Copy */
-		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_C)) {
+		if (ImGui::IsKeyPressed(ImGuiKey_C) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
 			auto content = std::make_unique<SequencerClipboardContent>();
-			for (auto& keyframe : m_selectedKeyframes) {
-			}
+			content->dopes = std::vector<std::shared_ptr<DopeBase>>(m_selectedDopes.begin(), m_selectedDopes.end());
 			Clipboard::Instance().SetContent(std::move(content));
+			//MM_INFO("Copied keyframes; count={0}", m_selectedDopes.size());
 		}
 
 		/* Paste */
-		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_V)) {
+		if (ImGui::IsKeyPressed(ImGuiKey_V) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
 			SequencerClipboardContent* content = dynamic_cast<SequencerClipboardContent*>(Clipboard::Instance().GetContent());
 			if (content != nullptr) {
-				for (auto& item : content->items) {
+				auto min = std::min_element(content->dopes.begin(), content->dopes.end(), 
+					[](const std::shared_ptr<DopeBase>& lhs, const std::shared_ptr<DopeBase>& rhs){
+						return lhs->keyframe->frame < rhs->keyframe->frame;
+					});
+				if (min != content->dopes.end()) {
+					uint32_t minFrame = (*min)->keyframe->frame;
+					for (auto& dope : content->dopes) {
+						dope->Duplicate(m_selectedFrame + dope->keyframe->frame - minFrame);
+					}
 				}
 			}
 		}
+
+		/* Cut */
+		if (ImGui::IsKeyPressed(ImGuiKey_X) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
+		}
+
+		/* Delete */
+		if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
+
+		}
+
+		if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
+			++m_selectedFrame;
+			SetFrame(m_selectedFrame);
+		}
+
+		if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) {
+			if (m_selectedFrame == 0)
+				return;
+			--m_selectedFrame;
+			SetFrame(m_selectedFrame);
+		}
+	}
+
+	void Sequencer::CheckAutoScroll(uint32_t frame)
+	{
+		if (frame - m_minFrame <= AUTO_SCROLL_THRESHOLD) {
+			int32_t newMinFrame = m_minFrame - AUTO_SCROLL_STEP;
+			newMinFrame = std::max(0, newMinFrame);
+			m_minFrame = newMinFrame;
+		}
+
+		if (m_maxFrame - frame <= AUTO_SCROLL_THRESHOLD) {
+			m_minFrame += AUTO_SCROLL_STEP;
+		}
+	}
+
+	void Sequencer::SetFrame(uint32_t frame)
+	{
+
+		m_frameCounter.Set(frame);
+		UpdateAnim();
 	}
 
 	void Sequencer::OnUIRender()
@@ -357,14 +337,6 @@ namespace mm
 			m_playing = false;
 		}
 		ImGui::SameLine();
-		static int32_t frame;
-		if (ImGui::InputInt("Frame", &frame)) {
-			if (frame < 0)
-				frame = 0;
-			m_frameCounter.Set(frame);
-			UpdateAnim();
-		}
-
 		if (ImGui::SliderInt("Min frame", &m_minFrame, 0, 10000)) {
 		}
 		ImGui::SameLine();
@@ -409,8 +381,7 @@ namespace mm
 		switch (m_state) {
 		case State::IDLE:
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !m_thisFrameAnyDopeHovered) {
-				m_currSelectedKeyframe = nullptr;
-				m_selectedKeyframes.clear();
+				m_selectedDopes.clear();
 			}
 			if (m_thisFrameAnyDopeClicked && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
 				m_state = State::CHERRY_PICK;
@@ -423,8 +394,8 @@ namespace mm
 				break;
 			}
 			if (beginDragging && m_thisFrameAnyDopeHovered) {
-				for (const auto& keyframe : m_selectedKeyframes) {
-					m_keyframeFrameOnStartDragging[keyframe] = keyframe->frame;
+				for (const auto& dope : m_selectedDopes) {
+					m_keyframeFrameOnStartDragging[dope.get()] = dope->keyframe->frame;
 				}
 				m_state = State::DOPE_DRAG;
 				break;
@@ -448,17 +419,17 @@ namespace mm
 				/* Process dragging */
 				float deltaX = ImGui::GetMouseDragDelta().x;
 				bool hasCollision = false;
-				for (auto& keyframe : m_selectedKeyframes) {
-					uint32_t targetFrame = m_keyframeFrameOnStartDragging[keyframe] + deltaX / COLUMN_WIDTH;
-					/* Need to access the keyframe container */
-					/* Need to sort the keyframe container; Use std::set instead? */
-				}
-				for (auto& keyframe : m_selectedKeyframes) {
+				//for (auto& dope : m_selectedDopes) {
+				//	uint32_t targetFrame = m_keyframeFrameOnStartDragging[dope.get()] + deltaX / COLUMN_WIDTH;
+				//	/* Need to access the keyframe container */
+				//	/* Need to sort the keyframe container; Use std::set instead? */
+				//}
+				for (auto& dope : m_selectedDopes) {
 					/* Don't touch the first keyframe! */
-					if (keyframe->frame == 0)
+					if (dope->keyframe->frame == 0)
 						continue;
 					/* Check if keyframe collision */
-					keyframe->frame = m_keyframeFrameOnStartDragging[keyframe] + deltaX / COLUMN_WIDTH;
+					dope->keyframe->frame = m_keyframeFrameOnStartDragging[dope.get()] + deltaX / COLUMN_WIDTH;
 				}
 			}
 			if (endDragging) {
@@ -467,72 +438,10 @@ namespace mm
 			break;
 		}
 
-		/* State operation */
-		//switch (m_state) {
-		//case State::IDLE:
-		//	break;
-		//case State::CHERRY_PICK:
-		//	break;
-		//case State::BOX_SELECT:
-		//	break;
-		//case State::DOPE_DRAG:
-		//	break;
-		//}
-
-		MM_INFO("{0}", (uint32_t)m_state);
-
-
-		//if (!m_draggingKeyframes)
-		//{
-		//	/* Selection */
-		//	bool lastFrameUsed = m_selectionBox.IsLastFrameUsed();
-		//	m_selectionBox.OnUIRender();
-		//	bool thisFrameUsing = m_selectionBox.IsUsing();
-
-		//	/* Begin box select */
-		//	if (!lastFrameUsed && thisFrameUsing) {
-		//		if (!ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
-		//			m_selectedKeyframes.clear();
-		//	}
-
-		//	/* End box select */
-		//	if (lastFrameUsed && !thisFrameUsing) {
-		//		/* Merge box select result */
-		//	}
-
-		//	/* Cherry picking reset condition */
-		//	/* Only click on nothing will clear the set*/
-		//	if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !m_thisFrameAnyDopeClicked && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) 
-		//		m_selectedKeyframes.clear();
-
-		//	if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && 
-		//		!ImGui::IsKeyDown(ImGuiKey_LeftCtrl) &&
-		//		!m_thisFrameAnyDopeClicked) {
-		//		m_currSelectedKeyframe = nullptr;
-		//		m_selectedKeyframes.clear();
-		//	}
-		//	m_thisFrameAnyDopeClicked = false;
-		//}
-		//else {
-		//	// use ImGui::GetMouseDragDelta();
-		//	float deltaX = ImGui::GetMousePos().x - m_mouseXWhenStartDragging;
-		//	for (auto& keyframe : m_selectedKeyframes) {
-		//		/* Don't touch the first keyframe! */
-		//		if (keyframe->frame == 0)
-		//			continue;
-		//		keyframe->frame = m_keyframeFrameOnStartDragging[keyframe] + deltaX / COLUMN_WIDTH;
-		//	}
-
-		//	if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-		//		m_dragging = false;
-		//		m_keyframeFrameOnStartDragging.clear();
-		//	}
-		//}
-
-
 		ImGui::EndGroup();
 
 		ProcessKeys();
+		CheckAutoScroll(m_selectedFrame);
 
 		ImGui::End();
 

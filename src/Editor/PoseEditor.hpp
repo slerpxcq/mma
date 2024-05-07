@@ -8,7 +8,7 @@
 #include "EditorEvent.hpp"
 #include "SelectionBox.hpp"
 
-#include "Core/App/Clipboard.hpp"
+#include "Clipboard.hpp"
 
 namespace mm
 {
@@ -34,8 +34,8 @@ namespace mm
 		static constexpr uint32_t SELECTED_OUTLINE_COLOR = 0xff0080ff;
 		static constexpr float SELECTED_OUTLINE_SIZE = 3.0f;
 
-		static constexpr uint32_t DIRTY_OUTLINE_COLOR = IM_COL32(0, 255, 0, 255);
-		static constexpr uint32_t DIRTY_FILL_COLOR = IM_COL32(0, 255, 0, 127);
+		static constexpr uint32_t DIRTY_OUTLINE_COLOR = 0xff00407f;
+		static constexpr uint32_t DIRTY_FILL_COLOR = 0x7f00407f;
 
 		static constexpr float CIRCLE_RADIUS = 7.5f;
 
