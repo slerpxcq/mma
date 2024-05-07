@@ -22,10 +22,15 @@ namespace mm
 	template <typename T>
 	void DuplicateKeyframe(Animation::KeyframeContainer<T>& container, const T& keyframe, uint32_t frame)
 	{
-		auto it = FindPrev(container, frame);
+		auto it = LowerBound(container, frame);
 		T newKeyframe = keyframe;
 		newKeyframe.frame = frame;
 		container.insert(it, newKeyframe);
+
+		/* Discard existing keyframe */
+		if (it != container.end()) {
+			container.erase(it);
+		}
 	}
 
 	class Sequencer

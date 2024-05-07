@@ -22,7 +22,7 @@ namespace mm
 		dexode::EventBus::Listener m_listener;
 
 		//int32_t m_nextInsert = 0;
-		std::stack<std::unique_ptr<ICommand>> m_commandQueue;
+		std::stack<std::unique_ptr<Command>> m_commandQueue;
 	};
 }
 

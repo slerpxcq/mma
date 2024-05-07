@@ -9,9 +9,14 @@ So it should be called FileManager to be precise
 
 - ImGuizmo Local ring and Screen ring radius too close
 
+- Copy and paste bone transforms
+    - If single bone transform is copied, it can be pasted on any other bone
+    - If multiple bone transforms are copied, they can be only pasted on the same bone
+- Cut/Delete keyframes
+
 # DOING
 - Sequencer copy and paste
-    - Duplicated dopes needs to be eliminated
+    - Undo
 
 # 2024/5/3
 # DONE
@@ -46,3 +51,4 @@ So it should be called FileManager to be precise
     - Box select has too many items - Check existance before emplace
 
     - Added auto-scrolling when click on scale
+    - Duplicated dopes needs to be eliminated

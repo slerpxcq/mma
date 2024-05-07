@@ -111,7 +111,7 @@ namespace mm
 		if (item.rowIndex < 1)
 			return;
 
-		auto keyframe = FirstKeyframeOnCanvas(keyframeList);
+		auto keyframe = LowerBound(keyframeList, m_minFrame);
 
 		for (; keyframe != keyframeList.end() && keyframe->frame < m_maxFrame; ++keyframe) {
 			float x = LEGEND_LENGTH + ROW_HEIGHT / 2;

@@ -88,11 +88,38 @@ namespace mm
 	};
 
 	template <typename T>
-	decltype(auto) FindPrev(const Animation::KeyframeContainer<T>& vec, uint32_t frame)
+	decltype(auto) LowerBound(Animation::KeyframeContainer<T>& container, uint32_t frame)
+	{
+		return std::lower_bound(
+			container.begin(),
+			container.end(),
+			frame);
+	}
+
+	template <typename T>
+	decltype(auto) UpperBound(Animation::KeyframeContainer<T>& container, uint32_t frame)
 	{
 		return std::upper_bound(
-			vec.begin(),
-			vec.end(),
+			container.begin(),
+			container.end(),
+			frame);
+	}
+
+	template <typename T>
+	decltype(auto) LowerBound(const Animation::KeyframeContainer<T>& container, uint32_t frame)
+	{
+		return std::lower_bound(
+			container.begin(),
+			container.end(),
+			frame);
+	}
+
+	template <typename T>
+	decltype(auto) UpperBound(const Animation::KeyframeContainer<T>& container, uint32_t frame)
+	{
+		return std::upper_bound(
+			container.begin(),
+			container.end(),
 			frame);
 	}
 

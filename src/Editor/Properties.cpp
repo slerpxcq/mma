@@ -67,12 +67,10 @@ namespace mm
 					MM_INFO("Start edit; undo={0}", undoValue);
 				}
 				if (ImGui::IsItemDeactivatedAfterEdit()) {
-				{
-				}
 					MM_INFO("End edit: undo={0}, redo={1}", undoValue, *valuePtr);
 					/* If there is no keyframe at current frame, create one */
 					EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-						new Command::MorphEdited(valuePtr, *valuePtr, undoValue) });
+						new MorphEditedCommand(valuePtr, *valuePtr, undoValue) });
 
 					/* If there is no keyframe at current frame, create one */
 					/* Else directly change the value of that keyframe */
@@ -89,8 +87,8 @@ namespace mm
 							morphIndex,
 							Animation::MorphKeyframe(currFrame, *valuePtr));
 						EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-							new Command::KeyframeInserted(
-								anim, Command::KeyframeInserted::TYPE_MORPH, morphIndex, currFrame) });
+							new KeyframeInsertedCommand(
+								anim, KeyframeInsertedCommand::TYPE_MORPH, morphIndex, currFrame) });
 					}
 					else {
 						it->weight = *valuePtr;

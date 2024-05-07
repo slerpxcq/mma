@@ -107,7 +107,7 @@ namespace mm
 		if (lastFrameUsedGizmo && !thisFrameUsedGizmo) {
 			m_context.editedBones.insert(m_context.currSelectedBone);
 			EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-				new Command::BoneEdited(valuePtr, *valuePtr, undoValue) });
+				new BoneTransformEditedCommand(valuePtr, *valuePtr, undoValue) });
 		}
 		lastFrameUsedGizmo = thisFrameUsedGizmo;
 	}

@@ -17,7 +17,7 @@ namespace mm
 
 	void CommandBuffer::OnCommandIssued(const EditorEvent::CommandIssued& e)
 	{
-		m_commandQueue.push(std::unique_ptr<ICommand>(e.command));
+		m_commandQueue.push(std::unique_ptr<Command>(e.command));
 		MM_INFO("Stored command; size={0}", m_commandQueue.size());
 	}
 

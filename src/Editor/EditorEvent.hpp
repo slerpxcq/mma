@@ -12,7 +12,7 @@ namespace mm
 	namespace EditorEvent
 	{
 		struct CommandIssued {
-			ICommand* command;
+			Command* command;
 		};
 
 		struct ItemSelected {

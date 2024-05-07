@@ -131,14 +131,14 @@ namespace mm
 	void Animation::InsertMorphKeyframe(uint32_t morphIndex, const MorphKeyframe& keyframe)
 	{
 		auto& keyframes = m_morphKeyframeMatrix[morphIndex];
-		auto it = FindPrev(keyframes, keyframe.frame);
+		auto it = LowerBound(keyframes, keyframe.frame);
 		keyframes.insert(it, keyframe);
 	}
 
 	void Animation::InsertBoneKeyframe(uint32_t boneIndex, const BoneKeyframe& keyframe)
 	{
 		auto& keyframes = m_boneKeyframeMatrix[boneIndex];
-		auto it = FindPrev(keyframes, keyframe.frame);
+		auto it = LowerBound(keyframes, keyframe.frame);
 		keyframes.insert(it, keyframe);
 	}
 
@@ -188,7 +188,7 @@ namespace mm
 	{
 		for (uint32_t i = 0; i < m_morphKeyframeMatrix.size(); ++i) {
 			const auto& keyframes = m_morphKeyframeMatrix[i];
-			auto prev = FindPrev(keyframes, frame);
+			auto prev = LowerBound(keyframes, frame);
 			float& weight = m_model.GetMorph().GetWeights()[i];
 
 			if (prev == keyframes.cend()) {
@@ -208,7 +208,7 @@ namespace mm
 	{
 		for (uint32_t i = 0; i < m_boneKeyframeMatrix.size(); ++i) {
 			auto& keyframes = m_boneKeyframeMatrix[i];
-			auto prev = FindPrev(keyframes, frame);
+			auto prev = LowerBound(keyframes, frame);
 			Transform& transform = m_model.GetArmature().GetPose()[i];
 
 			if (prev == keyframes.cend()) {
