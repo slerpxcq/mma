@@ -16,12 +16,12 @@ So it should be called FileManager to be precise
 
 # DOING
 - Sequencer copy and paste
-    - Undo
+    - Undo for 
+        - Keyframe paste
 
 # 2024/5/3
 # DONE
 - Read IBL-Diffuse irradiance (LearnOpenGL)
-    - Equirectangular map -> Cube map
 
 - Handling multi-selection
 - Handling pose commitment 
@@ -52,3 +52,5 @@ So it should be called FileManager to be precise
 
     - Added auto-scrolling when click on scale
     - Duplicated dopes needs to be eliminated
+
+        - Keyframe dragged

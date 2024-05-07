@@ -380,10 +380,10 @@ namespace mm
 		/* State transition */
 		switch (m_state) {
 		case State::IDLE:
-			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !m_thisFrameAnyDopeHovered) {
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !m_thisFrameAnyDopeClicked && !m_thisFrameAnyDopeHovered) {
 				m_selectedDopes.clear();
 			}
-			if (m_thisFrameAnyDopeClicked && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
+			if (ImGui::IsKeyPressed(ImGuiKey_LeftCtrl)) {
 				m_state = State::CHERRY_PICK;
 				break;
 			}
@@ -433,6 +433,14 @@ namespace mm
 				}
 			}
 			if (endDragging) {
+				/* Make command */
+				std::vector<SequencerKeyframeDraggedCommand::UndoData> undoDatas;
+
+				for (auto& dope : m_selectedDopes) 
+					undoDatas.push_back({ dope->keyframe, m_keyframeFrameOnStartDragging[dope.get()] });
+
+				EventBus::Instance()->postpone<EditorEvent::CommandIssued>({ new SequencerKeyframeDraggedCommand(std::move(undoDatas)) });
+
 				m_state = State::IDLE;
 			}
 			break;

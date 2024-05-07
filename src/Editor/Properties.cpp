@@ -87,8 +87,8 @@ namespace mm
 							morphIndex,
 							Animation::MorphKeyframe(currFrame, *valuePtr));
 						EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-							new KeyframeInsertedCommand(
-								anim, KeyframeInsertedCommand::TYPE_MORPH, morphIndex, currFrame) });
+							new PoseEditorCommitCommand(
+								anim, PoseEditorCommitCommand::TYPE_MORPH, morphIndex, currFrame) });
 					}
 					else {
 						it->weight = *valuePtr;

@@ -28,7 +28,7 @@ namespace mm
 		container.insert(it, newKeyframe);
 
 		/* Discard existing keyframe */
-		if (it != container.end()) {
+		if (it != container.end() && it->frame == frame) {
 			container.erase(it);
 		}
 	}
@@ -117,6 +117,14 @@ namespace mm
 			Animation::KeyframeContainer<T>& container;
 		};
 
+		struct DopeHash {
+			size_t operator()(const std::shared_ptr<Sequencer::DopeBase>& dope) const {
+				return std::hash<size_t>()((size_t)dope->keyframe);
+			}
+		};
+
+		using SelectedDopeContainer = std::unordered_set<std::shared_ptr<DopeBase>, DopeHash>;
+
 	public:
 		Sequencer(EditorLayer& editor) : 
 			m_editor(editor),
@@ -175,19 +183,12 @@ namespace mm
 			return buf;
 		}
 
-
 	private:
 		enum class State {
 			IDLE,
 			CHERRY_PICK,
 			BOX_SELECT,
 			DOPE_DRAG
-		};
-
-		struct DopeHash {
-			size_t operator()(const std::shared_ptr<Sequencer::DopeBase>& dope) const {
-				return std::hash<size_t>()((size_t)dope->keyframe);
-			}
 		};
 
 	private:
@@ -199,8 +200,7 @@ namespace mm
 		SelectionBox m_selectionBox;
 
 		/* Editing states */
-		/* Need custom hash function that only hash the underlying keyframe pointer */
-		std::unordered_set<std::shared_ptr<DopeBase>, DopeHash> m_selectedDopes;
+		SelectedDopeContainer m_selectedDopes;
 
 		/* Drawing */
 		int32_t m_selectedRow = -1;
@@ -238,9 +238,29 @@ namespace mm
 		std::vector<std::shared_ptr<Sequencer::DopeBase>> dopes;
 	};
 
-	/* Hash for selected dopes */
-	//static bool operator==(const std::shared_ptr<Sequencer::DopeBase>& lhs, const std::shared_ptr<Sequencer::DopeBase>& rhs) {
-	//	return lhs->keyframe == rhs->keyframe;
-	//}
+	class SequencerKeyframeDraggedCommand : public Command {
+	public:
+		struct UndoData {
+			Animation::Keyframe* keyframe;
+			uint32_t frame;
+		};
+
+		SequencerKeyframeDraggedCommand(const std::vector<UndoData> undoDatas) :
+			m_undoDatas(undoDatas) {
+		}
+
+		virtual void Undo() override {
+			/* For each backed up frames, restore its frame */
+			for (auto& data : m_undoDatas) {
+				data.keyframe->frame = data.frame;
+			}
+		}
+
+		virtual void Redo() override {
+		}
+
+	private:
+		std::vector<UndoData> m_undoDatas;
+	};
 }
 

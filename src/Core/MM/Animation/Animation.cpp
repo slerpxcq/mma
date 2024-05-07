@@ -188,7 +188,7 @@ namespace mm
 	{
 		for (uint32_t i = 0; i < m_morphKeyframeMatrix.size(); ++i) {
 			const auto& keyframes = m_morphKeyframeMatrix[i];
-			auto prev = LowerBound(keyframes, frame);
+			auto prev = UpperBound(keyframes, frame);
 			float& weight = m_model.GetMorph().GetWeights()[i];
 
 			if (prev == keyframes.cend()) {
@@ -208,7 +208,7 @@ namespace mm
 	{
 		for (uint32_t i = 0; i < m_boneKeyframeMatrix.size(); ++i) {
 			auto& keyframes = m_boneKeyframeMatrix[i];
-			auto prev = LowerBound(keyframes, frame);
+			auto prev = UpperBound(keyframes, frame);
 			Transform& transform = m_model.GetArmature().GetPose()[i];
 
 			if (prev == keyframes.cend()) {

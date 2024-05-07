@@ -9,6 +9,20 @@ namespace mm
 	class Model;
 	class World;
 
+	class MorphEditedCommand : public Command {
+	public:
+		MorphEditedCommand(float* valuePtr, float redoValue, float undoValue) :
+			m_valuePtr(valuePtr), m_redoValue(redoValue), m_undoValue(undoValue) {}
+
+		virtual void Undo() override { *m_valuePtr = m_undoValue; }
+		virtual void Redo() override { *m_valuePtr = m_redoValue; }
+
+	private:
+		float* m_valuePtr;
+		float m_redoValue;
+		float m_undoValue;
+	};
+
 	class Properties
 	{
 	public:
