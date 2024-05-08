@@ -258,10 +258,8 @@ namespace mm
 	std::unique_ptr<SequencerClipboardContent> Sequencer::MakeClipboardContentFromSelected()
 	{
 		auto content = std::make_unique<SequencerClipboardContent>();
-		//content->dopes = std::vector<std::shared_ptr<DopeBase>>(m_selectedDopes.begin(), m_selectedDopes.end());
-		for (auto& dope : m_selectedDopes) {
+		for (auto& dope : m_selectedDopes) 
 			content->dopes.push_back(dope->Clone());
-		}
 		return content;
 	}
 
@@ -302,6 +300,7 @@ namespace mm
 
 		/* Delete */
 		if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
+			EventBus::Instance()->postpone<EditorEvent::CommandIssued>({ new SequencerDopeDeletedCommand(m_selectedDopes) });
 			for (auto& dope : m_selectedDopes) {
 				if (dope->keyframe->frame == 0)
 					continue;

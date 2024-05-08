@@ -68,11 +68,6 @@ namespace mm
 		static constexpr float DOPE_OUTLINE_SIZE = 1.5f;
 		static constexpr float DOPE_OUTLINE_SIZE_SELECTED = 3.0f;
 
-		//static constexpr float POINT_RADIUS = 4.5f;
-		//static constexpr uint32_t POINT_FILL_COLOR = 0xff000000;
-		//static constexpr uint32_t POINT_OUTLINE_COLOR = 0xff0080ff;
-		//static constexpr float POINT_OUTLINE_SIZE = 3.f;
-		//static constexpr float Y_GAIN = 5.f;
 		static constexpr uint32_t INDENT_BASE = 15;
 
 		static constexpr uint32_t AUTO_SCROLL_THRESHOLD = 5;
@@ -114,10 +109,18 @@ namespace mm
 			/* Deep clone the dope (clone the keyframe) */
 			virtual std::shared_ptr<DopeBase> Clone() const = 0;
 
-			virtual ~DopeBase() {}
+			virtual ~DopeBase() {
+				if (m_cloned)
+					delete keyframe;
+			}
 
 		public:
+			/* Pointer to underlying keyframe */
 			Animation::Keyframe* keyframe;
+
+		protected:
+			/* Delete the keyframe if it is cloned */
+			bool m_cloned = false;
 		};
 
 		/* T can be BoneKeyframe or MorphKeyframe */
@@ -137,8 +140,9 @@ namespace mm
 			}
 
 			virtual std::shared_ptr<DopeBase> Clone() const override {
-				std::shared_ptr<DopeBase> newDope = std::make_shared<Dope<T>>(*this);
+				std::shared_ptr<Dope<T>> newDope = std::make_shared<Dope<T>>(*this);
 				newDope->keyframe = new T(*dynamic_cast<T*>(keyframe));
+				newDope->m_cloned = true;
 				return newDope;
 			}
 
@@ -158,17 +162,18 @@ namespace mm
 		Sequencer(EditorLayer& editor) : 
 			m_editor(editor),
 			m_listener(EventBus::Instance()) {
-			/* Should use ImGui inputs */
 			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Sequencer::OnMouseScrolled));
 			m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(Sequencer::OnItemSelected));
 		}
 
 		void OnUIRender();
+		void OnUpdate(float deltaTime);
+
 		void AddGroup(const Group& group) { m_groups.push_back(group); }
 		void SetModel(Model* model);
 
-		void OnUpdate(float deltaTime);
 		void UpdateAnim();
+
 		Model* GetModel() { return m_model; }
 		FrameCounter& GetFrameCounter() { return m_frameCounter; }
 
@@ -195,10 +200,11 @@ namespace mm
 		void DrawStrip(uint32_t row);
 		void DrawScale();
 		void DrawRows();
-		std::unique_ptr<SequencerClipboardContent> MakeClipboardContentFromSelected();
 		void DrawExpandedGroup(Group& group);
 
 		bool IsKeyframeSelected(Animation::Keyframe*);
+
+		std::unique_ptr<SequencerClipboardContent> MakeClipboardContentFromSelected();
 
 		const char* GenButtonId() {
 			static char buf[16];
@@ -264,22 +270,19 @@ namespace mm
 
 	class SequencerKeyframeDraggedCommand : public Command {
 	public:
-		/* This may break is pointed keyframe is deleted */
-		/* Better store the real keyframe*/
 		struct UndoData {
 			Animation::Keyframe* keyframe;
+			/* Frame before drag */
 			uint32_t frame;
 		};
 
-		SequencerKeyframeDraggedCommand(const std::vector<UndoData> undoDatas) :
+		SequencerKeyframeDraggedCommand(const std::vector<UndoData>& undoDatas) :
 			m_undoDatas(undoDatas) {
 		}
 
 		virtual void Undo() override {
-			/* For each backed up frames, restore its frame */
-			for (auto& data : m_undoDatas) {
+			for (auto& data : m_undoDatas) 
 				data.keyframe->frame = data.frame;
-			}
 		}
 
 		virtual void Redo() override {
@@ -289,14 +292,23 @@ namespace mm
 		std::vector<UndoData> m_undoDatas;
 	};
 
-	class SequencerKeyframeInsertedCommand : public Command {
+	class SequencerDopeDeletedCommand : public Command {
 	public:
-		struct UndoData {
-		};
+		SequencerDopeDeletedCommand(const Sequencer::SelectedDopeContainer& selectedDopes) {
+			for (auto& dope : selectedDopes) 
+				m_dopes.push_back(dope->Clone());
+		}
 
-		SequencerKeyframeInsertedCommand() {}
+		virtual void Undo() override {
+			for (auto& dope : m_dopes) 
+				dope->Duplicate(dope->keyframe->frame);
+		}
+
+		virtual void Redo() override {
+		}
 
 	private:
+		std::vector<std::shared_ptr<Sequencer::DopeBase>> m_dopes;
 	};
 }
 
