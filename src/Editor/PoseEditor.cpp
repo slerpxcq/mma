@@ -72,7 +72,7 @@ namespace mm
 		else if (m_context.useLocalFrame) {
 			ImGuizmo::Manipulate(
 				view, proj,
-				ImGuizmo::ROTATE,
+				(ImGuizmo::OPERATION)m_context.operation,
 				ImGuizmo::LOCAL,
 				glm::value_ptr(m_context.localFrame));
 		}

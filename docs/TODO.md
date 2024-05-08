@@ -9,15 +9,27 @@ So it should be called FileManager to be precise
 
 - ImGuizmo Local ring and Screen ring radius too close
 
+- All undo redo commands
+    - Sequencer
+        - Insert keyframe?
+        - Delete keyframe
+        - Drag keyframe
+    - Pose Editor
+        - change transform
+    - Properties
+        - Change any field
+
 - Copy and paste bone transforms
     - If single bone transform is copied, it can be pasted on any other bone
     - If multiple bone transforms are copied, they can be only pasted on the same bone
-- Cut/Delete keyframes
+
+- PoseEditor should be able to undo even when editing
 
 # DOING
 - Sequencer copy and paste
     - Undo for 
         - Keyframe paste
+        - Idea: Keyframe paste is really keyframe insertion
 
 # 2024/5/3
 # DONE
@@ -54,3 +66,5 @@ So it should be called FileManager to be precise
     - Duplicated dopes needs to be eliminated
 
         - Keyframe dragged
+    - Delete keyframe
+    - Cut keyframes

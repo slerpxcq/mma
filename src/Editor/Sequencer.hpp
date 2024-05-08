@@ -11,13 +11,13 @@
 #include "SelectionBox.hpp"
 #include "Clipboard.hpp"
 
-#include <set>
-
 namespace mm
 {
 	class Animation;
 	class Model;
 	class EditorLayer;
+
+	struct SequencerClipboardContent;
 
 	template <typename T>
 	void DuplicateKeyframe(Animation::KeyframeContainer<T>& container, const T& keyframe, uint32_t frame)
@@ -31,6 +31,14 @@ namespace mm
 		if (it != container.end() && it->frame == frame) {
 			container.erase(it);
 		}
+	}
+
+	template <typename T>
+	void DeleteKeyframe(Animation::KeyframeContainer<T>& container, const T& keyframe)
+	{
+		auto it = LowerBound(container, keyframe.frame);
+		MM_ASSERT(it != container.end());
+		container.erase(it);
 	}
 
 	class Sequencer
@@ -97,15 +105,25 @@ namespace mm
 			DopeBase(Animation::Keyframe* keyframe) :
 				keyframe(keyframe) {}
 
+			/* Only duplicate underlying keyframe */
 			virtual void Duplicate(uint32_t frame) = 0;
+
+			/* Delete underlying keyframe */
+			virtual void Delete() = 0;
+
+			/* Deep clone the dope (clone the keyframe) */
+			virtual std::shared_ptr<DopeBase> Clone() const = 0;
+
 			virtual ~DopeBase() {}
 
 		public:
 			Animation::Keyframe* keyframe;
 		};
 
+		/* T can be BoneKeyframe or MorphKeyframe */
 		template <typename T>
 		struct Dope : public DopeBase {
+		public:
 			Dope(Animation::KeyframeContainer<T>& container, T* keyframe) :
 				DopeBase(keyframe),
 				container(container) {}
@@ -114,6 +132,17 @@ namespace mm
 				DuplicateKeyframe(container, *dynamic_cast<T*>(keyframe), frame);
 			}
 
+			virtual void Delete() override {
+				DeleteKeyframe(container, *dynamic_cast<T*>(keyframe));
+			}
+
+			virtual std::shared_ptr<DopeBase> Clone() const override {
+				std::shared_ptr<DopeBase> newDope = std::make_shared<Dope<T>>(*this);
+				newDope->keyframe = new T(*dynamic_cast<T*>(keyframe));
+				return newDope;
+			}
+
+		public:
 			Animation::KeyframeContainer<T>& container;
 		};
 
@@ -138,17 +167,12 @@ namespace mm
 		void AddGroup(const Group& group) { m_groups.push_back(group); }
 		void SetModel(Model* model);
 
-		//void OnModelLoaded(const EditorEvent::ModelLoaded& e);
-		//void OnMotionLoaded(const EditorEvent::MotionLoaded& e);
 		void OnUpdate(float deltaTime);
 		void UpdateAnim();
 		Model* GetModel() { return m_model; }
 		FrameCounter& GetFrameCounter() { return m_frameCounter; }
 
 	private:
-		template <typename T>
-		typename Animation::KeyframeContainer<T>::iterator FirstKeyframeOnCanvas(Animation::KeyframeContainer<T>& keyframeList);
-
 		/* Events */
 		void OnMouseScrolled(const Event::MouseScrolled& e);
 		void OnItemSelected(const EditorEvent::ItemSelected& e);
@@ -158,12 +182,11 @@ namespace mm
 
 		void SetFrame(uint32_t frame);
 
-		/* Drawing */
 		void DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);
 		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
+
 		template<typename T>
 		void DrawRowHeader(T& row, bool expandable, float textOffset);
-		/* Morph and bone keyframes should be treated the same */
 
 		template<typename T>
 		void DrawItemDope(const Item& item, Animation::KeyframeContainer<T>& keyframeList);
@@ -172,9 +195,9 @@ namespace mm
 		void DrawStrip(uint32_t row);
 		void DrawScale();
 		void DrawRows();
+		std::unique_ptr<SequencerClipboardContent> MakeClipboardContentFromSelected();
 		void DrawExpandedGroup(Group& group);
 
-		//template <typename T>
 		bool IsKeyframeSelected(Animation::Keyframe*);
 
 		const char* GenButtonId() {
@@ -235,11 +258,14 @@ namespace mm
 	};
 
 	struct SequencerClipboardContent : public ClipboardContent {
+		/* Need deep copy for underlying data */
 		std::vector<std::shared_ptr<Sequencer::DopeBase>> dopes;
 	};
 
 	class SequencerKeyframeDraggedCommand : public Command {
 	public:
+		/* This may break is pointed keyframe is deleted */
+		/* Better store the real keyframe*/
 		struct UndoData {
 			Animation::Keyframe* keyframe;
 			uint32_t frame;
@@ -261,6 +287,16 @@ namespace mm
 
 	private:
 		std::vector<UndoData> m_undoDatas;
+	};
+
+	class SequencerKeyframeInsertedCommand : public Command {
+	public:
+		struct UndoData {
+		};
+
+		SequencerKeyframeInsertedCommand() {}
+
+	private:
 	};
 }
 

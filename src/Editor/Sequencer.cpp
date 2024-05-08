@@ -71,18 +71,18 @@ namespace mm
 			DrawExpandButton(row.rowIndex, textOffset - 5, row.expanded);
 	}
 
-	template <typename T>
-	typename Animation::KeyframeContainer<T>::iterator Sequencer::FirstKeyframeOnCanvas(Animation::KeyframeContainer<T>& keyframeList)
-	{
-		auto it = std::lower_bound(
-			keyframeList.begin(), 
-			keyframeList.end(), 
-			m_minFrame, 
-			[](const T& lhs, uint32_t rhs) {
-				return lhs.frame < rhs;
-			});
-		return it;
-	}
+	//template <typename T>
+	//typename Animation::KeyframeContainer<T>::iterator Sequencer::FirstKeyframeOnCanvas(Animation::KeyframeContainer<T>& keyframeList)
+	//{
+	//	auto it = std::lower_bound(
+	//		keyframeList.begin(), 
+	//		keyframeList.end(), 
+	//		m_minFrame, 
+	//		[](const T& lhs, uint32_t rhs) {
+	//			return lhs.frame < rhs;
+	//		});
+	//	return it;
+	//}
 
 	bool Sequencer::IsKeyframeSelected(Animation::Keyframe* keyframe)
 	{
@@ -255,14 +255,21 @@ namespace mm
 		m_totalRowCount = m_currRowIndex - 1;
 	}
 
+	std::unique_ptr<SequencerClipboardContent> Sequencer::MakeClipboardContentFromSelected()
+	{
+		auto content = std::make_unique<SequencerClipboardContent>();
+		//content->dopes = std::vector<std::shared_ptr<DopeBase>>(m_selectedDopes.begin(), m_selectedDopes.end());
+		for (auto& dope : m_selectedDopes) {
+			content->dopes.push_back(dope->Clone());
+		}
+		return content;
+	}
+
 	void Sequencer::ProcessKeys()
 	{
 		/* Copy */
 		if (ImGui::IsKeyPressed(ImGuiKey_C) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
-			auto content = std::make_unique<SequencerClipboardContent>();
-			content->dopes = std::vector<std::shared_ptr<DopeBase>>(m_selectedDopes.begin(), m_selectedDopes.end());
-			Clipboard::Instance().SetContent(std::move(content));
-			//MM_INFO("Copied keyframes; count={0}", m_selectedDopes.size());
+			Clipboard::Instance().SetContent(MakeClipboardContentFromSelected());
 		}
 
 		/* Paste */
@@ -284,11 +291,23 @@ namespace mm
 
 		/* Cut */
 		if (ImGui::IsKeyPressed(ImGuiKey_X) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
+			Clipboard::Instance().SetContent(MakeClipboardContentFromSelected());
+			for (auto& dope : m_selectedDopes) {
+				if (dope->keyframe->frame == 0)
+					continue;
+				dope->Delete();
+			}
+			m_selectedDopes.clear();
 		}
 
 		/* Delete */
 		if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
-
+			for (auto& dope : m_selectedDopes) {
+				if (dope->keyframe->frame == 0)
+					continue;
+				dope->Delete();
+			}
+			m_selectedDopes.clear();
 		}
 
 		if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
@@ -319,7 +338,6 @@ namespace mm
 
 	void Sequencer::SetFrame(uint32_t frame)
 	{
-
 		m_frameCounter.Set(frame);
 		UpdateAnim();
 	}
@@ -463,6 +481,7 @@ namespace mm
 		m_groups.clear();
 		m_model = model;
 
+		/* Load all fields */
 		if (m_model != nullptr) {
 			const auto& pmx = m_model->GetPMXFile();
 			const auto& pmxClusters = m_model->GetPMXFile().GetClusters();
