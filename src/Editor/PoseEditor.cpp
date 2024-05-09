@@ -357,6 +357,33 @@ namespace mm
 					}
 				}
 			}
+			/* Copy */
+			if (ImGui::IsKeyPressed(ImGuiKey_C) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
+				if (!m_context.selectedBones.empty()) {
+					auto content = std::make_unique<PoseEditorClipboardContent>();
+					for (auto& bone : m_context.selectedBones) {
+						content->items.push_back({
+							bone,
+							m_model->GetArmature().GetPose()[bone]
+						});
+					}
+					Clipboard::Instance().SetContent(std::move(content));
+				}
+			}
+
+			/* Paste */
+			if (ImGui::IsKeyPressed(ImGuiKey_V) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
+				PoseEditorClipboardContent* content = dynamic_cast<PoseEditorClipboardContent*>(Clipboard::Instance().GetContent());
+				if (content != nullptr) {
+					for (const auto& item : content->items) 
+						m_model->GetArmature().GetPose()[item.boneIndex] = item.transform;
+				}
+			}
+
+			/* Mirror paste */
+			if (ImGui::IsKeyPressed(ImGuiKey_V) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_LeftShift)) {
+			}
+
 			break;
 		case Context::State::EDITING:
 			{
@@ -403,6 +430,7 @@ namespace mm
 			}
 			break;
 		}
+
 	}
 
 	void PoseEditor::OnUIRender()
@@ -454,31 +482,6 @@ namespace mm
 		ProcessKeys();
 		ProcessMouseButton();
 
-		/* Copy */
-		if (ImGui::IsKeyPressed(ImGuiKey_C) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
-			auto content = std::make_unique<PoseEditorClipboardContent>();
-			for (auto& bone : m_context.selectedBones) {
-				content->items.push_back({
-					bone,
-					m_model->GetArmature().GetPose()[bone]
-				});
-			}
-			Clipboard::Instance().SetContent(std::move(content));
-		}
-
-		/* Paste */
-		if (ImGui::IsKeyPressed(ImGuiKey_V) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
-			PoseEditorClipboardContent* content = dynamic_cast<PoseEditorClipboardContent*>(Clipboard::Instance().GetContent());
-			if (content != nullptr) {
-				for (const auto& item : content->items) {
-					m_model->GetArmature().GetPose()[item.boneIndex] = item.transform;
-				}
-			}
-		}
-
-		/* Mirror paste */
-		if (ImGui::IsKeyPressed(ImGuiKey_V) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_LeftShift)) {
-		}
 
 		ImGui::End();
 	}

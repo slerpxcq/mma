@@ -1,4 +1,71 @@
+
+# 2024/5/3
+# DONE
+- Read IBL-Diffuse irradiance (LearnOpenGL)
+
+
+- Handling multi-selection
+- Handling pose commitment 
+
+# 2024/5/4
+# DONE
+- Copy paste bone transforms 
+    - DO NOT use glfw clipboard! Create a custom one
+- OnFrameSet event
+
+# 2024/5/6
+# DONE
+- The sequencer class is too messy, try to refractor
+    - Refactor selection logic: State machine
+
+    - Find a uniform way to handle morph and bone keyframes
+    - How to get the container that a keyframe is belong to? Need type and index;
+      The underlying Animation class has a seperate storage for different types of keyframes.
+      However, they should be treated as one type in the Sequencer
+    - Solved with template
+
+# 2024/5/7
+# DONE
+- Need other method to identify keyframes - solved by using std::list instead of std::vector
+- Underlying pointer changed due to insertion!
+- Box select has too many items - Check existance before emplace
+- Added auto-scrolling when click on scale
+- Duplicated dopes needs to be eliminated
+
+# 2024/5/8
+# DONE
+- Sequencer copy and paste
+    - Keyframe dragged
+    - Delete keyframe
+    - Cut keyframes
+
+# 2024/5/9
+# DONE
+- Set the container when click on bone
+    - Add buttons in Sequencer legends
+
+    - Display a curve and able to change the min and max frame
+    - Grid
+
+# DOING
+- Curve editor
+
 # TODO
+- Entity/Property panel
+- Entity base class
+    - ShowPropertyPanel()
+- Entity derived class for 
+	TYPE_BONE,
+    TYPE_MESH,
+    TYPE_CAMERA,
+    TYPE_LIGHT,
+    TYPE_MORPH,
+    TYPE_ANIMATION,
+    TYPE_ARMATURE,
+    TYPE_WORLD,
+    TYPE_PHYSICS_WORLD,
+    TYPE_MODEL
+
 - The GPU resources, such as GLTexture and GLBuffer, should be owned by a seperate class like GLResource,
 and other classes should only holds a pointer to the actual resource;
 
@@ -24,47 +91,3 @@ So it should be called FileManager to be precise
     - If multiple bone transforms are copied, they can be only pasted on the same bone
 
 - PoseEditor should be able to undo even when editing
-
-# DOING
-- Sequencer copy and paste
-    - Undo for 
-        - Keyframe paste
-        - Idea: Keyframe paste is really keyframe insertion
-
-# 2024/5/3
-# DONE
-- Read IBL-Diffuse irradiance (LearnOpenGL)
-
-- Handling multi-selection
-- Handling pose commitment 
-
-# 2024/5/4
-# DONE
-- Copy paste bone transforms 
-    - DO NOT use glfw clipboard! Create a custom one
-- OnFrameSet event
-
-# 2024/5/6
-# DONE
-- The sequencer class is too messy, try to refractor
-    - Refactor selection logic: State machine
-
-    - Find a uniform way to handle morph and bone keyframes
-    - How to get the container that a keyframe is belong to? Need type and index;
-      The underlying Animation class has a seperate storage for different types of keyframes.
-      However, they should be treated as one type in the Sequencer
-    - Solved with template
-
-# 2024/5/7
-# DONE
-- Need other method to identify keyframes - solved by using std::list instead of std::vector
-    - Underlying pointer changed due to insertion!
-
-    - Box select has too many items - Check existance before emplace
-
-    - Added auto-scrolling when click on scale
-    - Duplicated dopes needs to be eliminated
-
-        - Keyframe dragged
-    - Delete keyframe
-    - Cut keyframes

@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Core/MM/Math/Transform.hpp" 
+//#include "Core/MM/Math/Transform.hpp" 
 
 #include "Commands.hpp"
 
 namespace mm
 {
-	class Model;
-	class Animation;
+	class Entity;
 
 	namespace EditorEvent
 	{

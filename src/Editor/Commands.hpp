@@ -1,9 +1,5 @@
 #pragma once
 
-#include "Core/MM/Math/Transform.hpp" 
-
-#include "Core/MM/Animation/Animation.hpp"
-
 namespace mm
 {
 	class Command {
@@ -12,6 +8,4 @@ namespace mm
 		virtual void Redo() = 0;
 		virtual ~Command() {}
 	};
-
-
 }

@@ -1,26 +1,41 @@
 #pragma once
 
-#include <ImGuizmo.h>
 #include "Core/App/Event.hpp"
-
-#include <dexode/EventBus.hpp>
+#include "Core/MM/Animation/Animation.hpp"	
 
 #include "EditorEvent.hpp"
 #include "SelectionBox.hpp"
-
 #include "Clipboard.hpp"
+#include "Entity.hpp"
+
+#include <ImGuizmo.h>
 
 namespace mm
 {
 	class Model;
 	class EditorLayer;
 
+	//class PoseEntity : public Entity {
+	//public:
+	//	PoseEntity(const std::string& name, Transform& pose) :
+	//		Entity(name),
+	//		m_pose(pose) {}
+
+	//	virtual void PropertiesPanel() override {
+	//		ImGui::Text(m_name.c_str());
+	//	}
+
+	//private:
+	//	Transform& m_pose;
+	//};
+
 	struct PoseEditorClipboardContent : public ClipboardContent {
+	public:
 		struct Item {
 			int32_t boneIndex;
 			Transform transform;
 		};
-
+	public:
 		std::vector<Item> items;
 	};
 

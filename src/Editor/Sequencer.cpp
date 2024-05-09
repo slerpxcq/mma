@@ -6,6 +6,7 @@
 #include "Core/Utility/Type.hpp"
 #include "Core/App/Input.hpp"
 
+#include "EditorLayer.hpp"
 #include "Properties.hpp"
 
 namespace mm
@@ -66,7 +67,19 @@ namespace mm
 			return;
 
 		float y = row.rowIndex * ROW_HEIGHT;
-		m_drawList->AddText(m_canvasOrigin + ImVec2(LEGEND_TEXT_OFFSET + textOffset, y), RULER_MARK_COLOR, row.name.c_str());
+		ImVec2 textPos = ImVec2(LEGEND_TEXT_OFFSET + textOffset, y);
+		m_drawList->AddText(m_canvasOrigin + textPos, RULER_MARK_COLOR, row.name.c_str());
+
+		/* Button only for Item */
+		if constexpr (std::is_same_v<T, Item>) {
+			if (row.type == PMXFile::CLUSTER_BONE) {
+				ImGui::SetCursorScreenPos(m_canvasOrigin + textPos);
+				if (ImGui::Button(GenButtonId(), ImVec2(LEGEND_LENGTH - textPos.x, ROW_HEIGHT))) {
+					m_editor.m_curveEditor->SetContainer(m_model->GetAnim().GetBoneKeyframeMatrix()[row.index]);
+				}
+			}
+		}
+
 		if (expandable) 
 			DrawExpandButton(row.rowIndex, textOffset - 5, row.expanded);
 	}
@@ -267,7 +280,8 @@ namespace mm
 	{
 		/* Copy */
 		if (ImGui::IsKeyPressed(ImGuiKey_C) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
-			Clipboard::Instance().SetContent(MakeClipboardContentFromSelected());
+			if (!m_selectedDopes.empty())
+				Clipboard::Instance().SetContent(MakeClipboardContentFromSelected());
 		}
 
 		/* Paste */
@@ -280,33 +294,39 @@ namespace mm
 					});
 				if (min != content->dopes.end()) {
 					uint32_t minFrame = (*min)->keyframe->frame;
-					for (auto& dope : content->dopes) {
+					for (auto& dope : content->dopes) 
 						dope->Duplicate(m_selectedFrame + dope->keyframe->frame - minFrame);
-					}
 				}
 			}
+			UpdateAnim();
 		}
 
 		/* Cut */
 		if (ImGui::IsKeyPressed(ImGuiKey_X) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
-			Clipboard::Instance().SetContent(MakeClipboardContentFromSelected());
-			for (auto& dope : m_selectedDopes) {
-				if (dope->keyframe->frame == 0)
-					continue;
-				dope->Delete();
+			if (!m_selectedDopes.empty()) {
+				Clipboard::Instance().SetContent(MakeClipboardContentFromSelected());
+				for (auto& dope : m_selectedDopes) {
+					if (dope->keyframe->frame == 0)
+						continue;
+					dope->Delete();
+				}
+				m_selectedDopes.clear();
+				UpdateAnim();
 			}
-			m_selectedDopes.clear();
 		}
 
 		/* Delete */
 		if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
-			EventBus::Instance()->postpone<EditorEvent::CommandIssued>({ new SequencerDopeDeletedCommand(m_selectedDopes) });
-			for (auto& dope : m_selectedDopes) {
-				if (dope->keyframe->frame == 0)
-					continue;
-				dope->Delete();
+			if (!m_selectedDopes.empty()) {
+				EventBus::Instance()->postpone<EditorEvent::CommandIssued>({ new SequencerDopeDeletedCommand(m_selectedDopes) });
+				for (auto& dope : m_selectedDopes) {
+					if (dope->keyframe->frame == 0)
+						continue;
+					dope->Delete();
+				}
+				m_selectedDopes.clear();
+				UpdateAnim();
 			}
-			m_selectedDopes.clear();
 		}
 
 		if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {

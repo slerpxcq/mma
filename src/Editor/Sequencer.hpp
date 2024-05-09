@@ -1,15 +1,14 @@
 #pragma once
 
-#include <dexode/EventBus.hpp>
 #include "Core/App/Event.hpp"
-#include "EditorEvent.hpp"
-
-#include "Core/App/Application.hpp"
 #include "Core/App/EventBus.hpp"
+#include "Core/MM/Animation/Animation.hpp"
 
 #include "FrameCounter.hpp"
 #include "SelectionBox.hpp"
 #include "Clipboard.hpp"
+#include "Commands.hpp"
+#include "EditorEvent.hpp"
 
 namespace mm
 {
@@ -310,5 +309,16 @@ namespace mm
 	private:
 		std::vector<std::shared_ptr<Sequencer::DopeBase>> m_dopes;
 	};
+
+	//class SequencerDopePastedCommand : public Command {
+	//public:
+	//	SequencerDopePastedCommand() {}
+
+	//	virtual void Undo() override {}
+	//	virtual void Redo() override {}
+
+	//private:
+	//	std::vector<std::shared_ptr<Sequencer::DopeBase>> m_dopes;
+	//};
 }
 
