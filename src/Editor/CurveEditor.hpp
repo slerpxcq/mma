@@ -20,6 +20,9 @@ namespace mm
 		static constexpr uint32_t LEGEND_LENGTH = 200;
 		static constexpr uint32_t HEADER_COLOR = 0xff3d3837;
 		static constexpr uint32_t RULER_HEIGHT = 20;
+		static constexpr uint32_t INDENT_BASE = 15;
+		static constexpr uint32_t LEGEND_TEXT_OFFSET = 10;
+
 	public:
 		CurveEditor(EditorLayer& editor) :
 			m_editor(editor),
@@ -54,12 +57,12 @@ namespace mm
 		};
 
 		enum {
-			TRANSLATION_X = (1<<0),
-			TRANSLATION_Y = (1<<1),
-			TRANSLATION_Z = (1<<2),
-			ROTATION_X = (1<<3),
-			ROTATION_Y = (1<<4),
-			ROTATION_Z = (1<<5),
+			TRANSLATION_X_BIT = (1<<0),
+			TRANSLATION_Y_BIT = (1<<1),
+			TRANSLATION_Z_BIT = (1<<2),
+			ROTATION_X_BIT = (1<<3),
+			ROTATION_Y_BIT = (1<<4),
+			ROTATION_Z_BIT = (1<<5)
 		};
 
 	private:

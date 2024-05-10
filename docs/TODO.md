@@ -52,15 +52,16 @@
     - Bezier handle
         - How to identify current selected dope? - Use pointer
     - Mouse drag to pan
-
-# DOING
-- Curve editor
-    - Horizontal/vertical scale
     - Rotation bezier???
         - Interpolate Euler is not equivalent to slerp
             - Draw the curve by evaluating slerp at each frame, but they cannot be directly edited
             - Must be edited through a single Bezier 
             - Try to draw the curve first
+    - Enable/Disable curve
+
+# DOING
+- Curve editor
+    - Horizontal/vertical scale
 
 # TODO
 - Entity/Property panel

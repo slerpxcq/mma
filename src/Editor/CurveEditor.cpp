@@ -58,8 +58,56 @@ namespace mm
 		}
 	}
 
+	static uint32_t TextColor(bool enabled)
+	{
+		return enabled ? 0xffc0c0c0 : 0xff606060;
+	}
+
 	void CurveEditor::DrawRows()
 	{
+		ImVec2 textPos = ImVec2(LEGEND_TEXT_OFFSET, RULER_HEIGHT);
+		ImVec2 buttonSize = ImVec2(LEGEND_LENGTH - textPos.x, RULER_HEIGHT);
+
+		m_drawList->AddText(m_canvasOrigin + textPos, TextColor(m_enabledAxes & TRANSLATION_X_BIT), "Translation X");
+		ImGui::SetCursorScreenPos(m_canvasOrigin + textPos);
+		if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
+			m_enabledAxes ^= TRANSLATION_X_BIT;
+		}
+
+		textPos.y += RULER_HEIGHT;
+		m_drawList->AddText(m_canvasOrigin + textPos, TextColor(m_enabledAxes & TRANSLATION_Y_BIT), "Translation Y");
+		ImGui::SetCursorScreenPos(m_canvasOrigin + textPos);
+		if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
+			m_enabledAxes ^= TRANSLATION_Y_BIT;
+		}
+
+		textPos.y += RULER_HEIGHT;
+		m_drawList->AddText(m_canvasOrigin + textPos, TextColor(m_enabledAxes & TRANSLATION_Z_BIT), "Translation Z");
+		ImGui::SetCursorScreenPos(m_canvasOrigin + textPos);
+		if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
+			m_enabledAxes ^= TRANSLATION_Z_BIT;
+		}
+
+		textPos.y += RULER_HEIGHT;
+		m_drawList->AddText(m_canvasOrigin + textPos, TextColor(m_enabledAxes & ROTATION_X_BIT), "Rotation X");
+		ImGui::SetCursorScreenPos(m_canvasOrigin + textPos);
+		if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
+			m_enabledAxes ^= ROTATION_X_BIT;
+		}
+
+		textPos.y += RULER_HEIGHT;
+		m_drawList->AddText(m_canvasOrigin + textPos, TextColor(m_enabledAxes & ROTATION_Y_BIT), "Rotation Y");
+		ImGui::SetCursorScreenPos(m_canvasOrigin + textPos);
+		if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
+			m_enabledAxes ^= ROTATION_Y_BIT;
+		}
+
+		textPos.y += RULER_HEIGHT;
+		m_drawList->AddText(m_canvasOrigin + textPos, TextColor(m_enabledAxes & ROTATION_Z_BIT), "Rotation Z");
+		ImGui::SetCursorScreenPos(m_canvasOrigin + textPos);
+		if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
+			m_enabledAxes ^= ROTATION_Z_BIT;
+		}
 	}
 
 	void CurveEditor::OnUIRender()
@@ -105,9 +153,9 @@ namespace mm
 		};
 
 		const uint32_t rotationColors[3] = {
-			0xbf4040ff,
-			0xbf40ff40,
-			0xbfff4040
+			0xbf8080ff,
+			0xbf80ff80,
+			0xbfff8080
 		};
 
 		if (m_container != nullptr) {
@@ -136,11 +184,15 @@ namespace mm
 					}
 
 					for (uint32_t i = 0; i < 3; ++i) {
+						if (!(m_enabledAxes & (1 << (i+3))))
+							continue;
 						m_drawList->AddPolyline(points[i], MAX_SEGMENT, rotationColors[i], ImDrawFlags_None, 2.0f);
 					}
 
 					/* ------------------ Translation curve ------------------ */
 					for (uint32_t axis = 0; axis < 3; ++axis) {
+						if (!(m_enabledAxes & (1 << axis)))
+							continue;
 						float y = y0 + keyframe->transform.translation[axis] * m_yGain - m_coordOrigin.y;
 
 						ImGui::SetCursorScreenPos(m_canvasOrigin + ImVec2(x - DOPE_RADIUS, y - DOPE_RADIUS));
