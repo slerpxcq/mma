@@ -49,6 +49,11 @@
 
 # DOING
 - Curve editor
+    - State machine
+    - Bezier handle
+        - How to identify current selected dope? - Use pointer
+    - Horizontal/vertical scale
+    - Mouse drag to pan
 
 # TODO
 - Entity/Property panel

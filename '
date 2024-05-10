@@ -104,8 +104,8 @@ namespace mm
 			for (; keyframe != m_container->end() && keyframe->frame < m_maxFrame; ++keyframe) {
 				auto next = std::next(keyframe);
 				for (uint32_t axis = 0; axis < 3; ++axis) {
-					float x = LEGEND_LENGTH + (m_canvasSize.x - LEGEND_LENGTH) * (float)(keyframe->frame - m_minFrame) / (m_maxFrame - m_minFrame) - m_coordOrigin.x;
-					float y = y0 + keyframe->transform.translation[axis] * m_yGain - m_coordOrigin.y;
+					float x = LEGEND_LENGTH + (m_canvasSize.x - LEGEND_LENGTH) * (float)(keyframe->frame - m_minFrame) / (m_maxFrame - m_minFrame);
+					float y = y0 + keyframe->transform.translation[axis] * m_yGain;
 
 					ImGui::SetCursorScreenPos(m_canvasOrigin + ImVec2(x - DOPE_RADIUS, y - DOPE_RADIUS));
 					if (ImGui::InvisibleButton(GenButtonId(), ImVec2(DOPE_RADIUS*2, DOPE_RADIUS*2))) {
@@ -121,8 +121,8 @@ namespace mm
 						m_drawList->AddCircle(m_canvasOrigin + ImVec2(x, y), DOPE_RADIUS, DOPE_OUTLINE_COLOR, 0, 2.f);
 
 					if (next != m_container->end()) {
-						float nextX = LEGEND_LENGTH + (m_canvasSize.x - LEGEND_LENGTH) * (float)(next->frame - m_minFrame) / (m_maxFrame - m_minFrame) - m_coordOrigin.x;
-						float nextY = y0 + next->transform.translation[axis] * m_yGain - m_coordOrigin.y;
+						float nextX = LEGEND_LENGTH + (m_canvasSize.x - LEGEND_LENGTH) * (float)(next->frame - m_minFrame) / (m_maxFrame - m_minFrame);
+						float nextY = y0 + next->transform.translation[axis] * m_yGain;
 
 						ImVec2 p1 = ImVec2(x, y);
 						ImVec2 p4 = ImVec2(nextX, nextY);
@@ -144,12 +144,7 @@ namespace mm
 								p2OnActivated = p2;
 							}
 							if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-								m_anyHandleActivated = true;
 								p2 = p2OnActivated + ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-								float maxY = std::max(p1.y, p4.y);
-								float minY = std::min(p1.y, p4.y);
-								p2.x = std::clamp(p2.x, p1.x, p4.x);
-								p2.y = std::clamp(p2.y, minY, maxY);
 								ImVec2 handleA = (p2 - p1) / (p4 - p1) * 127.f;
 								handles[axis][0].x = std::roundf(handleA.x);
 								handles[axis][0].y = std::roundf(handleA.y);
@@ -162,15 +157,12 @@ namespace mm
 								p3OnActivated = p3;
 							}
 							if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-								m_anyHandleActivated = true;
 								p3 = p3OnActivated + ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-								float maxY = std::max(p1.y, p4.y);
-								float minY = std::min(p1.y, p4.y);
-								p3.x = std::clamp(p3.x, p1.x, p4.x);
-								p3.y = std::clamp(p3.y, minY, maxY);
 								ImVec2 handleB = (p3 - p1) / (p4 - p1) * 127.f;
 								handles[axis][1].x = std::roundf(handleB.x);
 								handles[axis][1].y = std::roundf(handleB.y);
+							}
+							if (ImGui::IsItemDeactivated()) {
 							}
 
 							/* Draw handles and handle buttons */
@@ -198,21 +190,6 @@ namespace mm
 		}
 		ImGui::EndGroup();
 
-		/* Pan view */
-		static bool dragged;
-		static ImVec2 begin;
-		bool dragging = ImGui::IsMouseDragging(ImGuiMouseButton_Left);
-		if (dragged != dragging && !m_anyHandleActivated) {
-			if (dragging) 
-				begin = m_coordOrigin;
-			dragged = dragging;
-		}
-		if (dragging && !m_anyHandleActivated) {
-			m_coordOrigin = begin - ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-		}
-
 		ImGui::End();
-
-		m_anyHandleActivated = false;
 	}
 }

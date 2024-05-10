@@ -12,7 +12,7 @@ namespace mm
 
 	class CurveEditor
 	{
-		static constexpr float DOPE_RADIUS = 5.f;
+		static constexpr float DOPE_RADIUS = 4.f;
 		static constexpr uint32_t DOPE_OUTLINE_COLOR = 0xff0080ff;
 		static constexpr float DOPE_OUTLINE_SIZE = 2.5f;
 		static constexpr uint32_t DOPE_FILL_COLOR = 0xff000000;
@@ -41,10 +41,26 @@ namespace mm
 		void DrawScale();
 		void DrawRows();
 
+		const char* GenButtonId() {
+			static char buf[16];
+			std::snprintf(buf, sizeof(buf), "##CB%u", m_buttonIndex++);
+			return buf;
+		}
+
+	private:
+		struct SelectedDope {
+			Animation::BoneKeyframe* keyframe = nullptr;
+			uint32_t axis = 0;
+		};
+
 	private:
 		EditorLayer& m_editor;
 
 		Animation::KeyframeContainer<Animation::BoneKeyframe>* m_container = nullptr;
+
+		SelectedDope m_selectedKeyframe;
+
+		uint32_t m_buttonIndex = 0;
 
 		bool m_hovered = false;
 		ImDrawList* m_drawList;
@@ -53,10 +69,14 @@ namespace mm
 		ImVec2 m_canvasOrigin;
 		ImVec2 m_canvasSize;
 
+		bool m_anyHandleActivated = false;
+		ImVec2 m_coordOrigin = ImVec2(0, 0);
+
 		int32_t m_minFrame = 0;
 		int32_t m_maxFrame = 10;
 
 		float m_yGain = 1.0f;
+
 
 		dexode::EventBus::Listener m_listener;
 	};
