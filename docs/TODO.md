@@ -57,7 +57,10 @@
 - Curve editor
     - Horizontal/vertical scale
     - Rotation bezier???
-        - Quaternion to euler
+        - Interpolate Euler is not equivalent to slerp
+            - Draw the curve by evaluating slerp at each frame, but they cannot be directly edited
+            - Must be edited through a single Bezier 
+            - Try to draw the curve first
 
 # TODO
 - Entity/Property panel

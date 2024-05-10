@@ -50,7 +50,16 @@ namespace mm
 	private:
 		struct SelectedDope {
 			Animation::BoneKeyframe* keyframe = nullptr;
-			uint32_t axis = 0;
+			int32_t axis = -1;
+		};
+
+		enum {
+			TRANSLATION_X = (1<<0),
+			TRANSLATION_Y = (1<<1),
+			TRANSLATION_Z = (1<<2),
+			ROTATION_X = (1<<3),
+			ROTATION_Y = (1<<4),
+			ROTATION_Z = (1<<5),
 		};
 
 	private:
@@ -61,6 +70,8 @@ namespace mm
 		SelectedDope m_selectedKeyframe;
 
 		uint32_t m_buttonIndex = 0;
+
+		uint8_t m_enabledAxes = 0;
 
 		bool m_hovered = false;
 		ImDrawList* m_drawList;
