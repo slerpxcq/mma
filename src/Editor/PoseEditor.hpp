@@ -6,7 +6,7 @@
 #include "EditorEvent.hpp"
 #include "SelectionBox.hpp"
 #include "Clipboard.hpp"
-#include "Entity.hpp"
+#include "Component.hpp"
 
 #include <ImGuizmo.h>
 

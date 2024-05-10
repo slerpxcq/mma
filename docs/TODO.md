@@ -47,13 +47,17 @@
     - Display a curve and able to change the min and max frame
     - Grid
 
-# DOING
-- Curve editor
-    - State machine
+# 2024/5/10
+# DONE
     - Bezier handle
         - How to identify current selected dope? - Use pointer
-    - Horizontal/vertical scale
     - Mouse drag to pan
+
+# DOING
+- Curve editor
+    - Horizontal/vertical scale
+    - Rotation bezier???
+        - Quaternion to euler
 
 # TODO
 - Entity/Property panel

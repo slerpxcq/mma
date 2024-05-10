@@ -219,7 +219,7 @@ namespace mm
 				auto next = prev;
 				std::advance(prev, -1);
 				float dist = Distance(frame, subframe, prev->frame, next->frame);
-				glm::vec4 weights = prev->bezier.Eval(dist);
+				glm::vec4 weights = next->bezier.Eval(dist);
 				transform.translation = glm::mix(prev->transform.translation, next->transform.translation, glm::vec3(weights));
 				transform.rotation = glm::slerp(prev->transform.rotation, next->transform.rotation, weights.w);
 			}

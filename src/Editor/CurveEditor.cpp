@@ -64,7 +64,6 @@ namespace mm
 
 	void CurveEditor::OnUIRender()
 	{
-		ImGui::ShowDemoWindow();
 		ImGui::Begin("Curve Editor", nullptr,
 			ImGuiWindowFlags_NoScrollbar |
 			ImGuiWindowFlags_NoScrollWithMouse);
@@ -103,7 +102,7 @@ namespace mm
 			float y0 = m_canvasSize.y * 0.5f;
 			for (; keyframe != m_container->end() && keyframe->frame < m_maxFrame; ++keyframe) {
 				auto next = std::next(keyframe);
-				for (uint32_t axis = 0; axis < 3; ++axis) {
+				for (uint32_t axis = 0; axis < 4; ++axis) {
 					float x = LEGEND_LENGTH + (m_canvasSize.x - LEGEND_LENGTH) * (float)(keyframe->frame - m_minFrame) / (m_maxFrame - m_minFrame) - m_coordOrigin.x;
 					float y = y0 + keyframe->transform.translation[axis] * m_yGain - m_coordOrigin.y;
 
@@ -127,7 +126,7 @@ namespace mm
 						ImVec2 p1 = ImVec2(x, y);
 						ImVec2 p4 = ImVec2(nextX, nextY);
 
-						auto& handles = keyframe->bezier.GetHandles();
+						auto& handles = next->bezier.GetHandles();
 						ImVec2 p2 = ImVec2(handles[axis][0].x / 127.f, handles[axis][0].y / 127.f);
 						p2 = p1 + (p4 - p1) * p2;
 						ImVec2 p3 = ImVec2(handles[axis][1].x / 127.f, handles[axis][1].y / 127.f);
@@ -207,7 +206,7 @@ namespace mm
 				begin = m_coordOrigin;
 			dragged = dragging;
 		}
-		if (dragging && !m_anyHandleActivated) {
+		if (m_hovered && dragging && !m_anyHandleActivated) {
 			m_coordOrigin = begin - ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 		}
 

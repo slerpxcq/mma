@@ -36,12 +36,12 @@ namespace mm
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Skybox; SHOULD BE BELONG TO WORLD
-        glDepthMask(GL_FALSE);
-        renderer.SetShader(ResourceManager::Instance().GetShader("skybox"));
-        renderer.GetActiveShader()->Uniform("u_skybox", 0);
-        ResourceManager::Instance().GetTexture("skybox")->Bind(0);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glDepthMask(GL_TRUE);
+        //glDepthMask(GL_FALSE);
+        //renderer.SetShader(ResourceManager::Instance().GetShader("skybox"));
+        //renderer.GetActiveShader()->Uniform("u_skybox", 0);
+        //ResourceManager::Instance().GetTexture("skybox")->Bind(0);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
+        //glDepthMask(GL_TRUE);
 
         m_grid->Render(renderer);
         m_editor.GetWorld().Render(renderer);

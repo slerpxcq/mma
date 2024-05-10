@@ -48,7 +48,7 @@ void main()
 
 	vec4 color = vec4(0);
 	/* Ambient */
-	color.rgb += u_material.ambient.rgb * u_light.color;
+	color.rgb += u_material.ambient.rgb * u_light.color * 2;
 	/* Diffuse */
 	//color.rgb += max(0, dot(fs_in.normal, L)) * u_material.diffuse.rgb;
 	color.a = u_material.diffuse.a;

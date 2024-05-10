@@ -14,7 +14,6 @@ namespace mm
 		virtual ~ClipboardContent() {};
 	};
 
-
 	class Clipboard
 	{
 	public:

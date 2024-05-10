@@ -2,12 +2,12 @@
 
 namespace mm
 {
-	class Entity
+	class Component
 	{
 	public:
-		Entity(const std::string& name) : 
+		Component(const std::string& name) : 
 			m_name(name) {}
-		virtual ~Entity() {}
+		virtual ~Component() {}
 		virtual void PropertiesPanel() = 0;
 
 	protected:

@@ -6,7 +6,7 @@
 
 namespace mm
 {
-	class Entity;
+	class Component;
 
 	namespace EditorEvent
 	{

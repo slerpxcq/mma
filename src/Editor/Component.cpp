@@ -1,7 +1,6 @@
 #include "mmpch.hpp"
-#include "Entity.hpp"
+#include "Component.hpp"
 
 namespace mm
 {
-
 }
