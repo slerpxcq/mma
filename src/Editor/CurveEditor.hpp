@@ -17,7 +17,7 @@ namespace mm
 		static constexpr float DOPE_OUTLINE_SIZE = 2.5f;
 		static constexpr uint32_t DOPE_FILL_COLOR = 0xff000000;
 		static constexpr uint32_t BACKGROUND_COLOR = 0xff242424;
-		static constexpr uint32_t LEGEND_LENGTH = 200;
+		static constexpr uint32_t LEGEND_LENGTH = 250;
 		static constexpr uint32_t HEADER_COLOR = 0xff3d3837;
 		static constexpr uint32_t RULER_HEIGHT = 20;
 		static constexpr uint32_t INDENT_BASE = 15;
@@ -52,8 +52,9 @@ namespace mm
 		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
 		void DrawScale();
 		void DrawRows();
-		void DrawRotationCurve(const Animation::BoneKeyframe& keyframe, const Animation::BoneKeyframe& next);
-		void DrawTranslationCurve(const Animation::BoneKeyframe& keyframe, const Animation::BoneKeyframe& next);
+		void DrawRotationCurve(Animation::BoneKeyframe& keyframe, Animation::BoneKeyframe& next);
+		void DrawTranslationCurve(Animation::BoneKeyframe& keyframe, Animation::BoneKeyframe& next);
+		void DrawBezierEditor(Animation::BoneKeyframe& keyframe, uint32_t axis);
 
 		const char* GenButtonId() {
 			static char buf[16];

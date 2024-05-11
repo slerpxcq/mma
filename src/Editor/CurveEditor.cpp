@@ -40,7 +40,20 @@ namespace mm
 		float rulerEndX = m_canvasSize.x;
 
 		/* Ruler background */
-		m_drawList->AddRectFilled(m_canvasOrigin, ImVec2(m_canvasOrigin.x + m_canvasSize.x, m_canvasOrigin.y + RULER_HEIGHT), HEADER_COLOR);
+		m_drawList->AddRectFilled(m_canvasOrigin, m_canvasOrigin + ImVec2(m_canvasSize.x, RULER_HEIGHT), HEADER_COLOR);
+
+		m_drawList->PushClipRect(
+			m_canvasOrigin + ImVec2(LEGEND_LENGTH, 0),
+			m_canvasOrigin + ImVec2(m_canvasSize.x, RULER_HEIGHT));
+
+		for (float x = 0; x < m_canvasSize.x; x += 50.f) {
+			static char buf[16];
+			float frame = m_rectMin.x + (x / m_canvasSize.x) * (m_rectMax.x - m_rectMin.x);
+			std::snprintf(buf, 16, "%.0f", frame);
+			m_drawList->AddText(m_canvasOrigin + ImVec2(x, 0), 0xffc0c0c0, buf);
+		}
+
+		m_drawList->PopClipRect();
 
 		/* Vertical scale */
 		for (float x = LEGEND_LENGTH; x < m_canvasSize.x; x += 20.f) {
@@ -108,7 +121,7 @@ namespace mm
 		}
 	}
 
-	void CurveEditor::DrawRotationCurve(const Animation::BoneKeyframe& keyframe, const Animation::BoneKeyframe& next)
+	void CurveEditor::DrawRotationCurve(Animation::BoneKeyframe& keyframe, Animation::BoneKeyframe& next)
 	{
 		static constexpr uint32_t MAX_SEGMENT = 32;
 		static ImVec2 points[3][MAX_SEGMENT];
@@ -119,22 +132,41 @@ namespace mm
 			glm::quat q = glm::slerp(keyframe.transform.rotation, next.transform.rotation, t);
 			glm::vec3 euler = glm::eulerAngles(q);
 
-			for (uint32_t i = 0; i < 3; ++i) {
+			for (uint32_t axis = 0; axis < 3; ++axis) {
 				float x_glob = glm::mix((float)keyframe.frame, (float)next.frame, target);
-				float y_glob = euler[i];
-				points[i][segment] = m_canvasOrigin + 
+				float y_glob = euler[axis];
+				points[axis][segment] = m_canvasOrigin + 
 					GlobalToRectNormalized(m_rectMin, m_rectMax, ImVec2(x_glob, y_glob)) * m_canvasSize;
 			}
 		}
 
+		glm::vec3 nextEuler = glm::eulerAngles(next.transform.rotation);
 		for (uint32_t axis = 0; axis < 3; ++axis) {
 			if (!(m_enabledAxes & (1 << (axis+3))))
 				continue;
+
 			m_drawList->AddPolyline(points[axis], MAX_SEGMENT, rotationColors[axis], ImDrawFlags_None, 2.0f);
+
+			float x_glob = next.frame;
+			float y_glob = nextEuler[axis];
+			ImVec2 canvasPos = GlobalToRectNormalized(m_rectMin, m_rectMax, ImVec2(x_glob, y_glob)) * m_canvasSize;
+
+			ImGui::SetCursorScreenPos(m_canvasOrigin + canvasPos - ImVec2(DOPE_RADIUS, DOPE_RADIUS));
+			if (ImGui::InvisibleButton(GenButtonId(), ImVec2(DOPE_RADIUS * 2, DOPE_RADIUS * 2))) {
+				m_selectedKeyframe.axis = axis + 3;
+				m_selectedKeyframe.keyframe = &keyframe;
+			}
+
+			bool selected = m_selectedKeyframe.axis >= 3 && m_selectedKeyframe.keyframe == &keyframe;
+
+			if (selected) 
+				m_drawList->AddCircleFilled(m_canvasOrigin + canvasPos, 4.0f, 0xff0080ff);
+			else 
+				m_drawList->AddCircleFilled(m_canvasOrigin + canvasPos, 4.0f, 0xffc0c0c0);
 		}
 	}
 
-	void CurveEditor::DrawTranslationCurve(const Animation::BoneKeyframe& keyframe, const Animation::BoneKeyframe& next)
+	void CurveEditor::DrawTranslationCurve(Animation::BoneKeyframe& keyframe, Animation::BoneKeyframe& next)
 	{
 		for (uint32_t axis = 0; axis < 3; ++axis) {
 			if (!(m_enabledAxes & (1 << axis)))
@@ -148,6 +180,19 @@ namespace mm
 			ImVec2 p1 = GlobalToRectNormalized(m_rectMin, m_rectMax, ImVec2(x_glob, y_glob)) * m_canvasSize;
 			ImVec2 p4 = GlobalToRectNormalized(m_rectMin, m_rectMax, ImVec2(x_next_glob, y_next_glob)) * m_canvasSize;
 
+			ImGui::SetCursorScreenPos(m_canvasOrigin + p4 - ImVec2(DOPE_RADIUS, DOPE_RADIUS));
+			if (ImGui::InvisibleButton(GenButtonId(), ImVec2(DOPE_RADIUS * 2, DOPE_RADIUS * 2))) {
+				m_selectedKeyframe.axis = axis;
+				m_selectedKeyframe.keyframe = &keyframe;
+			}
+
+			bool selected = m_selectedKeyframe.axis == axis && m_selectedKeyframe.keyframe == &keyframe;
+
+			if (selected) 
+				m_drawList->AddCircleFilled(m_canvasOrigin + p4, 4.0f, 0xff0080ff);
+			else 
+				m_drawList->AddCircleFilled(m_canvasOrigin + p4, 4.0f, 0xffc0c0c0);
+
 			auto& handles = next.bezier.GetHandles();
 			ImVec2 p2 = ImVec2(handles[axis][0].x / 127.f, handles[axis][0].y / 127.f);
 			p2 = p1 + (p4 - p1) * p2;
@@ -160,7 +205,66 @@ namespace mm
 				m_canvasOrigin + p3,
 				m_canvasOrigin + p4,
 				translationColors[axis], 2.0f);
+
+			if (selected) {
+				ImGuiIO& io = ImGui::GetIO();
+				float y_max = std::max(p1.y, p4.y);
+				float y_min = std::min(p1.y, p4.y);
+
+				ImGui::SetCursorScreenPos(m_canvasOrigin + p2 - ImVec2(DOPE_RADIUS, DOPE_RADIUS));
+				ImGui::InvisibleButton(GenButtonId(), ImVec2(DOPE_RADIUS * 2, DOPE_RADIUS * 2));
+				if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+					p2 = p2 + io.MouseDelta;
+					p2.x = std::clamp(p2.x, p1.x, p4.x);
+					p2.y = std::clamp(p2.y, y_min, y_max);
+					ImVec2 handle = (p2 - p1) / (p4 - p1) * 127.f;
+					handles[axis][0].x = std::round(handle.x);
+					handles[axis][0].y = std::round(handle.y);
+				}
+
+				ImGui::SetCursorScreenPos(m_canvasOrigin + p3 - ImVec2(DOPE_RADIUS, DOPE_RADIUS));
+				ImGui::InvisibleButton(GenButtonId(), ImVec2(DOPE_RADIUS * 2, DOPE_RADIUS * 2));
+				if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+					p3 = p3 + io.MouseDelta;
+					p3.x = std::clamp(p3.x, p1.x, p4.x);
+					p3.y = std::clamp(p3.y, y_min, y_max);
+					ImVec2 handle = (p3 - p1) / (p4 - p1) * 127.f;
+					handles[axis][1].x = std::round(handle.x);
+					handles[axis][1].y = std::round(handle.y);
+				}
+
+				m_drawList->AddLine(m_canvasOrigin + p1, m_canvasOrigin + p2, 0xffffffff);
+				m_drawList->AddLine(m_canvasOrigin + p3, m_canvasOrigin + p4, 0xffffffff);
+				m_drawList->AddCircle(m_canvasOrigin + p2, 4.0f, 0xffffffff);
+				m_drawList->AddCircle(m_canvasOrigin + p3, 4.0f, 0xffffffff);
+			}
 		}
+	}
+
+	/* For rotation only */
+	void CurveEditor::DrawBezierEditor(Animation::BoneKeyframe& keyframe, uint32_t axis)
+	{
+		const float padding = 25;
+		const float size = LEGEND_LENGTH - padding * 2;
+		const ImVec2 center = ImVec2(LEGEND_LENGTH / 2, m_canvasMax.y - LEGEND_LENGTH / 2 - padding);
+		ImVec2 p1 = ImVec2(center - ImVec2(size, size) / 2);
+		ImVec2 p4 = ImVec2(center + ImVec2(size, size) / 2);
+
+		auto& handles = keyframe.bezier.GetHandles();
+		ImVec2 p2 = ImVec2(handles[axis][0].x / 127.f, handles[axis][0].y / 127.f);
+		p2 = p1 + (p4 - p1) * p2;
+		ImVec2 p3 = ImVec2(handles[axis][1].x / 127.f, handles[axis][1].y / 127.f);
+		p3 = p1 + (p4 - p1) * p3;
+
+		m_drawList->AddRectFilled(m_canvasOrigin + p1, m_canvasOrigin + p4, 0x20c0c0c0);
+		m_drawList->AddCircle(m_canvasOrigin + p2, 4.0f, 0xffffffff);
+		m_drawList->AddCircle(m_canvasOrigin + p3, 4.0f, 0xffffffff);
+		m_drawList->AddBezierCubic(
+			m_canvasOrigin + p1,
+			m_canvasOrigin + p2,
+			m_canvasOrigin + p3,
+			m_canvasOrigin + p4,
+			0xffffffff, 2.0f);
 	}
 
 	void CurveEditor::OnUIRender()
@@ -187,8 +291,18 @@ namespace mm
 		DrawScale();
 		DrawRows();
 
+		if (m_selectedKeyframe.keyframe != nullptr) {
+			DrawBezierEditor(*m_selectedKeyframe.keyframe, m_selectedKeyframe.axis);
+		}
+
+		m_drawList->PushClipRect(
+			m_canvasOrigin + ImVec2(LEGEND_LENGTH, RULER_HEIGHT),
+			m_canvasOrigin + m_canvasSize);
+
 		if (m_container != nullptr) {
-			auto keyframe = LowerBound(*m_container, m_rectMin.x);
+			auto keyframe = LowerBound(*m_container, std::max(m_rectMin.x, 0.f));
+			if (keyframe != m_container->begin())
+				keyframe = std::prev(keyframe);
 			for (; keyframe != m_container->end() && keyframe->frame <= m_rectMax.x; ++keyframe) {
 				auto next = std::next(keyframe);
 				if (next != m_container->end()) {
@@ -197,6 +311,8 @@ namespace mm
 				}
 			}
 		}
+
+		m_drawList->PopClipRect();
 
 		ImGui::EndGroup();
 
@@ -233,11 +349,10 @@ namespace mm
              }
 		}
 
-		/* Pan view */
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !m_anyHandleActivated) {
-			m_selectedKeyframe.keyframe = nullptr;
-			m_selectedKeyframe.axis = -1;
-		}
+		//if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !m_anyHandleActivated) {
+		//	m_selectedKeyframe.keyframe = nullptr;
+		//	m_selectedKeyframe.axis = -1;
+		//}
 
 		m_drawList->PopClipRect();
 		ImGui::End();
