@@ -23,13 +23,23 @@ namespace mm
 		static constexpr uint32_t INDENT_BASE = 15;
 		static constexpr uint32_t LEGEND_TEXT_OFFSET = 10;
 
+		static constexpr uint32_t translationColors[3] = {
+			0xbf0000ff,
+			0xbf00ff00,
+			0xbfff0000 };
+
+		static constexpr uint32_t rotationColors[3] = {
+			0xbf8080ff,
+			0xbf80ff80,
+			0xbfff8080 };
 	public:
 		CurveEditor(EditorLayer& editor) :
 			m_editor(editor),
 			m_listener(EventBus::Instance()) {
 			m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(CurveEditor::OnItemSelected));
-			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(CurveEditor::OnMouseScrolled));
+			//m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(CurveEditor::OnMouseScrolled));
 		}
+
 
 		void OnUIRender();
 		void SetContainer(Animation::KeyframeContainer<Animation::BoneKeyframe>& container) {
@@ -38,11 +48,12 @@ namespace mm
 
 	private:
 		void OnItemSelected(const EditorEvent::ItemSelected& e);
-		void OnMouseScrolled(const Event::MouseScrolled& e);
-		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
 
+		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
 		void DrawScale();
 		void DrawRows();
+		void DrawRotationCurve(const Animation::BoneKeyframe& keyframe, const Animation::BoneKeyframe& next);
+		void DrawTranslationCurve(const Animation::BoneKeyframe& keyframe, const Animation::BoneKeyframe& next);
 
 		const char* GenButtonId() {
 			static char buf[16];
@@ -76,21 +87,23 @@ namespace mm
 
 		uint8_t m_enabledAxes = 0;
 
-		bool m_hovered = false;
+		/* Canvas */
 		ImDrawList* m_drawList;
 		ImVec2 m_canvasMin;
 		ImVec2 m_canvasMax;
 		ImVec2 m_canvasOrigin;
 		ImVec2 m_canvasSize;
 
+		/* Drawing */
 		bool m_anyHandleActivated = false;
-		ImVec2 m_coordOrigin = ImVec2(0, 0);
+
+		ImVec2 m_rectMin = ImVec2(0, -10);
+		ImVec2 m_rectMax = ImVec2(100, 10);
 
 		int32_t m_minFrame = 0;
-		int32_t m_maxFrame = 10;
+		int32_t m_maxFrame = 100;
 
 		float m_yGain = 1.0f;
-
 
 		dexode::EventBus::Listener m_listener;
 	};

@@ -62,6 +62,9 @@
 # DOING
 - Curve editor
     - Horizontal/vertical scale
+    - Sync between Sequencer and Curve editor
+    - Navigating 
+        - Zoom
 
 # TODO
 - Entity/Property panel
