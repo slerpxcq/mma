@@ -74,7 +74,7 @@ namespace mm
 		if constexpr (std::is_same_v<T, Item>) {
 			if (row.type == PMXFile::CLUSTER_BONE) {
 				ImGui::SetCursorScreenPos(m_canvasOrigin + textPos);
-				if (ImGui::Button(GenButtonId(), ImVec2(LEGEND_LENGTH - textPos.x, ROW_HEIGHT))) {
+				if (ImGui::InvisibleButton(GenButtonId(), ImVec2(LEGEND_LENGTH - textPos.x, ROW_HEIGHT))) {
 					m_editor.m_curveEditor->SetContainer(m_model->GetAnim().GetBoneKeyframeMatrix()[row.index]);
 				}
 			}
@@ -136,7 +136,7 @@ namespace mm
 			ImVec2 buttonPos = dopePos - 0.5f * buttonSize;
 
 			ImGui::SetCursorScreenPos(m_canvasOrigin + buttonPos);
-			if (ImGui::Button(GenButtonId(), buttonSize)) {
+			if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
 				m_thisFrameAnyDopeClicked = true;
 				if (!IsKeyframeSelected(&(*keyframe)))
 					m_selectedDopes.emplace(std::make_shared<Dope<T>>(keyframeList, &(*keyframe)));

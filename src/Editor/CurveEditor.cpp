@@ -154,10 +154,10 @@ namespace mm
 			ImGui::SetCursorScreenPos(m_canvasOrigin + canvasPos - ImVec2(DOPE_RADIUS, DOPE_RADIUS));
 			if (ImGui::InvisibleButton(GenButtonId(), ImVec2(DOPE_RADIUS * 2, DOPE_RADIUS * 2))) {
 				m_selectedKeyframe.axis = axis + 3;
-				m_selectedKeyframe.keyframe = &keyframe;
+				m_selectedKeyframe.keyframe = &next;
 			}
 
-			bool selected = m_selectedKeyframe.axis >= 3 && m_selectedKeyframe.keyframe == &keyframe;
+			bool selected = m_selectedKeyframe.axis >= 3 && m_selectedKeyframe.keyframe == &next;
 
 			if (selected) 
 				m_drawList->AddCircleFilled(m_canvasOrigin + canvasPos, 4.0f, 0xff0080ff);
@@ -183,10 +183,10 @@ namespace mm
 			ImGui::SetCursorScreenPos(m_canvasOrigin + p4 - ImVec2(DOPE_RADIUS, DOPE_RADIUS));
 			if (ImGui::InvisibleButton(GenButtonId(), ImVec2(DOPE_RADIUS * 2, DOPE_RADIUS * 2))) {
 				m_selectedKeyframe.axis = axis;
-				m_selectedKeyframe.keyframe = &keyframe;
+				m_selectedKeyframe.keyframe = &next;
 			}
 
-			bool selected = m_selectedKeyframe.axis == axis && m_selectedKeyframe.keyframe == &keyframe;
+			bool selected = m_selectedKeyframe.axis == axis && m_selectedKeyframe.keyframe == &next;
 
 			if (selected) 
 				m_drawList->AddCircleFilled(m_canvasOrigin + p4, 4.0f, 0xff0080ff);
@@ -247,8 +247,11 @@ namespace mm
 		const float padding = 25;
 		const float size = LEGEND_LENGTH - padding * 2;
 		const ImVec2 center = ImVec2(LEGEND_LENGTH / 2, m_canvasMax.y - LEGEND_LENGTH / 2 - padding);
-		ImVec2 p1 = ImVec2(center - ImVec2(size, size) / 2);
-		ImVec2 p4 = ImVec2(center + ImVec2(size, size) / 2);
+		ImVec2 p1 = ImVec2(center - ImVec2(size, -size) / 2);
+		ImVec2 p4 = ImVec2(center + ImVec2(size, -size) / 2);
+
+		if (axis >= 3)
+			axis = 3;
 
 		auto& handles = keyframe.bezier.GetHandles();
 		ImVec2 p2 = ImVec2(handles[axis][0].x / 127.f, handles[axis][0].y / 127.f);
@@ -256,9 +259,37 @@ namespace mm
 		ImVec2 p3 = ImVec2(handles[axis][1].x / 127.f, handles[axis][1].y / 127.f);
 		p3 = p1 + (p4 - p1) * p3;
 
+		ImGuiIO& io = ImGui::GetIO();
+		float y_max = std::max(p1.y, p4.y);
+		float y_min = std::min(p1.y, p4.y);
+
+		ImGui::SetCursorScreenPos(m_canvasOrigin + p2 - ImVec2(DOPE_RADIUS, DOPE_RADIUS));
+		ImGui::InvisibleButton(GenButtonId(), ImVec2(DOPE_RADIUS * 2, DOPE_RADIUS * 2));
+		if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+			p2 = p2 + io.MouseDelta;
+			p2.x = std::clamp(p2.x, p1.x, p4.x);
+			p2.y = std::clamp(p2.y, y_min, y_max);
+			ImVec2 handle = (p2 - p1) / (p4 - p1) * 127.f;
+			handles[axis][0].x = std::round(handle.x);
+			handles[axis][0].y = std::round(handle.y);
+		}
+
+		ImGui::SetCursorScreenPos(m_canvasOrigin + p3 - ImVec2(DOPE_RADIUS, DOPE_RADIUS));
+		ImGui::InvisibleButton(GenButtonId(), ImVec2(DOPE_RADIUS * 2, DOPE_RADIUS * 2));
+		if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+			p3 = p3 + io.MouseDelta;
+			p3.x = std::clamp(p3.x, p1.x, p4.x);
+			p3.y = std::clamp(p3.y, y_min, y_max);
+			ImVec2 handle = (p3 - p1) / (p4 - p1) * 127.f;
+			handles[axis][1].x = std::round(handle.x);
+			handles[axis][1].y = std::round(handle.y);
+		}
+
 		m_drawList->AddRectFilled(m_canvasOrigin + p1, m_canvasOrigin + p4, 0x20c0c0c0);
 		m_drawList->AddCircle(m_canvasOrigin + p2, 4.0f, 0xffffffff);
 		m_drawList->AddCircle(m_canvasOrigin + p3, 4.0f, 0xffffffff);
+		m_drawList->AddLine(m_canvasOrigin + p1, m_canvasOrigin + p2, 0xffffffff);
+		m_drawList->AddLine(m_canvasOrigin + p3, m_canvasOrigin + p4, 0xffffffff);
 		m_drawList->AddBezierCubic(
 			m_canvasOrigin + p1,
 			m_canvasOrigin + p2,
@@ -319,7 +350,7 @@ namespace mm
 		ImGuiIO& io = ImGui::GetIO();
 
 		/* Pan */
-		if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle) && !m_anyHandleActivated) {
+		if (ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Middle) && !m_anyHandleActivated) {
 			static constexpr float PAN_SPEED = 0.001;
             ImVec2 pan = io.MouseDelta * (m_rectMax - m_rectMin) * PAN_SPEED;
             m_rectMin = m_rectMin - pan;
@@ -348,11 +379,6 @@ namespace mm
 			 	m_rectMax = newMax;
              }
 		}
-
-		//if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !m_anyHandleActivated) {
-		//	m_selectedKeyframe.keyframe = nullptr;
-		//	m_selectedKeyframe.axis = -1;
-		//}
 
 		m_drawList->PopClipRect();
 		ImGui::End();
