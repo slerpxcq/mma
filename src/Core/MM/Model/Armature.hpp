@@ -16,6 +16,7 @@ namespace mm
 		friend class IKSolver;
 	public:
 		using Dict = std::unordered_map<std::string, int32_t>;
+
 	public:
 		struct Bone {
 			int32_t parent;
@@ -47,17 +48,13 @@ namespace mm
 
 	private:
 		Model& m_model;
-		// nameJP -> index
+
+		/* nameJP->index */
 		Dict m_dict;
 		uint32_t m_layerCount;
 		std::vector<Bone> m_bones;
 		std::vector<Transform> m_pose;
 
-		/* skinning  local */
-		/* [qx tx qx tx] */
-		/* [qy ty qy ty] */
-		/* [qz tz qz tz] */
-		/* [qw 1  qw 1 ] */
 		std::vector<glm::mat2x4> m_skinningData;
 	}; 
 }

@@ -189,7 +189,6 @@ namespace mm
 
 			if (!m_minimized) {
 				m_layerStack.OnUpdate(deltaTime);
-				
 				m_imguiLayer->Begin();
 				m_layerStack.OnUIRender();
 				m_imguiLayer->End();

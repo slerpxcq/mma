@@ -24,11 +24,13 @@ namespace mm
 		Animation* LoadAnimation(const std::filesystem::path& path);
 		void Render(Renderer& renderer);
 		void Update(float deltaTime);
+
 		const PMXFile& GetPMXFile() const { return *m_pmxFile; }
 		Armature& GetArmature() { return *m_armature; }
 		Morph& GetMorph() { return *m_morph; }
 		Skin& GetSkin() { return *m_skin; }
 		Animation& GetAnim() { return *m_animation; }
+
 		void SyncWithPhysics();
 		void CalcSkinning() { m_armature->CalcSkinning(); }
 

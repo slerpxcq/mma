@@ -28,51 +28,54 @@ namespace mm
 		}
 	}
 
-	void IKSolver::Rotate(uint32_t pivot, const glm::quat& qL, const glm::quat& qW)
+	void IKSolver::Rotate(uint32_t pivot, const glm::quat& q_local, const glm::quat& q_world)
 	{
-		m_nodes[pivot].local.rotation = m_nodes[pivot].local.rotation * qL;
+		m_nodes[pivot].local.rotation = m_nodes[pivot].local.rotation * q_local;
 
 		for (int32_t i = pivot; i >= 0; --i) {
 			glm::vec3 offset = m_nodes[i].world.translation - m_nodes[pivot].world.translation;
-			m_nodes[i].world.translation = m_nodes[pivot].world.translation + glm::rotate(qW, offset);
-			m_nodes[i].world.rotation = qW * m_nodes[i].world.rotation;
+			m_nodes[i].world.translation = m_nodes[pivot].world.translation + glm::rotate(q_world, offset);
+			m_nodes[i].world.rotation = q_world * m_nodes[i].world.rotation;
 		}
 	}
 
 	// http://rodolphe-vaillant.fr/entry/114/cyclic-coordonate-descent-inverse-kynematic-ccd-ik
+	// https://stackoverflow.com/questions/21373012/best-inverse-kinematics-algorithm-with-constraints-on-joint-angles
+	// http://kzntov.seesaa.net/article/455959577.html?seesaa_related=category
 	void IKSolver::Solve()
 	{
 		for (uint32_t iteration = 0; iteration < m_ik.iteration; ++iteration) {
 			for (uint32_t i = 1; i < m_nodes.size(); ++i) {
 				glm::vec3 o = m_nodes[i].world.translation;
-				glm::vec3 E = m_nodes.front().world.translation;
+				glm::vec3 E = m_nodes[0].world.translation;
 				glm::vec3 T = m_armature.m_bones[m_target].animWorld.translation;
 				glm::vec3 t = glm::normalize(T - o);
 				glm::vec3 e = glm::normalize(E - o);
-				glm::quat qW = glm::rotation(e, t);
-				glm::quat qLtoW = m_nodes[i].world.rotation;
-				glm::quat qL = glm::inverse(qLtoW) * qW * qLtoW;
+				glm::quat q_world = glm::rotation(e, t);
+				glm::quat q_local_to_world = m_nodes[i].world.rotation;
+				glm::quat q_local = glm::inverse(q_local_to_world) * q_world * q_local_to_world;
 
 				uint32_t linkIndex = i - 1;
 				if (m_ik.link[linkIndex].doLimit) {
-					glm::vec3 euler = glm::eulerAngles(qL);
 					glm::vec3 low = glm::make_vec3(m_ik.link[linkIndex].limit[0]);
 					glm::vec3 high = glm::make_vec3(m_ik.link[linkIndex].limit[1]);
-					euler = glm::clamp(euler, low, high);
-					qL = glm::quat(euler);
-					qW = qLtoW * qL * glm::inverse(qLtoW);
+					glm::vec3 euler_ideal = glm::eulerAngles(m_nodes[i].local.rotation * q_local);
+					glm::vec3 euler_clamped = glm::clamp(euler_ideal, low, high);
+					glm::quat q_clamped = glm::quat(euler_clamped);
+
+					q_local = glm::inverse(m_nodes[i].local.rotation) * q_clamped;
+					q_world = q_local_to_world * q_local * glm::inverse(q_local_to_world);
 				}
 
-				Rotate(i, qL, qW);
+				Rotate(i, q_local, q_world);
 			}
 		}
 	}
 
 	void IKSolver::Sync()
 	{
-		for (uint32_t i = 0; i < m_nodes.size(); ++i) {
+		for (uint32_t i = 0; i < m_nodes.size(); ++i) 
 			m_armature.m_bones[m_nodes[i].index].animLocal = m_nodes[i].local;
-		}
 	}
 }
 

@@ -448,6 +448,7 @@ namespace mm
 			m_model->GetPMXFile().GetInfo().nameJP.c_str() : "--");
 		ImGui::Text("Bone: %s", m_model != nullptr && m_context.currSelectedBone >= 0 ?
 			m_model->GetPMXFile().GetBoneName(m_context.currSelectedBone).c_str() : "--");
+
 		ImGui::End();
 
 		/* Draw overlay on viewport */
