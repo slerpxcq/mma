@@ -104,8 +104,6 @@ namespace mm
 		nfdresult_t result = NFD_OpenDialog("pmx", nullptr, &path);
 		if (result == NFD_OKAY) {
 			Model* model = world.LoadModel(path);
-			/* Should use ItemSelected */
-			//EventBus::Instance()->postpone<EditorEvent::ModelLoaded>({ model });
 			EditorEvent::ItemSelected e = {};
 			e.item = model;
 			e.type = Properties::TYPE_MODEL;

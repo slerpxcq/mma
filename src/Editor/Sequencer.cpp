@@ -297,8 +297,8 @@ namespace mm
 					for (auto& dope : content->dopes) 
 						dope->Duplicate(m_selectedFrame + dope->keyframe->frame - minFrame);
 				}
+				UpdateAnim();
 			}
-			UpdateAnim();
 		}
 
 		/* Cut */

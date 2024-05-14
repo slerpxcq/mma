@@ -66,15 +66,24 @@
     - Rotation curve
     - Horizontal/vertical scale
 
-# DOING
+# 2024/5/13
 - IK solver not converging- seems depends on previous state?
     - Check constraint
 
-# TODO
+# DOING
 - Pose Editor
+    - copy/paste transform
     - Inverse paste tranform (Left<->Right)
+    - Select overlapping bones
+
+# TODO
+
 - Curve editor
     - Sync between Sequencer and Curve editor
+- Dope sheet
+    - Drag
+- Playback indicator
+- Set frame when stop playback
 
 - Entity/Property panel
 - Entity base class

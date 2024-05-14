@@ -31,12 +31,17 @@ namespace mm
 
 	struct PoseEditorClipboardContent : public ClipboardContent {
 	public:
+		// Better use bone name for inter-model paste?
 		struct Item {
-			int32_t boneIndex;
+			//int32_t boneIndex;
+			std::string boneName;
 			Transform transform;
 		};
 	public:
 		std::vector<Item> items;
+	};
+
+	class PoseEditorPasteCommand : public Command {
 	};
 
 	class PoseEditorCommitCommand : public Command {
@@ -74,9 +79,9 @@ namespace mm
 		uint32_t m_frame;
 	};
 
-	class BoneTransformEditedCommand : public Command {
+	class PoseEditorEditedCommand : public Command {
 	public:
-		BoneTransformEditedCommand(Transform* valuePtr, Transform redoValue, Transform undoValue) :
+		PoseEditorEditedCommand(Transform* valuePtr, Transform redoValue, Transform undoValue) :
 			m_valuePtr(valuePtr), m_redoValue(redoValue), m_undoValue(undoValue) {}
 
 		virtual void Undo() override { *m_valuePtr = m_undoValue; }

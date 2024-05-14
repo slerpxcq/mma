@@ -14,8 +14,6 @@
 
 #include "Commands.hpp"
 
-// TODO: State machine code too scattered
-
 namespace mm
 {
 	PoseEditor::PoseEditor(EditorLayer& editor) :
@@ -28,6 +26,7 @@ namespace mm
 
 	void PoseEditor::OnItemSelected(const EditorEvent::ItemSelected& e)
 	{
+		//if (dynamic_cast<Item::Model*>(e.item) != nullptr)
 		if (e.type == Properties::TYPE_MODEL) {
 			SetModel(std::any_cast<Model*>(e.item));
 		}
@@ -107,7 +106,7 @@ namespace mm
 		if (lastFrameUsedGizmo && !thisFrameUsedGizmo) {
 			m_context.editedBones.insert(m_context.currSelectedBone);
 			EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-				new BoneTransformEditedCommand(valuePtr, *valuePtr, undoValue) });
+				new PoseEditorEditedCommand(valuePtr, *valuePtr, undoValue) });
 		}
 		lastFrameUsedGizmo = thisFrameUsedGizmo;
 	}
@@ -332,7 +331,6 @@ namespace mm
 		}
 	}
 
-	/* Can use ImGui Event */
 	void PoseEditor::ProcessKeys()
 	{
 		if (!m_enabled || m_model == nullptr)
@@ -357,15 +355,16 @@ namespace mm
 					}
 				}
 			}
+
 			/* Copy */
 			if (ImGui::IsKeyPressed(ImGuiKey_C) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
 				if (!m_context.selectedBones.empty()) {
 					auto content = std::make_unique<PoseEditorClipboardContent>();
 					for (auto& bone : m_context.selectedBones) {
-						content->items.push_back({
-							bone,
-							m_model->GetArmature().GetPose()[bone]
-						});
+						std::string name = m_model->GetPMXFile().GetBoneName(bone);
+						Transform transform = m_model->GetArmature().GetPose()[bone];
+						MM_INFO("Copied: {0} {1}", name, glm::to_string(transform.rotation));
+						content->items.push_back({ name, transform });
 					}
 					Clipboard::Instance().SetContent(std::move(content));
 				}
@@ -375,16 +374,49 @@ namespace mm
 			if (ImGui::IsKeyPressed(ImGuiKey_V) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
 				PoseEditorClipboardContent* content = dynamic_cast<PoseEditorClipboardContent*>(Clipboard::Instance().GetContent());
 				if (content != nullptr) {
-					for (const auto& item : content->items) 
-						m_model->GetArmature().GetPose()[item.boneIndex] = item.transform;
+					const auto& dict = m_model->GetArmature().GetDict();
+					auto& pose = m_model->GetArmature().GetPose();
+
+					/* Mirror paste */
+					if (ImGui::IsKeyDown(ImGuiKey_LeftShift)) {
+						const char* LEFT = u8"左";
+						const char* RIGHT = u8"右";
+						for (const auto& item : content->items) {
+							std::string name = item.boneName;
+							bool hasMirror = false;
+							if (!std::strncmp(name.c_str(), LEFT, std::strlen(LEFT))) {
+								name.replace(0, std::strlen(RIGHT), RIGHT);
+								hasMirror = true;
+							}
+							else if (!std::strncmp(name.c_str(), RIGHT, std::strlen(RIGHT))) {
+								name.replace(0, std::strlen(LEFT), LEFT);
+								hasMirror = true;
+							}
+
+							Transform transform = item.transform;
+							if (hasMirror) {
+								transform.rotation = glm::conjugate(transform.rotation);
+								transform.translation.x = -transform.translation.x;
+							}
+
+							try { pose[dict.at(name)] = transform; }
+							catch (const std::out_of_range&) {}
+
+							MM_INFO("Pasted: {0} {1}", name, glm::to_string(item.transform.rotation));
+						}
+					} 
+					/* Normal paste */
+					else {
+						for (const auto& item : content->items) {
+							try { pose[dict.at(item.boneName)] = item.transform; }
+							catch (const std::out_of_range&) {}
+							MM_INFO("Pasted: {0} {1}", item.boneName, glm::to_string(item.transform.rotation));
+						}
+					}
 				}
 			}
-
-			/* Mirror paste */
-			if (ImGui::IsKeyPressed(ImGuiKey_V) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_LeftShift)) {
-			}
-
 			break;
+
 		case Context::State::EDITING:
 			{
 				const auto& pmxBone = pmxBones[m_context.currSelectedBone];
@@ -482,7 +514,6 @@ namespace mm
 
 		ProcessKeys();
 		ProcessMouseButton();
-
 
 		ImGui::End();
 	}
