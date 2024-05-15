@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Entity.hpp"
 #include "../Files/PMXFile.hpp"
 #include "../Animation/Animation.hpp"
 
@@ -13,7 +14,7 @@ namespace mm
 	class World;
 	class ModelPhysicsData;
 
-	class Model
+	class Model : public Entity
 	{
 		friend class Armature;
 		friend class Skin;

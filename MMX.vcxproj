@@ -113,7 +113,9 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Editor\Component.hpp" />
+    <ClInclude Include="src\Core\MM\Lights\AreaLight.hpp" />
+    <ClInclude Include="src\Core\MM\Lights\SpotLight.hpp" />
+    <ClInclude Include="src\Core\MM\Entity.hpp" />
     <ClInclude Include="src\Core\GL\GLFrameBufferMS.hpp" />
     <ClInclude Include="src\Core\GL\GLTexture2DMS.hpp" />
     <ClInclude Include="src\Core\MM\Lights\DirectionalLight.hpp" />
@@ -181,7 +183,8 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Core\MM\World\WorldSerDes.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Editor\Component.cpp" />
+    <ClCompile Include="src\Core\MM\Lights\AreaLight.cpp" />
+    <ClCompile Include="src\Core\MM\Lights\SpotLight.cpp" />
     <ClCompile Include="src\Core\GL\GLFrameBufferMS.cpp" />
     <ClCompile Include="src\Core\GL\GLTexture2DMS.cpp" />
     <ClCompile Include="src\Core\MM\Lights\DirectionalLight.cpp" />

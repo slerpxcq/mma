@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Entity.hpp"
+
 namespace mm
 {
 	class Light 

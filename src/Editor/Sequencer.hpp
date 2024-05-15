@@ -162,7 +162,7 @@ namespace mm
 			m_editor(editor),
 			m_listener(EventBus::Instance()) {
 			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Sequencer::OnMouseScrolled));
-			m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(Sequencer::OnItemSelected));
+			m_listener.listen<EditorEvent::EntitySelected>(MM_EVENT_FN(Sequencer::OnEntitySelected));
 		}
 
 		void OnUIRender();
@@ -179,7 +179,7 @@ namespace mm
 	private:
 		/* Events */
 		void OnMouseScrolled(const Event::MouseScrolled& e);
-		void OnItemSelected(const EditorEvent::ItemSelected& e);
+		void OnEntitySelected(const EditorEvent::EntitySelected& e);
 		void ProcessKeys();
 
 		void CheckAutoScroll(uint32_t frame);

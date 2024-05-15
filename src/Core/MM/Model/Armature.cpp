@@ -18,26 +18,25 @@ namespace mm
 
 		m_bones.resize(pmxBones.size());
 		m_skinningData.resize(m_bones.size());
-		m_pose.resize(m_bones.size());
 
 		for (uint32_t i = 0; i < m_bones.size(); ++i) {
 			const auto& pmxBone = pmxBones[i];
 			auto& bone = m_bones[i];
+
 			bone.parent = pmxBones[i].parentIndex;
 
-			// Bind world position
+			/* Initialize bind transform */
 			bone.bindWorld = Transform(
 				glm::make_vec3(pmxBone.position),
 				glm::identity<glm::quat>());
-
-			// Bind parent space position
 			bone.bindParent = Transform(
 				bone.parent >= 0 ?
 					bone.bindWorld.translation - m_bones[bone.parent].bindWorld.translation :
 					bone.bindWorld.translation,
 				glm::identity<glm::quat>());
+			bone.bindWorldInv = bone.bindWorld.inverse();
 
-			bone.invBindWorld = bone.bindWorld.inverse();
+			bone.name = pmxBone.nameJP;
 
 			if (pmxBone.transformationLayer > m_layerCount)
 				m_layerCount = pmxBone.transformationLayer;
@@ -51,7 +50,7 @@ namespace mm
 	void Armature::ResetPose()
 	{
 		for (uint32_t i = 0; i < m_bones.size(); ++i)
-			m_pose[i] = Transform::identity();
+			m_bones[i].pose = Transform::identity();
 	}
 
 	void Armature::UpdatePose()
@@ -110,7 +109,7 @@ namespace mm
 	{
 		for (uint32_t i = 0; i < m_bones.size(); ++i)
 			if (IsCurrentLayer(i, layer, afterPhys))
-				m_bones[i].animLocal = m_pose[i] * m_bones[i].animLocal;
+				m_bones[i].animLocal = m_bones[i].pose * m_bones[i].animLocal;
 
 		CalcWorldPose();
 	}
@@ -175,7 +174,7 @@ namespace mm
 	void Armature::CalcSkinning()
 	{
 		for (uint32_t i = 0; i < m_bones.size(); ++i) {
-			Transform skinning = m_bones[i].animWorld * m_bones[i].invBindWorld;
+			Transform skinning = m_bones[i].animWorld * m_bones[i].bindWorldInv;
 			m_skinningData[i][0] = glm::make_vec4(glm::value_ptr(skinning.rotation));
 			m_skinningData[i][1] = glm::vec4(skinning.translation, 1);
 		}

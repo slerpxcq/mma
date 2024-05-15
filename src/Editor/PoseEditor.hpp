@@ -3,10 +3,10 @@
 #include "Core/App/Event.hpp"
 #include "Core/MM/Animation/Animation.hpp"	
 
+#include "Commands.hpp"
 #include "EditorEvent.hpp"
 #include "SelectionBox.hpp"
 #include "Clipboard.hpp"
-#include "Component.hpp"
 
 #include <ImGuizmo.h>
 
@@ -128,7 +128,7 @@ namespace mm
 		void ProcessMouseButton();
 
 		/* Events */
-		void OnItemSelected(const EditorEvent::ItemSelected& e);
+		void OnItemSelected(const EditorEvent::EntitySelected& e);
 		void OnFrameSet(const EditorEvent::FrameSet& e);
 
 	private:

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Entity.hpp"
+
 #include "../Files/PMXFile.hpp"
 #include "Core/MM/Math/Transform.hpp" 
 
@@ -11,18 +13,20 @@ namespace mm
 	class Model;
 	class ModelPhysicsData;
 
-	class Armature
+	class Armature : public Entity
 	{
 		friend class IKSolver;
 	public:
 		using Dict = std::unordered_map<std::string, int32_t>;
 
 	public:
-		struct Bone {
+		struct Bone : public Entity {
+			std::string name;
 			int32_t parent;
+			Transform pose;
 			Transform bindParent;
 			Transform bindWorld;
-			Transform invBindWorld;
+			Transform bindWorldInv;
 			Transform animLocal;
 			Transform animParent;
 			Transform animWorld;
@@ -36,8 +40,9 @@ namespace mm
 		const Dict& GetDict() const { return m_dict; }
 		void SyncWithPhysics(const ModelPhysicsData& physicsData);
 
-		std::vector<Transform>& GetPose() { return m_pose; }
+		//std::vector<Transform>& GetPose() { return m_pose; }
 		const std::vector<Bone>& GetBones() const { return m_bones; }
+		std::vector<Bone>& GetBones() { return m_bones; }
 
 	private:
 		void CalcWorldPose(uint32_t begin = 0);
@@ -53,7 +58,7 @@ namespace mm
 		Dict m_dict;
 		uint32_t m_layerCount;
 		std::vector<Bone> m_bones;
-		std::vector<Transform> m_pose;
+		//std::vector<Transform> m_pose;
 
 		std::vector<glm::mat2x4> m_skinningData;
 	}; 

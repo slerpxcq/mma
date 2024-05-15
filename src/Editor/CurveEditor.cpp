@@ -9,10 +9,10 @@
 
 namespace mm
 {
-	void CurveEditor::OnItemSelected(const EditorEvent::ItemSelected& e)
+	void CurveEditor::OnItemSelected(const EditorEvent::EntitySelected& e)
 	{
-		if (e.type == Properties::TYPE_BONE) {
-			/* Get the container, how? */
+		if (dynamic_cast<Armature::Bone*>(e.entity) != nullptr) {
+
 		}
 	}
 

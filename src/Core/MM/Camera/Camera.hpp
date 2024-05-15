@@ -1,17 +1,22 @@
 #pragma once
 
+#include "../Entity.hpp"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace mm
 {
-	class Camera
-	{
+	class Camera : public Entity {
 		friend class CameraController;
+		friend class Properties;
+
 		static constexpr float FOV = glm::radians(45.f);
 		static constexpr float Z_NEAR = 0.1f;
 		static constexpr float Z_FAR = 100.f;
 
 	public:
+		Camera() {}
+
 		void SetAspect(float aspect) { m_aspect = aspect; }
 		void SetFov(float fov) { m_fov = fov; }
 
@@ -35,5 +40,4 @@ namespace mm
 		float m_aspect = 1.778f;
 		float m_fov = FOV;
 	};
-
 }

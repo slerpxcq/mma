@@ -106,11 +106,12 @@ namespace mm
 		return it != m_selectedDopes.end();
 	}
 
-	void Sequencer::OnItemSelected(const EditorEvent::ItemSelected& e)
+	void Sequencer::OnEntitySelected(const EditorEvent::EntitySelected& e)
 	{
-		if (e.type == Properties::TYPE_MODEL) {
-			SetModel(std::any_cast<Model*>(e.item));
-		}
+		Model* model = dynamic_cast<Model*>(e.entity);
+
+		if (model != nullptr) 
+			SetModel(model);
 	}
 
 	void Sequencer::DrawGroupDope(const Group& group)

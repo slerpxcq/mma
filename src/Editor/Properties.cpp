@@ -14,125 +14,172 @@
 
 namespace mm
 {
+	template <typename F, typename T, typename... Args>
+	bool WithUndo(T& undoValue, F&& func, const char* label, T& ref, Args&&... args) {
+		T valueBeforeEdit = ref;
+		bool ret = func(label, (float*)&ref, std::forward<Args>(args)...);
+		if (ImGui::IsItemActivated()) {
+			undoValue = valueBeforeEdit;
+		}
+		if (ImGui::IsItemDeactivatedAfterEdit()) {
+			T redoValue = ref;
+			EventBus::Instance()->postpone<EditorEvent::CommandIssued>({ 
+				new ValueEditedCommand<T>(ref, undoValue, redoValue) });
+		}
+		return ret;
+	}
+
 	Properties::Properties(EditorLayer& editor) : 
 		m_editor(editor),
 		m_listener(EventBus::Instance())
-
 	{
-		m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(Properties::OnItemSelected));
+		m_listener.listen<EditorEvent::EntitySelected>(MM_EVENT_FN(Properties::OnEntitySelected));
 	}
 
-    void Properties::LoadAnimation(Model& model)
-    {
-		nfdchar_t* path = nullptr;
-		nfdresult_t result = NFD_OpenDialog("vmd", nullptr, &path);
-		if (result == NFD_OKAY) {
-			Animation* animation = model.LoadAnimation(path);
-			//EventBus::Instance()->postpone<EditorEvent::MotionLoaded>({ animation });
-			std::free(path);
-		}
-    }
+	template <typename T>
+	void Properties::ShowPanel() 
+	{
+		if (!m_entity)
+			return;
 
-    void Properties::ExportAnimation(Model& model)
-    {
-		nfdchar_t* path = nullptr;
-		nfdresult_t result = NFD_SaveDialog("vmd", nullptr, &path);
-		if (result == NFD_OKAY) {
-			std::unique_ptr<VMDFile> vmd = std::make_unique<VMDFile>(model.GetAnim());
-			vmd->Serialize(path);
-			MM_INFO("{0}: Animation exported successfully", path);
-			std::free(path);
-		}
-    }
+		T* e = dynamic_cast<T*>(m_entity);
+		if (e)
+			ShowPanelCore<T>(*e);
+	}
 
-	void Properties::MorphSliders(Model& model, uint32_t panel)
+	template <>
+	void Properties::ShowPanelCore<World>(World& world) 
+	{
+		ImGui::SeparatorText("World");
+		if (ImGui::Button("Load model")) {
+			nfdchar_t* path = nullptr;
+			nfdresult_t result = NFD_OpenDialog("pmx", NULL, &path);
+			if (result == NFD_OKAY) {
+				Model* model = world.LoadModel(path);
+				EventBus::Instance()->postpone<EditorEvent::EntitySelected>({ model });
+				std::free(path);
+			}
+		}
+	}
+
+	template <>
+	void Properties::ShowPanelCore<PhysicsWorld>(PhysicsWorld& physicsWorld) 
+	{
+		ImGui::SeparatorText("Physics world");
+		static bool enable;
+		if (ImGui::Checkbox("Enable", &enable)) 
+			physicsWorld.SetEnable(enable);
+	}
+
+	template <>
+	void Properties::ShowPanelCore<Model>(Model& model) 
+	{
+		ImGui::SeparatorText(model.GetPMXFile().GetInfo().nameJP.c_str());
+		if (ImGui::Button("Load animation")) {
+			nfdchar_t* path = nullptr;
+			nfdresult_t result = NFD_OpenDialog("vmd", NULL, &path);
+			if (result == NFD_OKAY) {
+				Animation* anim = model.LoadAnimation(path);
+				EventBus::Instance()->postpone<EditorEvent::EntitySelected>({ anim });
+				EventBus::Instance()->postpone<EditorEvent::FrameSet>({ 0 });
+				std::free(path);
+			}
+		}
+		if (ImGui::Button("Export animation")) {
+			nfdchar_t* path = nullptr;
+			nfdresult_t result = NFD_SaveDialog("vmd", NULL, &path);
+			if (result == NFD_OKAY) {
+				VMDFile vmd(model.GetAnim());
+				vmd.Serialize(path);
+				std::free(path);
+			}
+		}
+	}
+
+	template <>
+	void Properties::ShowPanelCore<Camera>(Camera& camera) 
+	{
+		ImGui::SeparatorText("Camera");
+		static glm::vec3 undo;
+		WithUndo(undo, ImGui::InputFloat3, "Translation", camera.m_center, "%.2f", 0);
+	}
+
+	template <>
+	void Properties::ShowPanelCore<DirectionalLight>(DirectionalLight& directionalLight) 
+	{
+		ImGui::SeparatorText(directionalLight.m_name.c_str());
+
+		static glm::vec3 undo0;
+		WithUndo(undo0, ImGui::DragFloat3, "Color", directionalLight.m_color, 0.01f, 0.0f, 1.0f, "%.2f", 0);
+
+		static glm::vec3 undo1;
+		WithUndo(undo1, ImGui::DragFloat3, "Direction", directionalLight.m_direction, 0.01f, -1.0f, 1.0f, "%.2f", 0);
+	}
+
+	template <>
+	void Properties::ShowPanelCore<Armature>(Armature& armature) 
+	{
+		ImGui::SeparatorText("Armature");
+	}
+
+	static void QuatToEulerInput(glm::vec3& undoEuler, const char* name, glm::quat& q, uint32_t flags = ImGuiInputTextFlags_None)
+	{
+		glm::vec3 eulerDeg = glm::eulerAngles(q) * glm::degrees(1.0f);
+		if (WithUndo(undoEuler, ImGui::DragFloat3, name, eulerDeg, 0.01f, -180.f, 180.f, "%.2f", flags)) 
+			q = glm::quat(eulerDeg * glm::radians(1.0f));
+	}
+
+	template <>
+	void Properties::ShowPanelCore<Armature::Bone>(Armature::Bone& bone) 
+	{
+		ImGui::SeparatorText(bone.name.c_str());
+		ImGui::Text("Pose");
+
+		static glm::vec3 undo0;
+		WithUndo(undo0, ImGui::InputFloat3, "Translation##Pose", bone.pose.translation, "%.2f", 0);
+
+		static glm::vec3 undo1;
+		QuatToEulerInput(undo1, "Rotation##Pose", bone.pose.rotation);
+	
+		/* Read only */
+		ImGui::Text("Local transform");
+		static glm::vec3 _;
+		ImGui::InputFloat3("Translation##Local", glm::value_ptr(bone.animLocal.translation), "%.2f", ImGuiInputTextFlags_ReadOnly);
+		QuatToEulerInput(_, "Rotation##Local", bone.animLocal.rotation, ImGuiSliderFlags_NoInput);
+		ImGui::Text("World transform");
+		ImGui::InputFloat3("Translation##World", glm::value_ptr(bone.animWorld.translation), "%.2f", ImGuiInputTextFlags_ReadOnly);
+		QuatToEulerInput(_, "Rotation##World", bone.animWorld.rotation, ImGuiInputTextFlags_ReadOnly);
+	}
+
+	template <>
+	void Properties::ShowPanelCore<Skin::Mesh>(Skin::Mesh& mesh) 
+	{
+		ImGui::SeparatorText(mesh.name.c_str());
+	}
+
+	static void MorphSliders(Model& model, uint32_t panel) 
 	{
 		auto& morph = model.GetMorph();
 		auto& pmxMorphs = model.GetPMXFile().GetMorphs();
 		uint32_t morphCount = morph.GetWeights().size();
 
-		/* if last frame not active and this frame active, store undo value */
-		/* if last frame active and this frame not active, store redo value and issue command */
-
 		for (uint32_t morphIndex = 0; morphIndex < morphCount; ++morphIndex) {
-			float* valuePtr = &morph.GetWeights()[morphIndex];
 			if (pmxMorphs[morphIndex].panel == panel) {
 				const std::string& name = model.GetPMXFile().GetMorphName(morphIndex);
-				float valueBeforeEdit = *valuePtr;
-				ImGui::SliderFloat(name.c_str(), valuePtr, 0.0f, 1.0f);
-
-				static float undoValue;
-				if (ImGui::IsItemActivated()) {
-					undoValue = valueBeforeEdit;
-					MM_INFO("Start edit; undo={0}", undoValue);
-				}
-				if (ImGui::IsItemDeactivatedAfterEdit()) {
-					MM_INFO("End edit: undo={0}, redo={1}", undoValue, *valuePtr);
-					/* If there is no keyframe at current frame, create one */
-					EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-						new MorphEditedCommand(valuePtr, *valuePtr, undoValue) });
-
-					/* If there is no keyframe at current frame, create one */
-					/* Else directly change the value of that keyframe */
-					Animation& anim = model.GetAnim();
-					auto& morphKeyframes = anim.GetMorphKeyframeMatrix()[morphIndex];
-					uint32_t currFrame = m_editor.m_sequencer->GetFrameCounter().GetFrame();
-					auto it = std::find_if(morphKeyframes.begin(), morphKeyframes.end(),
-						[currFrame](const Animation::Keyframe& keyframe) {
-							return keyframe.frame == currFrame;
-						});
-
-					if (it == morphKeyframes.end()) {
-						anim.InsertMorphKeyframe(
-							morphIndex,
-							Animation::MorphKeyframe(currFrame, *valuePtr));
-						EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-							new PoseEditorCommitCommand(
-								anim, PoseEditorCommitCommand::TYPE_MORPH, morphIndex, currFrame) });
-					}
-					else {
-						it->weight = *valuePtr;
-					}
-				}
+				float& ref = morph.GetWeights()[morphIndex];
+				static float undo;
+				WithUndo(undo, ImGui::SliderFloat, name.c_str(), ref, 0.0f, 1.0f, "%.2f", 0);
 			}
 		}
 	}
 
-    void Properties::LoadModel(World& world)
-    {
-		nfdchar_t* path = nullptr;
-		nfdresult_t result = NFD_OpenDialog("pmx", nullptr, &path);
-		if (result == NFD_OKAY) {
-			Model* model = world.LoadModel(path);
-			EditorEvent::ItemSelected e = {};
-			e.item = model;
-			e.type = Properties::TYPE_MODEL;
-			EventBus::Instance()->postpone(e);
-		}
-    }
-
-	void Properties::MeshPanel()
+	template <>
+	void Properties::ShowPanelCore<Morph>(Morph& morph) 
 	{
-		Skin::Mesh& mesh = *std::any_cast<Skin::Mesh*>(m_item);
-		ImGui::InputFloat3("Diffuse", glm::value_ptr(mesh.material.diffuse));
-		ImGui::InputFloat4("Specular", glm::value_ptr(mesh.material.specular));
-		ImGui::InputFloat3("Ambient", glm::value_ptr(mesh.material.ambient));
-		ImGui::InputFloat3("Edge", glm::value_ptr(mesh.material.edge));
-		ImGui::InputFloat("Edge size", &mesh.material.edgeSize);
-	}
+		ImGui::SeparatorText("Morph");
 
-	void Properties::BonePanel()
-	{
-		Transform& transform = *std::any_cast<Transform*>(m_item);
-		static glm::vec3 euler;
-		euler = glm::eulerAngles(transform.rotation) * glm::degrees(1.f);
-		ImGui::InputFloat3("Rotation", glm::value_ptr(euler));
-		ImGui::InputFloat3("Translation", glm::value_ptr(transform.translation));
-	}
+		auto& model = morph.GetModel();
 
-	void Properties::MorphPanel()
-	{
-		Model& model = *std::any_cast<Model*>(m_item);
 		if (ImGui::TreeNode("Eye")) {
 			MorphSliders(model, PMXFile::PANEL_EYE);
 			ImGui::TreePop();
@@ -151,96 +198,32 @@ namespace mm
 		}
 	}
 
-	void Properties::AnimationPanel()
-	{
-		Model& model = *std::any_cast<Model*>(m_item);
-		Animation& anim = model.GetAnim();
-
-		ImGui::Text("name: %s", anim.GetName().c_str());
-		if (ImGui::Button("Load")) {
-			LoadAnimation(model);
-		}
-		if (ImGui::Button("Export")) {
-			ExportAnimation(model);
-		}
-	}
-
-	void Properties::PhysicsWorldPanel()
-	{
-		PhysicsWorld& physicsWorld = *std::any_cast<PhysicsWorld*>(m_item);
-		static bool enable;
-		static float gravity;
-		if (ImGui::Checkbox("Enable", &enable)) {
-			physicsWorld.SetEnable(enable);
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Reset")) {
-			physicsWorld.Reset();
-		}
-		ImGui::InputFloat("Gravity", &gravity);
-	}
-
-	void Properties::WorldPanel()
-	{
-		World& world = *std::any_cast<World*>(m_item);
-		if (ImGui::Button("Load model")) {
-			LoadModel(world);
-		}
-	}
-
-	void Properties::LightPanel()
-	{
-		DirectionalLight& light = *std::any_cast<DirectionalLight*>(m_item);
-		ImGui::InputFloat3("Color", glm::value_ptr(light.GetColor()));
-		ImGui::InputFloat3("Direction", glm::value_ptr(light.GetDirection()));
-	}
-
 	void Properties::OnUIRender()
 	{
 		ImGui::Begin("Properties");
-		if (m_item.has_value()) {
-			switch (m_type) {
-			case TYPE_MESH:
-				MeshPanel();
-				break;
-			case TYPE_BONE:
-				BonePanel();
-				break;
-			case TYPE_MORPH:
-				MorphPanel();
-				break;
-			case TYPE_ANIMATION:
-				AnimationPanel();
-				break;
-			case TYPE_PHYSICS_WORLD:
-				PhysicsWorldPanel();
-				break;
-			case TYPE_ARMATURE:
-				break;
-			case TYPE_WORLD:
-				WorldPanel();
-				break;
-			case TYPE_CAMERA:
-				{
-					CameraController& cc = *std::any_cast<CameraController*>(m_item);
-				}
-				break;
-			case TYPE_LIGHT:
-				LightPanel();
-				break;
-			case TYPE_MODEL:
-				break;
-			default:
-				MM_ASSERT(0 && "Unknown type");
-			}
-		}
+
+		ShowPanel<World>();
+		ShowPanel<PhysicsWorld>();
+		ShowPanel<Camera>();
+
+		/* Lights */
+		ShowPanel<DirectionalLight>();
+		//ShowPanel<PointLight>();
+		//ShowPanel<SpotLight>();
+		//ShowPanel<AreaLight>();
+
+		ShowPanel<Model>();
+		ShowPanel<Armature>();
+		ShowPanel<Armature::Bone>();
+		//ShowPanel<Skin>();
+		ShowPanel<Skin::Mesh>();
+		ShowPanel<Morph>();
+
 		ImGui::End();
 	}
 
-	void Properties::OnItemSelected(const EditorEvent::ItemSelected& e)
+	void Properties::OnEntitySelected(const EditorEvent::EntitySelected& e)
 	{
-		MM_INFO("{0}", __FUNCTION__);
-		m_item = e.item;
-		m_type = e.type;
+		m_entity = e.entity;
 	}
 }

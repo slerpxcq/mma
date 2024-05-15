@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Entity.hpp"
+
 #include "Core/MM/Camera/Camera.hpp"
 #include "Core/MM/Model/Model.hpp"
 #include "Core/MM/Physics/PhysicsWorld.hpp"
@@ -9,7 +11,8 @@
 namespace mm
 {
 	class Renderer;
-	class World
+
+	class World : public Entity
 	{
 		friend class WorldSerDes;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Entity.hpp"
+
 #include "Core/MM/Math/Transform.hpp" 
 #include "Bezier.hpp"
 
@@ -9,15 +11,13 @@ namespace mm
 	class VMDFile;
 	class PMXFile;
 
-	class Animation
+	class Animation : public Entity
 	{
 	public:
 		static constexpr uint32_t SUBFRAME_COUNT = 8;
 
 		template <typename T>
 		using KeyframeContainer = std::list<T>;
-		//template <typename T>
-		//using KeyframeIterator = std::list<T>::iterator;
 
 		struct Keyframe {
 		public:
@@ -67,7 +67,6 @@ namespace mm
 
 		template<typename T>
 		void RemoveKeyframe(KeyframeContainer<T>& container, uint32_t frame);
-
 
 	private:
 		void LoadBoneKeyframes();

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Entity.hpp"
+
 #include "ModelPhysicsData.hpp"
 
 #include <btBulletDynamicsCommon.h>
@@ -8,9 +10,10 @@ namespace mm
 {
 	class PMXFile;
 
-	class PhysicsWorld
+	class PhysicsWorld : public Entity
 	{
 		friend class ModelPhysicsData;
+
 		static constexpr float MIN_STEP = 1.f / 60;
 	public:
 		PhysicsWorld();

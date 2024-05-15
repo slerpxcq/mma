@@ -7,7 +7,7 @@
 
 namespace mm
 {
-	World::World()
+	World::World() 
 	{
 		m_directionalLight.SetColor(glm::vec3(.6, .6, .6));
 		m_directionalLight.SetDirection(glm::vec3(-.5, -1, .5));

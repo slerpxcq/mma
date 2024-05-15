@@ -10,7 +10,6 @@ namespace mm
 {
 	PhysicsWorld::PhysicsWorld() 
 	{
-	//	m_debugDrawer = std::make_unique<DebugDrawer>();
 		m_collisionConfig = std::make_unique<btDefaultCollisionConfiguration>();
 		m_dispatcher = std::make_unique<btCollisionDispatcher>(m_collisionConfig.get());
 		m_pairCache = std::make_unique<btDbvtBroadphase>();
@@ -19,8 +18,6 @@ namespace mm
 			m_dispatcher.get(), m_pairCache.get(), m_solver.get(), m_collisionConfig.get());
 
 		m_dynamicsWorld->setGravity(btVector3(0, -98, 0));
-	//	m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawConstraints);
-	//	m_dynamicsWorld->setDebugDrawer(m_debugDrawer.get());
 	}
 
 	PhysicsWorld::~PhysicsWorld()

@@ -36,7 +36,7 @@ namespace mm
 		CurveEditor(EditorLayer& editor) :
 			m_editor(editor),
 			m_listener(EventBus::Instance()) {
-			m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(CurveEditor::OnItemSelected));
+			m_listener.listen<EditorEvent::EntitySelected>(MM_EVENT_FN(CurveEditor::OnItemSelected));
 			//m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(CurveEditor::OnMouseScrolled));
 		}
 
@@ -47,7 +47,7 @@ namespace mm
 		}
 
 	private:
-		void OnItemSelected(const EditorEvent::ItemSelected& e);
+		void OnItemSelected(const EditorEvent::EntitySelected& e);
 
 		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
 		void DrawScale();

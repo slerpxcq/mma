@@ -20,16 +20,16 @@ namespace mm
 		m_editor(editor),
 		m_listener(EventBus::Instance())
 	{
-		m_listener.listen<EditorEvent::ItemSelected>(MM_EVENT_FN(PoseEditor::OnItemSelected));
+		m_listener.listen<EditorEvent::EntitySelected>(MM_EVENT_FN(PoseEditor::OnItemSelected));
 		m_listener.listen<EditorEvent::FrameSet>(MM_EVENT_FN(PoseEditor::OnFrameSet));
 	}
 
-	void PoseEditor::OnItemSelected(const EditorEvent::ItemSelected& e)
+	void PoseEditor::OnItemSelected(const EditorEvent::EntitySelected& e)
 	{
-		//if (dynamic_cast<Item::Model*>(e.item) != nullptr)
-		if (e.type == Properties::TYPE_MODEL) {
-			SetModel(std::any_cast<Model*>(e.item));
-		}
+		Model* model = dynamic_cast<Model*>(e.entity);
+
+		if (model != nullptr) 
+			SetModel(model);
 	}
 
 	void PoseEditor::OnFrameSet(const EditorEvent::FrameSet& e)
@@ -91,7 +91,7 @@ namespace mm
 			world = m_context.world;
 			
 		glm::mat4 local = m_context.worldToLocal * world;
-		Transform* valuePtr = &m_model->GetArmature().GetPose()[m_context.currSelectedBone];
+		Transform* valuePtr = &m_model->GetArmature().GetBones()[m_context.currSelectedBone].pose;
 		*valuePtr = Transform(local);
 
 		static bool lastFrameUsedGizmo = false;
@@ -125,7 +125,7 @@ namespace mm
 					return keyframe.frame == currFrame;
 				});
 
-			Transform& transform = m_model->GetArmature().GetPose()[bone];
+			Transform& transform = m_model->GetArmature().GetBones()[bone].pose;
 			if (it == boneKeyframes.end()) {
 				anim.InsertBoneKeyframe(bone, Animation::BoneKeyframe(currFrame, transform, Bezier()));
 				//EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
@@ -208,6 +208,7 @@ namespace mm
 				char buf[16];
 				std::snprintf(buf, sizeof(buf), "B_%u", boneIndex);
 				ImGui::SetCursorScreenPos(ImVec2(boneScreenPos.x - CIRCLE_RADIUS, boneScreenPos.y - CIRCLE_RADIUS));
+				ImGui::SetItemAllowOverlap();
 				if (ImGui::InvisibleButton(buf, ImVec2(CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2))) {
 					m_context.thisFrameClickedOnAnyBone = true;
 					m_context.currSelectedBone = boneIndex;
@@ -362,7 +363,7 @@ namespace mm
 					auto content = std::make_unique<PoseEditorClipboardContent>();
 					for (auto& bone : m_context.selectedBones) {
 						std::string name = m_model->GetPMXFile().GetBoneName(bone);
-						Transform transform = m_model->GetArmature().GetPose()[bone];
+						Transform transform = m_model->GetArmature().GetBones()[bone].pose;
 						MM_INFO("Copied: {0} {1}", name, glm::to_string(transform.rotation));
 						content->items.push_back({ name, transform });
 					}
@@ -375,7 +376,7 @@ namespace mm
 				PoseEditorClipboardContent* content = dynamic_cast<PoseEditorClipboardContent*>(Clipboard::Instance().GetContent());
 				if (content != nullptr) {
 					const auto& dict = m_model->GetArmature().GetDict();
-					auto& pose = m_model->GetArmature().GetPose();
+					auto& bones = m_model->GetArmature().GetBones();
 
 					/* Mirror paste */
 					if (ImGui::IsKeyDown(ImGuiKey_LeftShift)) {
@@ -395,11 +396,12 @@ namespace mm
 
 							Transform transform = item.transform;
 							if (hasMirror) {
-								transform.rotation = glm::conjugate(transform.rotation);
+								transform.rotation.x = -transform.rotation.x;
+								transform.rotation.w = -transform.rotation.w;
 								transform.translation.x = -transform.translation.x;
 							}
 
-							try { pose[dict.at(name)] = transform; }
+							try { bones[dict.at(name)].pose = transform; }
 							catch (const std::out_of_range&) {}
 
 							MM_INFO("Pasted: {0} {1}", name, glm::to_string(item.transform.rotation));
@@ -408,7 +410,7 @@ namespace mm
 					/* Normal paste */
 					else {
 						for (const auto& item : content->items) {
-							try { pose[dict.at(item.boneName)] = item.transform; }
+							try { bones[dict.at(item.boneName)].pose = item.transform; }
 							catch (const std::out_of_range&) {}
 							MM_INFO("Pasted: {0} {1}", item.boneName, glm::to_string(item.transform.rotation));
 						}

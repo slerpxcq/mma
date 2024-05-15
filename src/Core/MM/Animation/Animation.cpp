@@ -209,7 +209,7 @@ namespace mm
 		for (uint32_t i = 0; i < m_boneKeyframeMatrix.size(); ++i) {
 			auto& keyframes = m_boneKeyframeMatrix[i];
 			auto prev = UpperBound(keyframes, frame);
-			Transform& transform = m_model.GetArmature().GetPose()[i];
+			Transform& transform = m_model.GetArmature().GetBones()[i].pose;
 
 			if (prev == keyframes.cend()) {
 				std::advance(prev, -1);

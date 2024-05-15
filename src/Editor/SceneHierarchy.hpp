@@ -8,8 +8,9 @@ namespace mm
 
 	class SceneHierarchy
 	{
-		static constexpr uint32_t leafFlag = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		static constexpr uint32_t nonLeafFlag = ImGuiTreeNodeFlags_OpenOnArrow;
+		static constexpr uint32_t LEAF_FLAG = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		static constexpr uint32_t NONLEAF_FLAG = ImGuiTreeNodeFlags_OpenOnArrow;
+
 	public:
 		SceneHierarchy(EditorLayer& editor) : m_editor(editor) {}
 		void SetWorld(World* world) { m_world = world; }

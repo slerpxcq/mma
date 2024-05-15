@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Entity.hpp"
+
 #include "Core/GL/GLBuffer.hpp"
 #include "Core/GL/GLVertexAttrib.hpp"
 #include "Core/GL/GLShader.hpp"
@@ -16,13 +18,13 @@ namespace mm
 	class Model;
 	class Renderer;
 
-	class Skin
+	class Skin : public Entity
 	{
 	public:
 		static constexpr uint32_t TOON_FLAG_BIT = (1 << 16);
 
 	public:
-		struct Mesh {
+		struct Mesh : public Entity {
 			std::string name;
 			MaterialLayout material;
 			Effect* effect;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Entity.hpp"
 #include "../Files/PMXFile.hpp"
 #include "Core/MM/Math/Transform.hpp" 
 
@@ -11,7 +12,7 @@ namespace mm
 	class Renderer;
 	class GLShader;
 
-	class Morph
+	class Morph : public Entity
 	{
 	public:
 		static constexpr uint32_t MORPH_VERTEX_BASE = 2;
@@ -69,6 +70,7 @@ namespace mm
 		const std::vector<VertexTarget>& GetVertexTargets() const { return m_vertexTargets; }
 		const std::vector<MaterialTarget>& GetMaterialTargets() const { return m_materialTargets; }
 		const Dict& GetDict() { return m_dict;  }
+		Model& GetModel() { return m_model; }
 
 		void Render(Renderer& renderer) const;
 
