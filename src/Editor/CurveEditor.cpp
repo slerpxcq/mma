@@ -9,11 +9,23 @@
 
 namespace mm
 {
-	void CurveEditor::OnItemSelected(const EditorEvent::EntitySelected& e)
+	void CurveEditor::OnEititySelected(const EditorEvent::EntitySelected& e)
 	{
-		if (dynamic_cast<Armature::Bone*>(e.entity) != nullptr) {
+		Model* model = dynamic_cast<Model*>(e.entity);
+		Armature::Bone* bone = dynamic_cast<Armature::Bone*>(e.entity);
 
-		}
+		if (model)
+			m_model = model;
+
+		if (bone)
+			m_container = &m_model->GetAnim().GetBoneKeyframeMatrix()[m_model->GetArmature().GetDict().at(bone->name)];
+	}
+
+	void CurveEditor::OnFrameSet(const EditorEvent::FrameSet& e)
+	{
+		float width = m_rectMax.x - m_rectMin.x;
+		m_rectMin.x = e.frame - width / 2;
+		m_rectMax.x = e.frame + width / 2;
 	}
 
 	static ImVec2 GlobalToRectNormalized(ImVec2 rectMin, ImVec2 rectMax, ImVec2 global)
@@ -350,7 +362,7 @@ namespace mm
 		ImGuiIO& io = ImGui::GetIO();
 
 		/* Pan */
-		if (ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Middle) && !m_anyHandleActivated) {
+		if (ImGui::IsWindowHovered() && ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {
 			static constexpr float PAN_SPEED = 0.001;
             ImVec2 pan = io.MouseDelta * (m_rectMax - m_rectMin) * PAN_SPEED;
             m_rectMin = m_rectMin - pan;
@@ -360,6 +372,7 @@ namespace mm
 		/* Zoom */
 		if (ImGui::IsWindowHovered()) {
 			 static constexpr float SCROLL_SPEED = 0.1;
+			 static constexpr float MAX_ZOOM = 0.1;
 
              float wheel = -io.MouseWheel;
 
@@ -374,7 +387,7 @@ namespace mm
 
              ImVec2 newMin = m_rectMin - delta;
              ImVec2 newMax = m_rectMax + delta;
-             if (newMax.x - newMin.x > 1 && newMax.y - newMin.y > 1) {
+             if (newMax.x - newMin.x > MAX_ZOOM && newMax.y - newMin.y > MAX_ZOOM) {
 			 	m_rectMin = newMin;
 			 	m_rectMax = newMax;
              }

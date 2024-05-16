@@ -161,14 +161,13 @@ namespace mm
 		Sequencer(EditorLayer& editor) : 
 			m_editor(editor),
 			m_listener(EventBus::Instance()) {
-			m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(Sequencer::OnMouseScrolled));
 			m_listener.listen<EditorEvent::EntitySelected>(MM_EVENT_FN(Sequencer::OnEntitySelected));
+			m_listener.listen<EditorEvent::FrameSet>(MM_EVENT_FN(Sequencer::OnFrameSet));
 		}
 
 		void OnUIRender();
 		void OnUpdate(float deltaTime);
 
-		void AddGroup(const Group& group) { m_groups.push_back(group); }
 		void SetModel(Model* model);
 
 		void UpdateAnim();
@@ -177,30 +176,28 @@ namespace mm
 		FrameCounter& GetFrameCounter() { return m_frameCounter; }
 
 	private:
-		/* Events */
-		void OnMouseScrolled(const Event::MouseScrolled& e);
-		void OnEntitySelected(const EditorEvent::EntitySelected& e);
+		/********************** INPUTS **********************/
+		void ProcessInput();
 		void ProcessKeys();
-
 		void CheckAutoScroll(uint32_t frame);
 
-		void SetFrame(uint32_t frame);
+		/********************** EVENTS **********************/
+		void OnEntitySelected(const EditorEvent::EntitySelected& e);
+		void OnFrameSet(const EditorEvent::FrameSet& e);
 
+		/********************** DRAWING **********************/
 		void DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded);
 		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
-
-		template<typename T>
-		void DrawRowHeader(T& row, bool expandable, float textOffset);
-
-		template<typename T>
-		void DrawItemDope(const Item& item, Animation::KeyframeContainer<T>& keyframeList);
-
+		template<typename T> void DrawRowHeader(T& row, bool expandable, float textOffset);
+		template<typename T> void DrawItemDope(const Item& item, Animation::KeyframeContainer<T>& keyframeList);
 		void DrawGroupDope(const Group& group);
 		void DrawStrip(uint32_t row);
 		void DrawScale();
 		void DrawRows();
 		void DrawExpandedGroup(Group& group);
 
+		void SetFrame(uint32_t frame);
+		void SetupContext();
 		bool IsKeyframeSelected(Animation::Keyframe*);
 
 		std::unique_ptr<SequencerClipboardContent> MakeClipboardContentFromSelected();
@@ -233,13 +230,13 @@ namespace mm
 		/* Drawing */
 		int32_t m_selectedRow = -1;
 		int32_t m_selectedFrame = -1;
-		bool m_hovered = false;
 		ImDrawList* m_drawList = nullptr;
 		int32_t m_rowStart = 1;
 		int32_t m_currRowIndex;
 		int32_t m_totalRowCount = 0;
 		int32_t m_visibleRowCount = 0;
 		int32_t m_buttonIndex = 0;
+
 		ImVec2 m_canvasMin;
 		ImVec2 m_canvasMax;
 		ImVec2 m_canvasOrigin;
@@ -254,8 +251,6 @@ namespace mm
 		/* Editing */
 		State m_state = State::IDLE;
 		std::unordered_map<DopeBase*, uint32_t> m_keyframeFrameOnStartDragging;
-		bool m_lastFrameMouseDragged = false;
-		bool m_thisFrameMouseDragged = false;
 		bool m_thisFrameAnyDopeClicked = false;
 		bool m_thisFrameAnyDopeHovered = false;
 
@@ -263,7 +258,6 @@ namespace mm
 	};
 
 	struct SequencerClipboardContent : public ClipboardContent {
-		/* Need deep copy for underlying data */
 		std::vector<std::shared_ptr<Sequencer::DopeBase>> dopes;
 	};
 

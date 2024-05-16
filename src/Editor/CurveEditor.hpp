@@ -36,10 +36,9 @@ namespace mm
 		CurveEditor(EditorLayer& editor) :
 			m_editor(editor),
 			m_listener(EventBus::Instance()) {
-			m_listener.listen<EditorEvent::EntitySelected>(MM_EVENT_FN(CurveEditor::OnItemSelected));
-			//m_listener.listen<Event::MouseScrolled>(MM_EVENT_FN(CurveEditor::OnMouseScrolled));
+			m_listener.listen<EditorEvent::EntitySelected>(MM_EVENT_FN(CurveEditor::OnEititySelected));
+			m_listener.listen<EditorEvent::FrameSet>(MM_EVENT_FN(CurveEditor::OnFrameSet));
 		}
-
 
 		void OnUIRender();
 		void SetContainer(Animation::KeyframeContainer<Animation::BoneKeyframe>& container) {
@@ -47,7 +46,8 @@ namespace mm
 		}
 
 	private:
-		void OnItemSelected(const EditorEvent::EntitySelected& e);
+		void OnEititySelected(const EditorEvent::EntitySelected& e);
+		void OnFrameSet(const EditorEvent::FrameSet& e);
 
 		void DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor);
 		void DrawScale();
@@ -80,16 +80,18 @@ namespace mm
 	private:
 		EditorLayer& m_editor;
 
+		Model* m_model = nullptr;
+
 		Animation::KeyframeContainer<Animation::BoneKeyframe>* m_container = nullptr;
 
 		SelectedDope m_selectedKeyframe;
 
 		uint32_t m_buttonIndex = 0;
 
-		uint8_t m_enabledAxes = 0;
+		uint8_t m_enabledAxes = 0x3f;
 
 		/* Canvas */
-		ImDrawList* m_drawList;
+		ImDrawList* m_drawList = nullptr;
 		ImVec2 m_canvasMin;
 		ImVec2 m_canvasMax;
 		ImVec2 m_canvasOrigin;

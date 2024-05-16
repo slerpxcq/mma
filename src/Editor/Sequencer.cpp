@@ -9,6 +9,8 @@
 #include "EditorLayer.hpp"
 #include "Properties.hpp"
 
+#include "EdgeDetector.hpp"
+
 namespace mm
 {
 	void Sequencer::DrawExpandButton(uint32_t rowIndex, float offsetX, bool& expanded)
@@ -22,15 +24,14 @@ namespace mm
 
 		ImVec2 max = pos + BUTTON_SIZE;
 		ImVec2 mid = pos + 0.5f * BUTTON_SIZE;
+
 		if (!expanded) {
-			/* Lower triangle */
 			m_drawList->AddTriangle(
 				m_canvasOrigin + ImVec2(mid.x, pos.y), 
 				m_canvasOrigin + ImVec2(max.x, mid.y),
 				m_canvasOrigin + ImVec2(mid.x, max.y), BUTTON_COLOR);
 		}
 		else {
-			/* Upper triangle */
 			static constexpr float RATIO = 0.8f;
 			m_drawList->AddTriangleFilled(
 				m_canvasOrigin + ImVec2(max.x, max.y - RATIO * BUTTON_SIZE.y),
@@ -41,13 +42,13 @@ namespace mm
 	}
 
 	/* Use ImGui events */
-	void Sequencer::OnMouseScrolled(const Event::MouseScrolled& e)
+	void Sequencer::ProcessInput()
 	{
-		if (!m_hovered)
-			return;
-
-		m_rowStart += e.delta;
-		m_rowStart = std::clamp(m_rowStart, -m_totalRowCount + 1, 1);
+		if (ImGui::IsWindowHovered()) {
+			ImGuiIO& io = ImGui::GetIO();
+			m_rowStart += io.MouseWheel;
+			m_rowStart = std::clamp(m_rowStart, -m_totalRowCount + 1, 1);
+		}
 	}
 
 	void Sequencer::DrawDiamond(const ImVec2& center, float radius, float outlineSize, uint32_t outlineColor, uint32_t fillColor)
@@ -75,7 +76,7 @@ namespace mm
 			if (row.type == PMXFile::CLUSTER_BONE) {
 				ImGui::SetCursorScreenPos(m_canvasOrigin + textPos);
 				if (ImGui::InvisibleButton(GenButtonId(), ImVec2(LEGEND_LENGTH - textPos.x, ROW_HEIGHT))) {
-					m_editor.m_curveEditor->SetContainer(m_model->GetAnim().GetBoneKeyframeMatrix()[row.index]);
+					EventBus::Instance()->postpone<EditorEvent::EntitySelected>({ &m_model->GetArmature().GetBones()[row.index] });
 				}
 			}
 		}
@@ -83,19 +84,6 @@ namespace mm
 		if (expandable) 
 			DrawExpandButton(row.rowIndex, textOffset - 5, row.expanded);
 	}
-
-	//template <typename T>
-	//typename Animation::KeyframeContainer<T>::iterator Sequencer::FirstKeyframeOnCanvas(Animation::KeyframeContainer<T>& keyframeList)
-	//{
-	//	auto it = std::lower_bound(
-	//		keyframeList.begin(), 
-	//		keyframeList.end(), 
-	//		m_minFrame, 
-	//		[](const T& lhs, uint32_t rhs) {
-	//			return lhs.frame < rhs;
-	//		});
-	//	return it;
-	//}
 
 	bool Sequencer::IsKeyframeSelected(Animation::Keyframe* keyframe)
 	{
@@ -109,9 +97,15 @@ namespace mm
 	void Sequencer::OnEntitySelected(const EditorEvent::EntitySelected& e)
 	{
 		Model* model = dynamic_cast<Model*>(e.entity);
+		Armature::Bone* bone = dynamic_cast<Armature::Bone*>(e.entity);
 
-		if (model != nullptr) 
+		if (model) 
 			SetModel(model);
+	}
+
+	void Sequencer::OnFrameSet(const EditorEvent::FrameSet& e)
+	{
+		SetFrame(e.frame);
 	}
 
 	void Sequencer::DrawGroupDope(const Group& group)
@@ -139,6 +133,8 @@ namespace mm
 			ImGui::SetCursorScreenPos(m_canvasOrigin + buttonPos);
 			if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
 				m_thisFrameAnyDopeClicked = true;
+				if (!ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+					m_selectedDopes.clear();
 				if (!IsKeyframeSelected(&(*keyframe)))
 					m_selectedDopes.emplace(std::make_shared<Dope<T>>(keyframeList, &(*keyframe)));
 			}
@@ -193,9 +189,8 @@ namespace mm
 
 			ImGui::SetCursorScreenPos(m_canvasOrigin + buttonPos);
 			if (ImGui::InvisibleButton(GenButtonId(), buttonSize)) {
+				//m_selectedFrame = column;
 				EventBus::Instance()->postpone<EditorEvent::FrameSet>({ column });
-				m_selectedFrame = column;
-				SetFrame(m_selectedFrame);
 			}
 
 			/* Draw current frame mark (red vertical line) */
@@ -331,15 +326,13 @@ namespace mm
 		}
 
 		if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
-			++m_selectedFrame;
-			SetFrame(m_selectedFrame);
+			EventBus::Instance()->postpone<EditorEvent::FrameSet>({ m_selectedFrame + 1u });
 		}
 
 		if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) {
 			if (m_selectedFrame == 0)
 				return;
-			--m_selectedFrame;
-			SetFrame(m_selectedFrame);
+			EventBus::Instance()->postpone<EditorEvent::FrameSet>({ m_selectedFrame - 1u });
 		}
 	}
 
@@ -358,8 +351,22 @@ namespace mm
 
 	void Sequencer::SetFrame(uint32_t frame)
 	{
+		m_selectedFrame = frame;
 		m_frameCounter.Set(frame);
 		UpdateAnim();
+	}
+
+	void Sequencer::SetupContext()
+	{
+		m_thisFrameAnyDopeClicked = false;
+		m_thisFrameAnyDopeHovered = false;
+		m_drawList = ImGui::GetWindowDrawList();
+		m_canvasMin = ImGui::GetCursorPos();
+		m_canvasMax = ImGui::GetWindowContentRegionMax();
+		m_canvasOrigin = ImGui::GetWindowPos() + m_canvasMin;
+		m_canvasSize = m_canvasMax - m_canvasMin;
+		m_buttonIndex = 0;
+		m_visibleRowCount = m_canvasSize.y / ROW_HEIGHT;
 	}
 
 	void Sequencer::OnUIRender()
@@ -379,18 +386,10 @@ namespace mm
 		}
 		ImGui::SameLine();
 		if (ImGui::InputInt(" ", &m_minFrame)) {
+			m_minFrame = std::clamp(m_minFrame, 0, 10000);
 		}
-		m_minFrame = std::clamp(m_minFrame, 0, 10000);
 
-		m_hovered = ImGui::IsWindowHovered();
-		m_drawList = ImGui::GetWindowDrawList();
-		m_canvasMin = ImGui::GetCursorPos();
-		m_canvasMax = ImGui::GetWindowContentRegionMax();
-		m_canvasOrigin = ImGui::GetWindowPos() + m_canvasMin;
-		m_canvasSize = m_canvasMax - m_canvasMin;
-		m_buttonIndex = 0;
-		m_visibleRowCount = m_canvasSize.y / ROW_HEIGHT;
-		m_thisFrameMouseDragged = ImGui::IsMouseDragging(ImGuiMouseButton_Left);
+		SetupContext();
 
 		ImGui::BeginGroup();
 
@@ -402,36 +401,38 @@ namespace mm
 		for (auto& group : m_groups) {
 			DrawStrip(group.rowIndex);
 			if (group.expanded) {
-				for (auto& item : group.items) {
+				for (auto& item : group.items) 
 					DrawStrip(item.rowIndex);
-				}
 			}
 		}
 
 		DrawScale();
 		DrawRows();
+
 		/*************************************** END DRAWING ***************************************/
 
-		bool beginDragging = !m_lastFrameMouseDragged && m_thisFrameMouseDragged;
-		bool endDragging = m_lastFrameMouseDragged && !m_thisFrameMouseDragged;
+		//bool beginDragging = !m_lastFrameMouseDragged && m_thisFrameMouseDragged;
+		//bool endDragging = m_lastFrameMouseDragged && !m_thisFrameMouseDragged;
+
+		static EdgeDetector drag;
+		int32_t draggingEdge = drag.Update(ImGui::IsMouseDragging(ImGuiMouseButton_Left));
 
 		/* State transition */
 		switch (m_state) {
 		case State::IDLE:
-			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !m_thisFrameAnyDopeClicked && !m_thisFrameAnyDopeHovered) {
-				m_selectedDopes.clear();
-			}
 			if (ImGui::IsKeyPressed(ImGuiKey_LeftCtrl)) {
 				m_state = State::CHERRY_PICK;
 				break;
 			}
-			if (beginDragging && !m_thisFrameAnyDopeHovered) {
-				//m_selectedKeyframes.clear();
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !m_thisFrameAnyDopeClicked && !m_thisFrameAnyDopeHovered) {
+				m_selectedDopes.clear();
+			}
+			if (draggingEdge > 0 && !m_thisFrameAnyDopeHovered) {
 				m_selectionBox.SetBegin(ImGui::GetMousePos());
 				m_state = State::BOX_SELECT;
 				break;
 			}
-			if (beginDragging && m_thisFrameAnyDopeHovered) {
+			if (draggingEdge > 0 && m_thisFrameAnyDopeHovered) {
 				for (const auto& dope : m_selectedDopes) {
 					m_keyframeFrameOnStartDragging[dope.get()] = dope->keyframe->frame;
 				}
@@ -447,7 +448,7 @@ namespace mm
 			break;
 		case State::BOX_SELECT:
 			m_selectionBox.OnUIRender();
-			if (endDragging) {
+			if (draggingEdge < 0) {
 				m_state = State::IDLE;
 				break;
 			}
@@ -470,7 +471,7 @@ namespace mm
 					dope->keyframe->frame = m_keyframeFrameOnStartDragging[dope.get()] + deltaX / COLUMN_WIDTH;
 				}
 			}
-			if (endDragging) {
+			if (draggingEdge < 0) {
 				/* Make command */
 				std::vector<SequencerKeyframeDraggedCommand::UndoData> undoDatas;
 
@@ -487,13 +488,10 @@ namespace mm
 		ImGui::EndGroup();
 
 		ProcessKeys();
+		ProcessInput();
 		CheckAutoScroll(m_selectedFrame);
 
 		ImGui::End();
-
-		m_lastFrameMouseDragged = m_thisFrameMouseDragged;
-		m_thisFrameAnyDopeClicked = false;
-		m_thisFrameAnyDopeHovered = false;
 	}
 	 
 	void Sequencer::SetModel(Model* model)
@@ -512,7 +510,6 @@ namespace mm
 				for (uint32_t elemIndex = 0; elemIndex < pc.elements.size(); ++elemIndex) {
 					const auto& elem = pc.elements[elemIndex];
 					Sequencer::Item item = {};
-
 					item.type = elem.type;
 					item.index = elem.index;
 					item.groupIndex = clusterIndex;
@@ -526,7 +523,7 @@ namespace mm
 					}
 					group.items.push_back(item);
 				}
-				AddGroup(std::move(group));
+				m_groups.push_back(std::move(group));
 			}
 		}
 	}

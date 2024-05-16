@@ -15,20 +15,6 @@ namespace mm
 	class Model;
 	class EditorLayer;
 
-	//class PoseEntity : public Entity {
-	//public:
-	//	PoseEntity(const std::string& name, Transform& pose) :
-	//		Entity(name),
-	//		m_pose(pose) {}
-
-	//	virtual void PropertiesPanel() override {
-	//		ImGui::Text(m_name.c_str());
-	//	}
-
-	//private:
-	//	Transform& m_pose;
-	//};
-
 	struct PoseEditorClipboardContent : public ClipboardContent {
 	public:
 		// Better use bone name for inter-model paste?
@@ -78,20 +64,6 @@ namespace mm
 		uint32_t m_index;
 		uint32_t m_frame;
 	};
-
-	class PoseEditorEditedCommand : public Command {
-	public:
-		PoseEditorEditedCommand(Transform* valuePtr, Transform redoValue, Transform undoValue) :
-			m_valuePtr(valuePtr), m_redoValue(redoValue), m_undoValue(undoValue) {}
-
-		virtual void Undo() override { *m_valuePtr = m_undoValue; }
-		virtual void Redo() override { *m_valuePtr = m_redoValue; }
-
-	private:
-		Transform* m_valuePtr;
-		Transform m_redoValue;
-		Transform m_undoValue;
-	};
 	
 	class PoseEditor
 	{
@@ -128,7 +100,7 @@ namespace mm
 		void ProcessMouseButton();
 
 		/* Events */
-		void OnItemSelected(const EditorEvent::EntitySelected& e);
+		void OnEntitySelected(const EditorEvent::EntitySelected& e);
 		void OnFrameSet(const EditorEvent::FrameSet& e);
 
 	private:

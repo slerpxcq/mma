@@ -20,16 +20,23 @@ namespace mm
 		m_editor(editor),
 		m_listener(EventBus::Instance())
 	{
-		m_listener.listen<EditorEvent::EntitySelected>(MM_EVENT_FN(PoseEditor::OnItemSelected));
+		m_listener.listen<EditorEvent::EntitySelected>(MM_EVENT_FN(PoseEditor::OnEntitySelected));
 		m_listener.listen<EditorEvent::FrameSet>(MM_EVENT_FN(PoseEditor::OnFrameSet));
 	}
 
-	void PoseEditor::OnItemSelected(const EditorEvent::EntitySelected& e)
+	void PoseEditor::OnEntitySelected(const EditorEvent::EntitySelected& e)
 	{
 		Model* model = dynamic_cast<Model*>(e.entity);
+		Armature::Bone* bone = dynamic_cast<Armature::Bone*>(e.entity);
 
-		if (model != nullptr) 
+		if (model) 
 			SetModel(model);
+
+		if (bone) {
+			m_context.currSelectedBone = m_model->GetArmature().GetDict().at(bone->name);
+			m_context.selectedBones.clear();
+			m_context.selectedBones.insert(m_context.currSelectedBone);
+		}
 	}
 
 	void PoseEditor::OnFrameSet(const EditorEvent::FrameSet& e)
@@ -91,8 +98,8 @@ namespace mm
 			world = m_context.world;
 			
 		glm::mat4 local = m_context.worldToLocal * world;
-		Transform* valuePtr = &m_model->GetArmature().GetBones()[m_context.currSelectedBone].pose;
-		*valuePtr = Transform(local);
+		Transform& ref = m_model->GetArmature().GetBones()[m_context.currSelectedBone].pose;
+		ref = Transform(local);
 
 		static bool lastFrameUsedGizmo = false;
 		static Transform undoValue;
@@ -100,13 +107,13 @@ namespace mm
 
 		/* "Rising edge" */
 		if (!lastFrameUsedGizmo && thisFrameUsedGizmo) {
-			undoValue = *valuePtr;
+			undoValue = ref;
 		}
 		/* "Falling edge" */
 		if (lastFrameUsedGizmo && !thisFrameUsedGizmo) {
 			m_context.editedBones.insert(m_context.currSelectedBone);
 			EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
-				new PoseEditorEditedCommand(valuePtr, *valuePtr, undoValue) });
+				new ValueEditedCommand<Transform>(ref, undoValue, ref) });
 		}
 		lastFrameUsedGizmo = thisFrameUsedGizmo;
 	}

@@ -84,18 +84,22 @@
 - Undo/Redo for properties
     - Template
 
+# 2024/5/16
+- Curve editor
+    - Sync between Sequencer and Curve editor
+        - Frame
+        - Selected entity
+
 # DOING
 
 # TODO
 - Pose Editor
     - Select overlapping bones
-- Curve editor
-    - Sync between Sequencer and Curve editor
 - Dope sheet
     - Pan
+    - Drag constraint with existing dopes
 - Playback indicator
 - Set frame when stop playback
-
 
 - GL resources does not need to be unique_ptr, just disable copy constructor and provide move constructor
 

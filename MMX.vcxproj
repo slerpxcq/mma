@@ -121,6 +121,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Core\MM\Lights\DirectionalLight.hpp" />
     <ClInclude Include="src\Core\MM\Lights\Light.hpp" />
     <ClInclude Include="src\Core\MM\Lights\PointLight.hpp" />
+    <ClInclude Include="src\Editor\EdgeDetector.hpp" />
     <ClInclude Include="src\Editor\SelectionBox.hpp" />
     <ClInclude Include="src\Editor\CurveEditor.hpp" />
     <ClInclude Include="src\Core\App\Application.hpp" />
