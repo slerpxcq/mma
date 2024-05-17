@@ -110,12 +110,12 @@ namespace mm
 			case PMXFile::JOINT_GENERIC_6DOF_SPRING:
 			{
 				btTransform jointTransform;
-				btQuaternion tmpQ;
+				btQuaternion q;
 
 				jointTransform.setOrigin(btVec3FromArray(pmxJoint.position));
 				btVector3 euler = btEulerFromArray(pmxJoint.rotation);
-				tmpQ.setEuler(euler.getX(), euler.getY(), euler.getZ());
-				jointTransform.setRotation(tmpQ);
+				q.setEuler(euler.getX(), euler.getY(), euler.getZ());
+				jointTransform.setRotation(q);
 
 				int32_t indexA = pmxJoint.rigidbodyIndices[0];
 				int32_t indexB = pmxJoint.rigidbodyIndices[1];
@@ -126,15 +126,15 @@ namespace mm
 
 				btTransform localFrameA;
 				btVector3 worldOffset = jointTransform.getOrigin() - transformA.getOrigin();
-				tmpQ = transformA.getRotation().inverse();
-				localFrameA.setOrigin(worldOffset.rotate(tmpQ.getAxis(), tmpQ.getAngle()));
-				localFrameA.setRotation(tmpQ * jointTransform.getRotation());
+				q = transformA.getRotation().inverse();
+				localFrameA.setOrigin(worldOffset.rotate(q.getAxis(), q.getAngle()));
+				localFrameA.setRotation(q * jointTransform.getRotation());
 
 				btTransform localFrameB;
 				worldOffset = jointTransform.getOrigin() - transformB.getOrigin();
-				tmpQ = transformB.getRotation().inverse();
-				localFrameB.setOrigin(worldOffset.rotate(tmpQ.getAxis(), tmpQ.getAngle()));
-				localFrameB.setRotation(tmpQ * jointTransform.getRotation());
+				q = transformB.getRotation().inverse();
+				localFrameB.setOrigin(worldOffset.rotate(q.getAxis(), q.getAngle()));
+				localFrameB.setRotation(q * jointTransform.getRotation());
 
 				std::unique_ptr<btGeneric6DofSpring2Constraint> constraint =
 					std::make_unique<btGeneric6DofSpring2Constraint>(

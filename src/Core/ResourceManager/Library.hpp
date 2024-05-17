@@ -9,8 +9,13 @@ namespace mm
 		using Container = std::unordered_map<K, std::unique_ptr<T>>;
 
 	public:
-		void Insert(const K& key, std::unique_ptr<T> ptr) { 
+		T* Insert(const K& key, std::unique_ptr<T> ptr) { 
+			//auto it = m_container.find(key);
+			//MM_ASSERT((it != m_container.end()) && "Resource already exists");
+
+			T* ret = ptr.get();
 			m_container.insert({ key, std::move(ptr) }); 
+			return ret;
 		}
 
 		void Erase(const K& key) { 
@@ -22,13 +27,10 @@ namespace mm
 		T* Get(const K& key) {
 			T* ret = nullptr;
 			auto it = m_container.find(key);
-			if (it != m_container.end()) {
+			if (it != m_container.end()) 
 				ret = it->second.get();
-			}
-			else {
-				MM_WARN("{0}: cannot find resource", __FUNCTION__);
+			else 
 				return nullptr;
-			}
 			return ret;
 		}
 

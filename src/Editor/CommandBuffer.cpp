@@ -13,25 +13,27 @@ namespace mm
 		m_listener.listen<EditorEvent::CommandIssued>(MM_EVENT_FN(CommandBuffer::OnCommandIssued));
 		m_listener.listen<Event::Undo>(MM_EVENT_FN(CommandBuffer::OnUndo));
 		m_listener.listen<Event::Redo>(MM_EVENT_FN(CommandBuffer::OnRedo));
+		m_iterator = m_container.begin();
 	}
 
 	void CommandBuffer::OnCommandIssued(const EditorEvent::CommandIssued& e)
 	{
-		m_commandQueue.push(std::unique_ptr<Command>(e.command));
-		MM_INFO("Stored command; size={0}", m_commandQueue.size());
+		m_container.push_back(std::unique_ptr<Command>(e.command));
+		m_iterator = std::prev(m_container.end());
+		MM_INFO("Stored command; size={0}", m_container.size());
 	}
 
 	void CommandBuffer::OnUndo(const Event::Undo& e)
 	{
-		if (!m_commandQueue.empty()) {
-			MM_INFO("Undo; index={0}", m_commandQueue.size()-1);
-			m_commandQueue.top()->Undo();
-			m_commandQueue.pop();
-		}
+		(*m_iterator)->Undo();
+		if (m_iterator != m_container.begin())
+			std::advance(m_iterator, -1);
 	}
 
 	void CommandBuffer::OnRedo(const Event::Redo& e)
 	{
-		MM_INFO("TO BE IMPLEMENTED");
+		(*m_iterator)->Redo();
+		if (m_iterator != std::prev(m_container.end()))
+			std::advance(m_iterator, 1);
 	}
 }

@@ -13,6 +13,7 @@
 #include "Core/Utility/Type.hpp"
 
 #include "Commands.hpp"
+#include "EdgeDetector.hpp"
 
 namespace mm
 {
@@ -101,21 +102,20 @@ namespace mm
 		Transform& ref = m_model->GetArmature().GetBones()[m_context.currSelectedBone].pose;
 		ref = Transform(local);
 
-		static bool lastFrameUsedGizmo = false;
-		static Transform undoValue;
-		bool thisFrameUsedGizmo = ImGuizmo::IsUsingAny();
+		static EdgeDetector gizmo;
+		int32_t edge = gizmo.Update(ImGuizmo::IsUsingAny());
 
+		static Transform undoValue;
 		/* "Rising edge" */
-		if (!lastFrameUsedGizmo && thisFrameUsedGizmo) {
+		if (edge > 0) {
 			undoValue = ref;
 		}
 		/* "Falling edge" */
-		if (lastFrameUsedGizmo && !thisFrameUsedGizmo) {
+		if (edge < 0) {
 			m_context.editedBones.insert(m_context.currSelectedBone);
 			EventBus::Instance()->postpone<EditorEvent::CommandIssued>({
 				new ValueEditedCommand<Transform>(ref, undoValue, ref) });
 		}
-		lastFrameUsedGizmo = thisFrameUsedGizmo;
 	}
 
 	void PoseEditor::CommitEdited()

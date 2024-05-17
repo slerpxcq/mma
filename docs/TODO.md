@@ -90,9 +90,24 @@
         - Frame
         - Selected entity
 
+- Redo
+    - Using linked list instead of stack - Not completed, to be refined
+
+# 2024/5/16
+- Multiple models 
+    - Could not load multiple PMX files
+    - File loading should be handled in ResourceManager
+    - Handling multiple files with same name - Lazy loading
+
 # DOING
+    - Rename model in case of duplicated name
+    - Need seperate skinning buffer
+        - Only one skinning buffer (in renderer?)
 
 # TODO
+- Undo/Redo list logic
+- Multiple light sources
+
 - Pose Editor
     - Select overlapping bones
 - Dope sheet

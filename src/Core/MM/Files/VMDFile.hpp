@@ -40,8 +40,8 @@ namespace mm
 		/* Load from Animation */
 		explicit VMDFile(const Animation& anim);
 		void Serialize(const std::filesystem::path& path);
-		virtual const std::string& GetName() const override { return m_path.filename().u8string(); }
-		virtual const std::filesystem::path& GetPath() const override { return m_path; }
+		virtual std::string GetName() const override { return m_path.filename().string(); }
+		virtual std::filesystem::path GetPath() const override { return m_path; }
 		const std::vector<MotionData>& GetMotionDatas() const { return m_motionDatas; }
 		const std::vector<MorphData>& GetMorphDatas() const { return m_morphDatas; }
 
@@ -59,7 +59,7 @@ namespace mm
 		void SerializeMorphData(std::ofstream& stream);
 
 	private:
-		std::filesystem::path m_path;
+		//std::filesystem::path m_path;
 		Header                  m_header;
 		std::vector<MotionData> m_motionDatas;
 		std::vector<MorphData>  m_morphDatas;

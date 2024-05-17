@@ -15,17 +15,22 @@ namespace mm
 	class World : public Entity
 	{
 		friend class WorldSerDes;
-
 		using ModelContainer = std::vector<std::unique_ptr<Model>>;
+
 	public:
 		World();
 		~World();
+
 		void OnUpdate(float deltaTime);
+
+		void AddModel(Model* model);
+		void AddLight(Light* light);
+
 		Model* LoadModel(const std::filesystem::path& path);
 		void Render(Renderer&);
+
 		const Camera& GetCamera() const { return m_mainCamera; }
 		Camera& GetCamera() { return m_mainCamera; }
-
 		PhysicsWorld& GetPhysicsWorld() { return m_physicsWorld; }
 		const ModelContainer& GetModels() const { return m_models; }
 		ModelContainer& GetModels() { return m_models; }

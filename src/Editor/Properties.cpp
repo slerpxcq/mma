@@ -55,6 +55,9 @@ namespace mm
 			nfdchar_t* path = nullptr;
 			nfdresult_t result = NFD_OpenDialog("pmx", NULL, &path);
 			if (result == NFD_OKAY) {
+				// PMXFile* pmx = ResourceManager::Instance().Load<PMXFile>(path);
+				// Model* model = world.LoadModel(pmx);
+
 				Model* model = world.LoadModel(path);
 				EventBus::Instance()->postpone<EditorEvent::EntitySelected>({ model });
 				std::free(path);
@@ -69,6 +72,8 @@ namespace mm
 		static bool enable;
 		if (ImGui::Checkbox("Enable", &enable)) 
 			physicsWorld.SetEnable(enable);
+		if (ImGui::Button("Reset"))
+			physicsWorld.Reset();
 	}
 
 	template <>
@@ -79,6 +84,8 @@ namespace mm
 			nfdchar_t* path = nullptr;
 			nfdresult_t result = NFD_OpenDialog("vmd", NULL, &path);
 			if (result == NFD_OKAY) {
+				// VMDFile* vmd = ResourceManager::Instance().Load<VMDFile>(path);
+				// Animation* anim = model.LoadAnimation(vmd)
 				Animation* anim = model.LoadAnimation(path);
 				EventBus::Instance()->postpone<EditorEvent::EntitySelected>({ anim });
 				EventBus::Instance()->postpone<EditorEvent::FrameSet>({ 0 });

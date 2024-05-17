@@ -50,37 +50,32 @@ namespace mm
 
 	void Application::LoadShaders()
 	{
-		auto defaultShader = std::make_unique<GLShader>();
+		GLShader* defaultShader = ResourceManager::Instance().LoadShader("default");
+		GLShader* morphShader = ResourceManager::Instance().LoadShader("morph");
+		GLShader* quadShader = ResourceManager::Instance().LoadShader("quad");
+		GLShader* skyboxShader = ResourceManager::Instance().LoadShader("skybox");
+		GLShader* gridShader = ResourceManager::Instance().LoadShader("grid");
+
 		defaultShader->Compile("resources/shaders/default.vert", GLShader::VERTEX);
 		defaultShader->Compile("resources/shaders/default.frag", GLShader::FRAGMENT);
 		defaultShader->Link();
 
-		auto morphShader = std::make_unique<GLShader>();
 		morphShader->Compile("resources/shaders/morph.vert", GLShader::VERTEX);
 		morphShader->Link();
 
-		auto quadShader = std::make_unique<GLShader>();
 		quadShader->Compile("resources/shaders/quad.vert", GLShader::VERTEX);
 		quadShader->Compile("resources/shaders/quad.frag", GLShader::FRAGMENT);
 		quadShader->Link();
 
-		auto skyboxShader = std::make_unique<GLShader>();
 		skyboxShader->Compile("resources/shaders/skybox.vert", GLShader::VERTEX);
 		skyboxShader->Compile("resources/shaders/skybox.frag", GLShader::FRAGMENT);
 		skyboxShader->Link();
 
-		auto gridShader = std::make_unique<GLShader>();
 		gridShader->Compile("resources/shaders/grid.vert", GLShader::VERTEX);
 		gridShader->Compile("resources/shaders/grid.frag", GLShader::FRAGMENT);
 		gridShader->Link();
 
-		ResourceManager::Instance().LoadShader("default", std::move(defaultShader));
-		ResourceManager::Instance().LoadShader("morph", std::move(morphShader));
-		ResourceManager::Instance().LoadShader("quad", std::move(quadShader));
-		ResourceManager::Instance().LoadShader("skybox", std::move(skyboxShader));
-		ResourceManager::Instance().LoadShader("grid", std::move(gridShader));
-
-		ResourceManager::Instance().LoadEffect(std::make_unique<Effect>("resources/shaders/default.effect.yml"));
+		ResourceManager::Instance().LoadEffect("resources/shaders/default.effect.yml");
 	}
 
 	void Application::LoadTextures()
@@ -96,10 +91,10 @@ namespace mm
 				std::to_string(i);
 			name += ".bmp";
 			toonPath += name;
-			ResourceManager::Instance().LoadTexture(name.u8string(), std::make_unique<GLTexture2D>(toonPath));
+			ResourceManager::Instance().LoadTexture<GLTexture2D>(name.u8string(), toonPath);
 		}
 
-		ResourceManager::Instance().LoadTexture("uv_test", std::make_unique<GLTexture2D>("resources/textures/uvTex.png"));
+		ResourceManager::Instance().LoadTexture<GLTexture2D>("uv_test", "resources/textures/uvTex.png");
 
 		GLCubeMapConstructInfo info;
 		info.paths[0] = "resources/textures/skybox/right.jpg";
@@ -109,8 +104,7 @@ namespace mm
 		info.paths[4] = "resources/textures/skybox/front.jpg";
 		info.paths[5] = "resources/textures/skybox/back.jpg";
 
-		auto skybox = std::make_unique<GLCubeMap>(info);
-		ResourceManager::Instance().LoadTexture("skybox", std::move(skybox));
+		ResourceManager::Instance().LoadTexture<GLCubeMap>("skybox", info);
 	}
 
 	void Application::RegisterWindowCallbacks()

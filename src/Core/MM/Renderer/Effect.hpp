@@ -12,7 +12,7 @@ namespace mm
 
 	class GLShader;
 
-	class Effect
+	class Effect 
 	{
 	public:
 		struct Uniform {

@@ -456,13 +456,8 @@ namespace mm
 		case State::DOPE_DRAG:
 			{
 				/* Process dragging */
+				ImGuiIO& io = ImGui::GetIO();
 				float deltaX = ImGui::GetMouseDragDelta().x;
-				bool hasCollision = false;
-				//for (auto& dope : m_selectedDopes) {
-				//	uint32_t targetFrame = m_keyframeFrameOnStartDragging[dope.get()] + deltaX / COLUMN_WIDTH;
-				//	/* Need to access the keyframe container */
-				//	/* Need to sort the keyframe container; Use std::set instead? */
-				//}
 				for (auto& dope : m_selectedDopes) {
 					/* Don't touch the first keyframe! */
 					if (dope->keyframe->frame == 0)

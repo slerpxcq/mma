@@ -6,6 +6,7 @@ namespace mm
 	public:
 		virtual void Undo() = 0;
 		virtual void Redo() = 0;
+		virtual const char* What() { return ""; }
 		virtual ~Command() {}
 	};
 

@@ -90,7 +90,7 @@ namespace mm
 		if (ImGui::TreeNodeEx("Models", NONLEAF_FLAG)) {
 			for (auto& model : m_world->GetModels()) {
 				auto& pmx = model->GetPMXFile();
-				const std::string& name = pmx.GetName();
+				const std::string& name = pmx.GetInfo().nameJP;
 				if (ImGui::TreeNodeEx(name.c_str(), NONLEAF_FLAG)) {
 					if (ImGui::IsItemClicked())
 						EventBus::Instance()->postpone<EditorEvent::EntitySelected>({ model.get() });

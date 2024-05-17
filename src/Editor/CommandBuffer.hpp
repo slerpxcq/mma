@@ -10,6 +10,8 @@ namespace mm
 {
 	class CommandBuffer
 	{
+		using CommandContainer = std::list<std::unique_ptr<Command>>;
+		using CommandIterator = CommandContainer::iterator;
 	public:
 		CommandBuffer();
 
@@ -19,10 +21,10 @@ namespace mm
 		void OnRedo(const Event::Redo& e);
 
 	private:
-		dexode::EventBus::Listener m_listener;
+		CommandContainer m_container;
+		CommandIterator m_iterator;
 
-		//int32_t m_nextInsert = 0;
-		std::stack<std::unique_ptr<Command>> m_commandQueue;
+		dexode::EventBus::Listener m_listener;
 	};
 }
 

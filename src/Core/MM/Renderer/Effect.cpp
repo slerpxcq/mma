@@ -131,17 +131,12 @@ namespace mm
 						p.uniforms.push_back(std::move(u));
 					}
 				}
-
-				std::unique_ptr<GLShader> shader = std::make_unique<GLShader>();
+				
+				GLShader* shader = ResourceManager::Instance().LoadShader(tec.name + "_" + name);
+				p.program = shader;
 				shader->Compile(vertexShaderPath, GLShader::VERTEX);
 				shader->Compile(fragmentShaderPath, GLShader::FRAGMENT);
 				shader->Link();
-
-				p.program = shader.get();
-				/* Should be unique name! */
-				/* Otherwise it causes the shader with same name being deleted */
-				ResourceManager::Instance().LoadShader(tec.name + "_" + name, std::move(shader));
-
 				tec.passes.push_back(std::move(p));
 			}
 			m_techniques.insert({ name, std::move(tec) });

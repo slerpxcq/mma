@@ -168,9 +168,9 @@ namespace mm
 	{
 		m_name = path.filename().u8string();
 
-		auto vmd = std::make_unique<VMDFile>(path);
-		m_vmdFile = vmd.get();
-		ResourceManager::Instance().LoadFile(std::move(vmd));
+		//auto vmd = std::make_unique<VMDFile>(path);
+		//m_vmdFile = vmd.get();
+		m_vmdFile = ResourceManager::Instance().LoadFile<VMDFile>(path);
 
 		LoadBoneKeyframes();
 		LoadMorphKeyframes();

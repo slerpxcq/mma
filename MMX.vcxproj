@@ -113,6 +113,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\MM\Files\File.hpp" />
     <ClInclude Include="src\Core\MM\Lights\AreaLight.hpp" />
     <ClInclude Include="src\Core\MM\Lights\SpotLight.hpp" />
     <ClInclude Include="src\Core\MM\Entity.hpp" />
@@ -149,7 +150,6 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Core\MM\Animation\Bezier.hpp" />
     <ClInclude Include="src\Core\MM\Camera\Camera.hpp" />
     <ClInclude Include="src\Core\MM\Renderer\Effect.hpp" />
-    <ClInclude Include="src\Core\MM\Files\File.hpp" />
     <ClInclude Include="src\Core\MM\Files\PMXFile.hpp" />
     <ClInclude Include="src\Core\MM\Files\VMDFile.hpp" />
     <ClInclude Include="src\Core\MM\Model\Armature.hpp" />
@@ -213,7 +213,6 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClCompile Include="src\Core\MM\Animation\Bezier.cpp" />
     <ClCompile Include="src\Core\MM\Camera\Camera.cpp" />
     <ClCompile Include="src\Core\MM\Renderer\Effect.cpp" />
-    <ClCompile Include="src\Core\MM\Files\File.cpp" />
     <ClCompile Include="src\Core\MM\Files\PMXFile.cpp" />
     <ClCompile Include="src\Core\MM\Files\VMDFile.cpp" />
     <ClCompile Include="src\Core\MM\Model\Armature.cpp" />

@@ -2,12 +2,13 @@
 
 namespace mm
 {
-	class File
-	{
+	class File {
 	public:
-		virtual const std::string& GetName() const { return ""; }
-		virtual const std::filesystem::path& GetPath() const { return ""; }
-		virtual ~File() {}
+		virtual	~File() {}
+		virtual std::string GetName() const = 0;
+		virtual std::filesystem::path GetPath() const = 0;
+	protected:
+		std::filesystem::path m_path;
 	};
-}
 
+}

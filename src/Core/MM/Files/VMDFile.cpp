@@ -75,7 +75,7 @@ namespace mm
 	void VMDFile::LoadHeader(const Animation& anim)
 	{
 		std::memcpy(m_header.magic, MAGIC, sizeof(MAGIC));
-		std::string modelName = anim.GetModel().GetPMXFile().GetName();
+		std::string modelName = anim.GetModel().GetPMXFile().GetInfo().nameJP;
 		/* Name should be in ShiftJIS */
 		LoadName(modelName, sizeof(m_header.modelName), m_header.modelName);
 	}

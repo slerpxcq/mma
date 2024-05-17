@@ -10,9 +10,7 @@ namespace mm
 	Model::Model(World& world, const std::filesystem::path& path) :
 		m_world(world)
 	{
-		auto pmx = std::make_unique<PMXFile>(path);
-		m_pmxFile = pmx.get();
-		ResourceManager::Instance().LoadFile(std::move(pmx));
+		m_pmxFile = ResourceManager::Instance().LoadFile<PMXFile>(path);
 
 		m_armature = std::make_unique<Armature>(*this);
 		m_skin = std::make_unique<Skin>(*this);
