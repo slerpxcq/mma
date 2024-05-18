@@ -225,7 +225,7 @@ namespace mm
 				skybox.Bind(3);
 
 				//SetMaterial(model.m_materialMorphBuffer[meshIndex]);
-				SetMaterial(mesh.material);
+				SetMaterial(mesh.animMaterial);
 
 				GLShader* shader = pass.program;
 				shader->Uniform("u_albedo", 0);

@@ -207,6 +207,9 @@ namespace mm
 			mat.ambient = glm::vec4(glm::make_vec3(pm.ambientColor), 1);
 			mat.edge = glm::make_vec4(pm.edgeColor);
 			mat.edgeSize = pm.edgeWeight;
+			mat.texTint = glm::vec4(1);
+			mat.sphTint = glm::vec4(1);
+			mat.toonTint = glm::vec4(1);
 			//                [23:16]                [15:8]                  [7:0]
 			mat.flags = (pm.toonFlag << 16) | (pm.sphereMode << 8) | (pm.drawFlag);
 

@@ -20,14 +20,17 @@ namespace mm
 
 	struct Mesh : public Entity {
 		std::string name;
+
 		MaterialLayout material;
 		MaterialLayout animMaterial;
-		Effect* effect;
+
 		uint32_t elemCount;
 		uint32_t elemOffset;
 		int32_t albedoIndex;
 		int32_t sphIndex;
 		int32_t toonIndex;
+
+		Effect* effect;
 	};
 
 	class Skin : public Entity

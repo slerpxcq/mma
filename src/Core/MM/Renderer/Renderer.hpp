@@ -29,6 +29,11 @@ namespace mm
 		glm::vec4 specular;
 		glm::vec4 ambient;
 		glm::vec4 edge;
+
+		glm::vec4 texTint;
+		glm::vec4 toonTint;
+		glm::vec4 sphTint;
+
 		float edgeSize;
 		//                [23:16]                [15:8]                  [7:0]
 		//mat.flags = (pm.toonFlag << 16) | (pm.sphereMode << 8) | (pm.drawFlag);

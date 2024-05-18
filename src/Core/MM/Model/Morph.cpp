@@ -139,6 +139,43 @@ namespace mm
 		return target;
 	}
 
+	void Morph::UpdateMaterialTarget()
+	{
+		auto& meshes = m_model.m_skin->GetMeshes();
+
+		for (auto& mesh : meshes)
+			mesh.animMaterial = mesh.material;
+
+		for (const auto& target : m_materialTargets) {
+			for (const auto& offset : target.offsets) {
+				auto& mesh = meshes[offset.index];
+				float weight = m_weights[target.index];
+				switch (offset.mode) {
+				case PMXFile::MORPH_ADD:
+					mesh.animMaterial.diffuse += offset.diffuse * weight;
+					mesh.animMaterial.specular += offset.specular * weight;
+					mesh.animMaterial.ambient += offset.ambient * weight;
+					mesh.animMaterial.edge += offset.edge * weight;
+					mesh.animMaterial.texTint += offset.texTint * weight;
+					mesh.animMaterial.sphTint += offset.sphTint * weight;
+					mesh.animMaterial.toonTint += offset.toonTint * weight;
+					mesh.animMaterial.edgeSize += offset.edgeSize * weight;
+					break;
+				case PMXFile::MORPH_MULTIPLY:
+					mesh.animMaterial.diffuse *= offset.diffuse * weight;
+					mesh.animMaterial.specular *= offset.specular * weight;
+					mesh.animMaterial.ambient *= offset.ambient * weight;
+					mesh.animMaterial.edge *= offset.edge * weight;
+					mesh.animMaterial.texTint *= offset.texTint * weight;
+					mesh.animMaterial.sphTint *= offset.sphTint * weight;
+					mesh.animMaterial.toonTint *= offset.toonTint * weight;
+					mesh.animMaterial.edgeSize *= offset.edgeSize * weight;
+					break;
+				}
+			}
+		}
+	}
+
 	void Morph::LoadTargets()
 	{
 		const auto& pmxMorphs = m_model.m_pmxFile->GetMorphs();

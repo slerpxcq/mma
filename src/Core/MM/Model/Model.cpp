@@ -44,6 +44,7 @@ namespace mm
 
 	void Model::Update(float deltaTime)
 	{
+		m_morph->UpdateMaterialTarget();
 		m_armature->UpdatePose();
 	}
 
