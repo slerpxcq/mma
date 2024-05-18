@@ -14,9 +14,7 @@ namespace mm
 
 	class Morph : public Entity
 	{
-	public:
-		static constexpr uint32_t MORPH_VERTEX_BASE = 2;
-
+		friend class Renderer;
 	public:
 		using Dict = std::unordered_map<std::string, int32_t>;
 
@@ -72,7 +70,7 @@ namespace mm
 		const Dict& GetDict() { return m_dict;  }
 		Model& GetModel() { return m_model; }
 
-		void Render(Renderer& renderer) const;
+		void UpdateMaterialTarget();
 
 	private:
 		void LoadTargets();
@@ -83,8 +81,8 @@ namespace mm
 	private:
 		Model& m_model;
 		Dict m_dict;
+
 		std::vector<float> m_weights;
-		
 		std::vector<VertexTarget> m_vertexTargets;
 		std::vector<MaterialTarget> m_materialTargets;
 		std::vector<BoneTarget> m_boneTargets;

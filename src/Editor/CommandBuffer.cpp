@@ -18,22 +18,28 @@ namespace mm
 
 	void CommandBuffer::OnCommandIssued(const EditorEvent::CommandIssued& e)
 	{
-		m_container.push_back(std::unique_ptr<Command>(e.command));
-		m_iterator = std::prev(m_container.end());
-		MM_INFO("Stored command; size={0}", m_container.size());
+		/* Discard tail */
+		auto newTail = m_container.insert(m_iterator, std::unique_ptr<Command>(e.command));
+		m_container.erase(m_iterator, m_container.end());
+		m_iterator = std::next(newTail);
+		//MM_INFO("Stored command; size={0}", m_container.size());
 	}
 
 	void CommandBuffer::OnUndo(const Event::Undo& e)
 	{
-		(*m_iterator)->Undo();
-		if (m_iterator != m_container.begin())
+		if (m_iterator != m_container.begin()) {
 			std::advance(m_iterator, -1);
+			(*m_iterator)->Undo();
+			//MM_INFO("Undo; size={0}", m_container.size());
+		}
 	}
 
 	void CommandBuffer::OnRedo(const Event::Redo& e)
 	{
-		(*m_iterator)->Redo();
-		if (m_iterator != std::prev(m_container.end()))
+		if (m_iterator != m_container.end()) {
+			(*m_iterator)->Redo();
 			std::advance(m_iterator, 1);
+			//MM_INFO("Redo; size={0}", m_container.size());
+		}
 	}
 }

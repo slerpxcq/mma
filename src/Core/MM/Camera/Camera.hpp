@@ -12,7 +12,7 @@ namespace mm
 
 		static constexpr float FOV = glm::radians(45.f);
 		static constexpr float Z_NEAR = 0.1f;
-		static constexpr float Z_FAR = 100.f;
+		static constexpr float Z_FAR = 1000.f;
 
 	public:
 		Camera() {}

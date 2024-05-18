@@ -28,7 +28,7 @@ namespace mm
 	public:
 		Grid(Viewport&);
 		void LoadGrid();
-		void Render(Renderer&);
+		void Render();
 
 	private:
 		Viewport& m_viewport;

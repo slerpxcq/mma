@@ -87,10 +87,12 @@ namespace mm
 
 	void SceneHierarchy::ModelsNode()
 	{
+		int32_t id = 0;
 		if (ImGui::TreeNodeEx("Models", NONLEAF_FLAG)) {
 			for (auto& model : m_world->GetModels()) {
 				auto& pmx = model->GetPMXFile();
 				const std::string& name = pmx.GetInfo().nameJP;
+				ImGui::PushID(id++);
 				if (ImGui::TreeNodeEx(name.c_str(), NONLEAF_FLAG)) {
 					if (ImGui::IsItemClicked())
 						EventBus::Instance()->postpone<EditorEvent::EntitySelected>({ model.get() });
@@ -100,6 +102,7 @@ namespace mm
 					AnimationNode(*model);
 					ImGui::TreePop();
 				}
+				ImGui::PopID();
 			}
 			ImGui::TreePop();
 		}

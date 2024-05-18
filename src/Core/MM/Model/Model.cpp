@@ -19,13 +19,13 @@ namespace mm
 
 		m_skinningBuffer = std::make_unique<GLBuffer>(GL_SHADER_STORAGE_BUFFER);
 		m_skinningBuffer->SetData(m_armature->GetBones().size() * sizeof(glm::mat2x4), nullptr);
-		m_skinningBuffer->SetBase(1);
+		//m_skinningBuffer->SetBase(SKINNING_SSBO_BASE);
 
 		m_vertexMorphBuffer = std::make_unique<GLBuffer>(GL_SHADER_STORAGE_BUFFER);
 		m_vertexMorphBuffer->SetData(m_skin->GetVertexCount() * sizeof(Morph::VertexLayout), nullptr);
-		m_vertexMorphBuffer->SetBase(Morph::MORPH_VERTEX_BASE);
+		//m_vertexMorphBuffer->SetBase(MORPH_VERTEX_SSBO_BASE);
 
-		m_materialMorphBuffer.resize(m_skin->GetMeshes().size());
+		//m_materialMorphBuffer.resize(m_skin->GetMeshes().size());
 
 		m_physicsData = m_world.GetPhysicsWorld().LoadModel(*this);
 	}
@@ -36,11 +36,11 @@ namespace mm
 		return m_animation.get();
 	}
 
-	void Model::Render(Renderer& renderer)
-	{
-		m_morph->Render(renderer);
-		m_skin->Render(renderer);
-	}
+	//void Model::Render(Renderer& renderer)
+	//{
+	//	m_morph->Render(renderer);
+	//	m_skin->Render(renderer);
+	//}
 
 	void Model::Update(float deltaTime)
 	{

@@ -229,7 +229,7 @@ namespace mm
 
 		/* Drawing */
 		int32_t m_selectedRow = -1;
-		int32_t m_selectedFrame = -1;
+		int32_t m_selectedFrame = 0;
 		ImDrawList* m_drawList = nullptr;
 		int32_t m_rowStart = 1;
 		int32_t m_currRowIndex;

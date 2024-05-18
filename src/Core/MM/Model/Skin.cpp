@@ -62,77 +62,81 @@ namespace mm
 			GetTexture(mesh.toonIndex);
 	}
 
-	void Skin::Render(Renderer& renderer)
-	{
-		/* Outline pass */
-		for (auto& mesh : m_meshes) {
-			if (!(mesh.material.flags & PMXFile::MATERIAL_EDGE_BIT))
-				continue;
-			renderer.BeginEffect(mesh.effect);
-			renderer.BeginTechnique("OutlineTec");
-			for (auto& pass : renderer.GetActiveTechniquePasses()) {
-				renderer.BeginPass(pass);
-				m_vertexArray->Bind();
-				m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
-				renderer.EndPass();
-			}
-			renderer.EndTechnique();
-			renderer.EndEffect();
-		}
+	//void Skin::Render(Renderer& renderer)
+	//{
+	//	/* Bind buffer base */
+	//	m_model.m_skinningBuffer->SetBase(Model::SKINNING_SSBO_BASE);
+	//	m_model.m_vertexMorphBuffer->SetBase(Model::MORPH_VERTEX_SSBO_BASE);
 
-		/* Main pass */
-		for (uint32_t meshIndex = 0; meshIndex < m_meshes.size(); ++meshIndex) {
-			auto& mesh = m_meshes[meshIndex];
+	//	/* Outline pass */
+	//	for (auto& mesh : m_meshes) {
+	//		if (!(mesh.material.flags & PMXFile::MATERIAL_EDGE_BIT))
+	//			continue;
+	//		renderer.BeginEffect(mesh.effect);
+	//		renderer.BeginTechnique("OutlineTec");
+	//		for (auto& pass : renderer.GetActiveTechniquePasses()) {
+	//			renderer.BeginPass(pass);
+	//			m_vertexArray->Bind();
+	//			m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
+	//			renderer.EndPass();
+	//		}
+	//		renderer.EndTechnique();
+	//		renderer.EndEffect();
+	//	}
 
-			renderer.BeginEffect(mesh.effect);
-			renderer.BeginTechnique("MainTec");
-			//renderer.BeginTechnique("PBRTec");
+	//	/* Main pass */
+	//	for (uint32_t meshIndex = 0; meshIndex < m_meshes.size(); ++meshIndex) {
+	//		auto& mesh = m_meshes[meshIndex];
 
-			for (const auto& pass : renderer.GetActiveTechniquePasses()) {
-				renderer.BeginPass(pass);
+	//		renderer.BeginEffect(mesh.effect);
+	//		renderer.BeginTechnique("MainTec");
+	//		//renderer.BeginTechnique("PBRTec");
 
-				if (mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT)
-					glDisable(GL_CULL_FACE);
+	//		for (const auto& pass : renderer.GetActiveTechniquePasses()) {
+	//			renderer.BeginPass(pass);
 
-				/* These should be set in BeginPass */
-				GLTexture& albedo = GetTexture(mesh.albedoIndex);
-				GLTexture& sph = GetTexture(mesh.sphIndex);
-				GLTexture& toon = GetToon(mesh);
-				GLTexture& skybox = *ResourceManager::Instance().GetTexture("skybox");
-				albedo.Bind(0);
-				sph.Bind(1);
-				toon.Bind(2);
-				skybox.Bind(3);
+	//			if (mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT)
+	//				glDisable(GL_CULL_FACE);
 
-				renderer.SetMaterial(m_model.m_materialMorphBuffer[meshIndex]);
+	//			/* These should be set in BeginPass */
+	//			GLTexture& albedo = GetTexture(mesh.albedoIndex);
+	//			GLTexture& sph = GetTexture(mesh.sphIndex);
+	//			GLTexture& toon = GetToon(mesh);
+	//			GLTexture& skybox = *ResourceManager::Instance().GetTexture("skybox");
+	//			albedo.Bind(0);
+	//			sph.Bind(1);
+	//			toon.Bind(2);
+	//			skybox.Bind(3);
 
-				GLShader* shader = pass.program;
-				shader->Uniform("u_albedo", 0);
-				shader->Uniform("u_sph", 1);
-				shader->Uniform("u_toon", 2);
-				shader->Uniform("u_skybox", 3);
+	//			renderer.SetMaterial(m_model.m_materialMorphBuffer[meshIndex]);
 
-				m_vertexArray->Bind();
-				m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
+	//			GLShader* shader = pass.program;
+	//			shader->Uniform("u_albedo", 0);
+	//			shader->Uniform("u_sph", 1);
+	//			shader->Uniform("u_toon", 2);
+	//			shader->Uniform("u_skybox", 3);
 
-				renderer.EndPass();
-			}
+	//			m_vertexArray->Bind();
+	//			m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
 
-			renderer.EndTechnique();
-			renderer.EndEffect();
-		}
+	//			renderer.EndPass();
+	//		}
 
-		// Reset material morph offsets
-		for (uint32_t meshIndex = 0; meshIndex < m_model.m_materialMorphBuffer.size(); ++meshIndex) {
-			auto& offset = m_model.m_materialMorphBuffer[meshIndex];
-			const auto& material = m_meshes[meshIndex].material;
-			offset.ambient = material.ambient;
-			offset.diffuse = material.diffuse;
-			offset.specular = material.specular;
-			offset.edge = material.edge;
-			offset.edgeSize = material.edgeSize;
-		}
-	}
+	//		renderer.EndTechnique();
+	//		renderer.EndEffect();
+	//	}
+
+	//	// Reset material morph offsets
+	//	for (uint32_t meshIndex = 0; meshIndex < m_model.m_materialMorphBuffer.size(); ++meshIndex) {
+	//		auto& offset = m_model.m_materialMorphBuffer[meshIndex];
+	//		const auto& material = m_meshes[meshIndex].material;
+	//		offset.ambient = material.ambient;
+	//		offset.diffuse = material.diffuse;
+	//		offset.specular = material.specular;
+	//		offset.edge = material.edge;
+	//		offset.edgeSize = material.edgeSize;
+	//	}
+	//}
 
 	void Skin::LoadVertices()
 	{

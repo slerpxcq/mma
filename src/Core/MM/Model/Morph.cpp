@@ -25,46 +25,47 @@ namespace mm
 		MM_INFO("{0}: morph loaded", m_model.m_pmxFile->GetInfo().nameJP);
 	}
 
-	void Morph::Render(Renderer& renderer) const
-	{
-		// Material targets
-		for (const auto& target : m_materialTargets) {
-			for (const auto& offset : target.offsets) {
-				float weight = m_weights[target.index];
-				auto& buffer = m_model.m_materialMorphBuffer[offset.index];
-				switch (offset.mode) {
-				case PMXFile::MORPH_ADD:
-					buffer.diffuse += offset.diffuse * weight;
-					buffer.specular += glm::vec4(glm::vec3(offset.specular * weight), 0.0f);
-					buffer.ambient += offset.ambient * weight;
-					buffer.edge += offset.edge * weight;
-					buffer.edgeSize += offset.edgeSize * weight;
-					break;
-				case PMXFile::MORPH_MULTIPLY:
-					buffer.diffuse *= offset.diffuse * weight;
-					buffer.specular *= glm::vec4(glm::vec3(offset.specular * weight), 1.0f);
-					buffer.ambient *= offset.ambient * weight;
-					buffer.edge *= offset.edge * weight;
-					buffer.edgeSize *= offset.edgeSize * weight;
-					break;
-				}
-			}
-		}
-		 
-		// Vertex targets
-		renderer.SetShader(m_morphShader);
+	//void Morph::Render(Renderer& renderer) const
+	//{
+	//	// Material targets
+	//	for (const auto& target : m_materialTargets) {
+	//		for (const auto& offset : target.offsets) {
+	//			float weight = m_weights[target.index];
+	//			auto& buffer = m_model.m_materialMorphBuffer[offset.index];
+	//			switch (offset.mode) {
+	//			case PMXFile::MORPH_ADD:
+	//				buffer.diffuse += offset.diffuse * weight;
+	//				buffer.specular += glm::vec4(glm::vec3(offset.specular * weight), 0.0f);
+	//				buffer.ambient += offset.ambient * weight;
+	//				buffer.edge += offset.edge * weight;
+	//				buffer.edgeSize += offset.edgeSize * weight;
+	//				break;
+	//			case PMXFile::MORPH_MULTIPLY:
+	//				buffer.diffuse *= offset.diffuse * weight;
+	//				buffer.specular *= glm::vec4(glm::vec3(offset.specular * weight), 1.0f);
+	//				buffer.ambient *= offset.ambient * weight;
+	//				buffer.edge *= offset.edge * weight;
+	//				buffer.edgeSize *= offset.edgeSize * weight;
+	//				break;
+	//			}
+	//		}
+	//	}
+	//	 
+	//	// Vertex targets
+	//	renderer.SetShader(m_morphShader);
+	//	m_model.m_vertexMorphBuffer->SetBase(Model::MORPH_VERTEX_SSBO_BASE);
 
-		glEnable(GL_RASTERIZER_DISCARD);
+	//	glEnable(GL_RASTERIZER_DISCARD);
 
-		for (const auto& target : m_vertexTargets) {
-			renderer.GetActiveShader()->Uniform("u_weight", 1, &m_weights[target.index]);
-			target.vertexArray->Bind();
-			target.vertexArray->DrawArray(GL_POINTS, 0, target.offsetCount);
-			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-		}
+	//	for (const auto& target : m_vertexTargets) {
+	//		renderer.GetActiveShader()->Uniform("u_weight", 1, &m_weights[target.index]);
+	//		target.vertexArray->Bind();
+	//		target.vertexArray->DrawArray(GL_POINTS, 0, target.offsetCount);
+	//		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	//	}
 
-		glDisable(GL_RASTERIZER_DISCARD);
-	}
+	//	glDisable(GL_RASTERIZER_DISCARD);
+	//}
 
 	Morph::VertexTarget Morph::LoadVertexTarget(const PMXFile::Morph& pmxMorph)
 	{

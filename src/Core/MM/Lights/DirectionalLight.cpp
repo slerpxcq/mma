@@ -3,7 +3,8 @@
 
 namespace mm
 {
-	DirectionalLight::DirectionalLight() {
-		m_name = "DirectionalLight0"; 
+	DirectionalLight::DirectionalLight() 
+	{
+		m_name = "DirectionalLight"; 
 	}
 }

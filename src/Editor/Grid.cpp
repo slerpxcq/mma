@@ -45,8 +45,9 @@ namespace mm
 		m_vertexCount = vertices.size();
 	}
 
-	void Grid::Render(Renderer& renderer)
+	void Grid::Render()
 	{
+		Renderer& renderer = Renderer::Instance();
 		renderer.SetShader(ResourceManager::Instance().GetShader("grid"));
 		renderer.GetActiveShader()->Uniform("u_color", glm::vec4(1, 1, 1, .5));
 		m_vertexArray->Bind();

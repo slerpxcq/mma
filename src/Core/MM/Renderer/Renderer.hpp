@@ -10,19 +10,21 @@ namespace mm
 	class GLTexture;
 	class GLVertexArray;
 	class GLFrameBuffer;
+	class World;
 
 	class Camera;
+	class Model;
+	class Skin;
+	class Mesh;
 
 	/* std140 */
-	struct LightLayout
-	{
+	struct LightLayout {
 		glm::vec4 color;
 		glm::vec4 direction;
 	};
 
 	/* std140 */
-	struct MaterialLayout 
-	{
+	struct MaterialLayout {
 		glm::vec4 diffuse;
 		glm::vec4 specular;
 		glm::vec4 ambient;
@@ -34,8 +36,7 @@ namespace mm
 	};
 
 	/* std140 */
-	struct CameraLayout 
-	{
+	struct CameraLayout  {
 		glm::mat4 view;
 		glm::mat4 proj;
 		glm::mat4 viewProj;
@@ -52,15 +53,17 @@ namespace mm
 		static Renderer& Instance() { return s_instance; }
 		void Init();
 
-		void SetLight(const LightLayout& light) { 
-			m_lightUBO->SetSubData(0, sizeof(LightLayout), (void*)&light);
-		};
-
-		void SetCamera(const Camera& camera);
-		void SetMaterial(const MaterialLayout& material);
+		void SetFramebuffer(GLFrameBuffer* framebuffer);
+		void RenderSceneForward(const World& world);
 
 		void SetShader(GLShader* shader);
-		void SetFramebuffer(GLFrameBuffer* framebuffer);
+		GLShader* GetActiveShader() const { return m_shader; }
+		GLFrameBuffer* GetActiveFrameBuffer() { return m_framebuffer; }
+
+	private:
+		void SetLight(const LightLayout& light) { m_lightUBO->SetSubData(0, sizeof(LightLayout), (void*)&light); }
+		void SetCamera(const Camera& camera);
+		void SetMaterial(const MaterialLayout& material);
 
 		void BeginEffect(Effect* effect) { m_activeEffect = effect; }
 		void BeginTechnique(const std::string& name);
@@ -70,10 +73,13 @@ namespace mm
 		void EndTechnique();
 		void EndEffect() { m_activeEffect = nullptr; }
 
-		GLShader* GetActiveShader() const { return m_shader; }
-		GLFrameBuffer* GetActiveFrameBuffer() { return m_framebuffer; }
+		GLTexture& GetTexture(const Skin& skin, int32_t idx);
+		GLTexture& GetToon(const Skin& skin, const Mesh& mesh);
 
-	private:
+		void RenderMorph(const Model& model);
+		void RenderSkin(const Model& model);
+
+
 		Renderer() {};
 
 	private:

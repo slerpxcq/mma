@@ -1,5 +1,11 @@
 #pragma once
-class SpotLight
+
+#include "Light.hpp"
+
+namespace mm
 {
-};
+	class SpotLight : public Light
+	{
+	};
+}
 

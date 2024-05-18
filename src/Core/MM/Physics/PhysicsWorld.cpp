@@ -41,8 +41,6 @@ namespace mm
 
 	void PhysicsWorld::Reset()
 	{
-		/* Apply FK once */
-		/* Load animated positions */
 		for (auto& physicsData : m_models) {
 			physicsData->GetModel().GetArmature().UpdatePose();
 			physicsData->LoadTransforms(ModelPhysicsData::BODY_TYPE_ALL);

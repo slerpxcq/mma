@@ -159,7 +159,7 @@ namespace mm
 	}
 
 	template <>
-	void Properties::ShowPanelCore<Skin::Mesh>(Skin::Mesh& mesh) 
+	void Properties::ShowPanelCore<Mesh>(Mesh& mesh) 
 	{
 		ImGui::SeparatorText(mesh.name.c_str());
 	}
@@ -223,7 +223,7 @@ namespace mm
 		ShowPanel<Armature>();
 		ShowPanel<Armature::Bone>();
 		//ShowPanel<Skin>();
-		ShowPanel<Skin::Mesh>();
+		ShowPanel<Mesh>();
 		ShowPanel<Morph>();
 
 		ImGui::End();

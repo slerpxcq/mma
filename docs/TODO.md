@@ -93,26 +93,40 @@
 - Redo
     - Using linked list instead of stack - Not completed, to be refined
 
-# 2024/5/16
+# 2024/5/17
 - Multiple models 
     - Could not load multiple PMX files
     - File loading should be handled in ResourceManager
     - Handling multiple files with same name - Lazy loading
 
+    - Skinning/Morph buffer bind base
+
+- Undo/Redo list logic
+- Rename model in case of duplicated name - No need; Use ImGui::PushID
+
+- No MSAA
+
+# 2024/5/18
+- Refractoring Renderer: 
+    RenderSceneForward
+
 # DOING
-    - Rename model in case of duplicated name
-    - Need seperate skinning buffer
-        - Only one skinning buffer (in renderer?)
+- Multiple light sources
 
 # TODO
-- Undo/Redo list logic
-- Multiple light sources
+- Do material morph 
 
 - Pose Editor
     - Select overlapping bones
+
+Physics fucked up with multiple models
+
 - Dope sheet
     - Pan
     - Drag constraint with existing dopes
+
+- Export video
+
 - Playback indicator
 - Set frame when stop playback
 

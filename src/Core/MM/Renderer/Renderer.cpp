@@ -1,12 +1,15 @@
 #include "mmpch.hpp"
 #include "Renderer.hpp"
 
+#include "Core/MM/World/World.hpp"
 #include "Core/GL/GLShader.hpp"
 #include "Core/GL/GLTexture.hpp"
 #include "Core/GL/GLVertexArray.hpp"
 #include "Core/GL/GLFrameBuffer.hpp"
 
 #include "Core/MM/Camera/Camera.hpp"
+
+#include "../../ResourceManager/ResourceManager.hpp"
 
 namespace mm
 {
@@ -132,4 +135,131 @@ namespace mm
 		glBlendFunc(m_backupState.blendSrc, m_backupState.blendDst);
 		SetEnable(GL_CULL_FACE, m_backupState.cullFace);
 	}
+
+	void Renderer::RenderMorph(const Model& model)
+	{
+		SetShader(ResourceManager::Instance().GetShader("morph"));
+		model.m_vertexMorphBuffer->SetBase(Model::MORPH_VERTEX_SSBO_BASE);
+
+		const auto& morph = *model.m_morph;
+
+		glEnable(GL_RASTERIZER_DISCARD);
+
+		for (const auto& target : morph.m_vertexTargets) {
+			m_shader->Uniform("u_weight", 1, &morph.m_weights[target.index]);
+			target.vertexArray->Bind();
+			target.vertexArray->DrawArray(GL_POINTS, 0, target.offsetCount);
+			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		}
+
+		glDisable(GL_RASTERIZER_DISCARD);
+	}
+
+	GLTexture& Renderer::GetTexture(const Skin& skin, int32_t idx)
+	{
+		return (idx < 0) ? 
+			*ResourceManager::Instance().GetTexture("toon00.bmp") :
+			*skin.m_textures[idx];
+	}
+
+	GLTexture& Renderer::GetToon(const Skin& skin, const Mesh& mesh)
+	{
+		static constexpr const char* toonTable[] = {
+			"toon01.bmp", "toon02.bmp",
+			"toon03.bmp", "toon04.bmp",
+			"toon05.bmp", "toon06.bmp",
+			"toon07.bmp", "toon08.bmp",
+			"toon09.bmp", "toon10.bmp",
+		};
+
+		return ((mesh.material.flags >> 8) & PMXFile::TOON_SHARED_BIT) ?
+			*ResourceManager::Instance().GetTexture(toonTable[mesh.toonIndex]) :
+			GetTexture(skin, mesh.toonIndex);
+	}
+
+	void Renderer::RenderSkin(const Model& model)
+	{
+		model.m_skinningBuffer->SetBase(Model::SKINNING_SSBO_BASE);
+		model.m_vertexMorphBuffer->SetBase(Model::MORPH_VERTEX_SSBO_BASE);
+
+		const auto& skin = *model.m_skin;
+
+		/* Outline pass */
+		for (auto& mesh : skin.m_meshes) {
+			if (!(mesh.material.flags & PMXFile::MATERIAL_EDGE_BIT))
+				continue;
+			BeginEffect(mesh.effect);
+			BeginTechnique("OutlineTec");
+			for (auto& pass : GetActiveTechniquePasses()) {
+				BeginPass(pass);
+				skin.m_vertexArray->Bind();
+				skin.m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
+				EndPass();
+			}
+			EndTechnique();
+			EndEffect();
+		}
+
+		/* Main pass */
+		for (uint32_t meshIndex = 0; meshIndex < skin.m_meshes.size(); ++meshIndex) {
+			auto& mesh = skin.m_meshes[meshIndex];
+
+			BeginEffect(mesh.effect);
+			BeginTechnique("MainTec");
+			//renderer.BeginTechnique("PBRTec");
+
+			for (const auto& pass : GetActiveTechniquePasses()) {
+				BeginPass(pass);
+
+				if (mesh.material.flags & PMXFile::MATERIAL_NO_CULL_BIT)
+					glDisable(GL_CULL_FACE);
+
+				/* These should be set in BeginPass */
+				GLTexture& albedo = GetTexture(skin, mesh.albedoIndex);
+				GLTexture& sph = GetTexture(skin, mesh.sphIndex);
+				GLTexture& toon = GetToon(skin, mesh);
+				GLTexture& skybox = *ResourceManager::Instance().GetTexture("skybox");
+				albedo.Bind(0);
+				sph.Bind(1);
+				toon.Bind(2);
+				skybox.Bind(3);
+
+				//SetMaterial(model.m_materialMorphBuffer[meshIndex]);
+				SetMaterial(mesh.material);
+
+				GLShader* shader = pass.program;
+				shader->Uniform("u_albedo", 0);
+				shader->Uniform("u_sph", 1);
+				shader->Uniform("u_toon", 2);
+				shader->Uniform("u_skybox", 3);
+
+				skin.m_vertexArray->Bind();
+				skin.m_vertexArray->DrawElem(GL_TRIANGLES, mesh.elemOffset, mesh.elemCount);
+
+				EndPass();
+			}
+
+			EndTechnique();
+			EndEffect();
+		}
+	}
+
+	void Renderer::RenderSceneForward(const World& world)
+	{
+		/* Setup camera */
+		SetCamera(world.GetCamera());
+
+		/* Setup lights */
+		LightLayout l = {};
+		l.color = glm::vec4(world.m_directionalLight.GetColor(), 0);
+		l.direction = glm::vec4(world.m_directionalLight.GetDirection(), 0);
+		SetLight(l);
+
+		for (auto& model : world.GetModels()) {
+			RenderMorph(*model);
+			RenderSkin(*model);
+		}
+	}
 }
+
+

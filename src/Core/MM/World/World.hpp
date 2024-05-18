@@ -14,7 +14,9 @@ namespace mm
 
 	class World : public Entity
 	{
+		friend class Renderer;
 		friend class WorldSerDes;
+
 		using ModelContainer = std::vector<std::unique_ptr<Model>>;
 
 	public:

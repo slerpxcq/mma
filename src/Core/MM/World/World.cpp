@@ -47,15 +47,15 @@ namespace mm
 		return ret;
 	}
 
-	void World::Render(Renderer& renderer) 
-	{
-		LightLayout l = {};
-		l.color = glm::vec4(m_directionalLight.GetColor(), 0);
-		l.direction = glm::vec4(m_directionalLight.GetDirection(), 0);
-		renderer.SetLight(l);
+	//void World::Render(Renderer& renderer) 
+	//{
+	//	LightLayout l = {};
+	//	l.color = glm::vec4(m_directionalLight.GetColor(), 0);
+	//	l.direction = glm::vec4(m_directionalLight.GetDirection(), 0);
+	//	renderer.SetLight(l);
 
-		for (auto& model : m_models) {
-			model->Render(renderer);
-		}
-	}
+	//	for (auto& model : m_models) {
+	//		model->Render(renderer);
+	//	}
+	//}
 }

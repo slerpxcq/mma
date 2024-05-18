@@ -16,7 +16,7 @@ namespace mm
 	public:
 		Viewport(EditorLayer& editor);
 		void OnUpdate(float deltaTime);
-		void OnRender(Renderer& renderer);
+		//void OnRender(Renderer& renderer);
 		void OnUIRender();
 		ImVec2 GetSize() const { return m_size; }
 		bool IsHovered() const { return m_hovered; }
@@ -28,7 +28,7 @@ namespace mm
 		std::unique_ptr<Grid> m_grid;
 		std::unique_ptr<GLFrameBuffer> m_framebuffer;
 
-		std::unique_ptr<GLFrameBufferMS> m_framebufferMS;
+		//std::unique_ptr<GLFrameBufferMS> m_framebufferMS;
 
 		ImVec2 m_size;
 

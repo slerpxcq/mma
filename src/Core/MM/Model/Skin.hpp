@@ -18,26 +18,27 @@ namespace mm
 	class Model;
 	class Renderer;
 
+	struct Mesh : public Entity {
+		std::string name;
+		MaterialLayout material;
+		MaterialLayout animMaterial;
+		Effect* effect;
+		uint32_t elemCount;
+		uint32_t elemOffset;
+		int32_t albedoIndex;
+		int32_t sphIndex;
+		int32_t toonIndex;
+	};
+
 	class Skin : public Entity
 	{
+		friend class Renderer;
 	public:
 		static constexpr uint32_t TOON_FLAG_BIT = (1 << 16);
 
 	public:
-		struct Mesh : public Entity {
-			std::string name;
-			MaterialLayout material;
-			Effect* effect;
-			uint32_t elemCount;
-			uint32_t elemOffset;
-			int32_t albedoIndex;
-			int32_t sphIndex;
-			int32_t toonIndex;
-		};
-
-	public:
 		Skin(Model &model);
-		void Render(Renderer& renderer);
+//		void Render(Renderer& renderer);
 		uint32_t GetVertexCount() const { return m_vertexCount;  }
 		const std::vector<Mesh>& GetMeshes() const { return m_meshes; }
 		std::vector<Mesh>& GetMeshes() { return m_meshes; }

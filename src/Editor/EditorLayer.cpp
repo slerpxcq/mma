@@ -45,8 +45,8 @@ namespace mm
 
     void EditorLayer::OnUIRender()
     {
-        Renderer& renderer = Renderer::Instance();
-        m_viewport->OnRender(renderer);
+        //Renderer& renderer = Renderer::Instance();
+        //m_viewport->OnRender(renderer);
 
         m_viewport->OnUIRender();
         m_poseEditor->OnUIRender();

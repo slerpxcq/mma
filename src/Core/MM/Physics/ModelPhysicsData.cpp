@@ -176,9 +176,11 @@ namespace mm
 
 		for (uint32_t i = 0; i < pmxRigidbodies.size(); ++i) {
 			const auto& pmxRigidbody = pmxRigidbodies[i];
+
 			bool isKinematic = pmxRigidbody.physicsType == PMXFile::RB_KINEMATIC;
 			bool isDynamic = pmxRigidbody.physicsType == PMXFile::RB_DYNAMIC;
-			if (((bodyType & BODY_TYPE_KINEMATIC) && isKinematic) || ((bodyType & BODY_TYPE_DYNAMIC) && isDynamic)) {
+			if (((bodyType & BODY_TYPE_KINEMATIC) && isKinematic) || 
+				((bodyType & BODY_TYPE_DYNAMIC) && isDynamic)) {
 				const auto& bone = m_model.GetArmature().GetBones()[pmxRigidbody.boneIndex];
 				const btTransform& bindTransform = m_bindTransforms[i];
 				btVector3 bindOffset = bindTransform.getOrigin() - btVec3FromGLM(bone.bindWorldInv.inverse().translation);
