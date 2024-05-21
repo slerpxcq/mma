@@ -1,4 +1,3 @@
-require "cmake"
 workspace "MMX"
     architecture "x64"
     configurations { 
