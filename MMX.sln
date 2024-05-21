@@ -1,0 +1,66 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3rdparty", "3rdparty", "{A50437DB-91D2-2AE1-7A66-9B0766D30646}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGuizmo", "3rdparty\ImGuizmo\ImGuizmo.vcxproj", "{36FD234F-22CA-7E5A-4BE3-6C02370FB4E8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bullet3", "3rdparty\bullet3\bullet3.vcxproj", "{00BD5594-6C9C-D42F-75B4-5F06E1123B91}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "3rdparty\imgui\imgui.vcxproj", "{0098A80F-6CAC-D0C0-352E-7420A101CDF1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nativefiledialog", "3rdparty\nativefiledialog\nativefiledialog.vcxproj", "{5CD62ECE-48CF-4D20-7101-33A55D592D2C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spdlog", "3rdparty\spdlog\spdlog.vcxproj", "{8EAD431C-7A4F-6EF2-630A-82464F4BF542}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yaml-cpp", "3rdparty\yaml-cpp\yaml-cpp.vcxproj", "{88F1A057-74BE-FB62-9DD7-E90A890331F1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MMX-OGRE", "MMX-OGRE.vcxproj", "{91686583-7D35-C08E-A64E-AE36927AF51C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{36FD234F-22CA-7E5A-4BE3-6C02370FB4E8}.Debug|x64.ActiveCfg = Debug|x64
+		{36FD234F-22CA-7E5A-4BE3-6C02370FB4E8}.Debug|x64.Build.0 = Debug|x64
+		{36FD234F-22CA-7E5A-4BE3-6C02370FB4E8}.Release|x64.ActiveCfg = Release|x64
+		{36FD234F-22CA-7E5A-4BE3-6C02370FB4E8}.Release|x64.Build.0 = Release|x64
+		{00BD5594-6C9C-D42F-75B4-5F06E1123B91}.Debug|x64.ActiveCfg = Debug|x64
+		{00BD5594-6C9C-D42F-75B4-5F06E1123B91}.Debug|x64.Build.0 = Debug|x64
+		{00BD5594-6C9C-D42F-75B4-5F06E1123B91}.Release|x64.ActiveCfg = Release|x64
+		{00BD5594-6C9C-D42F-75B4-5F06E1123B91}.Release|x64.Build.0 = Release|x64
+		{0098A80F-6CAC-D0C0-352E-7420A101CDF1}.Debug|x64.ActiveCfg = Debug|x64
+		{0098A80F-6CAC-D0C0-352E-7420A101CDF1}.Debug|x64.Build.0 = Debug|x64
+		{0098A80F-6CAC-D0C0-352E-7420A101CDF1}.Release|x64.ActiveCfg = Release|x64
+		{0098A80F-6CAC-D0C0-352E-7420A101CDF1}.Release|x64.Build.0 = Release|x64
+		{5CD62ECE-48CF-4D20-7101-33A55D592D2C}.Debug|x64.ActiveCfg = Debug|x64
+		{5CD62ECE-48CF-4D20-7101-33A55D592D2C}.Debug|x64.Build.0 = Debug|x64
+		{5CD62ECE-48CF-4D20-7101-33A55D592D2C}.Release|x64.ActiveCfg = Release|x64
+		{5CD62ECE-48CF-4D20-7101-33A55D592D2C}.Release|x64.Build.0 = Release|x64
+		{8EAD431C-7A4F-6EF2-630A-82464F4BF542}.Debug|x64.ActiveCfg = Debug|x64
+		{8EAD431C-7A4F-6EF2-630A-82464F4BF542}.Debug|x64.Build.0 = Debug|x64
+		{8EAD431C-7A4F-6EF2-630A-82464F4BF542}.Release|x64.ActiveCfg = Release|x64
+		{8EAD431C-7A4F-6EF2-630A-82464F4BF542}.Release|x64.Build.0 = Release|x64
+		{88F1A057-74BE-FB62-9DD7-E90A890331F1}.Debug|x64.ActiveCfg = Debug|x64
+		{88F1A057-74BE-FB62-9DD7-E90A890331F1}.Debug|x64.Build.0 = Debug|x64
+		{88F1A057-74BE-FB62-9DD7-E90A890331F1}.Release|x64.ActiveCfg = Release|x64
+		{88F1A057-74BE-FB62-9DD7-E90A890331F1}.Release|x64.Build.0 = Release|x64
+		{91686583-7D35-C08E-A64E-AE36927AF51C}.Debug|x64.ActiveCfg = Debug|x64
+		{91686583-7D35-C08E-A64E-AE36927AF51C}.Debug|x64.Build.0 = Debug|x64
+		{91686583-7D35-C08E-A64E-AE36927AF51C}.Release|x64.ActiveCfg = Release|x64
+		{91686583-7D35-C08E-A64E-AE36927AF51C}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{36FD234F-22CA-7E5A-4BE3-6C02370FB4E8} = {A50437DB-91D2-2AE1-7A66-9B0766D30646}
+		{00BD5594-6C9C-D42F-75B4-5F06E1123B91} = {A50437DB-91D2-2AE1-7A66-9B0766D30646}
+		{0098A80F-6CAC-D0C0-352E-7420A101CDF1} = {A50437DB-91D2-2AE1-7A66-9B0766D30646}
+		{5CD62ECE-48CF-4D20-7101-33A55D592D2C} = {A50437DB-91D2-2AE1-7A66-9B0766D30646}
+		{8EAD431C-7A4F-6EF2-630A-82464F4BF542} = {A50437DB-91D2-2AE1-7A66-9B0766D30646}
+		{88F1A057-74BE-FB62-9DD7-E90A890331F1} = {A50437DB-91D2-2AE1-7A66-9B0766D30646}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{91686583-7D35-C08E-A64E-AE36927AF51C}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>MMX-OGRE</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>bin\MMX-OGRE\Debug\</OutDir>
+    <IntDir>obj\MMX-OGRE\Debug\</IntDir>
+    <TargetName>MMX-OGRE</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>bin\MMX-OGRE\Release\</OutDir>
+    <IntDir>obj\MMX-OGRE\Release\</IntDir>
+    <TargetName>MMX-OGRE</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <PreprocessorDefinitions>MM_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>3rdparty\imgui;3rdparty\ImGuizmo;3rdparty\bullet3\src;3rdparty\spdlog\include;3rdparty\glm;3rdparty\stb;3rdparty\nativefiledialog\src\include;3rdparty\icu4c\include;3rdparty\yaml-cpp\include;3rdparty\ogre\OgreMain\include;3rdparty\ogre\build\include;3rdparty\ogre\Components\Bites\include;3rdparty\ogre\Components\Bullet\include;3rdparty\ogre\Components\MeshLodGenerator\include;3rdparty\ogre\Components\Overlay\include;3rdparty\ogre\Components\Paging\include;3rdparty\ogre\Components\Property\include;3rdparty\ogre\Components\RTShaderSystem\include;3rdparty\ogre\Components\Terrain\include;3rdparty\ogre\Components\Volume\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>3rdparty\icu4c\lib64\*.lib;3rdparty\ogre\build\lib\Debug\*.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /f "3rdparty/icu4c/bin64/icudt75.dll" "bin/MMX-OGRE/Debug"
+xcopy /y /f "3rdparty/icu4c/bin64/icuin75.dll" "bin/MMX-OGRE/Debug"
+xcopy /y /f "3rdparty/icu4c/bin64/icutu75.dll" "bin/MMX-OGRE/Debug"
+xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX-OGRE/Debug"
+xcopy /y /f "3rdparty/ogre/build/bin/debug/*.dll" "bin/MMX-OGRE/Debug"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <PreprocessorDefinitions>MM_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>3rdparty\imgui;3rdparty\ImGuizmo;3rdparty\bullet3\src;3rdparty\spdlog\include;3rdparty\glm;3rdparty\stb;3rdparty\nativefiledialog\src\include;3rdparty\icu4c\include;3rdparty\yaml-cpp\include;3rdparty\ogre\OgreMain\include;3rdparty\ogre\build\include;3rdparty\ogre\Components\Bites\include;3rdparty\ogre\Components\Bullet\include;3rdparty\ogre\Components\MeshLodGenerator\include;3rdparty\ogre\Components\Overlay\include;3rdparty\ogre\Components\Paging\include;3rdparty\ogre\Components\Property\include;3rdparty\ogre\Components\RTShaderSystem\include;3rdparty\ogre\Components\Terrain\include;3rdparty\ogre\Components\Volume\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>3rdparty\icu4c\lib64\*.lib;3rdparty\ogre\build\lib\MinSizeRel\*.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /f "3rdparty/icu4c/bin64/icudt75.dll" "bin/MMX-OGRE/Release"
+xcopy /y /f "3rdparty/icu4c/bin64/icuin75.dll" "bin/MMX-OGRE/Release"
+xcopy /y /f "3rdparty/icu4c/bin64/icutu75.dll" "bin/MMX-OGRE/Release"
+xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX-OGRE/Release"
+xcopy /y /f "3rdparty/ogre/build/bin/minsizerel/*.dll" "bin/MMX-OGRE/Release"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="3rdparty\imgui\imgui.vcxproj">
+      <Project>{0098A80F-6CAC-D0C0-352E-7420A101CDF1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="3rdparty\ImGuizmo\ImGuizmo.vcxproj">
+      <Project>{36FD234F-22CA-7E5A-4BE3-6C02370FB4E8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="3rdparty\bullet3\bullet3.vcxproj">
+      <Project>{00BD5594-6C9C-D42F-75B4-5F06E1123B91}</Project>
+    </ProjectReference>
+    <ProjectReference Include="3rdparty\spdlog\spdlog.vcxproj">
+      <Project>{8EAD431C-7A4F-6EF2-630A-82464F4BF542}</Project>
+    </ProjectReference>
+    <ProjectReference Include="3rdparty\nativefiledialog\nativefiledialog.vcxproj">
+      <Project>{5CD62ECE-48CF-4D20-7101-33A55D592D2C}</Project>
+    </ProjectReference>
+    <ProjectReference Include="3rdparty\yaml-cpp\yaml-cpp.vcxproj">
+      <Project>{88F1A057-74BE-FB62-9DD7-E90A890331F1}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
