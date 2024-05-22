@@ -7,10 +7,13 @@
 
 #include "Editor/Editor.hpp"
 
+#include "Core/Manager/FileManager.hpp"
+#include "Core/Manager/PMXFile.hpp"
+
+#include "UIContext.hpp"
+
 namespace mm
 {
-
-Application* Application::s_instance;
 
 Application::Application()
 {
@@ -108,10 +111,14 @@ void Application::Start()
 {
 	/* Initialize components */
 	EventBus::Init();
+	FileManager::Init();
 	Editor::Init();
+	UIContext::Init();
 
 	InitWindow();
 	RegisterWindowCallbacks();
+	UIContext::Get().Start();
+
 	m_listener = std::make_unique<dexode::EventBus::Listener>(EventBus::Get());
 	m_listener->listen<Event::WindowClosed>(MM_EVENT_FN(Application::OnWindowClose));
 	m_listener->listen<Event::WindowSized>(MM_EVENT_FN(Application::OnWindowResize));
@@ -120,7 +127,10 @@ void Application::Start()
 void Application::Shutdown()
 {
 	/* Deinitialize components */
+	UIContext::Get().Shutdown();
+	UIContext::DeInit();
 	Editor::DeInit();
+	FileManager::Init();
 	glfwTerminate();
 }
 
@@ -128,6 +138,8 @@ void Application::Run()
 {
 	MM_INFO("Application started.");
 	Start();
+
+	FileManager::Get().Load<PMXFile>("resources/model/つみ式ミクさん/000 ミクさん.pmx");
 
 	/* Loop */
 	static MM_TIMEPOINT lastTime = MM_TIME_NOW();
@@ -141,7 +153,10 @@ void Application::Run()
 
 		if (!m_minimized) {
 			Editor::Get().OnUpdate(deltaTime);
+
+			UIContext::Get().Begin();
 			Editor::Get().OnUIRender();
+			UIContext::Get().End();
 		}
 
 		glfwSwapBuffers(m_window);

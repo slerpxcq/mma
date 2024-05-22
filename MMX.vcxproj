@@ -118,7 +118,14 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\Core\App\Event.hpp" />
     <ClInclude Include="src\Core\App\EventBus.hpp" />
     <ClInclude Include="src\Core\App\Log.hpp" />
+    <ClInclude Include="src\Core\App\UIContext.hpp" />
     <ClInclude Include="src\Core\Locale\Locale.hpp" />
+    <ClInclude Include="src\Core\Manager\File.hpp" />
+    <ClInclude Include="src\Core\Manager\FileManager.hpp" />
+    <ClInclude Include="src\Core\Manager\PMXFile.hpp" />
+    <ClInclude Include="src\Core\Manager\VMDFile.hpp" />
+    <ClInclude Include="src\Core\Node\Node.hpp" />
+    <ClInclude Include="src\Core\Utility\Singleton.hpp" />
     <ClInclude Include="src\Core\Utility\Stream.hpp" />
     <ClInclude Include="src\Core\Utility\Type.hpp" />
     <ClInclude Include="src\Editor\Editor.hpp" />
@@ -126,9 +133,13 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\App\Application.cpp" />
-    <ClCompile Include="src\Core\App\EventBus.cpp" />
+    <ClCompile Include="src\Core\App\UIContext.cpp" />
     <ClCompile Include="src\Core\App\main.cpp" />
     <ClCompile Include="src\Core\Locale\Locale.cpp" />
+    <ClCompile Include="src\Core\Manager\FileManager.cpp" />
+    <ClCompile Include="src\Core\Manager\PMXFile.cpp" />
+    <ClCompile Include="src\Core\Manager\VMDFile.cpp" />
+    <ClCompile Include="src\Core\Node\Node.cpp" />
     <ClCompile Include="src\Editor\Editor.cpp" />
     <ClCompile Include="src\mmpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

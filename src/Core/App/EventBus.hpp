@@ -17,7 +17,7 @@ private:
 	~EventBus() {}
 
 private:
-	static std::shared_ptr<dexode::EventBus> s_instance;
+	static inline std::shared_ptr<dexode::EventBus> s_instance;
 };
 
 }

@@ -4,54 +4,59 @@
 
 namespace mm
 {
-	namespace Event
-	{
-		struct WindowSized {
-			uint32_t x, y;
-		};
+namespace Event
+{
 
-		struct WindowClosed {
-		};
+struct WindowSized 
+{
+	uint32_t x, y;
+};
 
-		struct KeyPressed {
-			uint32_t code;
-			uint32_t mods;
-			bool repeat;
-		};
+struct WindowClosed 
+{
+};
 
-		//struct KeyReleased {
-		//	uint32_t code;
-		//};
+struct KeyPressed 
+{
+	uint32_t code;
+	uint32_t mods;
+	bool repeat;
+};
 
-		//struct KeyTyped {
-		//	uint32_t code;
-		//};
+//struct KeyReleased {
+//	uint32_t code;
+//};
 
-		//struct MouseButtonPressed {
-		//	uint32_t button;
-		//};
+//struct KeyTyped {
+//	uint32_t code;
+//};
 
-		//struct MouseButtonReleased {
-		//	uint32_t button;
-		//};
+//struct MouseButtonPressed {
+//	uint32_t button;
+//};
 
-		//struct MouseMoved {
-		//	float x, y;
-		//};
+//struct MouseButtonReleased {
+//	uint32_t button;
+//};
 
-		//struct MouseScrolled { 
-		//	float delta;
-		//};
+//struct MouseMoved {
+//	float x, y;
+//};
 
-		//struct FileOpened {
-		//	const char* path;
-		//};
+//struct MouseScrolled { 
+//	float delta;
+//};
 
-		struct Undo {};
-		struct Redo {};
-		struct Copy {};
-		struct Paste {};
-	}
+//struct FileOpened {
+//	const char* path;
+//};
+
+struct Undo {};
+struct Redo {};
+struct Copy {};
+struct Paste {};
+
+}
 }
 
 

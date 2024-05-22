@@ -4,7 +4,14 @@
 namespace mm
 {
 
-Editor* Editor::s_instance;
+void Editor::OnUpdate(float deltaTime)
+{
+}
+
+void Editor::OnUIRender()
+{
+	ImGui::ShowDemoWindow();
+}
 
 }
 

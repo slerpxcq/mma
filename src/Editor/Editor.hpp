@@ -1,20 +1,19 @@
 #pragma once
 
+#include "Core/Utility/Singleton.hpp"
+
 namespace mm
 {
 
-class Editor
+class Editor : public Singleton<Editor> 
 {
+	friend class Singleton<Editor>;
 public:
-	static void Init() { s_instance = new Editor(); }
-	static void DeInit() { delete s_instance; }
-	static Editor& Get() { return *s_instance; }
-
 	void OnUpdate(float deltaTime);
 	void OnUIRender();
 
 private:
-	static Editor* s_instance;
+	Editor() {}
 };
 
 }

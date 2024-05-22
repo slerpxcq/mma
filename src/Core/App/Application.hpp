@@ -3,15 +3,17 @@
 #include "Event.hpp"
 #include "EventBus.hpp"
 
+#include "Core/Utility/Singleton.hpp"
+
 namespace mm
 {
 
-class Application {
+class Application : public Singleton<Application> 
+{
+	friend class Singleton<Application>;
+	friend class UIContext;
 public:
 	void Run();
-	static Application& Get() { return *s_instance; }
-	static void Init() { s_instance = new Application(); }
-	static void DeInit() { delete s_instance; };
 
 private:
 	Application();
@@ -28,8 +30,6 @@ private:
 	void RegisterWindowCallbacks();
 
 private:
-	static Application* s_instance;
-
 	GLFWwindow* m_window = nullptr;
 	glm::uvec2 m_windowSize = glm::vec2(0);
 
