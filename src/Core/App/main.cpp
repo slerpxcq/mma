@@ -4,12 +4,8 @@
 int main()
 {
 	using namespace mm;
-
-	Application& app = Application::Instance();
-
-	app.Init();
-	app.Run();
-	app.DeInit();
-
+	Application::Init();
+	Application::Get().Run();
+	Application::DeInit();
 	return 0;
 }

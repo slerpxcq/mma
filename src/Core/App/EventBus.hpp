@@ -4,19 +4,20 @@
 
 namespace mm
 {
-	class EventBus 
-	{
-	public:
-		static std::shared_ptr<dexode::EventBus> Instance() { 
-			if (s_instance == nullptr)
-				s_instance = std::make_shared<dexode::EventBus>();
-			return s_instance; 
-		}
 
-	private:
-		EventBus() {}
+class EventBus  
+{
+public:
+	static std::shared_ptr<dexode::EventBus>& Get() { return s_instance; }
+	static void Init() { s_instance = std::make_shared<dexode::EventBus>(); }
+	static void DeInit() { s_instance.reset(); }
 
-	private:
-		static std::shared_ptr<dexode::EventBus> s_instance;
-	};
+private:
+	EventBus() {}
+	~EventBus() {}
+
+private:
+	static std::shared_ptr<dexode::EventBus> s_instance;
+};
+
 }

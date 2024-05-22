@@ -2,31 +2,15 @@
 
 #include <spdlog/spdlog.h>
 
-namespace mm
-{
-	class Logger {
-	public:
-		/* Workaround for exit on crash */
-		/* Keep one instance of logger on heap to avoid delete */
-		/* Causes memory leak */
-		static spdlog::logger* Get() {
-			static std::shared_ptr<spdlog::logger>* logger;
-			if (logger == nullptr)
-				logger = new std::shared_ptr<spdlog::logger>(spdlog::default_logger());
-			return logger->get();
-		}
-
-	private:
-		Logger() {}
-	};
-}
+/* This component is the only one has static lifetime, therefore is 
+ * not controlled by Application */
 
 #ifdef MM_DEBUG
-#define MM_DBG(...) Logger::Get()->debug(__VA_ARGS__)
-#define MM_INFO(...) Logger::Get()->info(__VA_ARGS__)
-#define MM_WARN(...) Logger::Get()->warn(__VA_ARGS__)
-#define MM_ERROR(...) Logger::Get()->error(__VA_ARGS__)
-#define MM_FATAL(...) Logger::Get()->critical(__VA_ARGS__)
+#define MM_DBG(...) spdlog::debug(__VA_ARGS__)
+#define MM_INFO(...) spdlog::info(__VA_ARGS__)
+#define MM_WARN(...) spdlog::warn(__VA_ARGS__)
+#define MM_ERROR(...) spdlog::error(__VA_ARGS__)
+#define MM_FATAL(...) spdlog::critical(__VA_ARGS__)
 #else
 #define MM_DBG(...) 
 #define MM_INFO(...)

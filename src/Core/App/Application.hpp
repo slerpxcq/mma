@@ -1,68 +1,42 @@
 #pragma once
 
-#include "Layer/LayerStack.hpp"
+#include "Event.hpp"
+#include "EventBus.hpp"
 
-#include "Core/GL/GLContext.hpp"
-#include "Core/GL/GLTexture.hpp"
-#include "Core/MM/Renderer/Renderer.hpp"
-#include "Core/GL/GLShader.hpp"
-
-#include <dexode/EventBus.hpp>
-
-#include "Core/ResourceManager/ResourceManager.hpp"
-
-struct GLFWwindow;
-
-namespace mm 
+namespace mm
 {
-	class ImGuiLayer;
 
-	class Application 
-	{
-	public:
-		static Application& Instance() {
-			if (s_instance == nullptr)
-				s_instance = new Application();
-			return *s_instance;
-		}
+class Application {
+public:
+	void Run();
+	static Application& Get() { return *s_instance; }
+	static void Init() { s_instance = new Application(); }
+	static void DeInit() { delete s_instance; };
 
-		void Init();
-		void Run();
-		void DeInit();
+private:
+	Application();
+	~Application();
 
-		GLFWwindow* GetWindow() { return m_window; }
-		ImGuiLayer* GetImGuiLayer() const { return m_imguiLayer; }
+	void OnWindowClose(const Event::WindowClosed& e);
+	void OnWindowResize(const Event::WindowSized& e);
+	void OnKeyPressed(const Event::KeyPressed& e);
 
-		void PushLayer(std::unique_ptr<Layer> layer) { m_layerStack.PushLayer(std::move(layer)); }
-		void PushOverlay(std::unique_ptr<Layer> overlay) { m_layerStack.PushOverlay(std::move(overlay)); }
+	void Start();
+	void Shutdown();
+	void InitWindow();
+	void RegisterGLErrorCallbacks();
+	void RegisterWindowCallbacks();
 
-	private:
-		Application() {}
-		void LoadTextures();
-		void LoadShaders();
-		void OnWindowClose(const Event::WindowClosed& e);
-		void OnWindowResize(const Event::WindowSized& e);
-		void OnKeyPressed(const Event::KeyPressed& e);
+private:
+	static Application* s_instance;
 
-		void RegisterWindowCallbacks();
-		void ListenEvents();
+	GLFWwindow* m_window = nullptr;
+	glm::uvec2 m_windowSize = glm::vec2(0);
 
-	private:
-		static Application* s_instance;
+	bool m_running = true;
+	bool m_minimized = false;
 
-		GLFWwindow* m_window = nullptr;
-		std::unique_ptr<GLContext> m_glContext;
-		glm::uvec2 m_viewportSize = glm::vec2(0);
+	std::unique_ptr<dexode::EventBus::Listener> m_listener;
+};
 
-		// Event
-		std::unique_ptr<dexode::EventBus::Listener> m_listener;
-
-		// Layers
-		LayerStack m_layerStack;
-		ImGuiLayer* m_imguiLayer = nullptr;
-
-		bool m_running = true;
-		bool m_minimized = false;
-	};
 }
-

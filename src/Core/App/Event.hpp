@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace mm
 {
 	namespace Event
@@ -17,33 +19,33 @@ namespace mm
 			bool repeat;
 		};
 
-		struct KeyReleased {
-			uint32_t code;
-		};
+		//struct KeyReleased {
+		//	uint32_t code;
+		//};
 
-		struct KeyTyped {
-			uint32_t code;
-		};
+		//struct KeyTyped {
+		//	uint32_t code;
+		//};
 
-		struct MouseButtonPressed {
-			uint32_t button;
-		};
+		//struct MouseButtonPressed {
+		//	uint32_t button;
+		//};
 
-		struct MouseButtonReleased {
-			uint32_t button;
-		};
+		//struct MouseButtonReleased {
+		//	uint32_t button;
+		//};
 
-		struct MouseMoved {
-			float x, y;
-		};
+		//struct MouseMoved {
+		//	float x, y;
+		//};
 
-		struct MouseScrolled { 
-			float delta;
-		};
+		//struct MouseScrolled { 
+		//	float delta;
+		//};
 
-		struct FileOpened {
-			const char* path;
-		};
+		//struct FileOpened {
+		//	const char* path;
+		//};
 
 		struct Undo {};
 		struct Redo {};

@@ -1,232 +1,181 @@
 #include "mmpch.hpp"
 #include "Application.hpp"
 
-#include "Core.hpp"
 #include "Event.hpp"
-#include "Layer/ImGuiLayer.hpp"
-#include "Layer/MenuBarLayer.hpp"
-#include "Editor/EditorLayer.hpp"
-#include "Core/GL/GLCubeMap.hpp"
-#include "Core/MM/Renderer/Effect.hpp"
-
 #include "EventBus.hpp"
+#include "Log.hpp"
+
+#include "Editor/Editor.hpp"
 
 namespace mm
 {
-	Application* Application::s_instance = nullptr;
 
-	void Application::Init()
-	{
-		MM_INFO("App started");
+Application* Application::s_instance;
 
-		// Window
-		glfwInit();
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MM_GL_VERSION_MAJOR);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MM_GL_VERSION_MINOR);
-		m_window = glfwCreateWindow(1280, 720, "", nullptr, nullptr);
-		MM_ASSERT(m_window);
+Application::Application()
+{
+}
 
-		// Event
-		m_listener = std::make_unique<dexode::EventBus::Listener>(EventBus::Instance());
-		RegisterWindowCallbacks();
-		ListenEvents();
+Application::~Application()
+{
+}
 
-		// context and renderer
-		m_glContext = std::make_unique<GLContext>(m_window);
-		Renderer::Instance().Init();
+void Application::InitWindow()
+{
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MM_GL_VERSION_MAJOR);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MM_GL_VERSION_MINOR);
+	m_window = glfwCreateWindow(1280, 720, "", nullptr, nullptr);
+	MM_ASSERT(m_window);
+	glfwMakeContextCurrent(m_window);
+	glfwSwapInterval(1);
+	gladLoadGL();
+	RegisterGLErrorCallbacks();
+}
 
-		// Resources
-		LoadTextures();
-		LoadShaders();
+void Application::RegisterGLErrorCallbacks()
+{
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback([](GLenum source,
+							  GLenum type,
+							  GLuint id,
+							  GLenum severity,
+							  GLsizei length,
+							  const GLchar* message,
+							  const void* userParam) {
+								  if (type == GL_DEBUG_TYPE_ERROR) {
+									  MM_ERROR("GL error:\nWhat: {0}", message);
+								  }
+						   }, nullptr);
+}
 
-		// Layers
-		auto imguiLayer = std::make_unique<ImGuiLayer>();
-		m_imguiLayer = imguiLayer.get();
-		PushOverlay(std::move(imguiLayer));
+void Application::RegisterWindowCallbacks()
+{
+	glfwSetWindowUserPointer(m_window, this);
 
-		PushOverlay(std::make_unique<MenuBarLayer>());
-		PushLayer(std::make_unique<EditorLayer>());
-	}
+	glfwSetErrorCallback([](int code, const char* what) {
+		MM_ERROR("GLFW error:\n  Code: {0}\n  Info: {1}\n", code, what);
+	});
 
-	void Application::LoadShaders()
-	{
-		GLShader* defaultShader = ResourceManager::Instance().LoadShader("default");
-		GLShader* morphShader = ResourceManager::Instance().LoadShader("morph");
-		GLShader* quadShader = ResourceManager::Instance().LoadShader("quad");
-		GLShader* skyboxShader = ResourceManager::Instance().LoadShader("skybox");
-		GLShader* gridShader = ResourceManager::Instance().LoadShader("grid");
+	glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
+		EventBus::Get()->postpone<Event::WindowSized>({ (uint32_t)w, (uint32_t)h });
+	});
 
-		defaultShader->Compile("resources/shaders/default.vert", GLShader::VERTEX);
-		defaultShader->Compile("resources/shaders/default.frag", GLShader::FRAGMENT);
-		defaultShader->Link();
+	glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) {
+		EventBus::Get()->postpone<Event::WindowClosed>({});
+	});
 
-		morphShader->Compile("resources/shaders/morph.vert", GLShader::VERTEX);
-		morphShader->Link();
+	//glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+	//	auto& eb = EventBus::Get();
+	//	switch (action) {
+	//	case GLFW_PRESS:
+	//		eb->postpone<Event::KeyPressed>({(uint32_t)key, (uint32_t)mods, false});
+	//		break;
+	//	case GLFW_RELEASE:
+	//		eb->postpone<Event::KeyReleased>({(uint32_t)key});
+	//		break;
+	//	case GLFW_REPEAT:
+	//		eb->postpone<Event::KeyPressed>({ (uint32_t)key, (uint32_t)mods, true });
+	//		break;
+	//	}
+	//});
 
-		quadShader->Compile("resources/shaders/quad.vert", GLShader::VERTEX);
-		quadShader->Compile("resources/shaders/quad.frag", GLShader::FRAGMENT);
-		quadShader->Link();
+	//glfwSetCharCallback(m_window, [](GLFWwindow* window, unsigned int codepoint) {
+	//	EventBus::Get()->postpone<Event::KeyTyped>({(uint32_t)codepoint});
+	//});
 
-		skyboxShader->Compile("resources/shaders/skybox.vert", GLShader::VERTEX);
-		skyboxShader->Compile("resources/shaders/skybox.frag", GLShader::FRAGMENT);
-		skyboxShader->Link();
+	//glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) {
+	//	switch (action) {
+	//	case GLFW_PRESS:
+	//		EventBus::Get()->postpone<Event::MouseButtonPressed>({ (uint32_t)button });
+	//		break;
+	//	case GLFW_RELEASE:
+	//		EventBus::Get()->postpone<Event::MouseButtonReleased>({ (uint32_t)button });
+	//		break;
+	//	}
+	//});
 
-		gridShader->Compile("resources/shaders/grid.vert", GLShader::VERTEX);
-		gridShader->Compile("resources/shaders/grid.frag", GLShader::FRAGMENT);
-		gridShader->Link();
+	//glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double xpos, double ypos) {
+	//	EventBus::Get()->postpone<Event::MouseMoved>({ (float)xpos, (float)ypos });
+	//});
 
-		ResourceManager::Instance().LoadEffect("resources/shaders/default.effect.yml");
-	}
+	//glfwSetScrollCallback(m_window, [](GLFWwindow* window, double xoffset, double yoffset) {
+	//	EventBus::Get()->postpone<Event::MouseScrolled>({ (float)yoffset });
+	//});
+}
 
-	void Application::LoadTextures()
-	{
-		constexpr uint32_t TOON_COUNT = 11;
+void Application::Start()
+{
+	/* Initialize components */
+	EventBus::Init();
+	Editor::Init();
 
-		for (uint32_t i = 0; i < TOON_COUNT; ++i) {
-			std::filesystem::path toonPath = "resources/textures/";
-			std::filesystem::path name = "toon";
-			// toon00.bmp, ..., toon10.bmp
-			name += (i < 10) ? 
-				'0' + std::to_string(i) :
-				std::to_string(i);
-			name += ".bmp";
-			toonPath += name;
-			ResourceManager::Instance().LoadTexture<GLTexture2D>(name.u8string(), toonPath);
+	InitWindow();
+	RegisterWindowCallbacks();
+	m_listener = std::make_unique<dexode::EventBus::Listener>(EventBus::Get());
+	m_listener->listen<Event::WindowClosed>(MM_EVENT_FN(Application::OnWindowClose));
+	m_listener->listen<Event::WindowSized>(MM_EVENT_FN(Application::OnWindowResize));
+}
+
+void Application::Shutdown()
+{
+	/* Deinitialize components */
+	Editor::DeInit();
+	glfwTerminate();
+}
+
+void Application::Run()
+{
+	MM_INFO("Application started.");
+	Start();
+
+	/* Loop */
+	static MM_TIMEPOINT lastTime = MM_TIME_NOW();
+	while (m_running) {
+		float deltaTime = MM_TIME_DELTA(lastTime);
+		lastTime = MM_TIME_NOW();
+
+		glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, m_windowSize.x, m_windowSize.y);
+
+		if (!m_minimized) {
+			Editor::Get().OnUpdate(deltaTime);
+			Editor::Get().OnUIRender();
 		}
 
-		ResourceManager::Instance().LoadTexture<GLTexture2D>("uv_test", "resources/textures/uvTex.png");
-
-		GLCubeMapConstructInfo info;
-		info.paths[0] = "resources/textures/skybox/right.jpg";
-		info.paths[1] = "resources/textures/skybox/left.jpg";
-		info.paths[2] = "resources/textures/skybox/top.jpg";
-		info.paths[3] = "resources/textures/skybox/bottom.jpg";
-		info.paths[4] = "resources/textures/skybox/front.jpg";
-		info.paths[5] = "resources/textures/skybox/back.jpg";
-
-		ResourceManager::Instance().LoadTexture<GLCubeMap>("skybox", info);
+		glfwSwapBuffers(m_window);
+		glfwPollEvents();
+		EventBus::Get()->process();
 	}
 
-	void Application::RegisterWindowCallbacks()
-	{
-		glfwSetWindowUserPointer(m_window, this);
+	Shutdown();
+	MM_INFO("Application exited.");
+}
 
-		glfwSetErrorCallback([](int code, const char* what) {
-			MM_ERROR("GLFW error:\n  Code: {0}\n  Info: {1}\n", code, what);
-		});
+void Application::OnWindowClose(const Event::WindowClosed& e)
+{
+	m_running = false;
+}
 
-		glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
-			EventBus::Instance()->postpone<Event::WindowSized>({ (uint32_t)w, (uint32_t)h });
-		});
+void Application::OnWindowResize(const Event::WindowSized& e)
+{
+	m_minimized = (e.x == 0 || e.y == 0);
+	m_windowSize = glm::uvec2(e.x, e.y);
+}
 
-		glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) {
-			EventBus::Instance()->postpone<Event::WindowClosed>({});
-		});
-
-		glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-			auto& eb = EventBus::Instance();
-			switch (action) {
-			case GLFW_PRESS:
-				eb->postpone<Event::KeyPressed>({(uint32_t)key, (uint32_t)mods, false});
-				break;
-			case GLFW_RELEASE:
-				eb->postpone<Event::KeyReleased>({(uint32_t)key});
-				break;
-			case GLFW_REPEAT:
-				eb->postpone<Event::KeyPressed>({ (uint32_t)key, (uint32_t)mods, true });
-				break;
-			}
-		});
-
-		glfwSetCharCallback(m_window, [](GLFWwindow* window, unsigned int codepoint) {
-			EventBus::Instance()->postpone<Event::KeyTyped>({(uint32_t)codepoint});
-		});
-
-		glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) {
-			switch (action) {
-			case GLFW_PRESS:
-				EventBus::Instance()->postpone<Event::MouseButtonPressed>({ (uint32_t)button });
-				break;
-			case GLFW_RELEASE:
-				EventBus::Instance()->postpone<Event::MouseButtonReleased>({ (uint32_t)button });
-				break;
-			}
-		});
-
-		glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double xpos, double ypos) {
-			EventBus::Instance()->postpone<Event::MouseMoved>({ (float)xpos, (float)ypos });
-		});
-
-		glfwSetScrollCallback(m_window, [](GLFWwindow* window, double xoffset, double yoffset) {
-			EventBus::Instance()->postpone<Event::MouseScrolled>({ (float)yoffset });
-		});
+void Application::OnKeyPressed(const Event::KeyPressed& e)
+{
+	/* Ctrl + Z */
+	if ((e.code == GLFW_KEY_Z) && (e.mods & GLFW_MOD_CONTROL)) {
+		EventBus::Get()->postpone<Event::Undo>({});
 	}
 
-	void Application::ListenEvents() 
-	{
-		m_listener->listen<Event::WindowClosed>(MM_EVENT_FN(Application::OnWindowClose));
-		m_listener->listen<Event::WindowSized>(MM_EVENT_FN(Application::OnWindowResize));
-		m_listener->listen<Event::KeyPressed>(MM_EVENT_FN(Application::OnKeyPressed));
-	}
-
-	void Application::Run()
-	{
-		static MM_TIMEPOINT lastTime = MM_TIME_NOW();
-
-		while (m_running) {
-			float deltaTime = MM_TIME_DELTA(lastTime);
-			lastTime = MM_TIME_NOW();
-
-			glClearColor(0.1f, 0.1f, 0.1f, 1.f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
-
-			if (!m_minimized) {
-				m_layerStack.OnUpdate(deltaTime);
-				m_imguiLayer->Begin();
-				m_layerStack.OnUIRender();
-				m_imguiLayer->End();
-			}
-
-			m_glContext->SwapBuffers();
-			glfwPollEvents();
-			EventBus::Instance()->process();
-		}
-	}
-
-	void Application::DeInit()
-	{
-		m_listener->unlistenAll();
-
-		MM_ASSERT(s_instance);
-		delete s_instance;
-
-		glfwTerminate();
-
-		MM_INFO("App exited");
-	}
-
-	void Application::OnWindowClose(const Event::WindowClosed& e)
-	{
-		m_running = false;
-	}
-
-	void Application::OnWindowResize(const Event::WindowSized& e)
-	{
-		m_minimized = (e.x == 0 || e.y == 0);
-		m_viewportSize = glm::uvec2(e.x, e.y);
-	}
-
-	void Application::OnKeyPressed(const Event::KeyPressed& e)
-	{
-		/* Ctrl + Z */
-		if ((e.code == GLFW_KEY_Z) && (e.mods & GLFW_MOD_CONTROL)) {
-			EventBus::Instance()->postpone<Event::Undo>({});
-		}
-
-		/* Ctrl + Y */
-		if ((e.code == GLFW_KEY_Y) && (e.mods & GLFW_MOD_CONTROL)) {
-			EventBus::Instance()->postpone<Event::Redo>({});
-		}
+	/* Ctrl + Y */
+	if ((e.code == GLFW_KEY_Y) && (e.mods & GLFW_MOD_CONTROL)) {
+		EventBus::Get()->postpone<Event::Redo>({});
 	}
 }
+
+}
+

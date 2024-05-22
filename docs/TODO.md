@@ -110,12 +110,14 @@
 - Refractoring Renderer: 
     RenderSceneForward
 
+- Material morph
+
 # DOING
 - Multiple light sources
+    - Get alpha blending with deferred rendering 
+
 
 # TODO
-- Do material morph 
-
 - Pose Editor
     - Select overlapping bones
 

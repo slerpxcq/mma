@@ -1,0 +1,19 @@
+---
+effect: 
+  name: Deferred
+  techniques:
+    - technique: 
+      name: MainTec
+      passes:
+        - name: GeometryPass
+          vertex_shader: resources/shaders/geometry.vert
+          fragment_shader: resources/shaders/geometry.frag
+          depth_test: true
+          blend: true
+          blend_src: SrcAlpha
+          blend_dst: OneMinusSrcAlpha
+          cull_face: true
+          front_face: CCW
+    
+    
+
