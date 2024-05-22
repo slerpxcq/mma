@@ -12,8 +12,8 @@ class UIContext : public Singleton<UIContext>
 	friend class Singleton<UIContext>;
 	static constexpr uint32_t FONT_SIZE = 20;
 public:
-	void Start();
-	void Shutdown();
+	virtual void Startup() override;
+	virtual void Shutdown() override;
 	void Begin();
 	void End();
 

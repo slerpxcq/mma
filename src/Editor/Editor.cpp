@@ -4,13 +4,22 @@
 namespace mm
 {
 
+void Editor::Startup()
+{
+}
+
+void Editor::Shutdown()
+{
+}
+
 void Editor::OnUpdate(float deltaTime)
 {
 }
 
 void Editor::OnUIRender()
 {
-	ImGui::ShowDemoWindow();
+	m_propertiesPanel.OnUIRender();
+	m_sceneHierarchyPanel.OnUIRender();
 }
 
 }

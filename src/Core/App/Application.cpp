@@ -4,23 +4,47 @@
 #include "Event.hpp"
 #include "EventBus.hpp"
 #include "Log.hpp"
+#include "UIContext.hpp"
 
-#include "Editor/Editor.hpp"
+#include "Core/Nodes/RootNode.hpp"
 
 #include "Core/Manager/FileManager.hpp"
+#include "Core/Manager/PhysicsManager.hpp"
 #include "Core/Manager/PMXFile.hpp"
 
-#include "UIContext.hpp"
+#include "Editor/Editor.hpp"
 
 namespace mm
 {
 
-Application::Application()
+void Application::Startup()
 {
+	/* Initialize components */
+	EventBus::Init();
+	FileManager::Init();
+	PhysicsManager::Init();
+	RootNode::Init();
+
+	InitWindow();
+	RegisterWindowCallbacks();
+
+	UIContext::Init();
+	Editor::Init();
+
+	m_listener = std::make_unique<dexode::EventBus::Listener>(EventBus::Get());
+	m_listener->listen<Event::WindowClosed>(MM_EVENT_FN(Application::OnWindowClose));
+	m_listener->listen<Event::WindowSized>(MM_EVENT_FN(Application::OnWindowResize));
 }
 
-Application::~Application()
+void Application::Shutdown()
 {
+	/* Deinitialize components */
+	Editor::DeInit();
+	UIContext::DeInit();
+	RootNode::DeInit();
+	PhysicsManager::DeInit();
+	FileManager::DeInit();
+	glfwTerminate();
 }
 
 void Application::InitWindow()
@@ -107,37 +131,38 @@ void Application::RegisterWindowCallbacks()
 	//});
 }
 
-void Application::Start()
+
+void Application::ShowMenuBar()
 {
-	/* Initialize components */
-	EventBus::Init();
-	FileManager::Init();
-	Editor::Init();
-	UIContext::Init();
-
-	InitWindow();
-	RegisterWindowCallbacks();
-	UIContext::Get().Start();
-
-	m_listener = std::make_unique<dexode::EventBus::Listener>(EventBus::Get());
-	m_listener->listen<Event::WindowClosed>(MM_EVENT_FN(Application::OnWindowClose));
-	m_listener->listen<Event::WindowSized>(MM_EVENT_FN(Application::OnWindowResize));
-}
-
-void Application::Shutdown()
-{
-	/* Deinitialize components */
-	UIContext::Get().Shutdown();
-	UIContext::DeInit();
-	Editor::DeInit();
-	FileManager::Init();
-	glfwTerminate();
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("Exit")) {
+				EventBus::Get()->postpone<Event::WindowClosed>({});
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit")) {
+			if (ImGui::MenuItem("Undo", "Ctrl+Z")) {
+				EventBus::Get()->postpone<Event::Undo>({});
+			}
+			if (ImGui::MenuItem("Redo", "Ctrl+Y")) {
+				EventBus::Get()->postpone<Event::Redo>({});
+			}
+			if (ImGui::MenuItem("Copy", "Ctrl+C")) {
+				EventBus::Get()->postpone<Event::Copy>({});
+			}
+			if (ImGui::MenuItem("Paste", "Ctrl+V")) {
+				EventBus::Get()->postpone<Event::Paste>({});
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
 }
 
 void Application::Run()
 {
 	MM_INFO("Application started.");
-	Start();
 
 	FileManager::Get().Load<PMXFile>("resources/model/つみ式ミクさん/000 ミクさん.pmx");
 
@@ -155,6 +180,7 @@ void Application::Run()
 			Editor::Get().OnUpdate(deltaTime);
 
 			UIContext::Get().Begin();
+			ShowMenuBar();
 			Editor::Get().OnUIRender();
 			UIContext::Get().End();
 		}
@@ -164,7 +190,6 @@ void Application::Run()
 		EventBus::Get()->process();
 	}
 
-	Shutdown();
 	MM_INFO("Application exited.");
 }
 

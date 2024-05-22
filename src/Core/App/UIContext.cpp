@@ -9,7 +9,7 @@
 namespace mm
 {
 
-void UIContext::Start()
+void UIContext::Startup()
 {
 	m_window = Application::Get().m_window;
 	IMGUI_CHECKVERSION();

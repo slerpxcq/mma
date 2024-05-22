@@ -16,15 +16,15 @@ public:
 	void Run();
 
 private:
-	Application();
-	~Application();
+	Application() {}
 
 	void OnWindowClose(const Event::WindowClosed& e);
 	void OnWindowResize(const Event::WindowSized& e);
 	void OnKeyPressed(const Event::KeyPressed& e);
 
-	void Start();
-	void Shutdown();
+	virtual void Startup() override;
+	virtual void Shutdown() override;
+	void ShowMenuBar();
 	void InitWindow();
 	void RegisterGLErrorCallbacks();
 	void RegisterWindowCallbacks();

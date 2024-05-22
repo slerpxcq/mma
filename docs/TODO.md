@@ -112,9 +112,13 @@
 
 - Material morph
 
+# 2024/5/22
+
 # DOING
-- Multiple light sources
-    - Get alpha blending with deferred rendering 
+Change to node base architecture (like godot) 
+- Why?
+    - Better hierarchy panel
+    - Some nodes may be optional (particle, light, ...)
 
 
 # TODO
