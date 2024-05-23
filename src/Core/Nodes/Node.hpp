@@ -8,8 +8,11 @@ class Node
 	friend class SceneHierarchyPanel;
 	friend class PropertiesPanel;
 public:
+	Node() {}
+	Node(Node* parent) : m_parent(parent) {}
 	virtual	~Node() {}
 	virtual void ShowProperties() {}
+	virtual bool IsRemoveable() { return true; }
 
 protected:
 	std::string m_name;

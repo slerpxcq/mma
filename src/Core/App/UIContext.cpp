@@ -23,7 +23,7 @@ void UIContext::Startup()
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.AntiAliasedLines = true;
 
-	m_font = io.Fonts->AddFontFromFileTTF("resources/fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", FONT_SIZE, nullptr, io.Fonts->GetGlyphRangesJapanese());
+	m_font = io.Fonts->AddFontFromFileTTF(FONT_PATH, FONT_SIZE, nullptr, io.Fonts->GetGlyphRangesJapanese());
 	MM_ASSERT(m_font);
 
 	ImGui::StyleColorsDark();

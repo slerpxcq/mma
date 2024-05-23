@@ -31,7 +31,7 @@ void Application::Startup()
 	UIContext::Init();
 	Editor::Init();
 
-	m_listener = std::make_unique<dexode::EventBus::Listener>(EventBus::Get());
+	m_listener = std::make_unique<dexode::EventBus::Listener>(EventBus::GetPtr());
 	m_listener->listen<Event::WindowClosed>(MM_EVENT_FN(Application::OnWindowClose));
 	m_listener->listen<Event::WindowSized>(MM_EVENT_FN(Application::OnWindowResize));
 }
@@ -85,11 +85,11 @@ void Application::RegisterWindowCallbacks()
 	});
 
 	glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
-		EventBus::Get()->postpone<Event::WindowSized>({ (uint32_t)w, (uint32_t)h });
+		EventBus::Get().postpone<Event::WindowSized>({ (uint32_t)w, (uint32_t)h });
 	});
 
 	glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) {
-		EventBus::Get()->postpone<Event::WindowClosed>({});
+		EventBus::Get().postpone<Event::WindowClosed>({});
 	});
 
 	//glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -137,22 +137,22 @@ void Application::ShowMenuBar()
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("Exit")) {
-				EventBus::Get()->postpone<Event::WindowClosed>({});
+				EventBus::Get().postpone<Event::WindowClosed>({});
 			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Edit")) {
 			if (ImGui::MenuItem("Undo", "Ctrl+Z")) {
-				EventBus::Get()->postpone<Event::Undo>({});
+				EventBus::Get().postpone<Event::Undo>({});
 			}
 			if (ImGui::MenuItem("Redo", "Ctrl+Y")) {
-				EventBus::Get()->postpone<Event::Redo>({});
+				EventBus::Get().postpone<Event::Redo>({});
 			}
 			if (ImGui::MenuItem("Copy", "Ctrl+C")) {
-				EventBus::Get()->postpone<Event::Copy>({});
+				EventBus::Get().postpone<Event::Copy>({});
 			}
 			if (ImGui::MenuItem("Paste", "Ctrl+V")) {
-				EventBus::Get()->postpone<Event::Paste>({});
+				EventBus::Get().postpone<Event::Paste>({});
 			}
 			ImGui::EndMenu();
 		}
@@ -163,8 +163,6 @@ void Application::ShowMenuBar()
 void Application::Run()
 {
 	MM_INFO("Application started.");
-
-	FileManager::Get().Load<PMXFile>("resources/model/つみ式ミクさん/000 ミクさん.pmx");
 
 	/* Loop */
 	static MM_TIMEPOINT lastTime = MM_TIME_NOW();
@@ -187,7 +185,7 @@ void Application::Run()
 
 		glfwSwapBuffers(m_window);
 		glfwPollEvents();
-		EventBus::Get()->process();
+		EventBus::Get().process();
 	}
 
 	MM_INFO("Application exited.");
@@ -206,14 +204,17 @@ void Application::OnWindowResize(const Event::WindowSized& e)
 
 void Application::OnKeyPressed(const Event::KeyPressed& e)
 {
-	/* Ctrl + Z */
 	if ((e.code == GLFW_KEY_Z) && (e.mods & GLFW_MOD_CONTROL)) {
-		EventBus::Get()->postpone<Event::Undo>({});
+		EventBus::Get().postpone<Event::Undo>({});
 	}
-
-	/* Ctrl + Y */
 	if ((e.code == GLFW_KEY_Y) && (e.mods & GLFW_MOD_CONTROL)) {
-		EventBus::Get()->postpone<Event::Redo>({});
+		EventBus::Get().postpone<Event::Redo>({});
+	}
+	if ((e.code == GLFW_KEY_C) && (e.mods & GLFW_MOD_CONTROL)) {
+		EventBus::Get().postpone<Event::Copy>({});
+	}
+	if ((e.code == GLFW_KEY_V) && (e.mods & GLFW_MOD_CONTROL)) {
+		EventBus::Get().postpone<Event::Paste>({});
 	}
 }
 

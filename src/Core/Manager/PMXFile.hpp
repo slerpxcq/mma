@@ -330,7 +330,7 @@ namespace mm
 		const std::vector<Material>& GetMaterials() const { return m_materials; }
 		const std::vector<Bone>& GetBones() const { return m_bones; }
 		const std::vector<Morph>& GetMorphs() const { return m_morphs; }
-		const std::vector<Cluster>& GetClusters() const { return m_sequence; }
+		const std::vector<Cluster>& GetClusters() const { return m_clusters; }
 		const std::vector<Rigidbody>& GetRigidbodies() const { return m_rigidbodies; }
 		const std::vector<Joint>& GetJoints() const { return m_joints; }
 		const std::string& GetBoneName(uint32_t boneIndex) const { return m_bones[boneIndex].nameJP; }
@@ -360,7 +360,7 @@ namespace mm
 		std::vector<Material>  m_materials;
 		std::vector<Bone>      m_bones;
 		std::vector<Morph>     m_morphs;
-		std::vector<Cluster>   m_sequence;
+		std::vector<Cluster>   m_clusters;
 		std::vector<Rigidbody> m_rigidbodies;
 		std::vector<Joint>     m_joints;
 	};

@@ -35,10 +35,7 @@ namespace mm
 		};
 
 	public:
-		/* Load from file */
 		explicit VMDFile(const std::filesystem::path& path);
-		/* Load from Animation */
-		explicit VMDFile(const Animation& anim);
 		//void Serialize(const std::filesystem::path& path);
 		//virtual std::string GetName() const override { return m_path.filename().string(); }
 		//virtual std::filesystem::path GetPath() const override { return m_path; }

@@ -12,7 +12,7 @@ class PropertiesPanel
 {
 public:
 	PropertiesPanel() :
-		m_listener(EventBus::Get()) {
+		m_listener(EventBus::GetPtr()) {
 		m_listener.listen<EditorEvent::NodeSelected>(MM_EVENT_FN(PropertiesPanel::OnNodeSelected));
 	}
 

@@ -21,7 +21,7 @@ void SceneHierarchyPanel::OnUIRender()
 void SceneHierarchyPanel::Visit(Node* node)
 {
 	if (ImGui::TreeNode(node->m_name.c_str())) {
-		EventBus::Get()->postpone<EditorEvent::NodeSelected>({ node });
+		EventBus::Get().postpone<EditorEvent::NodeSelected>({ node });
 
 		for (auto& child : node->m_children) {
 			Visit(child.get());

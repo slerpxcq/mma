@@ -5,9 +5,9 @@
 
 // TODO: Assert enable
 #ifdef MM_DEBUG
-#define MM_ASSERT(x) do { \
-	if (!(x)) {\
-		MM_FATAL("Assertion failed:\n  File: {0}\n  Function: {1}\n  Line: {2}\n", __FILE__, __FUNCTION__, __LINE__);\
+#define MM_ASSERT(_expr_) do { \
+	if (!(_expr_)) {\
+		MM_FATAL("Assertion failed: " #_expr_ "\nFile: {0}\nFunction: {1}\nLine: {2}\n", __FILE__, __FUNCTION__, __LINE__);\
 		__debugbreak();\
 	}} while (false)
 #else

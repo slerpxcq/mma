@@ -27,7 +27,7 @@ T* FileManager::Load(const std::filesystem::path& path)
 	T* ret = file.get();
 	m_files.insert({ path.string(), std::move(file) });
 	MM_INFO("File loaded successfully");
-	MM_INFO("\tPath: {0}", path.string());
+	MM_INFO("- Path: {0}", path.string());
 	return ret;
 }
 

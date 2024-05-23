@@ -113,13 +113,14 @@
 - Material morph
 
 # 2024/5/22
-
-# DOING
 Change to node base architecture (like godot) 
 - Why?
     - Better hierarchy panel
     - Some nodes may be optional (particle, light, ...)
 
+# 2024/5/23
+
+# DOING
 
 # TODO
 - Pose Editor
