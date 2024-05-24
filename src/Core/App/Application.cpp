@@ -178,6 +178,7 @@ void Application::Run()
 			Editor::Get().OnUpdate(deltaTime);
 
 			UIContext::Get().Begin();
+			ImGui::ShowDemoWindow();
 			ShowMenuBar();
 			Editor::Get().OnUIRender();
 			UIContext::Get().End();

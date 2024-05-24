@@ -221,7 +221,7 @@ namespace mm
 			std::string   nameEN;
 			float         position[3];
 			int32_t       parentIndex;
-			int32_t       transformationLayer;
+			int32_t       layer;
 			uint16_t      flags;
 			ConnectionEnd connetcionEnd;
 			Assignment    assignment;

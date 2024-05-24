@@ -12,6 +12,7 @@ class MorphNode : public Node
 	friend class ModelNode;
 public:
 	static std::unique_ptr<MorphNode> Make(const PMXFile& pmx);
+	MorphNode() { m_name = "Morph"; }
 };
 
 }

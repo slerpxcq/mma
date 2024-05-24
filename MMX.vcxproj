@@ -113,6 +113,8 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Math\Transform.hpp" />
+    <ClInclude Include="src\Core\Nodes\PhysicsNode.hpp" />
     <ClInclude Include="src\Core\App\FileDialog.hpp" />
     <ClInclude Include="src\Core\Nodes\MorphNode.hpp" />
     <ClInclude Include="src\Core\Nodes\ArmatureNode.hpp" />
@@ -143,6 +145,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Nodes\PhysicsNode.cpp" />
     <ClCompile Include="src\Core\App\FileDialog.cpp" />
     <ClCompile Include="src\Core\Nodes\MorphNode.cpp" />
     <ClCompile Include="src\Core\Nodes\ArmatureNode.cpp" />

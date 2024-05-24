@@ -161,7 +161,7 @@ namespace mm
 			ParseText(stream, bone.nameEN);
 			Read(stream, bone.position);
 			Read(stream, bone.parentIndex, m_header.boneIndexSize);
-			Read(stream, bone.transformationLayer);
+			Read(stream, bone.layer);
 			Read(stream, bone.flags);
 
 			if (bone.flags & PMXFile::BONE_CONNECTED_BIT) {

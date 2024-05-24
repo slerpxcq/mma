@@ -120,9 +120,20 @@ Change to node base architecture (like godot)
 
 # 2024/5/23
 
+# 2024/5/24
+
 # DOING
+Load model into nodes
+    - ArmatureNode
 
 # TODO
+Load model into nodes
+    - MorphNode
+    - SkinNode
+    - PhysicsNode
+
+
+
 - Pose Editor
     - Select overlapping bones
 

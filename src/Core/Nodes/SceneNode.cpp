@@ -9,16 +9,14 @@
 namespace mm
 {
 
-void SceneNode::MakeModelNode()
-{
-
-}
-
 void SceneNode::ShowProperties()
 {
 	if (ImGui::Button("Load model")) {
 		auto path = FileDialog::Open("pmx");
-		ModelNode::Make(*FileManager::Get().Load<PMXFile>(path));
+		if (path.string().size() > 0) {
+			auto model = ModelNode::Make(*FileManager::Get().Load<PMXFile>(path));
+			m_children.push_back(std::move(model));
+		}
 	}
 }
 

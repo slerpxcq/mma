@@ -14,21 +14,22 @@ namespace mm
 std::unique_ptr<ModelNode> ModelNode::Make(const PMXFile& pmx)
 {
     auto model = std::make_unique<ModelNode>();
+    model->m_name = pmx.GetInfo().nameJP;
 
     /* Load components */
     /* Armature */
     auto armature = ArmatureNode::Make(pmx);
-    armature->m_parent = model.get();
+    armature->Attach(model.get());
     model->m_armatureNode = armature.get();
     model->m_children.push_back(std::move(armature));
     /* Skin */
     auto skin = SkinNode::Make(pmx);
-    skin->m_parent = model.get();
+    skin->Attach(model.get());
     model->m_skinNode = skin.get();
     model->m_children.push_back(std::move(skin));
     /* Morph */
     auto morph = MorphNode::Make(pmx);
-    morph->m_parent = model.get();
+    morph->Attach(model.get());
     model->m_morphNode = morph.get();
     model->m_children.push_back(std::move(morph));
 

@@ -13,7 +13,6 @@ public:
 	virtual void ShowProperties() override;
 
 private:
-	void MakeModelNode();
 
 private:
 };
