@@ -13,6 +13,7 @@ void EditorApplication::NewFrame(float deltaTime)
 
 	m_viewport->OnUIRender();
 	m_menuBar->OnUIRender();
+	m_sceneHierarchy->OnUIRender();
 
 	m_GUIContext->End();
 }
@@ -23,7 +24,11 @@ void EditorApplication::Startup()
 	m_eventBus = std::make_shared<dexode::EventBus>();
 	m_GUIContext = std::make_unique<ImGuiContext>(m_window);
 	m_menuBar = std::make_unique<MenuBar>();
-	m_viewport = std::make_unique<Viewport>();
+	m_viewport = std::make_unique<ViewportPanel>();
+
+	m_sceneNode = SceneNode::CreateDefault();
+	m_sceneHierarchy = std::make_unique<SceneHierarchyPanel>();
+	m_sceneHierarchy->SetScene(m_sceneNode);
 }
 
 void EditorApplication::Shutdown()

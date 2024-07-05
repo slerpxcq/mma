@@ -7,12 +7,12 @@
 namespace mm
 {
 
-class Viewport : public Panel
+class ViewportPanel : public Panel
 {
 public:
-	Viewport();
+	ViewportPanel();
 	void OnUIRender() override;
-	~Viewport() { s_count--; }
+	~ViewportPanel() { s_count--; }
 
 private:
 	static inline uint32_t s_count = 0;

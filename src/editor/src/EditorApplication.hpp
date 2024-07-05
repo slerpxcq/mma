@@ -3,11 +3,13 @@
 #include "ImGuiContext.hpp"
 
 #include "Panels/MenuBar.hpp"
-#include "Panels/Viewport.hpp"
+#include "Panels/ViewportPanel.hpp"
+#include "Panels/SceneHierarchyPanel.hpp" 
 
 #include <dexode/EventBus.hpp>
 
 #include <core/src/Application.hpp>
+#include <core/src/SceneNode.hpp>
 
 namespace mm
 {
@@ -29,7 +31,11 @@ private:
 	dexode::EventBus m_listener;
 
 	std::unique_ptr<MenuBar> m_menuBar;
-	std::unique_ptr<Viewport> m_viewport;
+	std::unique_ptr<ViewportPanel> m_viewport;
+	std::unique_ptr<SceneHierarchyPanel> m_sceneHierarchy;
+
+	/* Root node */
+	std::shared_ptr<SceneNode> m_sceneNode;
 };
 
 }

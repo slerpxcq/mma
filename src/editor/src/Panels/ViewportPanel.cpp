@@ -1,20 +1,20 @@
 #include "EditorPch.hpp"
-#include "Viewport.hpp"
+#include "ViewportPanel.hpp"
 
 #include <renderer/src/GPUResourceManager.hpp>
 
 namespace mm
 {
 
-Viewport::Viewport()
+ViewportPanel::ViewportPanel()
 {
 	std::string countStr = std::to_string(s_count);
 	m_name = "Viewport " + countStr;
-	m_framebuffer = FrameBuffer::CreateDefault("framebuffer_viewport_" + countStr);
+	m_framebuffer = FrameBuffer::CreateDefault("rt_viewport_" + countStr);
 	s_count++;
 }
 
-void Viewport::OnUIRender()
+void ViewportPanel::OnUIRender()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	ImGui::Begin(m_name.c_str(), nullptr, 
