@@ -113,6 +113,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\IKSolver\IKSolver.hpp" />
     <ClInclude Include="src\Core\Math\Transform.hpp" />
     <ClInclude Include="src\Core\Nodes\PhysicsNode.hpp" />
     <ClInclude Include="src\Core\App\FileDialog.hpp" />
@@ -145,6 +146,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClInclude Include="src\mmpch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\IKSolver\IKSolver.cpp" />
     <ClCompile Include="src\Core\Nodes\PhysicsNode.cpp" />
     <ClCompile Include="src\Core\App\FileDialog.cpp" />
     <ClCompile Include="src\Core\Nodes\MorphNode.cpp" />
@@ -152,7 +154,7 @@ xcopy /y /f "3rdparty/icu4c/bin64/icuuc75.dll" "bin/MMX/Release"</Command>
     <ClCompile Include="src\Core\Nodes\SkinNode.cpp" />
     <ClCompile Include="src\Core\App\Application.cpp" />
     <ClCompile Include="src\Core\App\UIContext.cpp" />
-    <ClCompile Include="src\Core\App\main.cpp" />
+    <ClCompile Include="src\Core\App\Entry.cpp" />
     <ClCompile Include="src\Core\Locale\Locale.cpp" />
     <ClCompile Include="src\Core\Manager\FileManager.cpp" />
     <ClCompile Include="src\Core\Manager\PMXFile.cpp" />

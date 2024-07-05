@@ -1,0 +1,42 @@
+#include "EditorPch.hpp"
+#include "Viewport.hpp"
+
+#include <renderer/src/GPUResourceManager.hpp>
+
+namespace mm
+{
+
+Viewport::Viewport()
+{
+	std::string countStr = std::to_string(s_count);
+	m_name = "Viewport " + countStr;
+	m_framebuffer = FrameBuffer::CreateDefault("framebuffer_viewport_" + countStr);
+	s_count++;
+}
+
+void Viewport::OnUIRender()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+	ImGui::Begin(m_name.c_str(), nullptr, 
+				 ImGuiWindowFlags_NoCollapse | 
+	//			 ImGuiWindowFlags_NoBringToFrontOnFocus |
+				 ImGuiWindowFlags_NoScrollbar |
+				 ImGuiWindowFlags_NoScrollWithMouse);
+
+	Panel::OnUIRender();
+
+	if (m_resized) {
+		m_framebuffer->Resize(m_windowSize);
+	}
+
+	m_framebuffer->Clear(glm::vec4(1, .1, .1, 1), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	ImGui::Image((void*)m_framebuffer->GetID(),
+				 ImVec2(m_contentSize.x, m_contentSize.y),
+				 ImVec2(0, 1), ImVec2(1, 0));
+
+	ImGui::End();
+	ImGui::PopStyleVar();
+}
+
+}

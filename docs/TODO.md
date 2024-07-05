@@ -121,6 +121,12 @@ Change to node base architecture (like godot)
 # 2024/5/23
 
 # 2024/5/24
+Load model into nodes
+    - ArmatureNode
+
+The tree will fucked up if there is any reallocation (by std::vector)
+
+# 2024/5/25
 
 # DOING
 Load model into nodes
