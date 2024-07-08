@@ -2,6 +2,7 @@
 #include "Renderer.hpp"
 
 #include "GPUResourceManager.hpp"
+#include "MMVertex.hpp"
 
 namespace mm
 {
@@ -9,6 +10,7 @@ namespace mm
 void Renderer::Startup()
 {
 	GPUResourceManager::Init();
+	MMVertex::Init();
 	CreateGlobalUniformBuffer();
 
 	MM_INFO("Renderer started-up successfully.");
@@ -16,13 +18,14 @@ void Renderer::Startup()
 
 void Renderer::Shutdown()
 {
+	MMVertex::DeInit();
 	GPUResourceManager::DeInit();
 	MM_INFO("Renderer shutted-down successfully.");
 }
 
 void Renderer::CreateGlobalUniformBuffer()
 {
-	m_globalUniformBuffer = GPUResourceManager::Get().Load<Buffer>("Global uniform buffer", GL_UNIFORM_BUFFER);
+	m_globalUniformBuffer = GPUResourceManager::Instance().Load<Buffer>("Global uniform buffer", GL_UNIFORM_BUFFER);
 	m_globalUniformBuffer->Data(sizeof(GlobalUniformBlock), nullptr);
 }
 

@@ -11,6 +11,7 @@ class VertexLayout
 	friend class VertexArray;
 public:
 	struct Attribute {
+		char name[16];
 		/* GL_FLOAT, GL_INT, ...*/
 		uint32_t type;
 		/* 1, 2, 3, 4 */

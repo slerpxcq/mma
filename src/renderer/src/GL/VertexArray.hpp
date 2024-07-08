@@ -12,8 +12,8 @@ namespace mm
 class VertexArray : public GPUResource
 {
 public:
-	VertexArray(const VertexBuffer& vbo, 
-				const ElementBuffer& ebo,
+	VertexArray(std::shared_ptr<VertexBuffer> vbo, 
+				std::shared_ptr<ElementBuffer> ebo,
 				const VertexLayout& layout);
 
 	~VertexArray();
@@ -26,8 +26,8 @@ private:
 	uint32_t SetLayout(const VertexLayout& layout);
 
 private:
-	const ElementBuffer& m_elementBuffer;
-	const VertexBuffer& m_vertexBuffer;
+	std::shared_ptr<ElementBuffer> m_elementBuffer;
+	std::shared_ptr<VertexBuffer>  m_vertexBuffer;
 };
 
 }

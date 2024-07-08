@@ -16,6 +16,13 @@ public:
 						type == GL_UNSIGNED_INT ? 4 : 0));
 		MM_ASSERT(m_indexSize && "Unknown index type");
 	}
+	void SetIndexSize(uint32_t size) {
+		m_indexSize = size;
+		m_indexType = ((size == 1) ? GL_UNSIGNED_BYTE :
+					   (size == 2) ? GL_UNSIGNED_SHORT :
+					   (size == 4) ? GL_UNSIGNED_INT : 0);
+		MM_ASSERT(m_indexType && "Invalid index size");
+	}
 
 	uint32_t GetIndexSize() const { return m_indexSize; }
 	uint32_t GetIndexType() const { return m_indexType; }

@@ -4,8 +4,8 @@
 namespace mm
 {
 
-VertexArray::VertexArray(const VertexBuffer& vbo, 
-						 const ElementBuffer& ebo,
+VertexArray::VertexArray(std::shared_ptr<VertexBuffer> vbo, 
+						 std::shared_ptr<ElementBuffer> ebo,
 						 const VertexLayout& layout) :
 	m_elementBuffer(ebo),
 	m_vertexBuffer(vbo)
@@ -13,12 +13,12 @@ VertexArray::VertexArray(const VertexBuffer& vbo,
 	glCreateVertexArrays(1, &m_rendererID);
 	MM_INFO("Vertex array loaded successfully; id=%u", m_rendererID);
 
-	uint32_t size = ebo.GetIndexSize();
+	uint32_t size = ebo->GetIndexSize();
 	MM_ASSERT(size > 0 && "Index size must be greated than zero!");
-	glVertexArrayElementBuffer(m_rendererID, ebo.GetID());
+	glVertexArrayElementBuffer(m_rendererID, ebo->GetID());
 
 	uint32_t stride = SetLayout(layout);
-	glVertexArrayVertexBuffer(m_rendererID, 0, vbo.GetID(), 0, stride);
+	glVertexArrayVertexBuffer(m_rendererID, 0, vbo->GetID(), 0, stride);
 }
 
 uint32_t VertexArray::SetLayout(const VertexLayout& layout)
@@ -54,7 +54,7 @@ void VertexArray::DrawArrays(uint32_t mode, uint32_t first, uint32_t count) cons
 void VertexArray::DrawElements(uint32_t mode, uint32_t first, uint32_t count) const
 {
 	glBindVertexArray(m_rendererID);
-	glDrawElements(mode, count, m_elementBuffer.GetIndexType(), (void*)(first * m_elementBuffer.GetIndexSize()));
+	glDrawElements(mode, count, m_elementBuffer->GetIndexType(), (void*)(first * m_elementBuffer->GetIndexSize()));
 }
 
 VertexArray::~VertexArray()

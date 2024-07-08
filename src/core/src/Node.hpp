@@ -12,8 +12,9 @@ public:
 		m_parent(parent) {}
 
 	auto& GetChildren() { return m_children; }
-	void AddChild(std::shared_ptr<Node> child) {
-		child->m_parent = shared_from_this();
+	/* Overload for type checking */
+	virtual void AddChild(std::shared_ptr<Node> child) {
+		child->m_parent = weak_from_this();
 		m_children.push_back(child);
 	}
 
@@ -23,6 +24,7 @@ public:
 	void SetLocalTransform(const Transform& transform) { m_localTransform = transform; }
 	Transform GetWorldTransform() const { return m_worldTransform; };
 	void UpdateWorldTransform();
+	virtual ~Node() {}
 
 protected:
 	std::weak_ptr<Node> m_parent;
@@ -33,7 +35,6 @@ protected:
 
 	Transform m_localTransform;
 	Transform m_worldTransform;
-	bool m_worldTransformDirty = true;
 };
 
 }

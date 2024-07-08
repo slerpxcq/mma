@@ -6,6 +6,7 @@
 
 #include <renderer/src/Renderer.hpp>
 #include <core/src/PMXFile.hpp>
+#include <core/src/ModelLoader.hpp>
 
 namespace mm
 {
@@ -13,7 +14,7 @@ namespace mm
 void EditorApplication::NewFrame(float deltaTime)
 {
 	m_sceneNode->UpdateWorldTransform();
-	Renderer::Get().RenderScene(*m_sceneNode);
+	Renderer::Instance().RenderScene(*m_sceneNode);
 
 	m_GUIContext->Begin();
 
@@ -41,7 +42,9 @@ void EditorApplication::Startup()
 	m_sceneNode->SetActiveCamera(cam);
 	m_viewport->SetCamera(cam);
 
-	std::unique_ptr<PMXFile> pmx = std::make_unique<PMXFile>(u8"../../resources/model/つみ式ミクさん/000 ミクさん.pmx");
+	std::shared_ptr<PMXFile> pmx = std::make_shared<PMXFile>(u8"../../resources/model/つみ式ミクさん/000 ミクさん.pmx");
+	auto model = ModelLoader::LoadFromPMX(pmx);
+	m_sceneNode->AddChild(model);
 }
 
 void EditorApplication::Shutdown()

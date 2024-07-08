@@ -8,11 +8,11 @@ namespace mm
 
 std::shared_ptr<FrameBuffer> FrameBuffer::CreateDefault(const std::string& name, glm::uvec2 size)
 {
-	auto fb = GPUResourceManager::Get().Load<FrameBuffer>(name);
+	auto fb = GPUResourceManager::Instance().Load<FrameBuffer>(name);
 	fb->m_size = size;
 
-	auto color = GPUResourceManager::Get().Load<Texture2D>("tex_color0_" + name, size, GL_RGBA8);
-	auto depth = GPUResourceManager::Get().Load<Texture2D>("tex_depth_" + name, size, GL_DEPTH24_STENCIL8);
+	auto color = GPUResourceManager::Instance().Load<Texture2D>("tex_color0_" + name, size, GL_RGBA8);
+	auto depth = GPUResourceManager::Instance().Load<Texture2D>("tex_depth_" + name, size, GL_DEPTH24_STENCIL8);
 
 	glNamedFramebufferTexture(fb->GetID(), GL_COLOR_ATTACHMENT0, color->GetID(), 0);
 	glNamedFramebufferTexture(fb->GetID(), GL_DEPTH_ATTACHMENT, depth->GetID(), 0);

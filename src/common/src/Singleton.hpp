@@ -9,7 +9,7 @@ template <typename T>
 class Singleton 
 {
 public:
-	static T& Get() { return *s_instance; }
+	static T& Instance() { return *s_instance; }
 	virtual void Startup() {}
 	virtual void Shutdown() {}
 

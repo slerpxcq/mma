@@ -197,7 +197,21 @@ Rendering process
 
 # 2024/7/8
 - PMX model loading, all types of nodes
-    - PMX loading: done
+
+- Next
+    - ModelNode from PMXFile
+        - ModelLoader class
+    - SkinNode
+        - MeshNode(s)
+        - Textures(not a node)
+    - ArmatureNode
+        - BoneNode
+    - PhysicsNode
+        - RigidbodyNode
+        - JointNode
+
+- Done
+    - PMX loading
 
 
 

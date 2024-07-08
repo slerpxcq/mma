@@ -6,6 +6,10 @@
 #include <common/src/Singleton.hpp>
 #include <common/src/Transform.hpp>
 
+#include <glm/gtc/type_ptr.hpp>
+
+#include <glad/glad.h>
+
 #include <memory>
 #include <string>
 

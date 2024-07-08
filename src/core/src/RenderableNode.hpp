@@ -8,7 +8,6 @@ namespace mm
 class RenderableNode : public Node
 {
 public:
-protected:
 private:
 };
 

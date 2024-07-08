@@ -35,6 +35,16 @@ public:
 		return ret;
 	}
 
+	template <typename T>
+	std::shared_ptr<T> Get(const std::string& name) {
+		auto it = m_resources.find(name);
+		if (it != m_resources.end()) {
+			return it->second.lock();
+		} else {
+			return nullptr;
+		}
+	}
+
 private:
 	std::unordered_map<std::string, std::weak_ptr<GPUResource>> m_resources;
 };
