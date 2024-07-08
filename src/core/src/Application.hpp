@@ -21,7 +21,7 @@ public:
 	virtual void Shutdown();
 
 protected:
-	virtual void NewFrame(float deltaTime) {};
+	virtual void NewFrame(float deltaTime) {}
 
 protected:
 	GLFWwindow* m_window = nullptr;

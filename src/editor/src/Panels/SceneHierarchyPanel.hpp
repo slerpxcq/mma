@@ -21,6 +21,7 @@ private:
 
 private:
 	std::weak_ptr<SceneNode> m_sceneNode;
+	uint32_t m_itemID;
 };
 
 }

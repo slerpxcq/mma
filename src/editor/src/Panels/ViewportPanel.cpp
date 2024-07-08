@@ -27,13 +27,16 @@ void ViewportPanel::OnUIRender()
 
 	if (m_resized) {
 		m_framebuffer->Resize(m_windowSize);
+		if (auto cam = m_camera.lock(); cam) {
+			cam->SetAspect(m_contentSize.x / m_contentSize.y);
+		}
 	}
-
-	m_framebuffer->Clear(glm::vec4(1, .1, .1, 1), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	ImGui::Image((void*)m_framebuffer->GetID(),
 				 ImVec2(m_contentSize.x, m_contentSize.y),
 				 ImVec2(0, 1), ImVec2(1, 0));
+
+	m_framebuffer->Clear(glm::vec4(1, .1, .1, 1), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	ImGui::End();
 	ImGui::PopStyleVar();

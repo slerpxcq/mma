@@ -45,6 +45,10 @@ public:
 			 this->rotation * rhs.rotation };
 	}
 
+	std::string toString() const {
+		return glm::to_string(translation) + "\n" + glm::to_string(rotation);
+	}
+
 	static inline Transform identity() {
 		return { glm::vec3(0), glm::identity<glm::quat>() };
 	}
@@ -52,6 +56,7 @@ public:
 	static inline glm::mat4 toMat4(const Transform& x) {
 		return glm::translate(glm::mat4(1.f), x.translation) * glm::toMat4(x.rotation);
 	}
+
 };
 
 static inline std::ostream& operator<<(std::ostream& os, const Transform& x)

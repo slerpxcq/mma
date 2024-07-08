@@ -27,6 +27,7 @@ project "common"
     }
 
     links {
+        "%{wks.location}/%{LibDir.icu4c}/*.lib"
     }
 
     filter "system:windows"

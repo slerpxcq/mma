@@ -9,7 +9,6 @@
 #include <dexode/EventBus.hpp>
 
 #include <core/src/Application.hpp>
-#include <core/src/SceneNode.hpp>
 
 namespace mm
 {
@@ -34,7 +33,6 @@ private:
 	std::unique_ptr<ViewportPanel> m_viewport;
 	std::unique_ptr<SceneHierarchyPanel> m_sceneHierarchy;
 
-	/* Root node */
 	std::shared_ptr<SceneNode> m_sceneNode;
 };
 

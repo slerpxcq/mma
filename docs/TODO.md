@@ -181,3 +181,23 @@ So it should be called FileManager to be precise
     - If multiple bone transforms are copied, they can be only pasted on the same bone
 
 - PoseEditor should be able to undo even when editing
+
+# 2024/7/7 
+Rendering process
+- Calculate VP matrix
+    - needs world transform from Node
+    - Transform panel for inspection
+        - needs event system to be working
+- Set VP matrix uniform
+- Build renderable object list (priority queue)
+    - needs node type Renderable?
+- Start rendering
+
+- CameraController
+
+# 2024/7/8
+- PMX model loading, all types of nodes
+    - PMX loading: done
+
+
+
