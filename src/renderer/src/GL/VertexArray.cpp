@@ -39,7 +39,7 @@ uint32_t VertexArray::SetLayout(const VertexLayout& layout)
 		glEnableVertexArrayAttrib(m_rendererID, location);
 		glVertexArrayAttribBinding(m_rendererID, location, 0);
 		offset += 4 * attribute.count;
-		MM_INFO("Vertex attribute found; type=%u, count=%u, location=%u, offset=%u", attribute.type, attribute.count, location, offset);
+		MM_INFO("Vertex attribute found; type={0}, count={1}, location={2}, offset={3}", attribute.type, attribute.count, location, offset);
 	}
 
 	return offset;

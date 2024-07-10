@@ -22,6 +22,7 @@ public:
 
 private:
 	void RegisterWindowCallbacks();
+	void RegisterGLErrorCallback();
 
 private:
 	std::unique_ptr<ImGuiContext> m_GUIContext;

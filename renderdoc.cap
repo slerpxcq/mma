@@ -5,7 +5,7 @@
         "commandLine": "",
         "environment": [
         ],
-        "executable": "C:\\Users\\Admin\\Desktop\\mma_\\bin\\MMX\\Debug\\MMX.exe",
+        "executable": "C:\\Users\\Admin\\Desktop\\dev\\mmx\\bin\\editor\\Debug\\editor.exe",
         "inject": false,
         "numQueuedFrames": 0,
         "options": {
@@ -23,6 +23,6 @@
             "verifyBufferAccess": false
         },
         "queuedFrameCap": 0,
-        "workingDir": "C:/Users/Admin/Desktop/mma_"
+        "workingDir": "C:/Users/Admin/Desktop/dev/mmx/src/editor"
     }
 }

@@ -29,11 +29,15 @@ public:
 		return glm::perspective(m_fovy, m_aspect, m_near, m_far);
 	}
 
+	glm::mat4 GetViewMatrix() const {
+		return Transform::toMat4(m_worldTransform.inverse());
+	}
+
 private:
 	float m_aspect = 1.f;
 	float m_near = 0.1f;
 	float m_far = 100.f;
-	float m_fovy = 30.f;
+	float m_fovy = glm::radians(45.f);
 };
 
 }

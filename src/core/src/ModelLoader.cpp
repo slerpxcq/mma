@@ -20,6 +20,7 @@ std::shared_ptr<ModelNode> ModelLoader::LoadFromPMX(std::shared_ptr<PMXFile> pmx
 	auto model =  std::make_shared<ModelNode>(pmx->GetInfo().nameJP);
 	auto skin = std::make_shared<SkinNode>("Skin");
 	model->AddChild(skin);
+	skin->m_meshCount = pmx->GetMaterials().size();
 
 	/* Load vertices */
 	std::vector<MMVertex::Layout> vertices;
@@ -70,15 +71,15 @@ std::shared_ptr<ModelNode> ModelLoader::LoadFromPMX(std::shared_ptr<PMXFile> pmx
 
 	/* Load indices */
 	auto elementBuffer = GPUResourceManager::Instance().Load<ElementBuffer>(model->GetName() + "_indices");
-	elementBuffer->SetIndexSize(pmx->GetHeader().vertexIndexSize);
 	const auto& faces = pmx->GetFaces();
+	elementBuffer->SetIndexType(GL_UNSIGNED_INT);
 	elementBuffer->Data(faces.size() * sizeof(faces[0]), (void*)faces.data());
 
 	/* Load vertex array */
 	auto vertexArray = GPUResourceManager::Instance().Load<VertexArray>(model->GetName() + "_vertexarray",
 																		vertexBuffer,
 																		elementBuffer,
-																		*MMVertex::Instance().GetLayout());
+																		MMVertex::Instance().GetLayout());
 
 	/* Load meshes */
 	uint32_t offset = 0;
@@ -89,6 +90,7 @@ std::shared_ptr<ModelNode> ModelLoader::LoadFromPMX(std::shared_ptr<PMXFile> pmx
 		mesh->m_vertexArray = vertexArray;
 		mesh->m_elementBuffer = elementBuffer;
 		mesh->m_vertexBuffer = vertexBuffer;
+		mesh->m_indexCount = pmxMesh.elementCount;
 		offset += pmxMesh.elementCount;
 	}
 	

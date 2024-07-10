@@ -22,8 +22,11 @@ public:
 	const std::string& GetName() { return m_name; }
 
 	void SetLocalTransform(const Transform& transform) { m_localTransform = transform; }
+	void SetLocalRotation(const glm::quat& q) { m_localTransform.rotation = q; }
+	void SetLocalTranslation(const glm::vec3& v) { m_localTransform.translation = v; }
 	Transform GetWorldTransform() const { return m_worldTransform; };
 	void UpdateWorldTransform();
+
 	virtual ~Node() {}
 
 protected:

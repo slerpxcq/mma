@@ -213,5 +213,9 @@ Rendering process
 - Done
     - PMX loading
 
+# 2024/7/9
+Draw model with single color
+
+
 
 

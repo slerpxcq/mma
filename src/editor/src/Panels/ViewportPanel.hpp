@@ -10,6 +10,7 @@ namespace mm
 class ViewportPanel : public Panel
 {
 	friend class CameraController;
+	static constexpr glm::vec4 CLEAR_COLOR = glm::vec4(.1, .1, .1, 1);
 public:
 	ViewportPanel();
 	void OnUIRender() override;

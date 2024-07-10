@@ -9,9 +9,6 @@ Texture2D::Texture2D(glm::uvec2 size, uint32_t format, bool createHandle) :
 	Texture(GL_TEXTURE_2D)
 {
 	glTextureStorage2D(m_rendererID, 1, format, size.x, size.y);
-	if (createHandle) {
-		CreateHandle();
-	}
 }
 
 Texture2D::Texture2D(Texture2D&& other) noexcept :

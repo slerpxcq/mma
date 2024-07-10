@@ -7,13 +7,13 @@ namespace mm
 Shader::Shader()
 {
 	m_rendererID = glCreateProgram();
-	MM_INFO("Shader program loaded successfully; id=%u", m_rendererID);
+	MM_INFO("Shader program loaded successfully; id={0}", m_rendererID);
 }
 
 Shader::~Shader()
 {
 	glDeleteProgram(m_rendererID);
-	MM_INFO("Shader program unloaded successfully; id=%u", m_rendererID);
+	MM_INFO("Shader program unloaded successfully; id={0}", m_rendererID);
 }
 
 bool Shader::Compile(const std::string& source, uint32_t type)
@@ -35,15 +35,15 @@ bool Shader::Compile(const std::string& source, uint32_t type)
 		std::vector<GLchar> errorLog(maxLength);
 		glGetShaderInfoLog(id, maxLength, &maxLength, &errorLog[0]);
 		errorLog.push_back(0);
-		MM_ERROR("Failed to compile %s shader", ((type == GL_VERTEX_SHADER) ? "vertex" :
+		MM_ERROR("Failed to compile {0} shader", ((type == GL_VERTEX_SHADER) ? "vertex" :
 		                                           (type == GL_FRAGMENT_SHADER) ? "fragment" : ""));
-		MM_ERROR("What: %s", &errorLog[0]);
+		MM_ERROR("What: {0}", &errorLog[0]);
 
 		DeleteAllShaders();
 		return false;
 	}
 
-	MM_INFO("Shader compiled successfully; id=%u", id);
+	MM_INFO("Shader compiled successfully; id={0}", id);
 	return true;
 }
 
@@ -62,7 +62,7 @@ bool Shader::Link()
 		std::vector<GLchar> infoLog(maxLength);
 		glGetProgramInfoLog(m_rendererID, maxLength, &maxLength, &infoLog[0]);
 		infoLog.push_back(0);
-		MM_ERROR("Failed to link program; id=%u", m_rendererID);
+		MM_ERROR("Failed to link program; id={0}", m_rendererID);
 		MM_ERROR("What: %s", &infoLog[0]);
 
 		glDeleteProgram(m_rendererID);
@@ -111,7 +111,7 @@ void Shader::LoadLocationCache()
 		int32_t loc = glGetUniformLocation(m_rendererID, buf);
 		if (loc >= 0) {
 			m_locationCache.insert({ std::string(buf), loc});
-			MM_INFO("Shader program found uniform; id=%u, location=%i, name=%s", m_rendererID, loc, buf);
+			MM_INFO("Shader program found uniform; id={0}, location={1}, name={2}", m_rendererID, loc, buf);
 		}
 	}
 }

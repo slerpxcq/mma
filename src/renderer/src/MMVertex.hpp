@@ -25,10 +25,10 @@ public:
 
 public:
 	virtual void Startup() override;
-	std::shared_ptr<VertexLayout> GetLayout() { return m_vertexLayout; }
+	const VertexLayout& GetLayout() const { return m_vertexLayout; }
 
 private:
-	std::shared_ptr<VertexLayout> m_vertexLayout;
+	VertexLayout m_vertexLayout;
 };
 
 }

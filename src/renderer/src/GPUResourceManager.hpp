@@ -39,7 +39,7 @@ public:
 	std::shared_ptr<T> Get(const std::string& name) {
 		auto it = m_resources.find(name);
 		if (it != m_resources.end()) {
-			return it->second.lock();
+			return std::dynamic_pointer_cast<T>(it->second.lock());
 		} else {
 			return nullptr;
 		}

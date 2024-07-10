@@ -3,6 +3,7 @@
 #include <core/src/SceneNode.hpp>
 
 #include "GL/Buffer.hpp"
+#include "GL/Shader.hpp"
 
 namespace mm
 {
@@ -20,13 +21,16 @@ class Renderer : public Singleton<Renderer>
 public:
 	virtual void Startup() override;
 	virtual void Shutdown() override;
-	void RenderScene(SceneNode& node);
+	void RenderScene(std::shared_ptr<SceneNode> node);
+	void Visit(std::shared_ptr<Node> node);
 
 private:
 	void CreateGlobalUniformBuffer();
+	void LoadDefaultShader();
 
 private:
 	std::shared_ptr<Buffer> m_globalUniformBuffer;
+	std::shared_ptr<Shader> m_defaultShader;
 };
 
 }
