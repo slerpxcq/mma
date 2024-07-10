@@ -8,6 +8,7 @@ class Panel
 public:
 	/* Should be called by derived class */
 	virtual void OnUIRender();
+	virtual void OnUpdate() {}
 
 protected:
 	bool m_opened = false;

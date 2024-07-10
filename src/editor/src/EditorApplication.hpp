@@ -25,14 +25,16 @@ private:
 	void RegisterGLErrorCallback();
 
 private:
-	std::unique_ptr<ImGuiContext> m_GUIContext;
+	std::unique_ptr<ImGuiContext> m_ImGuiContext;
 
 	std::shared_ptr<dexode::EventBus> m_eventBus;
 	dexode::EventBus m_listener;
 
-	std::unique_ptr<MenuBar> m_menuBar;
-	std::unique_ptr<ViewportPanel> m_viewport;
-	std::unique_ptr<SceneHierarchyPanel> m_sceneHierarchy;
+	std::vector<std::shared_ptr<Panel>> m_panels;
+
+	std::weak_ptr<MenuBar> m_menuBar;
+	std::weak_ptr<ViewportPanel> m_viewport;
+	std::weak_ptr<SceneHierarchyPanel> m_sceneHierarchy;
 
 	std::shared_ptr<SceneNode> m_sceneNode;
 };

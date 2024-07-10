@@ -28,15 +28,18 @@ void ViewportPanel::OnUIRender()
 				 ImVec2(m_contentSize.x, m_contentSize.y),
 				 ImVec2(0, 1), ImVec2(1, 0));
 
+	ImGui::End();
+	ImGui::PopStyleVar();
+}
+
+void ViewportPanel::OnUpdate()
+{
 	if (m_resized) {
 		m_framebuffer->Resize(m_windowSize);
 		if (auto cam = m_camera.lock(); cam) {
-			cam->SetAspect(m_contentSize.x / m_contentSize.y);
+			cam->SetAspect((float)m_contentSize.x / m_contentSize.y);
 		}
 	}
-
-	ImGui::End();
-	ImGui::PopStyleVar();
 }
 
 }

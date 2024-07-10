@@ -216,6 +216,13 @@ Rendering process
 # 2024/7/9
 Draw model with single color
 
+# 2024/7/10
+Viewport flickering when resizing
+    - needs to be resized before rendering
+Sync viewport size to framebuffer
+Camera controller
+
+
 
 
 

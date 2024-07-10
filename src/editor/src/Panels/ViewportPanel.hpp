@@ -14,9 +14,12 @@ class ViewportPanel : public Panel
 public:
 	ViewportPanel();
 	void OnUIRender() override;
+	void OnUpdate() override;
 	~ViewportPanel() { s_count--; }
 
-	void SetCamera(std::shared_ptr<CameraNode> cam) { m_camera = cam; }
+	void SetCamera(std::shared_ptr<CameraNode> cam) { 
+		m_camera = cam; 
+	}
 
 private:
 	static inline uint32_t s_count = 0;

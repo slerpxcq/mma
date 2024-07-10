@@ -69,7 +69,7 @@ void Renderer::RenderScene(std::shared_ptr<SceneNode> scene)
 	int32_t backup;
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &backup);
 	fb->Bind();
-	glViewport(0, 0, 1000, 1000);
+	glViewport(0, 0, fb->GetSize().x, fb->GetSize().y);
 	fb->Clear(glm::vec4(.1, .1, .1, 1), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Visit(scene);
 	glBindFramebuffer(GL_FRAMEBUFFER, backup);
