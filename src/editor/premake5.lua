@@ -4,6 +4,7 @@ project "Editor"
     cppdialect "C++17"
     targetdir "%{wks.location}/bin/%{prj.name}/%{cfg.buildcfg}"
     objdir "%{wks.location}/obj/%{prj.name}/%{cfg.buildcfg}"
+	staticruntime "on"
 
     pchheader "EditorPch.hpp"
     pchsource "src/EditorPch.cpp"
@@ -38,8 +39,8 @@ project "Editor"
     }
 
     links {
-        "core",
-        "common" 
+        "Core",
+        "Common" 
     }
 
     filter "system:windows"

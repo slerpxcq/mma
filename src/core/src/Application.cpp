@@ -1,55 +1,48 @@
 #include "CorePch.hpp"
 #include "Application.hpp"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include <renderer/src/Renderer.hpp>
+#include "InputManager.hpp"
 
 namespace mm
 {
 
-void Application::Run()
+int Application::Run()
 {
 	Startup();
 
 	static MM_TIMEPOINT tp = MM_TIME_NOW();
 	while (m_running) {
 		NewFrame(MM_TIME_DELTA(tp));
-		glfwSwapBuffers(m_window);
-		glfwPollEvents();
 	}
 
 	Shutdown();
+
+	return 0;
 }
 
 void Application::Startup()
 {
-	if (!glfwInit()) {
-		throw MMException("Failed to initialize GLFW!");
-	}
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MM_GL_VERSION_MAJOR);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MM_GL_VERSION_MINOR);
-
-	m_window = glfwCreateWindow(m_info.width, m_info.height, m_info.title.c_str(), nullptr, nullptr);
-
-	if (!m_window) {
-		throw MMException("Failed to create window!");
-	}
-
-	glfwMakeContextCurrent(m_window);
-	if (!gladLoadGL()) {
-		throw MMException("GLAD failed to load OpenGL!");
-	}
-
-	Renderer::Init();
+	InputManager::CreateInstance();
+	RegisterCallbacks();
 }
 
 void Application::Shutdown()
 {
-	Renderer::DeInit();
-	glfwDestroyWindow(m_window);
+	InputManager::DestroyInstance();
+}
+
+void Application::NewFrame(float deltaTime)
+{
+	m_window.BeginFrame();
+	m_window.EndFrame();
+
+	InputManager::GetEventBus().Process();
+}
+
+void Application::RegisterCallbacks()
+{
+	m_listener = std::make_unique<EventListener>(InputManager::GetEventBus());
+	m_listener->Listen(MM_CALLBACK(Application::OnWindowClosed));
 }
 
 }

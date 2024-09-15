@@ -6,9 +6,6 @@
 #include <common/src/Singleton.hpp>
 #include <common/src/Transform.hpp>
 
-#include <core/src/SceneNode.hpp>
-#include <core/src/CameraNode.hpp>
-
 #include <glad/glad.h>
 
 #include <imgui.h>

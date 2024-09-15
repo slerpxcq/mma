@@ -4,6 +4,7 @@ project "Common"
     cppdialect "C++17"
     targetdir "%{wks.location}/bin/%{prj.name}/%{cfg.buildcfg}"
     objdir "%{wks.location}/obj/%{prj.name}/%{cfg.buildcfg}"
+	staticruntime "on"
 
     includedirs { 
         "%{wks.location}/%{IncDir.glfw}",

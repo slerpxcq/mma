@@ -3,9 +3,5 @@
 
 int main()
 {
-	using namespace mm;
-	auto app = std::make_unique<EditorApplication>();
-	app->Run();
-
-	return 0;
+	return std::make_unique<mm::EditorApplication>()->Run();
 }

@@ -4,6 +4,7 @@ project "Core"
     cppdialect "C++17"
     targetdir "%{wks.location}/bin/%{prj.name}/%{cfg.buildcfg}"
     objdir "%{wks.location}/obj/%{prj.name}/%{cfg.buildcfg}"
+	staticruntime "on"
 
     pchheader "CorePch.hpp"
     pchsource "src/CorePch.cpp"
@@ -20,8 +21,7 @@ project "Core"
         "../%{LibDir.icu4c}/*.lib",
         "yaml-cpp",
         "opengl32.lib",
-        "renderer",
-        "common"
+        "Common"
     }
 
     includedirs {
