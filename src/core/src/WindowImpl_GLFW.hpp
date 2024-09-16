@@ -19,6 +19,8 @@ public:
 	virtual void BeginFrame() override;
 	virtual void EndFrame() override;
 
+	virtual void* GetHandle() const override { return static_cast<void*>(m_window); }
+
 private:
 	void RegisterWindowEvents();
 

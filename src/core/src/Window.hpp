@@ -9,7 +9,7 @@ public:
 	struct ConstructInfo {
 		uint32_t width{ 1280 };
 		uint32_t height{ 720 };
-		std::string_view api{ "GL" };
+		GraphicsAPI api{ GraphicsAPI::GL4 };
 		std::string_view title{ "" };
 	};
 
@@ -23,6 +23,7 @@ public:
 
 		virtual void BeginFrame() = 0;
 		virtual void EndFrame() = 0;
+		virtual void* GetHandle() const = 0;
 		virtual ~Impl() {}
 
 	private:
@@ -33,11 +34,13 @@ public:
 
 public:
 	Window(const ConstructInfo& info = ConstructInfo());
+	GraphicsAPI GetAPI() const { return m_api; }
+	void* GetHandle() const { return m_impl->GetHandle(); }
 	void BeginFrame() { m_impl->BeginFrame(); }
 	void EndFrame() { m_impl->EndFrame(); }
 
 private:
-	std::string_view m_api{};
+	GraphicsAPI m_api{};
 	std::unique_ptr<Impl> m_impl{};
 };
 

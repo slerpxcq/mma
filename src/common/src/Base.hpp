@@ -16,10 +16,18 @@
 #else
 #define MM_ASSERT(x) 
 #endif
-
+ 
 #define MM_TIME_NOW() std::chrono::high_resolution_clock::now()
 #define MM_TIMEPOINT decltype(MM_TIME_NOW())
 #define MM_TIME_DELTA(x) (std::chrono::duration_cast<std::chrono::microseconds>(MM_TIME_NOW() - (x)).count() * 1e-6f)
 
-//#define MM_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)
+#define MM_FONT_PATH "../../resources/fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf"
+
 #define MM_CALLBACK(x) &x, this
+
+namespace mm
+{
+	enum class GraphicsAPI {
+		GL4, VK, DX
+	};
+}

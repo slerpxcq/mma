@@ -3,6 +3,7 @@
 #include "Window.hpp"
 #include "WindowEvent.hpp"
 #include "EventBus.hpp"
+#include "LayerStack.hpp"
 
 namespace mm
 {
@@ -19,14 +20,15 @@ public:
 	void OnWindowClosed(const WindowEvent::WindowClosed& e) { m_running = false; }
 
 protected:
-	virtual void NewFrame(float deltaTime);
+	virtual void NewFrame(float deltaTime) {}
 
 private:
 	void RegisterCallbacks();
 
 protected:
-	Window m_window;
 	std::unique_ptr<EventListener> m_listener{};
+	Window m_window;
+	LayerStack m_layerStack;
 
 	bool m_running{ true };
 	bool m_minimized{ false };

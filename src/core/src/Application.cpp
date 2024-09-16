@@ -12,7 +12,10 @@ int Application::Run()
 
 	static MM_TIMEPOINT tp = MM_TIME_NOW();
 	while (m_running) {
+		m_window.BeginFrame();
 		NewFrame(MM_TIME_DELTA(tp));
+		m_window.EndFrame();
+		InputManager::GetEventBus().Process();
 	}
 
 	Shutdown();
@@ -29,14 +32,6 @@ void Application::Startup()
 void Application::Shutdown()
 {
 	InputManager::DestroyInstance();
-}
-
-void Application::NewFrame(float deltaTime)
-{
-	m_window.BeginFrame();
-	m_window.EndFrame();
-
-	InputManager::GetEventBus().Process();
 }
 
 void Application::RegisterCallbacks()

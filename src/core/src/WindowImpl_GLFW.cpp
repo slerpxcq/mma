@@ -15,7 +15,7 @@ namespace mm
 WindowImpl_GLFW::WindowImpl_GLFW(const Window::ConstructInfo& info) :
 	Impl{ info }
 {
-	MM_ASSERT((info.api == "GL") && "Vulkan is not implemented yet");
+	MM_ASSERT((info.api == GraphicsAPI::GL4) && "Vulkan is not implemented yet");
 
 	if (!glfwInit()) {
 		throw MMException("Could not init GLFW");
@@ -44,6 +44,8 @@ WindowImpl_GLFW::~WindowImpl_GLFW()
 
 void WindowImpl_GLFW::BeginFrame()
 {
+	glClearColor(0.2f, 0.2f, 0.2f, 0.2f);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void WindowImpl_GLFW::EndFrame()

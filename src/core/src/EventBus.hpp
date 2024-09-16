@@ -32,7 +32,7 @@ public:
 		m_impl(bus.m_impl) {}
 
 	template <typename C, typename E>
-	void Listen(MemFnPtr<C, E>&& fn, C* self) {
+	void Listen(MemFnPtr<C, E>&& fn, C* self) { 
 		m_impl.listen<E>(std::bind(fn, self, std::placeholders::_1));
 	}
 
