@@ -10,7 +10,7 @@ namespace mm
 
 Window::Window(const ConstructInfo& info)
 {
-	switch (GetCurrentAPI()) {
+	switch (GetGraphicsAPI()) {
 	case Config::GraphicsAPI::GL4:
 		m_impl = MakeScoped<WindowImpl_GLFW>(info);
 		break;

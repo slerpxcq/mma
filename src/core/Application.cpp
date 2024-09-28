@@ -29,7 +29,7 @@ int Application::Run()
 void Application::Startup()
 {
 	/* TODO: */
-	SetCurrentAPI(Config::GraphicsAPI::GL4);
+	SetGraphicsAPI(Config::GraphicsAPI::GL4);
 
 	InputManager::CreateInstance();
 	RegisterCallbacks();

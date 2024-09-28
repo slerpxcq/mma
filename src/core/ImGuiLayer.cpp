@@ -29,12 +29,13 @@ ImGuiLayer::ImGuiLayer(const Window& window)
 
 	m_font = io.Fonts->AddFontFromFileTTF(Config::FONT_PATH, FONT_SIZE, nullptr, io.Fonts->GetGlyphRangesJapanese());
 
-	switch (GetCurrentAPI()) {
+	switch (GetGraphicsAPI()) {
 	case Config::GraphicsAPI::GL4:
-		m_impl = std::make_unique<ImGuiLayerImpl_GLFW>(window);
+		m_impl = MakeScoped<ImGuiLayerImpl_GLFW>(window);
 		break;
 	default:
 		MM_ASSERT("API not supported yet");
+		break;
 	}
 }
 

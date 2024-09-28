@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 
-#define DECL_SINGLETON(_class_) \
+#define MM_DECL_SINGLETON(_class_) \
 public: \
 static void CreateInstance() { s_instance = new _class_{}; } \
 static void DestroyInstance() { delete s_instance; } \
@@ -12,7 +12,7 @@ private: \
 static inline _class_* s_instance{}; \
 _class_() = default;  
 
-#define GLOBAL_ATTRIBUTE(_type_, _name_)  \
+#define MM_GLOBAL_ATTRIBUTE(_type_, _name_)  \
 class _name_ { \
 friend _type_ Get##_name_(); \
 friend void Set##_name_(_type_); \

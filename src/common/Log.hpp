@@ -12,7 +12,7 @@ namespace mm
 template <typename Impl>
 class Log 
 {
-	DECL_SINGLETON(Log)
+	MM_DECL_SINGLETON(Log)
 public:
 	FORWARD_IMPL(Trace)
 	FORWARD_IMPL(Info)

@@ -7,7 +7,7 @@ namespace mm
 
 class InputManager 
 {
-	DECL_SINGLETON(InputManager)
+	MM_DECL_SINGLETON(InputManager)
 public:
 	static EventBus& GetEventBus() { return s_instance->m_eventBus; }
 
