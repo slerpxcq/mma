@@ -7,7 +7,7 @@ project "Core"
 	staticruntime "on"
 
     pchheader "CorePch.hpp"
-    pchsource "src/CorePch.cpp"
+    pchsource "CorePch.cpp"
 
     links {
         "glad",
@@ -37,14 +37,13 @@ project "Core"
         "%{wks.location}/%{IncDir.EventBus}",
         "%{wks.location}/%{IncDir.icu4c}",
         "%{wks.location}/%{IncDir.yaml}",
-        "src",
         "../"
     }
 
 
     files { 
-        "src/**.cpp",
-        "src/**.hpp"
+        "**.cpp",
+        "**.hpp"
     }
 
     filter "system:windows"

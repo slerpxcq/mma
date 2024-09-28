@@ -7,7 +7,7 @@ project "Editor"
 	staticruntime "on"
 
     pchheader "EditorPch.hpp"
-    pchsource "src/EditorPch.cpp"
+    pchsource "EditorPch.cpp"
 
     includedirs { 
         "%{wks.location}/%{IncDir.glfw}",
@@ -34,8 +34,8 @@ project "Editor"
     }
 
     files { 
-        "src/**.cpp",
-        "src/**.hpp"
+        "**.cpp",
+        "**.hpp"
     }
 
     links {
