@@ -23,16 +23,35 @@ workspace "MMX"
     LibDir["icu4c"] = "3rdparty/icu4c/lib64"
 
     group "3rdparty"
-    include "3rdparty/glfw"
     include "3rdparty/glad"
     include "3rdparty/imgui"
     include "3rdparty/ImGuizmo"
-    include "3rdparty/bullet3"
     include "3rdparty/spdlog"
     include "3rdparty/nativefiledialog"
     include "3rdparty/EventBus"
     include "3rdparty/yaml-cpp"
+	
+	externalproject "bullet3"
+		location "3rdparty/bullet3/build/src"
+		kind "StaticLib"
+		language "C++"
+		configmap {
+			["Debug"] = "Debug",
+			["Release"] = "MinSizeRel"
+		}
+
+    externalproject "glfw"
+        location "3rdparty/glfw/build/src"
+        kind "StaticLib"
+        language "C"
+        configmap {
+            ["Debug"] = "Debug",
+            ["Release"] = "MinSizeRel"
+        }
     group ""
+	
+	group "Test"
+	group ""
 
     include "src/Core"
     include "src/Editor"

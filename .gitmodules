@@ -29,3 +29,6 @@
 [submodule "3rdparty/googletest"]
 	path = 3rdparty/googletest
 	url = https://github.com/slerpxcq/googletest.git
+[submodule "3rdparty/bullet3"]
+	path = 3rdparty/bullet3
+	url = https://github.com/bulletphysics/bullet3.git

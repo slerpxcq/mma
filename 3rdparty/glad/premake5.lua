@@ -20,8 +20,10 @@ project "glad"
         }
 
     filter "configurations:Debug"
+		runtime "Debug"
         symbols "on"
 
     filter "configurations:Release"
         optimize "on"
+		runtime "Release"
 

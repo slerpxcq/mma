@@ -4,7 +4,6 @@ project "Editor"
     cppdialect "C++17"
     targetdir "%{wks.location}/bin/%{prj.name}/%{cfg.buildcfg}"
     objdir "%{wks.location}/obj/%{prj.name}/%{cfg.buildcfg}"
-	staticruntime "on"
 
     pchheader "EditorPch.hpp"
     pchsource "EditorPch.cpp"
@@ -47,8 +46,9 @@ project "Editor"
         systemversion "latest"
 
     filter "configurations:Debug"
-		defines { "MM_DEBUG "}
+		runtime "Debug"
         symbols "on"
 
     filter "configurations:Release"
         optimize "on"
+		runtime "Release"
