@@ -30,15 +30,6 @@ workspace "MMX"
     include "3rdparty/nativefiledialog"
     include "3rdparty/EventBus"
     include "3rdparty/yaml-cpp"
-	
-	externalproject "bullet3"
-		location "3rdparty/bullet3/build/src"
-		kind "StaticLib"
-		language "C++"
-		configmap {
-			["Debug"] = "Debug",
-			["Release"] = "MinSizeRel"
-		}
 
     externalproject "glfw"
         location "3rdparty/glfw/build/src"
@@ -48,7 +39,44 @@ workspace "MMX"
             ["Debug"] = "Debug",
             ["Release"] = "MinSizeRel"
         }
+		
+	group "3rdparty/Bullet"
+	externalproject "BulletCollision"
+		location "3rdparty/bullet3/build/src/BulletCollision"
+		kind "StaticLib"
+		language "C++"
+		configmap {
+			["Debug"] = "Debug",
+			["Release"] = "MinSizeRel"
+		}
+		
+	externalproject "BulletDynamics"
+		location "3rdparty/bullet3/build/src/BulletDynamics"
+		kind "StaticLib"
+		language "C++"
+		configmap {
+			["Debug"] = "Debug",
+			["Release"] = "MinSizeRel"
+		}
+		
+	externalproject "LinearMath"
+		location "3rdparty/bullet3/build/src/LinearMath"
+		kind "StaticLib"
+		language "C++"
+		configmap {
+			["Debug"] = "Debug",
+			["Release"] = "MinSizeRel"
+		}
     group ""
+
+	externalproject "EventBus"
+		location "3rdparty/EventBus/build/lib"
+		kind "StaticLib"
+		language "C++"
+		configmap {
+			["Debug"] = "Debug",
+			["Release"] = "MinSizeRel"
+		}
 	
 	group "Test"
 	group ""

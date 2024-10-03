@@ -8,9 +8,10 @@
     - [x] Incoperate premake and CMake
 - [ ] Change to native building system for each submodule
     Submodules to change:
-    - [ ] bullet3
-    - [ ] icu
+    - [x] bullet3
+    - ~~[ ] icu~~
     - [x] glfw
-    - [ ] EventBus
+    - [x] EventBus
     - [ ] spdlog
-    - [ ] GoogleTest
+    - [x] GoogleTest
+    - [ ] yaml-cpp

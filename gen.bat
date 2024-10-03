@@ -1,10 +1,35 @@
 @echo off
 :: CMake
+:: -------- Bullet --------
 pushd .
 cd "3rdparty/bullet3"
 cmake -S . -B build
-cd "3rdparty/glfw"
-cmake -S . -B build -D USE_MSVC_RUNTIME_LIBRARY_DLL=ON
 popd
+:: -------- glfw --------
+pushd .
+cd "3rdparty/glfw"
+cmake -S . -B build -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON
+popd
+:: -------- googletest --------
+pushd .
+cd "3rdparty/googletest"
+cmake -S . -B build 
+popd
+:: -------- EventBus --------
+pushd .
+cd "3rdparty/EventBus"
+cmake -S . -B build -DENABLE_TEST=OFF
+popd
+:: -------- spdlog --------
+pushd .
+cd "3rdparty/spdlog"
+cmake -S . -B build 
+popd
+:: :: -------- yaml-cpp --------
+:: pushd .
+:: cd "spdlog/yaml-cpp"
+:: cmake -S . -B build 
+:: popd
+
 :: premake
 "3rdparty/premake5/premake5" vs2022
