@@ -29,3 +29,6 @@
 [submodule "3rdparty/bullet3"]
 	path = 3rdparty/bullet3
 	url = https://github.com/bulletphysics/bullet3.git
+[submodule "3rdparty/yaml-cpp"]
+	path = 3rdparty/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
