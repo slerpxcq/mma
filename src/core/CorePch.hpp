@@ -5,6 +5,7 @@
 #include "Common/Exception.hpp"
 #include "Common/Log.hpp"
 #include "Common/Base.hpp"
+#include "Common/FileSystem.hpp"
 
 #include "Common/Container/DynArray.hpp"
 #include "Common/Container/String.hpp"

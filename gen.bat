@@ -13,7 +13,7 @@ popd
 :: -------- googletest --------
 pushd .
 cd "3rdparty/googletest"
-cmake -S . -B build 
+cmake -S . -B build -Dgtest_force_shared_crt=ON
 popd
 :: -------- EventBus --------
 pushd .
@@ -26,10 +26,10 @@ cd "3rdparty/spdlog"
 cmake -S . -B build 
 popd
 :: :: -------- yaml-cpp --------
-:: pushd .
-:: cd "spdlog/yaml-cpp"
-:: cmake -S . -B build 
-:: popd
+pushd .
+cd "3rdparty/yaml-cpp"
+cmake -S . -B build -DYAML_USE_SYSTEM_GTEST=OFF
+popd
 
 :: premake
 "3rdparty/premake5/premake5" vs2022

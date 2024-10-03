@@ -4,14 +4,22 @@
 - [x] Global variable handling 
 
 # 2024/10/2
-- [ ] Integrate google test
+- [x] Integrate google test
     - [x] Incoperate premake and CMake
-- [ ] Change to native building system for each submodule
+- [x] Change to native building system for each submodule
     Submodules to change:
     - [x] bullet3
     - ~~[ ] icu~~
     - [x] glfw
     - [x] EventBus
-    - [ ] spdlog
+    - [x] spdlog
     - [x] GoogleTest
-    - [ ] yaml-cpp
+    - [x] yaml-cpp
+
+# 2024/10/3
+- [x] Get an idea of scene graph system
+    - [x] Node based? - Yes, node stores references to underlying components (ECS-like)
+- [x] Get logger working
+- [ ] PMX file loading
+    - [ ] Refactor PMXFile class
+    - [ ] Testing

@@ -31,6 +31,10 @@ void Application::Startup()
 	/* TODO: */
 	SetGraphicsAPI(Config::GraphicsAPI::GL4);
 
+	/* TODO: Use Scoped*/
+	SetCoreLogger(new Logger{"Core"});
+	GetCoreLogger()->Info("start");
+
 	InputManager::CreateInstance();
 	RegisterCallbacks();
 }
@@ -38,6 +42,9 @@ void Application::Startup()
 void Application::Shutdown()
 {
 	InputManager::DestroyInstance();
+
+	/* TODO: Use Scoped*/
+	delete GetCoreLogger();
 }
 
 void Application::RegisterCallbacks()
