@@ -15,7 +15,7 @@ namespace mm
 WindowImpl_GLFW::WindowImpl_GLFW(const Window::ConstructInfo& info) :
 	Impl{ info }
 {
-	MM_ASSERT((info.api == GraphicsAPI::GL4) && "Vulkan is not implemented yet");
+	//MM_ASSERT((info.api == GraphicsAPI::GL4) && "Vulkan is not implemented yet");
 
 	if (!glfwInit()) {
 		throw MMException("Could not init GLFW");
@@ -63,15 +63,15 @@ void WindowImpl_GLFW::RegisterWindowEvents()
 	});
 
 	glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
-		InputManager::GetEventBus().Postpone<WindowEvent::WindowSized>({(uint32_t)w, (uint32_t)h});
+		GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::WindowSized>({(uint32_t)w, (uint32_t)h});
 	});
 
 	glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) {
-		InputManager::GetEventBus().Postpone<WindowEvent::WindowClosed>({});
+		GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::WindowClosed>({});
 	});
 
 	glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-		auto& eb = InputManager::GetEventBus();
+		auto& eb = GetCoreInputManager()->GetEventBus();
 		switch (action) {
 		case GLFW_PRESS:
 			eb.Postpone<WindowEvent::KeyPressed>({(uint32_t)key, (uint32_t)mods, false});
@@ -86,26 +86,26 @@ void WindowImpl_GLFW::RegisterWindowEvents()
 	});
 
 	glfwSetCharCallback(m_window, [](GLFWwindow* window, unsigned int codepoint) {
-		InputManager::GetEventBus().Postpone<WindowEvent::KeyTyped>({(uint32_t)codepoint});
+		GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::KeyTyped>({(uint32_t)codepoint});
 	});
 
 	glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) {
 		switch (action) {
 		case GLFW_PRESS:
-			InputManager::GetEventBus().Postpone<WindowEvent::MouseButtonPressed>({ (uint32_t)button });
+			GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::MouseButtonPressed>({ (uint32_t)button });
 			break;
 		case GLFW_RELEASE:
-			InputManager::GetEventBus().Postpone<WindowEvent::MouseButtonReleased>({ (uint32_t)button });
+			GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::MouseButtonReleased>({ (uint32_t)button });
 			break;
 		}
 	});
 
 	glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double xpos, double ypos) {
-		InputManager::GetEventBus().Postpone<WindowEvent::MouseMoved>({ (float)xpos, (float)ypos });
+		GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::MouseMoved>({ (float)xpos, (float)ypos });
 	});
 
 	glfwSetScrollCallback(m_window, [](GLFWwindow* window, double xoffset, double yoffset) {
-		InputManager::GetEventBus().Postpone<WindowEvent::MouseScrolled>({ (float)yoffset });
+		GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::MouseScrolled>({ (float)yoffset });
 	});
 }
 

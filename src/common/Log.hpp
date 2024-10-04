@@ -8,11 +8,11 @@
 template <typename... Args> \
 void _name_(Args&&... args) { m_impl._name_(std::forward<Args>(args)...); }
 
-#define MM_CORE_TRACE(...)
-#define MM_CORE_INFO(...)
-#define MM_CORE_WARN(...)
-#define MM_CORE_ERROR(...)
-#define MM_CORE_FATAL(...)
+#define MM_CORE_TRACE(...) GetCoreLogger()->Trace(__VA_ARGS__)
+#define MM_CORE_INFO(...) GetCoreLogger()->Info(__VA_ARGS__)
+#define MM_CORE_WARN(...) GetCoreLogger()->Warn(__VA_ARGS__)
+#define MM_CORE_ERROR(...) GetCoreLogger()->Error(__VA_ARGS__)
+#define MM_CORE_FATAL(...) GetCoreLogger()->Fatal(__VA_ARGS__)
 
 namespace mm
 {

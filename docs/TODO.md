@@ -20,6 +20,16 @@
 - [x] Get an idea of scene graph system
     - [x] Node based? - Yes, node stores references to underlying components (ECS-like)
 - [x] Get logger working
+
+# 2024/10/4
 - [ ] PMX file loading
-    - [ ] Refactor PMXFile class
+    - [x] Refactor PMXFile class
+    - [x] Add PMXParser class
+        - [x] Stream reading and trimming
     - [ ] Testing
+
+- [x] Get rid of all singleton class
+
+- [ ] Node system
+    - [ ] Server model, using handle/id to store reference?
+    - [ ] GPUResourceServer/Manager?

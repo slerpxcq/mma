@@ -9,9 +9,8 @@ struct PMXParseError : public MMException
 	PMXParseError(const char* what = "") : MMException(what) {}
 };
 
-struct PMXFile 
+struct PMXFile
 {
-public:
 	enum class TextEncoding : u8 {
 		UTF16LE = 0,
 		UTF8
@@ -40,7 +39,7 @@ public:
 		EXTERNAL_PARENT_BIT = (1U << 13),
 	};
 
-	enum class MaterialFlag {
+	enum class MaterialFlag : u8 {
 		NO_CULL_BIT = 1 << 0,
 		GROUND_SHADOW_BIT = 1 << 1,
 		SELF_SHADOW_MAP_BIT = 1 << 2,
@@ -48,18 +47,18 @@ public:
 		EDGE_BIT = 1 << 4
 	};
 
-	enum class SphType {
+	enum class SphType : u8 {
 		DISABLE = 0,
 		MULTIPLY,
 		ADD,
 		SUBTEXTURE
 	};
 
-	enum class ToonFlag {
-		TOON_SHARED_BIT = 1, 
+	enum class ToonFlag : u8 {
+		TOON_SHARED_BIT = 1,
 	};
 
-	enum class MorphType {
+	enum class MorphType : u8 {
 		GROUP = 0,
 		VERTEX,
 		BONE,
@@ -71,12 +70,12 @@ public:
 		MATERIAL,
 	};
 
-	enum class MorphMethod {
+	enum class MorphMethod : u8 {
 		MULTIPLY = 0,
 		ADD
 	};
 
-	enum class Panel {
+	enum class Panel : u8 {
 		RESERVED = 0,
 		EYEBROW,
 		EYE,
@@ -84,24 +83,24 @@ public:
 		OTHER,
 	};
 
-	enum class ClusterType {
+	enum class ClusterType : u8 {
 		BONE = 0,
 		MORPH
 	};
 
-	enum class RigidbodyShape {
+	enum class RigidbodyShape : u8 {
 		SPHERE = 0,
 		BOX,
 		CAPSULE
 	};
 
-	enum class RigidbodyType {
+	enum class RigidbodyType : u8 {
 		KINEMATIC = 0,
 		DYNAMIC,
 		PIVOTED
 	};
 
-	enum class JointType {
+	enum class JointType : u8 {
 		GENERIC_6DOF_SPRING = 0,
 		GENERIC_6DOF,
 		P2P,
@@ -319,34 +318,45 @@ public:
 	};
 
 public:
-	explicit PMXFile(const std::filesystem::path& path);
+	static PMXFile Load(const Path& path);
 
-private:
-	void ParseText(std::ifstream& stream, String& string);
-	void ParseHeader(std::ifstream& stream);
-	void ParseInfo(std::ifstream& stream);
-	void ParseVertex(std::ifstream& stream);
-	void ParseFace(std::ifstream& stream);
-	void ParseTexture(std::ifstream& stream);
-	void ParseMaterial(std::ifstream& stream);
-	void ParseBone(std::ifstream& stream);
-	void ParseMorph(std::ifstream& stream);
-	void ParseFrame(std::ifstream& stream);
-	void ParseRigidbody(std::ifstream& stream);
-	void ParseJoint(std::ifstream& stream);
-
-private:
-	Header                 header;
-	Info                   info;
-	DynArray<Vertex>    vertices;
-	DynArray<Face>      faces;
-	DynArray<Texture>   textures;
-	DynArray<Material>  materials;
-	DynArray<Bone>      bones;
-	DynArray<Morph>     morphs;
-	DynArray<Cluster>   sequence;
-	DynArray<Rigidbody> rigidbodies;
-	DynArray<Joint>     joints;
+public:
+	Header                 header{};
+	Info                   info{};
+	DynArray<Vertex>    vertices{};
+	DynArray<Face>      faces{};
+	DynArray<Texture>   textures{};
+	DynArray<Material>  materials{};
+	DynArray<Bone>      bones{};
+	DynArray<Morph>     morphs{};
+	DynArray<Cluster>   sequence{};
+	DynArray<Rigidbody> rigidbodies{};
+	DynArray<Joint>     joints{};
 };
+
+class PMXParser
+{
+public:
+	PMXFile Parse(const Path& path);
+	/* void Serialize(const PMXFile& pmx, const Path& path);*/
+
+private:
+	String ParseText(InFileStream& stream);
+	void ParseHeader(InFileStream& stream);
+	void ParseInfo(InFileStream& stream);
+	void ParseVertex(InFileStream& stream);
+	void ParseFace(InFileStream& stream);
+	void ParseTexture(InFileStream& stream);
+	void ParseMaterial(InFileStream& stream);
+	void ParseBone(InFileStream& stream);
+	void ParseMorph(InFileStream& stream);
+	void ParseFrame(InFileStream& stream);
+	void ParseRigidbody(InFileStream& stream);
+	void ParseJoint(InFileStream& stream);
+
+private:
+	PMXFile m_pmx{};
+};
+
 
 }

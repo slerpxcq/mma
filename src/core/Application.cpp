@@ -18,7 +18,7 @@ int Application::Run()
 		m_window.BeginFrame();
 		NewFrame(Clock::Delta(tp));
 		m_window.EndFrame();
-		InputManager::GetEventBus().Process();
+		GetCoreInputManager()->GetEventBus().Process();
 	}
 
 	Shutdown();
@@ -33,23 +33,23 @@ void Application::Startup()
 
 	/* TODO: Use Scoped*/
 	SetCoreLogger(new Logger{"Core"});
-	GetCoreLogger()->Info("start");
+	MM_CORE_INFO("Started");
 
-	InputManager::CreateInstance();
+	SetCoreInputManager(new InputManager{});
+
 	RegisterCallbacks();
 }
 
 void Application::Shutdown()
 {
-	InputManager::DestroyInstance();
-
 	/* TODO: Use Scoped*/
 	delete GetCoreLogger();
+	delete GetCoreInputManager();
 }
 
 void Application::RegisterCallbacks()
 {
-	m_listener = std::make_unique<EventBus::Listener>(InputManager::GetEventBus());
+	m_listener = std::make_unique<EventBus::Listener>(GetCoreInputManager()->GetEventBus());
 	m_listener->Listen(&Application::OnWindowClosed, this);
 }
 

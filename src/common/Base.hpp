@@ -35,5 +35,6 @@ using i16 = std::int16_t;
 using i8 = std::int8_t;
 using f32 = float;
 using f64 = double;
+using Byte = std::byte;
 }
 

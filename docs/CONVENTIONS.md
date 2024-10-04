@@ -30,3 +30,41 @@
 
 # Runtime
 All project and modules should use /MDd for debug and /MD for release. **DO NOT** use /MTd or /MT
+
+# Type
+| Entity | Convention | Note/Example |
+| --- | --- | --- |
+| Loop counter | i32 | To prevent down counting overflow |
+| Size/Count | i32 | Same as above |
+| Bit field | u<8/16/32> |  |
+
+# Indentation, braces
+For all statements, even single line, wrap with ```{}```
+```C++
+if (true) {
+    Foo();
+} 
+else {
+    Bar();
+}
+```
+
+For top level scope, ```{``` in new line
+```C++
+void func() 
+{
+}
+```
+
+For non-top level scope, ```{``` keeps in the same line
+```C++
+void func() 
+{
+    if (true) {
+
+    } 
+    else {
+
+    }
+}
+```
