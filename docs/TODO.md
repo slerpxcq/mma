@@ -22,13 +22,14 @@
 - [x] Get logger working
 
 # 2024/10/4
-- [ ] PMX file loading
+- [x] Get rid of all singleton class
+
+- [x] PMX file loading
     - [x] Refactor PMXFile class
     - [x] Add PMXParser class
         - [x] Stream reading and trimming
-    - [ ] Testing
-
-- [x] Get rid of all singleton class
+# 2024/10/5
+    - [x] Testing
 
 - [ ] Node system
     - [ ] Server model, using handle/id to store reference?

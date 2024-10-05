@@ -7,11 +7,10 @@ class Buffer;
 
 class GPUResourceFactory
 {
-	MM_DECL_SINGLETON(GPUResourceFactory)
 public:
 	class Impl {
 	public:
-		~Impl() = default;
+		virtual ~Impl() = default;
 
 		virtual Ref<Buffer> MakeBuffer() = 0;
 	private:

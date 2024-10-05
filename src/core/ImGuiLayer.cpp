@@ -1,7 +1,7 @@
 #include "CorePch.hpp"
 #include "ImGuiLayer.hpp"
 
-#include "Window.hpp"
+#include "Window/Window.hpp"
 
 #include "ImGuiLayerImpl_GLFW.hpp"
 

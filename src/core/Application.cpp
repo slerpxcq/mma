@@ -9,7 +9,7 @@
 namespace mm
 {
 
-int Application::Run()
+i32 Application::Run()
 {
 	Startup();
 
@@ -33,7 +33,7 @@ void Application::Startup()
 
 	/* TODO: Use Scoped*/
 	SetCoreLogger(new Logger{"Core"});
-	MM_CORE_INFO("Started");
+	MM_CORE_INFO("Application started");
 
 	SetCoreInputManager(new InputManager{});
 
@@ -43,6 +43,7 @@ void Application::Startup()
 void Application::Shutdown()
 {
 	/* TODO: Use Scoped*/
+	MM_CORE_INFO("Application shutting down...");
 	delete GetCoreLogger();
 	delete GetCoreInputManager();
 }

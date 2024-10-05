@@ -3,14 +3,15 @@
 #include <cstdint>
 #include <cstddef>
 
-#define MM_DECL_SINGLETON(_class_) \
-public: \
-static void CreateInstance() { s_instance = new _class_{}; } \
-static void DestroyInstance() { delete s_instance; } \
-static _class_& GetInstance() { return *s_instance; } \
-private: \
-static inline _class_* s_instance{}; \
-_class_() = default;  
+/* DEPERCATED: DO NOT USE */
+// #define MM_DECL_SINGLETON(_class_) \
+// public: \
+// static void CreateInstance() { s_instance = new _class_{}; } \
+// static void DestroyInstance() { delete s_instance; } \
+// static _class_& GetInstance() { return *s_instance; } \
+// private: \
+// static inline _class_* s_instance{}; \
+// _class_() = default;  
 
 #define MM_GLOBAL_ATTRIBUTE(_type_, _name_)  \
 class _name_ { \
@@ -22,6 +23,9 @@ static inline _type_ data{}; \
 static inline _type_ Get##_name_() { return _name_::data; } \
 template <typename T> \
 static inline void Set##_name_(T&& x) { _name_::data = std::move(x); } 
+
+#define MM_APP_ENTRY(_appname_) \
+int main(int argc, char** argv) { return std::make_unique<mm::_appname_>(argc, argv)->Run(); }
 
 namespace mm
 {

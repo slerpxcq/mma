@@ -27,3 +27,5 @@ void EditorApplication::NewFrame(float deltaTime)
 
 }
 
+MM_APP_ENTRY(EditorApplication)
+

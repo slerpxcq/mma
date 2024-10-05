@@ -329,7 +329,7 @@ public:
 	DynArray<Material>  materials{};
 	DynArray<Bone>      bones{};
 	DynArray<Morph>     morphs{};
-	DynArray<Cluster>   sequence{};
+	DynArray<Cluster>   clusters{};
 	DynArray<Rigidbody> rigidbodies{};
 	DynArray<Joint>     joints{};
 };
@@ -337,7 +337,7 @@ public:
 class PMXParser
 {
 public:
-	PMXFile Parse(const Path& path);
+	Ref<PMXFile> Parse(const Path& path);
 	/* void Serialize(const PMXFile& pmx, const Path& path);*/
 
 private:
@@ -355,7 +355,7 @@ private:
 	void ParseJoint(InFileStream& stream);
 
 private:
-	PMXFile m_pmx{};
+	Ref<PMXFile> m_pmx{ MakeRef<PMXFile>() };
 };
 
 

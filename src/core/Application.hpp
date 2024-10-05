@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Window.hpp"
+#include "Window/Window.hpp"
 #include "WindowEvent.hpp"
 #include "EventBus.hpp"
-#include "LayerStack.hpp"
+#include "Layer/LayerStack.hpp"
 
 namespace mm
 {
@@ -12,19 +12,25 @@ class Application
 {
 public:
 	virtual ~Application() = default;
-	virtual int Run();
+	virtual i32 Run();
 	virtual void Startup();
 	virtual void Shutdown();
+
+	Application(i32 argc = {}, char** argv = {}) :
+		m_argc{argc}, m_argv{argv} {}
 
 	void OnWindowClosed(const WindowEvent::WindowClosed& e) { m_running = false; }
 
 protected:
-	virtual void NewFrame(float deltaTime) = 0;
+	virtual void NewFrame(f32 deltaTime) = 0;
 
 private:
 	void RegisterCallbacks();
 
 protected:
+	i32 m_argc{};
+	char** m_argv{};
+
 	Scoped<EventBus::Listener> m_listener{};
 	Window m_window;
 	LayerStack m_layerStack;
