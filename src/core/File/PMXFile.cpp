@@ -369,7 +369,6 @@ void PMXParser::ParseFrame(InFileStream& stream)
 				Read(stream, element.index, m_pmx->header.morphIndexSize);
 				break;
 			default:
-				;
 				throw PMXParseError("Unknown cluster type");
 			}
 		}

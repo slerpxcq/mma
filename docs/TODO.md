@@ -29,7 +29,7 @@
     - [x] Add PMXParser class
         - [x] Stream reading and trimming
 # 2024/10/5
-    - [x] Testing
+- [x] Testing PMX file loading
 
 - [ ] Node system
     - [ ] Server model, using handle/id to store reference?

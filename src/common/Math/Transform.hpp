@@ -22,8 +22,9 @@ public:
 	glm::quat rotation;
 
 public:
-	Transform() { *this = Transform::identity(); }
-	Transform(const glm::vec3& translation, const glm::quat& rotation) :
+	// Transform() { *this = Transform::Identity(); }
+	Transform(const glm::vec3& translation = glm::vec3(0), 
+			  const glm::quat& rotation = glm::identity<glm::quat>()) :
 		translation(translation),
 		rotation(rotation) {}
 
@@ -31,13 +32,12 @@ public:
 		translation(mat[3]),
 		rotation(glm::toQuat(glm::mat3(mat))) {}
 
-	Transform inverse() const {
+	Transform Inverse() const {
 		glm::quat rotInv = glm::inverse(rotation);
-		return { -glm::rotate(rotInv, translation),
-			 rotInv };
+		return { -glm::rotate(rotInv, translation), rotInv };
 	}
 
-	Transform operator*(float s) {
+	Transform operator*(float s) const {
 		return { s * translation,
 			 glm::slerp(glm::identity<glm::quat>(), rotation, s) };
 	}
@@ -47,25 +47,19 @@ public:
 			 this->rotation * rhs.rotation };
 	}
 
-	String toString() const {
+	String ToString() const {
 		return glm::to_string(translation) + "\n" + glm::to_string(rotation);
 	}
 
-	Transform identity() {
+	static Transform Identity() {
 		return { glm::vec3(0), glm::identity<glm::quat>() };
 	}
 
-	glm::mat4 toMat4(const Transform& x) {
+	glm::mat4 ToMat4(const Transform& x) const {
 		return glm::translate(glm::mat4(1.f), x.translation) * glm::toMat4(x.rotation);
 	}
 
 };
-
-static inline std::ostream& operator<<(std::ostream& os, const Transform& x)
-{
-	return os << glm::to_string(x.translation) << "\n" <<
-		glm::to_string(x.rotation);
-}
 
 }
 

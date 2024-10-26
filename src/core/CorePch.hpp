@@ -10,6 +10,7 @@
 
 #include "Common/Container/DynArray.hpp"
 #include "Common/Container/String.hpp"
+#include "Common/Container/Map.hpp"
 
 #include "Common/Memory.hpp"
 

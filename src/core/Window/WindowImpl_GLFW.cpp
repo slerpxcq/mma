@@ -63,15 +63,15 @@ void WindowImpl_GLFW::RegisterWindowEvents()
 	});
 
 	glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
-		GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::WindowSized>({(uint32_t)w, (uint32_t)h});
+		GetInputManager()->GetEventBus().Postpone<WindowEvent::WindowSized>({(uint32_t)w, (uint32_t)h});
 	});
 
 	glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) {
-		GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::WindowClosed>({});
+		GetInputManager()->GetEventBus().Postpone<WindowEvent::WindowClosed>({});
 	});
 
 	glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-		auto& eb = GetCoreInputManager()->GetEventBus();
+		auto& eb = GetInputManager()->GetEventBus();
 		switch (action) {
 		case GLFW_PRESS:
 			eb.Postpone<WindowEvent::KeyPressed>({(uint32_t)key, (uint32_t)mods, false});
@@ -86,26 +86,26 @@ void WindowImpl_GLFW::RegisterWindowEvents()
 	});
 
 	glfwSetCharCallback(m_window, [](GLFWwindow* window, unsigned int codepoint) {
-		GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::KeyTyped>({(uint32_t)codepoint});
+		GetInputManager()->GetEventBus().Postpone<WindowEvent::KeyTyped>({(uint32_t)codepoint});
 	});
 
 	glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) {
 		switch (action) {
 		case GLFW_PRESS:
-			GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::MouseButtonPressed>({ (uint32_t)button });
+			GetInputManager()->GetEventBus().Postpone<WindowEvent::MouseButtonPressed>({ (uint32_t)button });
 			break;
 		case GLFW_RELEASE:
-			GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::MouseButtonReleased>({ (uint32_t)button });
+			GetInputManager()->GetEventBus().Postpone<WindowEvent::MouseButtonReleased>({ (uint32_t)button });
 			break;
 		}
 	});
 
 	glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double xpos, double ypos) {
-		GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::MouseMoved>({ (float)xpos, (float)ypos });
+		GetInputManager()->GetEventBus().Postpone<WindowEvent::MouseMoved>({ (float)xpos, (float)ypos });
 	});
 
 	glfwSetScrollCallback(m_window, [](GLFWwindow* window, double xoffset, double yoffset) {
-		GetCoreInputManager()->GetEventBus().Postpone<WindowEvent::MouseScrolled>({ (float)yoffset });
+		GetInputManager()->GetEventBus().Postpone<WindowEvent::MouseScrolled>({ (float)yoffset });
 	});
 }
 

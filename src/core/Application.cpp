@@ -6,6 +6,8 @@
 #include "Common/Clock.hpp"
 #include "Globals.hpp"
 
+#include "Node.hpp"
+
 namespace mm
 {
 
@@ -18,7 +20,7 @@ i32 Application::Run()
 		m_window.BeginFrame();
 		NewFrame(Clock::Delta(tp));
 		m_window.EndFrame();
-		GetCoreInputManager()->GetEventBus().Process();
+		GetInputManager()->GetEventBus().Process();
 	}
 
 	Shutdown();
@@ -28,29 +30,24 @@ i32 Application::Run()
 
 void Application::Startup()
 {
-	/* TODO: */
 	SetGraphicsAPI(Config::GraphicsAPI::GL4);
 
-	/* TODO: Use Scoped*/
-	SetCoreLogger(new Logger{"Core"});
+	SetCoreLogger(MakeScoped<Logger>("Core"));
 	MM_CORE_INFO("Application started");
 
-	SetCoreInputManager(new InputManager{});
+	SetInputManager(MakeScoped<InputManager>());
 
 	RegisterCallbacks();
 }
 
 void Application::Shutdown()
 {
-	/* TODO: Use Scoped*/
 	MM_CORE_INFO("Application shutting down...");
-	delete GetCoreLogger();
-	delete GetCoreInputManager();
 }
 
 void Application::RegisterCallbacks()
 {
-	m_listener = std::make_unique<EventBus::Listener>(GetCoreInputManager()->GetEventBus());
+	m_listener = MakeScoped<EventBus::Listener>(GetInputManager()->GetEventBus());
 	m_listener->Listen(&Application::OnWindowClosed, this);
 }
 

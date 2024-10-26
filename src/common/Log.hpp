@@ -2,6 +2,7 @@
 
 #include "Base.hpp"
 
+/* include implementation header here*/
 #include "LogImpl_spdlog.hpp"
 
 #define FORWARD_IMPL(_name_) \
@@ -33,7 +34,7 @@ private:
 	Impl m_impl{};
 };
 
-/* Change implementation here */
+/* define implementation here */
 using Logger = Log<LogImpl_spdlog>;
 
 }
