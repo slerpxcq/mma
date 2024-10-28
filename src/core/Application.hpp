@@ -8,6 +8,8 @@
 namespace mm
 {
 
+class Graphics;
+
 class Application 
 {
 public:
@@ -31,7 +33,8 @@ protected:
 	char** m_argv{};
 
 	Scoped<EventBus::Listener> m_listener{};
-	Window m_window;
+	Graphics* m_graphics{};
+	Window m_window{};
 	LayerStack m_layerStack{};
 
 	bool m_running{ true };

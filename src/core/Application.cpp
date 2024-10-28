@@ -14,9 +14,11 @@ namespace mm
 {
 
 Application::Application(i32 argc, char** argv) :
-	m_argc{argc}, m_argv{argv}
+	m_argc{ argc }, m_argv{ argv }, m_graphics{ []() {
+		SetGraphics(MakeScoped<Graphics_GL>());
+		return GetGraphics().get();
+	}() }
 {
-	SetGraphics(MakeScoped<Graphics_GL>());
 }
 
 i32 Application::Run()
