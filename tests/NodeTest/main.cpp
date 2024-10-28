@@ -38,6 +38,7 @@ TEST(NodeTest, Transform)
 	auto& E = C.AddChild<Node>("E");
 	auto& F = C.AddChild<Node>("F");
 
+	// TODO: Test rotation
 	A.SetLocalTransform(Transform{ glm::vec3(2, 3, 5) });
 	B.SetLocalTransform(Transform{ glm::vec3(2, 3, 5) });
 	C.SetLocalTransform(Transform{ glm::vec3(2, 3, 5) });

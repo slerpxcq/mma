@@ -16,8 +16,7 @@ public:
 	virtual void Startup();
 	virtual void Shutdown();
 
-	Application(i32 argc = {}, char** argv = {}) :
-		m_argc{argc}, m_argv{argv} {}
+	Application(i32 argc = {}, char** argv = {}); 
 
 	void OnWindowClosed(const WindowEvent::WindowClosed& e) { m_running = false; }
 
@@ -33,7 +32,7 @@ protected:
 
 	Scoped<EventBus::Listener> m_listener{};
 	Window m_window;
-	LayerStack m_layerStack;
+	LayerStack m_layerStack{};
 
 	bool m_running{ true };
 	bool m_minimized{ false };

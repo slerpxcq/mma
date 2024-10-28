@@ -32,7 +32,7 @@ public:
 	ImFont* GetFont() const { return m_font; }
 
 private:
-	std::unique_ptr<Impl> m_impl{};
+	Scoped<Impl> m_impl{};
 	ImFont* m_font{};
 };
 

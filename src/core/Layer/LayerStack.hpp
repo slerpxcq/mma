@@ -13,11 +13,11 @@ public:
 
 	template <typename T, typename... Args>
 	void EmplaceBack(Args&&... args) {
-		m_layers.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+		m_layers.push_back(MakeScoped<T>(std::forward<Args>(args)...));
 	}
 
 private:
-	std::vector<std::unique_ptr<Layer>> m_layers;
+	DynArray<Scoped<Layer>> m_layers;
 };
 
 }

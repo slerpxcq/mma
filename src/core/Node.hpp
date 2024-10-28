@@ -27,6 +27,11 @@ public:
 		return *child;
 	}
 
+	void AttachChild(std::unique_ptr<Node> child) {
+		child->m_parent = this;
+		m_children.push_back(std::move(child));
+	}
+
 	static Node& Root() {
 		static Node root{ "ROOT" };
 		return root;

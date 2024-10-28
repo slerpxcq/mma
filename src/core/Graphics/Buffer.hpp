@@ -9,20 +9,21 @@ class Buffer : public GPUResource
 {
 public:
 	enum class Target {
-		VERTEX, INDEX
+		VERTEX, INDEX, SHADER_STORAGE
 	};
 
 public:
-	Buffer(Target target) : m_target{target} {}
+	Buffer(Target target);
 	virtual ~Buffer() = default;
 
-	virtual void SetData(void* data, u32 size) = 0;
-	virtual void SetSubData(void* data, u32 size, u32 offset) = 0;
-	virtual void SetBindBase(u32 base) = 0;
+	Target GetTarget() const { return m_target; }
+	void SetData(void* data, u32 size) { GetGraphics()->SetBufferData(*this, data, size); }
+	void SetSubData(void* data, u32 size, u32 offset) { GetGraphics()->SetBufferSubData(*this, data, size, offset); }
+	void SetBindBase(u32 base) { GetGraphics()->SetBufferBindBase(*this, base); }
 
-protected:
-	u32 m_size{};
+private:
 	Target m_target{};
+	u32 m_size{};
 };
 
 }

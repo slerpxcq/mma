@@ -2,8 +2,9 @@
 #include "EditorApplication.hpp"
 
 #include "Core/ImGuiLayer.hpp"
-
 #include "Core/InputManager.hpp"
+
+#include "Core/Graphics/IndexBuffer.hpp"
 
 namespace mm
 {
@@ -11,6 +12,10 @@ namespace mm
 void EditorApplication::Startup()
 {
 	Application::Startup();
+
+	/* BEGIN TEST CODE */
+
+	/* END TEST CODE */
 
 	m_layerStack.EmplaceBack<ImGuiLayer>(m_window);
 }

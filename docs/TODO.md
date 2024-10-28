@@ -31,6 +31,14 @@
 # 2024/10/5
 - [x] Testing PMX file loading
 
-- [ ] Node system
-    - [ ] Server model, using handle/id to store reference?
-    - [ ] GPUResourceServer/Manager?
+# 2024/10/27
+- [ ] Mesh class
+    - [ ] Load mesh from PMX file
+        - [ ] IndexBuffer VertexBuffer IndexBuffer_GL VertexBuffer_GL class
+
+--- 
+# TO BE DONE:
+- [ ] Drawable interface
+- [ ] ModelNode class
+    - [ ] Load from PMX file
+    - [ ] Keep references of textures, materials and meshes

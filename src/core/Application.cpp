@@ -6,10 +6,18 @@
 #include "Common/Clock.hpp"
 #include "Globals.hpp"
 
+#include "Graphics/OpenGL/Graphics_GL.hpp"
+
 #include "Node.hpp"
 
 namespace mm
 {
+
+Application::Application(i32 argc, char** argv) :
+	m_argc{argc}, m_argv{argv}
+{
+	SetGraphics(MakeScoped<Graphics_GL>());
+}
 
 i32 Application::Run()
 {
@@ -30,8 +38,6 @@ i32 Application::Run()
 
 void Application::Startup()
 {
-	SetGraphicsAPI(Config::GraphicsAPI::GL4);
-
 	SetCoreLogger(MakeScoped<Logger>("Core"));
 	MM_CORE_INFO("Application started");
 

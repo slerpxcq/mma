@@ -6,10 +6,12 @@ namespace mm
 class GPUResource
 {
 public:
-	u32 GetID() { return m_id; }
+	virtual ~GPUResource() = default;
+	u32 GetID() const { return m_id; }
+	u32* GetIDPtr() { return &m_id; }
 
-protected:
-	u32 m_id;
+private:
+	u32 m_id{};
 };
 
 }
