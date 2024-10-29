@@ -1,9 +1,6 @@
 #include "CorePch.hpp"
-#include "Buffer.hpp"
+#include "VertexLayout.hpp"
 
 namespace mm
 {
-
-
 }
-

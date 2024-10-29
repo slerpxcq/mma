@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Graphics/Buffer.hpp"
+#include "Graphics/IndexBuffer.hpp"
+#include "Graphics/VertexBuffer.hpp"
 
 namespace mm
 {

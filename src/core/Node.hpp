@@ -27,7 +27,7 @@ public:
 		return *child;
 	}
 
-	void AttachChild(std::unique_ptr<Node> child) {
+	void AttachChild(Scoped<Node> child) {
 		child->m_parent = this;
 		m_children.push_back(std::move(child));
 	}

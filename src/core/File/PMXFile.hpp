@@ -318,7 +318,7 @@ struct PMXFile
 	};
 
 public:
-	static PMXFile Load(const Path& path);
+	static Ref<PMXFile> Load(const Path& path);
 
 public:
 	Header                 header{};
@@ -338,7 +338,6 @@ class PMXParser
 {
 public:
 	Ref<PMXFile> Parse(const Path& path);
-	/* void Serialize(const PMXFile& pmx, const Path& path);*/
 
 private:
 	String ParseText(InFileStream& stream);

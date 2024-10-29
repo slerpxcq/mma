@@ -14,7 +14,7 @@ void EditorApplication::Startup()
 	Application::Startup();
 
 	/* BEGIN TEST CODE */
-
+	
 	/* END TEST CODE */
 
 	m_layerStack.EmplaceBack<ImGuiLayer>(m_window);

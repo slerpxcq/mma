@@ -34,6 +34,11 @@ static void Read(InFileStream& stream, Dst(&buffer)[N], i32 size = sizeof(Dst))
 	}
 }
 
+Ref<PMXFile> PMXFile::Load(const Path& path)
+{
+	return PMXParser{}.Parse(path);
+}
+
 Ref<PMXFile> PMXParser::Parse(const Path& path) 
 {
 	InFileStream stream{};

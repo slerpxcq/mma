@@ -33,6 +33,7 @@ protected:
 	char** m_argv{};
 
 	Scoped<EventBus::Listener> m_listener{};
+	// TODO: Fix window initialization order; Graphics should be after Window
 	Graphics* m_graphics{};
 	Window m_window{};
 	LayerStack m_layerStack{};

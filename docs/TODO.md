@@ -32,9 +32,15 @@
 - [x] Testing PMX file loading
 
 # 2024/10/27
-- [ ] Mesh class
-    - [ ] Load mesh from PMX file
-        - [ ] IndexBuffer VertexBuffer IndexBuffer_GL VertexBuffer_GL class
+
+# 2024/10/29
+- [x] Mesh class
+    - [x] Load mesh from PMX file
+        - [x] IndexBuffer VertexBuffer 
+    - [x] Load index data to IndexBuffer
+    - [x] Load vertex data to VertexBuffer
+        - [x] VertexLayout
+    - [ ] Load VertexArray and set attributes
 
 --- 
 # TO BE DONE:

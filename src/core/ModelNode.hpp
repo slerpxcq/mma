@@ -6,13 +6,15 @@
 namespace mm
 {
 
+class PMXFile;
+
 class ModelNode : public Node
 {
-	// TODO: is this good?
-	friend class PMXLoader;
 public:
 	ModelNode(const String& name) : 
 		Node{ name } {}
+
+	static Scoped<ModelNode> LoadFromPMX(const PMXFile& pmx);
 
 private:
 	Ref<Mesh> m_mesh;

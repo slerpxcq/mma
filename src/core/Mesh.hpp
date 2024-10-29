@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Drawable.hpp"
+#include "Graphics/VertexArray.hpp"
 
 namespace mm
 {
@@ -8,11 +9,14 @@ namespace mm
 class Mesh : public Drawable
 {
 public:
+	Mesh(Ref<VertexBuffer> vb, Ref<IndexBuffer> ib) :
+		m_vertexBuffer{ vb }, m_indexBuffer{ ib },
+		m_vertexArray{ *vb, *ib } {}
+
 private:
-	u32 m_vertexCount;
-	u32 m_indexCount;
-	Ref<Buffer> m_vertexBuffer{};
-	Ref<Buffer> m_indexBuffer{};
+	VertexArray m_vertexArray;
+	Ref<VertexBuffer> m_vertexBuffer{};
+	Ref<IndexBuffer> m_indexBuffer{};
 };
 
 }

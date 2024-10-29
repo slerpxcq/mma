@@ -11,9 +11,8 @@ class TestApplication : public Application
 public:
 	void Startup() override {
 		Application::Startup();
-		pmx = PMXParser{}.Parse("../../resources/model/つみ式ミクさん/000 ミクさん.pmx");
+		pmx = PMXFile::Load("../../resources/model/つみ式ミクさん/000 ミクさん.pmx");
 
-		/* Exit immediately */
 		m_running = false;
 	}
 

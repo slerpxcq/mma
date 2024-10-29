@@ -23,19 +23,21 @@ static u32 ToGLTarget(Buffer::Target target)
 void Graphics_GL::CreateBuffer(Buffer& buffer) const
 {
 	glCreateBuffers(1, buffer.GetIDPtr());
+	MM_CORE_INFO("GL: buffer created; id={0}", buffer.GetID());
 }
 
 void Graphics_GL::DeleteBuffer(Buffer& buffer) const
 {
 	glDeleteBuffers(1, buffer.GetIDPtr());
+	MM_CORE_INFO("GL: buffer deleted; id={0}", buffer.GetID());
 }
 
-void Graphics_GL::SetBufferData(Buffer& buffer, void* data, u32 size) const
+void Graphics_GL::SetBufferData(Buffer& buffer, const void* data, u32 size) const
 {
 	glNamedBufferData(buffer.GetID(), size, data, GL_STATIC_DRAW);
 }
 
-void Graphics_GL::SetBufferSubData(Buffer& buffer, void* data, u32 size, u32 offset) const
+void Graphics_GL::SetBufferSubData(Buffer& buffer, const void* data, u32 size, u32 offset) const
 {
 	glNamedBufferSubData(buffer.GetID(), offset, size, data);
 }
