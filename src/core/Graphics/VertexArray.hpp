@@ -9,10 +9,9 @@ namespace mm
 class VertexArray : public GPUResource
 {
 public:
-	VertexArray(const VertexBuffer& vb, const IndexBuffer& ib) :
-		m_vertexBuffer{ vb }, m_indexBuffer{ ib } {
-		/* TODO: Setup vertex attributes */
-	}
+	VertexArray(const VertexBuffer& vb, const IndexBuffer& ib);
+
+	~VertexArray() { GetGraphics()->DeleteVertexArray(*this); }
 
 private:
 	const VertexBuffer& m_vertexBuffer;

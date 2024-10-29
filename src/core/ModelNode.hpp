@@ -17,7 +17,7 @@ public:
 	static Scoped<ModelNode> LoadFromPMX(const PMXFile& pmx);
 
 private:
-	Ref<Mesh> m_mesh;
+	DynArray<Ref<Mesh>> m_meshes;
 };
 
 }

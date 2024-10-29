@@ -5,6 +5,8 @@
 namespace mm
 {
 
+class VertexArray;
+
 class DefaultVertexLayout : public VertexLayout
 {
 public:
@@ -25,7 +27,7 @@ public:
 
 public:
 	static DefaultVertexLayout instance;
-	void Apply() const override;
+	void ApplyTo(const VertexArray&) const override;
 	u32 GetSize() const override { return sizeof(Struct); }
 };
 

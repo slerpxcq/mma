@@ -35,12 +35,15 @@
 
 # 2024/10/29
 - [x] Mesh class
-    - [x] Load mesh from PMX file
+    - [ ] Load mesh from PMX file
         - [x] IndexBuffer VertexBuffer 
-    - [x] Load index data to IndexBuffer
-    - [x] Load vertex data to VertexBuffer
-        - [x] VertexLayout
-    - [ ] Load VertexArray and set attributes
+        - [x] Load index data to IndexBuffer
+        - [x] Load vertex data to VertexBuffer
+            - [x] VertexLayout
+        - [x] Load VertexArray and set attributes
+            - [x] VertexArray class, functions
+        - [ ] Load submesh offsets
+    - [ ] Load Textures from PMXFile
 
 --- 
 # TO BE DONE:

@@ -19,6 +19,7 @@ public:
 	}
 
 	u32 GetVertexCount() const { return m_vertexCount; }
+	const VertexLayout& GetLayout() const { return m_layout; }
 
 private:
 	const VertexLayout& m_layout;
