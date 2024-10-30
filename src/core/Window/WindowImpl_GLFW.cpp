@@ -15,10 +15,8 @@ namespace mm
 WindowImpl_GLFW::WindowImpl_GLFW(const Window::ConstructInfo& info) :
 	Impl{ info }
 {
-	//MM_ASSERT((info.api == GraphicsAPI::GL4) && "Vulkan is not implemented yet");
-
 	if (!glfwInit()) {
-		throw MMException("Could not init GLFW");
+		throw RuntimeError("Could not init GLFW");
 	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, Config::GL_VERSION_MAJOR);
@@ -26,14 +24,14 @@ WindowImpl_GLFW::WindowImpl_GLFW(const Window::ConstructInfo& info) :
 
 	m_window = glfwCreateWindow(info.width, info.height, info.title.data(), nullptr, nullptr);
 	if (!m_window) {
-		throw MMException("Could not create window");
+		throw RuntimeError("Could not create window");
 	}
 
 	glfwMakeContextCurrent(m_window);
 	RegisterWindowEvents();
 
 	if (!gladLoadGL()) {
-		throw MMException("Could not load GL");
+		throw RuntimeError("Could not load GL");
 	}
 }
 

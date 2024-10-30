@@ -3,13 +3,15 @@
 
 #include "File/PMXFile.hpp"
 #include "Graphics/DefaultVertexLayout.hpp"
+#include "Image.hpp"
+#include "Graphics/Texture2D.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 
 namespace mm
 {
 
-static Ref<Mesh> LoadMesh(const PMXFile& pmx)
+static Ref<VertexArray> LoadVertexArrayPMX(const PMXFile& pmx)
 {
 	/* Load indices */
 	Ref<IndexBuffer> ib =
@@ -41,7 +43,7 @@ static Ref<Mesh> LoadMesh(const PMXFile& pmx)
 			v.weights[1] = 1.f - pv.blending.bdef2.weight;
 			break;
 		case PMXFile::BlendingType::BDEF4:
-			for (i32 j = 0; j < 4; ++j) 
+			for (i32 j = 0; j < 4; ++j)
 				v.bones[j] = pv.blending.bdef4.boneIndices[j];
 			for (i32 j = 0; j < 3; ++j)
 				v.weights[j] = pv.blending.bdef4.weights[j];
@@ -59,22 +61,46 @@ static Ref<Mesh> LoadMesh(const PMXFile& pmx)
 		}
 	}
 
-	Ref<VertexBuffer> vb = 
+	Ref<VertexBuffer> vb =
 		MakeRef<VertexBuffer>(vertices.data(),
 							  DefaultVertexLayout::instance,
 							  vertices.size());
 
-	return MakeRef<Mesh>(vb, ib);
+	return MakeRef<VertexArray>(vb, ib);
 }
 
 Scoped<ModelNode> ModelNode::LoadFromPMX(const PMXFile& pmx)
 {
 	auto model = MakeScoped<ModelNode>(pmx.info.nameJP);
-	model->m_mesh = LoadMesh(pmx);
 
-	/* TODO: Load other things */
+	/* Load vertices and indices */
+	auto va = LoadVertexArrayPMX(pmx);
+
+	/* Load sub-meshes */
+	u32 offset{ 0 };
+	auto& meshes = model->m_meshes;
+	meshes.reserve(pmx.materials.size());
+	for (const auto& pm : pmx.materials) {
+		auto mesh = MakeRef<Mesh>(pm.nameJP, va, pm.elementCount, offset);
+		meshes.push_back(std::move(mesh));
+		offset += pm.elementCount;
+	}
+
+	/* Load textures */
+	auto& textures = model->m_textures;
+	textures.reserve(pmx.textures.size());
+	for (const auto& pt : pmx.textures) {
+		String path = pmx.path.parent_path().string() + '/' + pt.name;
+		auto img = Image::Load(path);
+		auto tex = MakeRef<Texture2D>(img->GetWidth(), img->GetHeight(),
+									  Graphics::TexFormat::RGBA8);
+		tex->SetSubImage(img->GetPixels(), Graphics::PixelType::UBYTE,
+						 img->GetWidth(), img->GetHeight());
+		textures.push_back(std::move(tex));
+	}
 
 	return std::move(model);
 }
 
 }
+

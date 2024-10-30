@@ -2,16 +2,8 @@
 
 #include <cstdint>
 #include <cstddef>
-
-/* DEPERCATED: DO NOT USE */
-// #define MM_DECL_SINGLETON(_class_) \
-// public: \
-// static void CreateInstance() { s_instance = new _class_{}; } \
-// static void DestroyInstance() { delete s_instance; } \
-// static _class_& GetInstance() { return *s_instance; } \
-// private: \
-// static inline _class_* s_instance{}; \
-// _class_() = default;  
+#include <functional>
+#include <stdexcept>
 
 #define MM_GLOBAL_ATTRIBUTE(_type_, _name_)  \
 class _name_##_g { \
@@ -41,6 +33,11 @@ using i8 = std::int8_t;
 using f32 = float;
 using f64 = double;
 using Byte = std::byte;
+
+template <typename T>
+using Function = std::function<T>;
+
+using RuntimeError = std::runtime_error;
 
 }
 

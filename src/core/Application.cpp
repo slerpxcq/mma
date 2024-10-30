@@ -15,8 +15,8 @@ namespace mm
 
 Application::Application(i32 argc, char** argv) :
 	m_argc{ argc }, m_argv{ argv }, m_graphics{ []() {
-		SetGraphics(MakeScoped<Graphics_GL>());
-		return GetGraphics().get();
+		SetGraphics(new Graphics_GL{});
+		return GetGraphics();
 	}() }
 {
 }
@@ -40,10 +40,11 @@ i32 Application::Run()
 
 void Application::Startup()
 {
-	SetCoreLogger(MakeScoped<Logger>("Core"));
+	SetCoreLogger(new Logger{ "Core" });
 	MM_CORE_INFO("Application started");
 
-	SetInputManager(MakeScoped<InputManager>());
+	SetInputManager(new InputManager{});
+	SetRootNode(new Node{ "ROOT" });
 
 	RegisterCallbacks();
 }
@@ -51,6 +52,10 @@ void Application::Startup()
 void Application::Shutdown()
 {
 	MM_CORE_INFO("Application shutting down...");
+
+	delete GetRootNode();
+	delete GetInputManager();
+	delete GetCoreLogger();
 }
 
 void Application::RegisterCallbacks()

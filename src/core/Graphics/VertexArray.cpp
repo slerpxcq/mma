@@ -4,14 +4,14 @@
 namespace mm
 {
 
-VertexArray::VertexArray(const VertexBuffer& vb, const IndexBuffer& ib) :
+VertexArray::VertexArray(Ref<VertexBuffer> vb, Ref<IndexBuffer> ib) :
 	m_vertexBuffer{ vb }, m_indexBuffer{ ib } 
 {
-	const auto& gfx = GetGraphics();
+	const auto gfx = GetGraphics();
 	gfx->CreateVertexArray(*this);
-	gfx->SetIndexBuffer(*this, ib);
-	gfx->SetVertexBuffer(*this, vb);
-	vb.GetLayout().ApplyTo(*this);
+	gfx->SetIndexBuffer(*this, *ib);
+	gfx->SetVertexBuffer(*this, *vb);
+	vb->GetLayout().ApplyTo(*this);
 }
 
 }

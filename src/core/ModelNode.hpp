@@ -2,6 +2,7 @@
 
 #include "Node.hpp"
 #include "Mesh.hpp"
+#include "Graphics/Texture.hpp"
 
 namespace mm
 {
@@ -15,9 +16,11 @@ public:
 		Node{ name } {}
 
 	static Scoped<ModelNode> LoadFromPMX(const PMXFile& pmx);
+	const auto& GetMeshes() const { return m_meshes; }
 
 private:
-	DynArray<Ref<Mesh>> m_meshes;
+	DynArray<Ref<Mesh>> m_meshes{};
+	DynArray<Ref<Texture>> m_textures{};
 };
 
 }

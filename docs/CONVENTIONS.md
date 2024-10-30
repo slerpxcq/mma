@@ -68,3 +68,6 @@ void func()
     }
 }
 ```
+
+# OpenGL
+All textures are immutable 

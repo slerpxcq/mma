@@ -12,6 +12,8 @@ namespace mm
 
 class Node
 {
+	// TODO: 
+	friend class Application;
 public:
 	const String& GetName() { return m_name; }
 	void SetLocalTransform(const Transform& transform) { m_localTransform = transform; }
@@ -30,11 +32,6 @@ public:
 	void AttachChild(Scoped<Node> child) {
 		child->m_parent = this;
 		m_children.push_back(std::move(child));
-	}
-
-	static Node& Root() {
-		static Node root{ "ROOT" };
-		return root;
 	}
 
 	virtual ~Node() = default;

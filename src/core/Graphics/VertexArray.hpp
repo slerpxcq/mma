@@ -9,13 +9,13 @@ namespace mm
 class VertexArray : public GPUResource
 {
 public:
-	VertexArray(const VertexBuffer& vb, const IndexBuffer& ib);
+	VertexArray(Ref<VertexBuffer> vb, Ref<IndexBuffer> ib);
 
 	~VertexArray() { GetGraphics()->DeleteVertexArray(*this); }
 
 private:
-	const VertexBuffer& m_vertexBuffer;
-	const IndexBuffer& m_indexBuffer;
+	Ref<VertexBuffer> m_vertexBuffer;
+	Ref<IndexBuffer> m_indexBuffer;
 };
 
 }

@@ -9,14 +9,21 @@ namespace mm
 class Mesh : public Drawable
 {
 public:
-	Mesh(Ref<VertexBuffer> vb, Ref<IndexBuffer> ib) :
-		m_vertexBuffer{ vb }, m_indexBuffer{ ib },
-		m_vertexArray{ *vb, *ib } {}
+	Mesh(const String& name, 
+		 Ref<VertexArray> va, 
+		 u32 indexCount, u32 indexOffset = 0) :
+		m_name{ name },
+		m_indexOffset{ indexOffset },
+		m_indexCount{ indexCount },
+		m_vertexArray{ va } {}
+
+	u32 GetIndexCount() const { return m_indexCount; }
 
 private:
-	VertexArray m_vertexArray;
-	Ref<VertexBuffer> m_vertexBuffer{};
-	Ref<IndexBuffer> m_indexBuffer{};
+	String m_name{};
+	Ref<VertexArray> m_vertexArray{};
+	u32 m_indexOffset{};
+	u32 m_indexCount{};
 };
 
 }

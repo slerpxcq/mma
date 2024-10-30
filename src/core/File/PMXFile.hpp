@@ -2,11 +2,13 @@
 
 #include "Common/Locale.hpp"
 
+/* TODO: change to private access */
+
 namespace mm
 {
-struct PMXParseError : public MMException
+struct PMXParseError : public RuntimeError
 {
-	PMXParseError(const char* what = "") : MMException(what) {}
+	PMXParseError(const char* what = "") : RuntimeError(what) {}
 };
 
 struct PMXFile
@@ -321,6 +323,7 @@ public:
 	static Ref<PMXFile> Load(const Path& path);
 
 public:
+	Path path;
 	Header                 header{};
 	Info                   info{};
 	DynArray<Vertex>    vertices{};

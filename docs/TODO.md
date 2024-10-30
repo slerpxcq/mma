@@ -42,8 +42,13 @@
             - [x] VertexLayout
         - [x] Load VertexArray and set attributes
             - [x] VertexArray class, functions
-        - [ ] Load submesh offsets
-    - [ ] Load Textures from PMXFile
+        - [x] Load submesh offsets
+- [x] Move Root node to global attributes
+
+# 2024/10/30
+- [ ] Load Textures from PMXFile
+    - [x] Texture class
+    - [ ] Texture2D class
 
 --- 
 # TO BE DONE:

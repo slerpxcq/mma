@@ -14,8 +14,8 @@ decltype(auto) MakeRef(Args&&... args)
 	return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
-template <typename T>
-using Scoped = std::unique_ptr<T>;
+template <typename T, typename D = std::default_delete<T>>
+using Scoped = std::unique_ptr<T, D>;
 
 template <typename T, typename... Args>
 decltype(auto) MakeScoped(Args&&... args)

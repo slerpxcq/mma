@@ -41,6 +41,8 @@ Ref<PMXFile> PMXFile::Load(const Path& path)
 
 Ref<PMXFile> PMXParser::Parse(const Path& path) 
 {
+	m_pmx->path = path;
+
 	InFileStream stream{};
 	stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	stream.open(path, std::ifstream::binary);

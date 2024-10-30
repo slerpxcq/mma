@@ -3,13 +3,14 @@
 
 #include "../Buffer.hpp"
 #include "../VertexArray.hpp"
+#include "../Texture.hpp"
 
 #include <glad/glad.h>
 
 namespace mm
 {
 
-static u32 ToGLTarget(Buffer::Target target)
+static GLuint ToGLBufferTarget(Buffer::Target target)
 {
 	switch (target) {
 	case Buffer::Target::VERTEX:
@@ -18,6 +19,38 @@ static u32 ToGLTarget(Buffer::Target target)
 		return GL_ELEMENT_ARRAY_BUFFER;
 	default:
 		MM_UNINPLEMENTED();
+	}
+}
+
+static GLenum ToGLTexTarget(Texture::Target target)
+{
+	switch (target) {
+	case Texture::Target::TEX_2D:
+		return GL_TEXTURE_2D;
+		break;
+	default:
+		MM_UNINPLEMENTED();
+	}
+}
+
+static GLenum ToGLTexFormat(Graphics::TexFormat format)
+{
+	switch (format) {
+	case Graphics::TexFormat::RGB8:
+		return GL_RGB8;
+		break;
+	case Graphics::TexFormat::RGBA8:
+		return GL_RGBA8;
+		break;
+	}
+}
+
+static GLenum ToGLPixelType(Graphics::PixelType type)
+{
+	switch (type) {
+	case Graphics::PixelType::UBYTE:
+		return GL_UNSIGNED_BYTE;
+		break;
 	}
 }
 
@@ -45,7 +78,7 @@ void Graphics_GL::SetBufferSubData(const Buffer& buffer, const void* data, u32 s
 
 void Graphics_GL::SetBufferBindBase(const Buffer& buffer, u32 base) const
 {
-	glBindBufferBase(ToGLTarget(buffer.GetTarget()), base, buffer.GetID());
+	glBindBufferBase(ToGLBufferTarget(buffer.GetTarget()), base, buffer.GetID());
 }
 
 void Graphics_GL::CreateVertexArray(VertexArray& va) const
@@ -71,20 +104,51 @@ void Graphics_GL::SetVertexBuffer(const VertexArray& va, const VertexBuffer& vb)
 	glVertexArrayVertexBuffer(va.GetID(), 0, vb.GetID(), 0, vb.GetLayout().GetSize());
 }
 
-void Graphics_GL::SetVertexAttribFormat(const VertexArray& va, u32 location, AttributeType type, u32 count, u32 offset, bool normalized) const
+void Graphics_GL::SetVertexAttribFormat(const VertexArray& va, u32 location, AttribType type, u32 count, u32 offset, bool normalized) const
 {
 	glEnableVertexArrayAttrib(va.GetID(), location);
 
 	switch (type) {
-	case AttributeType::INT:
+	case AttribType::INT:
 		glVertexArrayAttribIFormat(va.GetID(), location, count, GL_INT, offset);
 		break;
-	case AttributeType::FLOAT:
+	case AttribType::FLOAT:
 		glVertexArrayAttribFormat(va.GetID(), location, count, GL_FLOAT, normalized, offset);
 		break;
 	}
 
 	glVertexArrayAttribBinding(va.GetID(), location, 0);
+}
+
+void Graphics_GL::CreateTexture(Texture& tex) const
+{
+	glCreateTextures(ToGLTexTarget(tex.GetTarget()), 1, tex.GetIDPtr());
+	MM_CORE_INFO("GL: texture created; id={0}", tex.GetID());
+}
+
+void Graphics_GL::DeleteTexture(Texture& tex) const
+{
+	glDeleteTextures(1, tex.GetIDPtr());
+	MM_CORE_INFO("GL: texture deleted; id={0}", tex.GetID());
+}
+
+void Graphics_GL::BindTexture(const Texture& tex, u32 unit) const
+{
+	glBindTextureUnit(unit, tex.GetID());
+}
+
+void Graphics_GL::TextureStorage2D(const Texture& tex, u32 width, u32 height, TexFormat format, u32 levels) const
+{
+	glTextureStorage2D(tex.GetID(), levels, ToGLTexFormat(format), width, height);
+}
+
+void Graphics_GL::TextureSubImage2D(const Texture& tex, 
+									const void* data, PixelType type, 
+									u32 width, u32 height, 
+									TexFormat format, u32 level, 
+									u32 xoffset, u32 yoffset) const
+{
+	glTextureSubImage2D(tex.GetID(), level, xoffset, yoffset, width, height, ToGLTexFormat(format), ToGLPixelType(type), data);
 }
 
 }

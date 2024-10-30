@@ -13,12 +13,11 @@ public:
 	};
 
 public:
-	Buffer(Target target) { GetGraphics()->CreateBuffer(*this); }
 	virtual ~Buffer() { GetGraphics()->DeleteBuffer(*this); }
-
 	Target GetTarget() const { return m_target; }
 
 protected:
+	Buffer(Target target) { GetGraphics()->CreateBuffer(*this); }
 	void SetData(const void* data, u32 size) { GetGraphics()->SetBufferData(*this, data, size); }
 	void SetSubData(const void* data, u32 size, u32 offset) { GetGraphics()->SetBufferSubData(*this, data, size, offset); }
 	void SetBindBase(u32 base) { GetGraphics()->SetBufferBindBase(*this, base); }
