@@ -1,10 +1,12 @@
 #include "EditorPch.hpp"
 #include "EditorApplication.hpp"
 
-#include "Core/ImGuiLayer.hpp"
+#include "Core/Layer/ImGuiLayer.hpp"
 #include "Core/InputManager.hpp"
 
 #include "Core/Graphics/IndexBuffer.hpp"
+
+#include "EditorLayer.hpp"
 
 namespace mm
 {
@@ -17,7 +19,7 @@ void EditorApplication::Startup()
 	
 	/* END TEST CODE */
 
-	m_layerStack.EmplaceBack<ImGuiLayer>(m_window);
+	m_layerStack.EmplaceBack<EditorLayer>(m_window);
 }
 
 void EditorApplication::Shutdown()
@@ -25,9 +27,14 @@ void EditorApplication::Shutdown()
 	Application::Shutdown();
 }
 
-void EditorApplication::NewFrame(float deltaTime)
+void EditorApplication::OnNewFrame(f32 deltaTime)
 {
 	m_layerStack.OnRender();
+}
+
+void EditorApplication::OnUpdate(f32 deltaTime)
+{
+	m_layerStack.OnUpdate(deltaTime);
 }
 
 }

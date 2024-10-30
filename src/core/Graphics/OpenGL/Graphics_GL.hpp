@@ -34,6 +34,13 @@ public:
 								   u32 width, u32 height,
 								   TexFormat format, u32 level = 0,
 								   u32 xoffset = 0, u32 yoffset = 0) const override;
+
+	virtual void CreateFrameBuffer(FrameBuffer&) const override;
+	virtual void DeleteFrameBuffer(FrameBuffer&) const override;
+	virtual void FrameBufferTexture(const FrameBuffer&, const Texture&, 
+									Attachment attachment, u32 index, u32 level = 0) const override;
+	virtual FrameBufferStatus CheckFrameBufferStatus(const FrameBuffer&) const override;
+
 private:
 };
 

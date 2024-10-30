@@ -8,39 +8,39 @@ namespace mm
 namespace WindowEvent
 {
 struct WindowSized {
-	uint32_t x, y;
+	u32 x, y;
 };
 
 struct WindowClosed {};
 
 struct KeyPressed {
-	uint32_t code;
-	uint32_t mods;
+	u32 code;
+	u32 mods;
 	bool repeat;
 };
 
 struct KeyReleased {
-	uint32_t code;
+	u32 code;
 };
 
 struct KeyTyped {
-	uint32_t code;
+	u32 code;
 };
 
 struct MouseButtonPressed {
-	uint32_t button;
+	u32 button;
 };
 
 struct MouseButtonReleased {
-	uint32_t button;
+	u32 button;
 };
 
 struct MouseMoved {
-	float x, y;
+	f32 x, y;
 };
 
 struct MouseScrolled {
-	float delta;
+	f32 delta;
 };
 };
 

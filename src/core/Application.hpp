@@ -23,7 +23,8 @@ public:
 	void OnWindowClosed(const WindowEvent::WindowClosed& e) { m_running = false; }
 
 protected:
-	virtual void NewFrame(f32 deltaTime) = 0;
+	virtual void OnUpdate(f32 deltaTime) = 0;
+	virtual void OnNewFrame(f32 deltaTime) = 0;
 
 private:
 	void RegisterCallbacks();

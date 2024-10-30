@@ -39,18 +39,7 @@ ImGuiLayer::ImGuiLayer(const Window& window)
 	}
 }
 
-void ImGuiLayer::OnUpdate(float deltaTime)
-{
-}
-
-void ImGuiLayer::OnRender()
-{
-	Begin();
-	ImGui::ShowDemoWindow();
-	End();
-}
-
-void ImGuiLayer::Begin()
+void ImGuiLayer::Begin() const
 {
 	m_impl->Begin();
 	ImGui::NewFrame();
@@ -58,7 +47,7 @@ void ImGuiLayer::Begin()
 	ImGui::PushFont(m_font);
 }
 
-void ImGuiLayer::End()
+void ImGuiLayer::End() const
 {
 	ImGui::PopFont();
 	m_impl->End();

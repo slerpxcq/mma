@@ -46,9 +46,12 @@
 - [x] Move Root node to global attributes
 
 # 2024/10/30
-- [ ] Load Textures from PMXFile
+- [x] Load Textures from PMXFile
     - [x] Texture class
-    - [ ] Texture2D class
+    - [x] Texture2D class
+- [ ] EditorLayer
+    - [ ] ViewportPanel class
+        - [ ] FrameBuffer class
 
 --- 
 # TO BE DONE:

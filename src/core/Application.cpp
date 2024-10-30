@@ -27,9 +27,13 @@ i32 Application::Run()
 
 	static TimePoint tp = Clock::Now();
 	while (m_running) {
+		f32 deltaTime = Clock::Delta(tp);
+		OnUpdate(deltaTime);
+
 		m_window.BeginFrame();
-		NewFrame(Clock::Delta(tp));
+		OnNewFrame(deltaTime);
 		m_window.EndFrame();
+
 		GetInputManager()->GetEventBus().Process();
 	}
 
@@ -41,12 +45,12 @@ i32 Application::Run()
 void Application::Startup()
 {
 	SetCoreLogger(new Logger{ "Core" });
-	MM_CORE_INFO("Application started");
-
 	SetInputManager(new InputManager{});
 	SetRootNode(new Node{ "ROOT" });
 
 	RegisterCallbacks();
+
+	MM_CORE_INFO("Application started");
 }
 
 void Application::Shutdown()

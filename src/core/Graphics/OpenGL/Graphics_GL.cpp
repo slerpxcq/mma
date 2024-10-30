@@ -4,6 +4,7 @@
 #include "../Buffer.hpp"
 #include "../VertexArray.hpp"
 #include "../Texture.hpp"
+#include "../FrameBuffer.hpp"
 
 #include <glad/glad.h>
 
@@ -50,6 +51,18 @@ static GLenum ToGLPixelType(Graphics::PixelType type)
 	switch (type) {
 	case Graphics::PixelType::UBYTE:
 		return GL_UNSIGNED_BYTE;
+		break;
+	}
+}
+
+static GLenum ToGLAttachment(Graphics::Attachment attachment, u32 index)
+{
+	switch (attachment) {
+	case Graphics::Attachment::DEPTH:
+		return GL_DEPTH_ATTACHMENT;
+		break;
+	case Graphics::Attachment::COLOR:
+		return GL_COLOR_ATTACHMENT0 + index;
 		break;
 	}
 }
@@ -149,6 +162,35 @@ void Graphics_GL::TextureSubImage2D(const Texture& tex,
 									u32 xoffset, u32 yoffset) const
 {
 	glTextureSubImage2D(tex.GetID(), level, xoffset, yoffset, width, height, ToGLTexFormat(format), ToGLPixelType(type), data);
+}
+
+void Graphics_GL::CreateFrameBuffer(FrameBuffer& fb) const
+{
+	glCreateFramebuffers(1, fb.GetIDPtr());
+	MM_CORE_INFO("GL: frame buffer created; id={0}", fb.GetID());
+}
+
+void Graphics_GL::DeleteFrameBuffer(FrameBuffer& fb) const
+{
+	glDeleteFramebuffers(1, fb.GetIDPtr());
+	MM_CORE_INFO("GL: frame buffer deleted; id={0}", fb.GetID());
+}
+
+void Graphics_GL::FrameBufferTexture(const FrameBuffer& fb, const Texture& tex, Attachment attachment, u32 index, u32 level) const
+{
+	glNamedFramebufferTexture(fb.GetID(), ToGLAttachment(attachment, index), tex.GetID(), level);
+}
+
+Graphics::FrameBufferStatus Graphics_GL::CheckFrameBufferStatus(const FrameBuffer& fb) const
+{
+	switch (glCheckNamedFramebufferStatus(fb.GetID(), GL_FRAMEBUFFER)) {
+	case GL_FRAMEBUFFER_COMPLETE:
+		return Graphics::FrameBufferStatus::OK;
+		break;
+	default:
+		return Graphics::FrameBufferStatus::INCOMPLETE;
+		break;
+	}
 }
 
 }

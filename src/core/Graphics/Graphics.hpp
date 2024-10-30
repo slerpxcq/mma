@@ -8,13 +8,16 @@ class VertexArray;
 class IndexBuffer;
 class VertexBuffer;
 class Texture;
+class FrameBuffer;
 
 class Graphics
 {
 public:
 	enum class AttribType { FLOAT, INT };
-	enum class TexFormat { RGBA8, RGB8 };
+	enum class TexFormat { RGBA8, RGB8, D24S8 };
 	enum class PixelType { UBYTE };
+	enum class Attachment { COLOR, DEPTH };
+	enum class FrameBufferStatus { OK, INCOMPLETE };
 
 public:
 	virtual	~Graphics() = default;
@@ -45,6 +48,13 @@ public:
 								   u32 width, u32 height,
 								   TexFormat format, u32 level = 0,
 								   u32 xoffset = 0, u32 yoffset = 0) const = 0;
+
+	virtual void CreateFrameBuffer(FrameBuffer&) const = 0;
+	virtual void DeleteFrameBuffer(FrameBuffer&) const = 0;
+	virtual void FrameBufferTexture(const FrameBuffer&, const Texture&, 
+									Attachment attachment, u32 index, 
+									u32 level = 0) const = 0;
+	virtual FrameBufferStatus CheckFrameBufferStatus(const FrameBuffer&) const = 0;
 
 private:
 	Config::API m_api{};

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Layer/Layer.hpp"
+#include "Layer.hpp"
 
 struct ImFont;
 
@@ -23,13 +23,15 @@ public:
 public:
 	ImGuiLayer(const Window& window);
 
-	void OnUpdate(float deltaTime) override;
-	void OnRender() override;
+	virtual void OnUpdate(float deltaTime) override = 0;
+	virtual void OnRender() override = 0;
 
-	void Begin();
-	void End();
+	void Begin() const;
+	void End() const;
 
 	ImFont* GetFont() const { return m_font; }
+
+	virtual ~ImGuiLayer() = default;
 
 private:
 	Scoped<Impl> m_impl{};
