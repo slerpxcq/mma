@@ -6,7 +6,7 @@
 namespace mm
 {
 
-void Panel::OnRender()
+void Panel::OnBegin()
 {
 	m_focused = ImGui::IsWindowFocused();
 	m_hovered = ImGui::IsWindowHovered();

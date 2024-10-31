@@ -1,7 +1,7 @@
 #include "CorePch.hpp"
 #include "Window.hpp"
 
-#include "Globals.hpp"
+#include "Application/Globals.hpp"
 
 #include "WindowImpl_GLFW.hpp"
 

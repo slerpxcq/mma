@@ -41,7 +41,7 @@ Ref<PMXFile> PMXFile::Load(const Path& path)
 
 Ref<PMXFile> PMXParser::Parse(const Path& path) 
 {
-	m_pmx->path = path;
+	m_pmx = MakeRef<PMXFile>(path);
 
 	InFileStream stream{};
 	stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -297,7 +297,7 @@ void PMXParser::ParseMorph(InFileStream& stream)
 		i32 offsetCount{};
 		Read(stream, offsetCount);
 		morph.offsets.resize(offsetCount);
-		for (uint32_t j = 0; j < offsetCount; ++j) {
+		for (i32 j = 0; j < offsetCount; ++j) {
 			switch (static_cast<PMXFile::MorphType>(morph.type)) {
 			case PMXFile::MorphType::VERTEX:
 			{

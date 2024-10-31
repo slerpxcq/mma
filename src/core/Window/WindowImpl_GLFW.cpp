@@ -2,10 +2,9 @@
 #include "WindowImpl_GLFW.hpp"
 
 
-#include "EventBus.hpp"
-#include "WindowEvent.hpp"
-
-#include "InputManager.hpp"
+#include "Application/InputManager.hpp"
+#include "Application/EventBus.hpp"
+#include "Application/WindowEvent.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

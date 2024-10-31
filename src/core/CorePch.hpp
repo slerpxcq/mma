@@ -13,7 +13,7 @@
 
 #include "Common/Memory.hpp"
 
-#include "Globals.hpp"
+#include "Application/Globals.hpp"
 
 
 

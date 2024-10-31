@@ -5,6 +5,7 @@
 #include "../VertexArray.hpp"
 #include "../Texture.hpp"
 #include "../FrameBuffer.hpp"
+#include "../Shader.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
@@ -71,6 +72,20 @@ static GLenum ToGLAttachment(Graphics::Attachment attachment, u32 index)
 		break;
 	case Graphics::Attachment::COLOR:
 		return GL_COLOR_ATTACHMENT0 + index;
+		break;
+	default:
+		MM_CORE_UNINPLEMENTED();
+	}
+}
+
+static GLenum ToGLShaderType(Graphics::ShaderType type)
+{
+	switch (type) {
+	case Graphics::ShaderType::VERTEX:
+		return GL_VERTEX_SHADER;
+		break;
+	case Graphics::ShaderType::FRAGMENT:
+		return GL_FRAGMENT_SHADER;
 		break;
 	default:
 		MM_CORE_UNINPLEMENTED();
@@ -214,6 +229,33 @@ void Graphics_GL::ClearFrameBufferColor(const FrameBuffer& fb, u32 index, Color 
 void Graphics_GL::ClearFrameBufferDepth(const FrameBuffer& fb, f32 depth, i32 stencil) const
 {
 	glClearNamedFramebufferfi(fb.GetID(), GL_DEPTH, 0, depth, stencil);
+}
+
+Opt<String> Graphics_GL::CreateShader(Shader& shader, const String& source, ShaderType type) const
+{
+	*shader.GetIDPtr() = glCreateShader(ToGLShaderType(type));
+	u32 id = shader.GetID();
+	const char* raw = source.c_str();
+	glShaderSource(id, 1, &raw, nullptr);
+	glCompileShader(id);
+
+	GLint ok{};
+	glGetShaderiv(id, GL_COMPILE_STATUS, &ok);
+	if (!ok) {
+		GLint len{};
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &len);
+		String msg{};
+		msg.resize(len);
+		glGetShaderInfoLog(id, len, nullptr, &msg[0]);
+		return msg;
+	} else {
+		return std::nullopt;
+	}
+}
+
+void Graphics_GL::DeleteShader(Shader& shader) const
+{
+	glDeleteShader(shader.GetID());
 }
 
 }

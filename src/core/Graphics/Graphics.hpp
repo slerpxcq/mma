@@ -9,6 +9,7 @@ class IndexBuffer;
 class VertexBuffer;
 class Texture;
 class FrameBuffer;
+class Shader;
 
 class Graphics
 {
@@ -18,6 +19,7 @@ public:
 	enum class PixelType { UBYTE };
 	enum class Attachment { COLOR, DEPTH };
 	enum class FrameBufferStatus { OK, INCOMPLETE };
+	enum class ShaderType { VERTEX, FRAGMENT };
 
 public:
 	virtual	~Graphics() = default;
@@ -59,6 +61,9 @@ public:
 									   Color color = { 0.f, 0.f, 0.f, 0.f }) const = 0;
 	virtual void ClearFrameBufferDepth(const FrameBuffer&, 
 									   f32 depth = 0.f, i32 stencil = 0) const = 0;
+
+	virtual Opt<String> CreateShader(Shader&, const String& source, ShaderType type) const = 0;
+	virtual void DeleteShader(Shader&) const = 0;
 
 private:
 	Config::API m_api{};

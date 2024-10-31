@@ -18,7 +18,7 @@ void ViewportPanel::OnRender()
 				 ImGuiWindowFlags_NoScrollbar |
 				 ImGuiWindowFlags_NoScrollWithMouse);
 
-	Panel::OnRender();
+	Panel::OnBegin();
 
 	if (m_frameBuffer) {
 		m_frameBuffer->ClearColor(0, { 1.f, 0.f, 0.f, 1.f });

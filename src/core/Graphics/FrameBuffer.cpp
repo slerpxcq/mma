@@ -20,6 +20,8 @@ static i32 ToKey(Graphics::Attachment attachment, u32 index)
 	case Graphics::Attachment::COLOR:
 		return index;
 		break;
+	default:
+		MM_CORE_UNINPLEMENTED();
 	}
 }
 
@@ -39,6 +41,10 @@ const Texture2D* FrameBuffer::GetAttachment(Graphics::Attachment attachment, u32
 	} else {
 		return it->second.get();
 	}
+}
+
+void FrameBuffer::Resize(u32 width, u32 height)
+{
 }
 
 }

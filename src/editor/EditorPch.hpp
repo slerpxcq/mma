@@ -11,4 +11,4 @@
 
 #include "Common/Memory.hpp"
 
-#include "Core/Globals.hpp"
+#include "Core/Application/Globals.hpp"

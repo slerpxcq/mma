@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <functional>
+#include <optional>
 #include <stdexcept>
 
 #include <glm/glm.hpp>
@@ -37,7 +38,10 @@ using f64 = double;
 using Byte = std::byte;
 
 template <typename T>
-using Function = std::function<T>;
+using Func = std::function<T>;
+
+template <typename T>
+using Opt = std::optional;
 
 using RuntimeError = std::runtime_error;
 
@@ -50,7 +54,9 @@ using Vec4i = glm::ivec4;
 using Vec2u = glm::uvec2;
 using Vec3u = glm::uvec3;
 using Vec4u = glm::uvec4;
+using Quat = glm::quat;
 using Color = Vec4;
+
 
 }
 

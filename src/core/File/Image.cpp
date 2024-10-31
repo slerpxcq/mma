@@ -16,7 +16,7 @@ Ref<Image> Image::Load(const Path& path)
 		throw ImageLoadError(("Failed to load image; path=" + path.string()).c_str());
 	}
 
-	auto image = MakeRef<Image>();
+	auto image = Ref<Image>(new Image{ path });
 	image->m_width = x;
 	image->m_height = y;
 	image->m_channels = ch;

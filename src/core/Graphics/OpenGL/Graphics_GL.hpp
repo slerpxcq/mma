@@ -45,6 +45,10 @@ public:
 	virtual void ClearFrameBufferDepth(const FrameBuffer&, 
 									   f32 depth, i32 stencil) const override;
 
+	virtual Opt<String> CreateShader(Shader&, const String& source, ShaderType type) const = 0;
+	virtual void DeleteShader(Shader&) const override;
+
+
 private:
 };
 

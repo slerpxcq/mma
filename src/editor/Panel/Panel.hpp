@@ -8,11 +8,14 @@ class Panel
 public:
 	Panel(const String& name) : m_name{ name } {}
 	virtual ~Panel() = default;
-	virtual void OnUpdate(f32 deltaTime) {};
-	virtual void OnRender();
+	virtual void OnUpdate(f32 deltaTime) = 0;
+	virtual void OnRender() = 0;
 
 protected:
-	String m_name{};
+	void OnBegin();
+
+protected:
+	const String m_name{};
 	bool m_focused{};
 	bool m_hovered{};
 	bool m_opened{};

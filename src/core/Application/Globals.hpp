@@ -2,10 +2,11 @@
 
 #include "Common/Config.hpp"
 #include "Common/Log.hpp"
-#include "Graphics/Graphics.hpp"
-// #include "Graphics/FrameBuffer.hpp"
-#include "Node.hpp"
+
+#include "../Graphics/Graphics.hpp"
 #include "InputManager.hpp"
+
+#include "../Node.hpp"
 
 namespace mm
 {

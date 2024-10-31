@@ -1,9 +1,11 @@
 #pragma once
 
+#include "File.hpp"
+
 namespace mm
 {
 
-class Image
+class Image : public File
 {
 public:
 	struct ImageLoadError : public RuntimeError {
@@ -17,8 +19,8 @@ public:
 	u32 GetHeight() const { return m_height; }
 	u32 GetChannels() const { return m_channels; }
 
-public:
-	Image() = default;
+private:
+	Image(const Path& path) : File{ path } {}
 
 private:
 	u32 m_width{};

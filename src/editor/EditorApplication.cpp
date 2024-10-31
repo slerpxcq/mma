@@ -1,13 +1,9 @@
 #include "EditorPch.hpp"
 #include "EditorApplication.hpp"
 
-#include "Core/Layer/ImGuiLayer.hpp"
-#include "Core/InputManager.hpp"
-
 #include "EditorLayer.hpp"
 
 /* BEGIN TEST INCLUDE */
-#include "Core/Graphics/FrameBuffer.hpp"
 /* END TEST INCLUDE */
 
 namespace mm

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Window/Window.hpp"
-#include "WindowEvent.hpp"
 #include "EventBus.hpp"
-#include "Layer/LayerStack.hpp"
+#include "WindowEvent.hpp"
+
+#include "../Window/Window.hpp"
+#include "../Layer/LayerStack.hpp"
 
 namespace mm
 {

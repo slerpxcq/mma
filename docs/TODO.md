@@ -55,10 +55,20 @@
 - [x] EditorLayer
 - [x] ViewportPanel class
     - [x] FrameBuffer related functions
+- [ ] Shader related
+    - [ ] Shader loading
+        - [x] Text class
+        - [x] Shader creation/deletion related functions
+        - [ ] Program related functions
+        - [ ] Uniform related functions
 
 --- 
 # TO BE DONE:
+- [ ] CoreLayer
+    - [ ] Core update and rendering logic
+
 - [ ] Drawable interface
 - [ ] ModelNode class
     - [ ] Load from PMX file
     - [ ] Keep references of textures, materials and meshes
+

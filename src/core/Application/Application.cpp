@@ -1,10 +1,12 @@
 #include "CorePch.hpp"
 #include "Application.hpp"
 
+#include "Globals.hpp"
 #include "InputManager.hpp"
 
 #include "Common/Clock.hpp"
-#include "Globals.hpp"
+
+#include "Layer/CoreLayer.hpp"
 
 #include "Graphics/OpenGL/Graphics_GL.hpp"
 #include "Graphics/FrameBuffer.hpp"
@@ -15,7 +17,8 @@ namespace mm
 {
 
 Application::Application(i32 argc, char** argv) :
-	m_argc{ argc }, m_argv{ argv }, m_graphics{ []() {
+	m_argc{ argc }, m_argv{ argv }, 
+	m_graphics{ []() {
 		SetGraphics(new Graphics_GL{});
 		return GetGraphics();
 	}() }
@@ -54,10 +57,12 @@ void Application::Startup()
 	fb->AddAttachment(Graphics::Attachment::COLOR, 0, Graphics::TexFormat::RGBA8);
 	fb->AddAttachment(Graphics::Attachment::DEPTH, 0, Graphics::TexFormat::D24S8);
 	if (!fb->IsComplete()) {
-		throw RuntimeError("Could not create frame buffer");
+		throw RuntimeError("Could not create main frame buffer");
 	}
 
 	RegisterCallbacks();
+
+	m_layerStack.EmplaceBack<CoreLayer>();
 
 	MM_CORE_INFO("Application started");
 }

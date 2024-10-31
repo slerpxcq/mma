@@ -2,8 +2,9 @@
 #include "ModelNode.hpp"
 
 #include "File/PMXFile.hpp"
+#include "File/Image.hpp"
+
 #include "Graphics/DefaultVertexLayout.hpp"
-#include "Image.hpp"
 #include "Graphics/Texture2D.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -90,7 +91,7 @@ Scoped<ModelNode> ModelNode::LoadFromPMX(const PMXFile& pmx)
 	auto& textures = model->m_textures;
 	textures.reserve(pmx.textures.size());
 	for (const auto& pt : pmx.textures) {
-		String path = pmx.path.parent_path().string() + '/' + pt.name;
+		String path = pmx.GetPath().parent_path().string() + '/' + pt.name;
 		auto img = Image::Load(path);
 		auto tex = MakeRef<Texture2D>(img->GetWidth(), img->GetHeight(),
 									  Graphics::TexFormat::RGBA8);

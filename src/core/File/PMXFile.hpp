@@ -1,5 +1,7 @@
 #pragma once
 
+#include "File.hpp"
+
 #include "Common/Locale.hpp"
 
 /* TODO: change to private access */
@@ -11,7 +13,7 @@ struct PMXParseError : public RuntimeError
 	PMXParseError(const char* what = "") : RuntimeError(what) {}
 };
 
-struct PMXFile
+struct PMXFile : public File
 {
 	enum class TextEncoding : u8 {
 		UTF16LE = 0,
@@ -320,10 +322,10 @@ struct PMXFile
 	};
 
 public:
+	PMXFile(const Path& path) : File{ path } {}
 	static Ref<PMXFile> Load(const Path& path);
 
 public:
-	Path path;
 	Header                 header{};
 	Info                   info{};
 	DynArray<Vertex>    vertices{};
@@ -357,7 +359,7 @@ private:
 	void ParseJoint(InFileStream& stream);
 
 private:
-	Ref<PMXFile> m_pmx{ MakeRef<PMXFile>() };
+	Ref<PMXFile> m_pmx{};
 };
 
 
