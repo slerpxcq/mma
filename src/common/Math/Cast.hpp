@@ -12,7 +12,7 @@ template <typename Src, typename Dst>
 Dst Cast(const Src& s);
 
 template <>
-typename glm::vec3 Cast<btVector3, glm::vec3>(const btVector3& s)
+typename glm::vec3 Cast<btVector3, glm::vec3>(const btVector3& v)
 {
 	return {};
 }

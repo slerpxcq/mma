@@ -4,9 +4,11 @@
 #include "Core/Layer/ImGuiLayer.hpp"
 #include "Core/InputManager.hpp"
 
-#include "Core/Graphics/IndexBuffer.hpp"
-
 #include "EditorLayer.hpp"
+
+/* BEGIN TEST INCLUDE */
+#include "Core/Graphics/FrameBuffer.hpp"
+/* END TEST INCLUDE */
 
 namespace mm
 {
@@ -14,10 +16,6 @@ namespace mm
 void EditorApplication::Startup()
 {
 	Application::Startup();
-
-	/* BEGIN TEST CODE */
-	
-	/* END TEST CODE */
 
 	m_layerStack.EmplaceBack<EditorLayer>(m_window);
 }

@@ -55,6 +55,10 @@ public:
 									Attachment attachment, u32 index, 
 									u32 level = 0) const = 0;
 	virtual FrameBufferStatus CheckFrameBufferStatus(const FrameBuffer&) const = 0;
+	virtual void ClearFrameBufferColor(const FrameBuffer&, u32 index = 0, 
+									   Color color = { 0.f, 0.f, 0.f, 0.f }) const = 0;
+	virtual void ClearFrameBufferDepth(const FrameBuffer&, 
+									   f32 depth = 0.f, i32 stencil = 0) const = 0;
 
 private:
 	Config::API m_api{};

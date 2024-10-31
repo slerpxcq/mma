@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Panel.hpp"
+#include "Core/Graphics/FrameBuffer.hpp"
 
 namespace mm
 {
@@ -8,10 +9,13 @@ namespace mm
 class ViewportPanel : public Panel
 {
 public:
+	ViewportPanel(const String& name) : Panel{ name } {}
 	virtual void OnUpdate(f32 deltaTime) override; 
 	virtual void OnRender() override;
+	void SetFrameBuffer(const FrameBuffer* fb) { m_frameBuffer = fb; }
 
 private:
+	const FrameBuffer* m_frameBuffer{};
 };
 
 }

@@ -9,8 +9,8 @@ namespace mm
 class EditorLayer : public ImGuiLayer
 {
 public:
-	EditorLayer(const Window& window) : ImGuiLayer{ window } {}
-	void OnUpdate(float deltaTime) override;
+	EditorLayer(const Window& window);
+	void OnUpdate(f32 deltaTime) override;
 	void OnRender() override;
 
 private:

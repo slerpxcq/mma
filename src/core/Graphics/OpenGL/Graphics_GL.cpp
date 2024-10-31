@@ -6,6 +6,7 @@
 #include "../Texture.hpp"
 #include "../FrameBuffer.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 
 namespace mm
@@ -19,7 +20,7 @@ static GLuint ToGLBufferTarget(Buffer::Target target)
 	case Buffer::Target::INDEX:
 		return GL_ELEMENT_ARRAY_BUFFER;
 	default:
-		MM_UNINPLEMENTED();
+		MM_CORE_UNINPLEMENTED();
 	}
 }
 
@@ -30,7 +31,7 @@ static GLenum ToGLTexTarget(Texture::Target target)
 		return GL_TEXTURE_2D;
 		break;
 	default:
-		MM_UNINPLEMENTED();
+		MM_CORE_UNINPLEMENTED();
 	}
 }
 
@@ -43,6 +44,11 @@ static GLenum ToGLTexFormat(Graphics::TexFormat format)
 	case Graphics::TexFormat::RGBA8:
 		return GL_RGBA8;
 		break;
+	case Graphics::TexFormat::D24S8:
+		return GL_DEPTH24_STENCIL8;
+		break;
+	default: 
+		MM_CORE_UNINPLEMENTED();
 	}
 }
 
@@ -52,6 +58,8 @@ static GLenum ToGLPixelType(Graphics::PixelType type)
 	case Graphics::PixelType::UBYTE:
 		return GL_UNSIGNED_BYTE;
 		break;
+	default:
+		MM_CORE_UNINPLEMENTED();
 	}
 }
 
@@ -64,6 +72,8 @@ static GLenum ToGLAttachment(Graphics::Attachment attachment, u32 index)
 	case Graphics::Attachment::COLOR:
 		return GL_COLOR_ATTACHMENT0 + index;
 		break;
+	default:
+		MM_CORE_UNINPLEMENTED();
 	}
 }
 
@@ -128,6 +138,8 @@ void Graphics_GL::SetVertexAttribFormat(const VertexArray& va, u32 location, Att
 	case AttribType::FLOAT:
 		glVertexArrayAttribFormat(va.GetID(), location, count, GL_FLOAT, normalized, offset);
 		break;
+	default:
+		MM_CORE_UNINPLEMENTED();
 	}
 
 	glVertexArrayAttribBinding(va.GetID(), location, 0);
@@ -183,7 +195,8 @@ void Graphics_GL::FrameBufferTexture(const FrameBuffer& fb, const Texture& tex, 
 
 Graphics::FrameBufferStatus Graphics_GL::CheckFrameBufferStatus(const FrameBuffer& fb) const
 {
-	switch (glCheckNamedFramebufferStatus(fb.GetID(), GL_FRAMEBUFFER)) {
+	GLenum status = glCheckNamedFramebufferStatus(fb.GetID(), GL_FRAMEBUFFER);
+	switch (status) {
 	case GL_FRAMEBUFFER_COMPLETE:
 		return Graphics::FrameBufferStatus::OK;
 		break;
@@ -191,6 +204,16 @@ Graphics::FrameBufferStatus Graphics_GL::CheckFrameBufferStatus(const FrameBuffe
 		return Graphics::FrameBufferStatus::INCOMPLETE;
 		break;
 	}
+}
+
+void Graphics_GL::ClearFrameBufferColor(const FrameBuffer& fb, u32 index, Color color) const
+{
+	glClearNamedFramebufferfv(fb.GetID(), GL_COLOR, index, glm::value_ptr(color));
+}
+
+void Graphics_GL::ClearFrameBufferDepth(const FrameBuffer& fb, f32 depth, i32 stencil) const
+{
+	glClearNamedFramebufferfi(fb.GetID(), GL_DEPTH, 0, depth, stencil);
 }
 
 }

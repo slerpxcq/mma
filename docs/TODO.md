@@ -49,9 +49,12 @@
 - [x] Load Textures from PMXFile
     - [x] Texture class
     - [x] Texture2D class
-- [ ] EditorLayer
-    - [ ] ViewportPanel class
-        - [ ] FrameBuffer class
+- [x] FrameBuffer class
+
+# 2024/10/31
+- [x] EditorLayer
+- [x] ViewportPanel class
+    - [x] FrameBuffer related functions
 
 --- 
 # TO BE DONE:

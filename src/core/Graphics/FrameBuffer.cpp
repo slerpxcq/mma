@@ -25,7 +25,9 @@ static i32 ToKey(Graphics::Attachment attachment, u32 index)
 
 void FrameBuffer::AddAttachment(Graphics::Attachment attachment, u32 index, Graphics::TexFormat format) 
 {
+	const auto gfx = GetGraphics();
 	auto tex = MakeScoped<Texture2D>(m_width, m_height, format);
+	gfx->FrameBufferTexture(*this, *tex, attachment, index);
 	m_attachments.insert({ ToKey(attachment, index), std::move(tex) });
 }
 

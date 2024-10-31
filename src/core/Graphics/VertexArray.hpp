@@ -10,7 +10,6 @@ class VertexArray : public GPUResource
 {
 public:
 	VertexArray(Ref<VertexBuffer> vb, Ref<IndexBuffer> ib);
-
 	~VertexArray() { GetGraphics()->DeleteVertexArray(*this); }
 
 private:

@@ -5,6 +5,8 @@
 #include <functional>
 #include <stdexcept>
 
+#include <glm/glm.hpp>
+
 #define MM_GLOBAL_ATTRIBUTE(_type_, _name_)  \
 class _name_##_g { \
 friend _type_& Get##_name_(); \
@@ -38,6 +40,17 @@ template <typename T>
 using Function = std::function<T>;
 
 using RuntimeError = std::runtime_error;
+
+using Vec2 = glm::vec2;
+using Vec3 = glm::vec3;
+using Vec4 = glm::vec4;
+using Vec2i = glm::ivec2;
+using Vec3i = glm::ivec3;
+using Vec4i = glm::ivec4;
+using Vec2u = glm::uvec2;
+using Vec3u = glm::uvec3;
+using Vec4u = glm::uvec4;
+using Color = Vec4;
 
 }
 

@@ -22,7 +22,7 @@ static void Read(InFileStream& stream, Dst& dst, i32 srcSize = sizeof(Dst))
 		dst = *reinterpret_cast<Dst*>(&tmp);
 		break;
 	default:
-		MM_UNREACHABLE();
+		MM_CORE_UNREACHABLE();
 	}
 }
 
@@ -76,7 +76,7 @@ String PMXParser::ParseText(InFileStream& stream)
 	case PMXFile::TextEncoding::UTF16LE:
 		return Locale::UTF16LEToUTF8(str.c_str(), str.length());
 	default: 
-		MM_UNINPLEMENTED("UTF8");
+		MM_CORE_UNINPLEMENTED("UTF8");
 	}
 }
 
@@ -93,7 +93,7 @@ void PMXParser::ParseHeader(InFileStream& stream)
 	Read(stream, m_pmx->header.extraUVCount);
 
 	if (m_pmx->header.extraUVCount > 0) {
-		MM_UNINPLEMENTED("Extra UV");
+		MM_CORE_UNINPLEMENTED("Extra UV");
 	}
 
 	Read(stream, m_pmx->header.vertexIndexSize);
@@ -432,7 +432,7 @@ void PMXParser::ParseJoint(InFileStream& stream)
 			Read(stream, joint.angularStiffness);
 			break;
 		default:
-			MM_UNINPLEMENTED("joint type");
+			MM_CORE_UNINPLEMENTED("joint type");
 		}
 	}
 }

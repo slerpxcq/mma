@@ -34,8 +34,7 @@ ImGuiLayer::ImGuiLayer(const Window& window)
 		m_impl = MakeScoped<ImGuiLayerImpl_GLFW>(window);
 		break;
 	default:
-		MM_ASSERT("API not supported yet");
-		break;
+		MM_CORE_UNINPLEMENTED("API not supported yet"); break;
 	}
 }
 

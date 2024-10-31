@@ -52,7 +52,7 @@ project "Core"
         systemversion "latest"
 
     filter "configurations:Debug"
-	    defines { "MM_DEBUG "}
+	    defines { "MM_CORE_DEBUG "}
 		runtime "Debug"
         symbols "on"
 

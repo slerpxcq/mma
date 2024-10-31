@@ -7,6 +7,7 @@
 #include "Globals.hpp"
 
 #include "Graphics/OpenGL/Graphics_GL.hpp"
+#include "Graphics/FrameBuffer.hpp"
 
 #include "Node.hpp"
 
@@ -48,6 +49,14 @@ void Application::Startup()
 	SetInputManager(new InputManager{});
 	SetRootNode(new Node{ "ROOT" });
 
+	SetMainFrameBuffer(new FrameBuffer{ 1024, 1024 });
+	FrameBuffer* fb = GetMainFrameBuffer();
+	fb->AddAttachment(Graphics::Attachment::COLOR, 0, Graphics::TexFormat::RGBA8);
+	fb->AddAttachment(Graphics::Attachment::DEPTH, 0, Graphics::TexFormat::D24S8);
+	if (!fb->IsComplete()) {
+		throw RuntimeError("Could not create frame buffer");
+	}
+
 	RegisterCallbacks();
 
 	MM_CORE_INFO("Application started");
@@ -57,6 +66,7 @@ void Application::Shutdown()
 {
 	MM_CORE_INFO("Application shutting down...");
 
+	delete GetMainFrameBuffer();
 	delete GetRootNode();
 	delete GetInputManager();
 	delete GetCoreLogger();

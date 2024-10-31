@@ -46,6 +46,7 @@ project "Editor"
         systemversion "latest"
 
     filter "configurations:Debug"
+		defines { "MM_APP_DEBUG" }
 		runtime "Debug"
         symbols "on"
 

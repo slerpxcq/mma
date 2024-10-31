@@ -61,13 +61,21 @@ For non-top level scope, ```{``` keeps in the same line
 void func() 
 {
     if (true) {
-
     } 
     else {
-
     }
 }
 ```
 
+All switch statements must have default branch and marked correctly
+```C++
+switch (x) {
+// ... 
+default:
+    MM_UNIMPLEMENTED(/* message */); 
+    // or
+    MM_UNREACHABLE(); 
+}
+```
 # OpenGL
 All textures are immutable 

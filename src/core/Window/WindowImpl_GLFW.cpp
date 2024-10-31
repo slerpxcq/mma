@@ -1,13 +1,16 @@
 #include "CorePch.hpp"
 #include "WindowImpl_GLFW.hpp"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include "EventBus.hpp"
 #include "WindowEvent.hpp"
 
 #include "InputManager.hpp"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <glm/gtc/type_ptr.hpp>
 
 namespace mm
 {
@@ -42,8 +45,14 @@ WindowImpl_GLFW::~WindowImpl_GLFW()
 
 void WindowImpl_GLFW::BeginFrame()
 {
-	glClearColor(0.2f, 0.2f, 0.2f, 0.2f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glm::vec4 clearColor{ .2f, .2f, .2f, .2f };
+	f32 clearDepth{ 0.f };
+	i32 clearStencil{ 0 };
+	glClearNamedFramebufferfv(0, GL_COLOR, 0, glm::value_ptr(clearColor));
+	glClearNamedFramebufferfi(0, GL_DEPTH, 0, clearDepth, clearStencil);
+
+	// glClearColor(0.2f, 0.2f, 0.2f, 0.2f);
+	// glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void WindowImpl_GLFW::EndFrame()
