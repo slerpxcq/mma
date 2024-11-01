@@ -4,7 +4,7 @@
 namespace mm
 {
 
-Program::Program(std::initializer_list<Ref<Shader>> shaders)
+Program::Program(InitList<Ref<Shader>> shaders)
 {
 	const auto gfx = GetGraphics();
 	gfx->CreateProgram(*this);
@@ -12,13 +12,13 @@ Program::Program(std::initializer_list<Ref<Shader>> shaders)
 		gfx->AttachShader(*this, *shader);
 	}
 	auto msg = gfx->LinkProgram(*this); 
-	if (!msg) {
+	if (msg) {
 		throw LinkError{ msg.value().c_str() };
 	}
-	LoadLocationCache();
+	LoadLocations();
 }
 
-void Program::LoadLocationCache()
+void Program::LoadLocations()
 {
 	const auto gfx = GetGraphics();
 	u32 count = gfx->GetUniformCount(*this);
@@ -26,15 +26,15 @@ void Program::LoadLocationCache()
 		String name = gfx->GetUniformName(*this, i);
 		i32 loc = gfx->GetUniformLocation(*this, name);
 		if (loc >= 0) {
-			m_locationCache.insert({ name, loc });
+			m_locations.insert({ name, loc });
 		}
 	}
 }
 
 i32 Program::GetLocation(StringView name)
 {
-	auto it = m_locationCache.find(String{ name });
-	if (it != m_locationCache.end()) {
+	auto it = m_locations.find(String{ name });
+	if (it != m_locations.end()) {
 		return it->second;
 	} else {
 		return -1;

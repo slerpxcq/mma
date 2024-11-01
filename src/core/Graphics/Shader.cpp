@@ -4,11 +4,11 @@
 namespace mm
 {
 
-Shader::Shader(const String& source, Graphics::ShaderType type)
+Shader::Shader(StringView source, Graphics::ShaderType type)
 {
 	const auto gfx = GetGraphics();
 	auto result = gfx->CreateShader(*this, source, type);
-	if (!result) {
+	if (result) {
 		throw CompileError(result.value().c_str());
 	}
 }

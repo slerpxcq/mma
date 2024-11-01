@@ -38,7 +38,7 @@ public:
 	virtual void CreateFrameBuffer(FrameBuffer&) const override;
 	virtual void DeleteFrameBuffer(FrameBuffer&) const override;
 	virtual void FrameBufferTexture(const FrameBuffer&, const Texture&, 
-									Attachment attachment, u32 index, u32 level) const override;
+									AttachmentType attachment, u32 index, u32 level) const override;
 	virtual FrameBufferStatus CheckFrameBufferStatus(const FrameBuffer&) const override;
 	virtual void ClearFrameBufferColor(const FrameBuffer&, u32 index, 
 									   Color color) const override;

@@ -3,9 +3,6 @@
 
 #include "EditorLayer.hpp"
 
-/* BEGIN TEST INCLUDE */
-/* END TEST INCLUDE */
-
 namespace mm
 {
 

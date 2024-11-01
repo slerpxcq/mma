@@ -65,13 +65,13 @@ static GLenum ToGLPixelType(Graphics::PixelType type)
 	}
 }
 
-static GLenum ToGLAttachment(Graphics::Attachment attachment, u32 index)
+static GLenum ToGLAttachment(Graphics::AttachmentType attachment, u32 index)
 {
 	switch (attachment) {
-	case Graphics::Attachment::DEPTH:
+	case Graphics::AttachmentType::DEPTH:
 		return GL_DEPTH_ATTACHMENT;
 		break;
-	case Graphics::Attachment::COLOR:
+	case Graphics::AttachmentType::COLOR:
 		return GL_COLOR_ATTACHMENT0 + index;
 		break;
 	default:
@@ -204,7 +204,7 @@ void Graphics_GL::DeleteFrameBuffer(FrameBuffer& fb) const
 	MM_CORE_INFO("GL: frame buffer deleted; id={0}", fb.GetID());
 }
 
-void Graphics_GL::FrameBufferTexture(const FrameBuffer& fb, const Texture& tex, Attachment attachment, u32 index, u32 level) const
+void Graphics_GL::FrameBufferTexture(const FrameBuffer& fb, const Texture& tex, AttachmentType attachment, u32 index, u32 level) const
 {
 	glNamedFramebufferTexture(fb.GetID(), ToGLAttachment(attachment, index), tex.GetID(), level);
 }

@@ -8,11 +8,18 @@ namespace mm
 class FrameBuffer : public GPUResource
 {
 public:
-	FrameBuffer(u32 width, u32 height);
+	struct Attachment {
+		Graphics::AttachmentType type;
+		u32 index;
+		Graphics::TexFormat format;
+	};
+
+public:
+	FrameBuffer(u32 width, u32 height, 
+				InitList<Attachment> attachments);
 	~FrameBuffer() { GetGraphics()->DeleteFrameBuffer(*this); }
 
-	void AddAttachment(Graphics::Attachment attachment, u32 index, Graphics::TexFormat format);
-	const Texture2D* GetAttachment(Graphics::Attachment attachment, u32 index) const;
+	const Texture2D* GetAttachment(Graphics::AttachmentType type, u32 index) const;
 	void ClearColor(u32 index, Color color = { 0.f, 0.f, 0.f, 0.f }) const { 
 		GetGraphics()->ClearFrameBufferColor(*this, index, color); 
 	}
@@ -24,6 +31,9 @@ public:
 		return (GetGraphics()->CheckFrameBufferStatus(*this) 
 				== Graphics::FrameBufferStatus::OK); 
 	}
+
+private:
+	 void AddAttachment(Graphics::AttachmentType type, u32 index, Graphics::TexFormat format);
 
 private:
 	u32 m_width{};

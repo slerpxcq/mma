@@ -4,20 +4,24 @@
 namespace mm
 {
 
-FrameBuffer::FrameBuffer(u32 width, u32 height) :
-	m_width{ width }, m_height{ height }
+FrameBuffer::FrameBuffer(u32 width, u32 height, 
+						 InitList<Attachment> attachments) :
+	m_width{ width }, m_height{ height } 
 {
 	const auto gfx = GetGraphics();
 	gfx->CreateFrameBuffer(*this);
+	for (const auto& attachment : attachments) {
+		AddAttachment(attachment.type, attachment.index, attachment.format);
+	}
 }
 
-static i32 ToKey(Graphics::Attachment attachment, u32 index)
+static i32 ToKey(Graphics::AttachmentType type, u32 index)
 {
-	switch (attachment) {
-	case Graphics::Attachment::DEPTH:
+	switch (type) {
+	case Graphics::AttachmentType::DEPTH:
 		return -1;
 		break;
-	case Graphics::Attachment::COLOR:
+	case Graphics::AttachmentType::COLOR:
 		return index;
 		break;
 	default:
@@ -25,15 +29,15 @@ static i32 ToKey(Graphics::Attachment attachment, u32 index)
 	}
 }
 
-void FrameBuffer::AddAttachment(Graphics::Attachment attachment, u32 index, Graphics::TexFormat format) 
+void FrameBuffer::AddAttachment(Graphics::AttachmentType type, u32 index, Graphics::TexFormat format) 
 {
 	const auto gfx = GetGraphics();
 	auto tex = MakeScoped<Texture2D>(m_width, m_height, format);
-	gfx->FrameBufferTexture(*this, *tex, attachment, index);
-	m_attachments.insert({ ToKey(attachment, index), std::move(tex) });
+	gfx->FrameBufferTexture(*this, *tex, type, index);
+	m_attachments.insert({ ToKey(type, index), std::move(tex) });
 }
 
-const Texture2D* FrameBuffer::GetAttachment(Graphics::Attachment attachment, u32 index) const
+const Texture2D* FrameBuffer::GetAttachment(Graphics::AttachmentType attachment, u32 index) const
 {
 	auto it = m_attachments.find(ToKey(attachment, index));
 	if (it == m_attachments.end()) {

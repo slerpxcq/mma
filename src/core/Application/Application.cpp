@@ -52,10 +52,11 @@ void Application::Startup()
 	SetInputManager(new InputManager{});
 	SetRootNode(new Node{ "ROOT" });
 
-	SetMainFrameBuffer(new FrameBuffer{ 1024, 1024 });
+	SetMainFrameBuffer(new FrameBuffer{ 1024, 1024,
+					   { { Graphics::AttachmentType::COLOR, 0, Graphics::TexFormat::RGBA8 },
+					     { Graphics::AttachmentType::DEPTH, 0, Graphics::TexFormat::D24S8 } } });
+
 	FrameBuffer* fb = GetMainFrameBuffer();
-	fb->AddAttachment(Graphics::Attachment::COLOR, 0, Graphics::TexFormat::RGBA8);
-	fb->AddAttachment(Graphics::Attachment::DEPTH, 0, Graphics::TexFormat::D24S8);
 	if (!fb->IsComplete()) {
 		throw RuntimeError("Could not create main frame buffer");
 	}

@@ -55,12 +55,18 @@
 - [x] EditorLayer
 - [x] ViewportPanel class
     - [x] FrameBuffer related functions
-- [ ] Shader related
-    - [ ] Shader loading
+
+# 2024/11/1
+- [x] Shader related
+    - [x] Shader loading
         - [x] Text class
         - [x] Shader creation/deletion related functions
         - [x] Program related functions
-        - [ ] Uniform related functions
+        - [x] Uniform related functions
+    - [x] Shader testing
+        - [x] Load text file
+
+- [ ] Draw model to Viewport
 
 --- 
 # TO BE DONE:

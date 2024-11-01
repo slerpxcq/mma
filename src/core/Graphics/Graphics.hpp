@@ -18,7 +18,7 @@ public:
 	enum class AttribType { FLOAT, INT };
 	enum class TexFormat { RGBA8, RGB8, D24S8 };
 	enum class PixelType { UBYTE };
-	enum class Attachment { COLOR, DEPTH };
+	enum class AttachmentType { COLOR, DEPTH };
 	enum class FrameBufferStatus { OK, INCOMPLETE };
 	enum class ShaderType { VERTEX, FRAGMENT };
 
@@ -55,7 +55,7 @@ public:
 	virtual void CreateFrameBuffer(FrameBuffer&) const = 0;
 	virtual void DeleteFrameBuffer(FrameBuffer&) const = 0;
 	virtual void FrameBufferTexture(const FrameBuffer&, const Texture&, 
-									Attachment attachment, u32 index, 
+									AttachmentType attachment, u32 index, 
 									u32 level = 0) const = 0;
 	virtual FrameBufferStatus CheckFrameBufferStatus(const FrameBuffer&) const = 0;
 	virtual void ClearFrameBufferColor(const FrameBuffer&, u32 index = 0, 

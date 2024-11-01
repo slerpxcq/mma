@@ -1,5 +1,4 @@
 #version 460 core
-#extension GL_ARB_bindless_texture : require
 
 layout (location = 0) out vec4 f_fragColor;
 

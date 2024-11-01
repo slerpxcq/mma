@@ -15,7 +15,7 @@ public:
 	};
 
 public:
-	explicit Program(std::initializer_list<Ref<Shader>> shaders);
+	explicit Program(InitList<Ref<Shader>> shaders);
 	~Program() { GetGraphics()->DeleteProgram(*this); }
 
 	template <typename T>
@@ -38,11 +38,11 @@ public:
 	}
 
 private:
-	void LoadLocationCache();
+	void LoadLocations();
 	i32 GetLocation(StringView name);
 
 private:
-	HashMap<String, i32> m_locationCache{};
+	HashMap<String, i32> m_locations{};
 };
 
 }

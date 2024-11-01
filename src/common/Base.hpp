@@ -5,6 +5,9 @@
 #include <functional>
 #include <optional>
 #include <stdexcept>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 
 #include <glm/glm.hpp>
 
@@ -37,17 +40,6 @@ using f32 = float;
 using f64 = double;
 using Byte = std::byte;
 
-template <typename T>
-using Func = std::function<T>;
-
-template <typename T>
-using Opt = std::optional<T>;
-
-template <typename T, size_t Size>
-using Array = std::array<T, Size>;
-
-using RuntimeError = std::runtime_error;
-
 using Vec2 = glm::vec2;
 using Vec3 = glm::vec3;
 using Vec4 = glm::vec4;
@@ -61,6 +53,26 @@ using Mat3 = glm::mat3;
 using Mat4 = glm::mat4;
 using Quat = glm::quat;
 using Color = Vec4;
+
+using FileStream = std::fstream;
+using InFileStream = std::ifstream;
+using OutFileStream = std::ofstream;
+
+template <typename T>
+using Func = std::function<T>;
+
+template <typename T>
+using Opt = std::optional<T>;
+
+template <typename T, size_t Size>
+using Array = std::array<T, Size>;
+
+template <typename T>
+using InitList = std::initializer_list<T>;
+
+using RuntimeError = std::runtime_error;
+using Path = std::filesystem::path;
+
 
 
 }

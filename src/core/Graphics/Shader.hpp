@@ -13,7 +13,7 @@ public:
 	};
 
 public:
-	Shader(const String& source, Graphics::ShaderType type);
+	Shader(StringView source, Graphics::ShaderType type);
 	~Shader() { GetGraphics()->DeleteShader(*this); }
 
 private:
