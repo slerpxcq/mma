@@ -7,11 +7,9 @@ namespace mm
 Shader::Shader(const String& source, Graphics::ShaderType type)
 {
 	const auto gfx = GetGraphics();
-	gfx->CreateShader(*this, type);
-	gfx->ShaderSource(*this, source);
-	if (!gfx->CompileShader(*this)) {
-		String msg = gfx->GetCompileError(*this);
-		throw CompileError()
+	auto result = gfx->CreateShader(*this, source, type);
+	if (!result) {
+		throw CompileError(result.value().c_str());
 	}
 }
 

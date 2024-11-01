@@ -41,7 +41,10 @@ template <typename T>
 using Func = std::function<T>;
 
 template <typename T>
-using Opt = std::optional;
+using Opt = std::optional<T>;
+
+template <typename T, size_t Size>
+using Array = std::array<T, Size>;
 
 using RuntimeError = std::runtime_error;
 

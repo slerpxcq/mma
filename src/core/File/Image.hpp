@@ -26,7 +26,7 @@ private:
 	u32 m_width{};
 	u32 m_height{};
 	u32 m_channels{};
-	Scoped<Byte, Function<void(Byte*)>> m_pixels{};
+	Scoped<Byte, Func<void(Byte*)>> m_pixels{};
 };
 
 }

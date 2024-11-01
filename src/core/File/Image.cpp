@@ -21,7 +21,7 @@ Ref<Image> Image::Load(const Path& path)
 	image->m_height = y;
 	image->m_channels = ch;
 	image->m_pixels = 
-		Scoped<Byte, Function<void(Byte*)>>(pixels, 
+		Scoped<Byte, Func<void(Byte*)>>(pixels, 
 											[](Byte* ptr) {
 												stbi_image_free(ptr); 
 											});

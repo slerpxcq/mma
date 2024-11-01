@@ -10,6 +10,7 @@ class VertexBuffer;
 class Texture;
 class FrameBuffer;
 class Shader;
+class Program;
 
 class Graphics
 {
@@ -64,6 +65,14 @@ public:
 
 	virtual Opt<String> CreateShader(Shader&, const String& source, ShaderType type) const = 0;
 	virtual void DeleteShader(Shader&) const = 0;
+
+	virtual void CreateProgram(Program&) const = 0;
+	virtual void DeleteProgram(Program&) const = 0;
+	virtual void AttachShader(const Program&, const Shader&) const = 0;
+	virtual Opt<String> LinkProgram(const Program&) const = 0;
+	virtual u32 GetUniformCount(const Program&) const = 0;
+	virtual String GetUniformName(const Program&, u32 index) const = 0;
+	virtual i32 GetUniformLocation(const Program&, const String& name) const = 0;
 
 private:
 	Config::API m_api{};

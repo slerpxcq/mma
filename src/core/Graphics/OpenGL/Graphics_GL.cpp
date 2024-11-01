@@ -6,6 +6,7 @@
 #include "../Texture.hpp"
 #include "../FrameBuffer.hpp"
 #include "../Shader.hpp"
+#include "../Program.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
@@ -249,6 +250,7 @@ Opt<String> Graphics_GL::CreateShader(Shader& shader, const String& source, Shad
 		glGetShaderInfoLog(id, len, nullptr, &msg[0]);
 		return msg;
 	} else {
+		MM_CORE_INFO("GL: shader created; id={0}", id);
 		return std::nullopt;
 	}
 }
@@ -256,6 +258,62 @@ Opt<String> Graphics_GL::CreateShader(Shader& shader, const String& source, Shad
 void Graphics_GL::DeleteShader(Shader& shader) const
 {
 	glDeleteShader(shader.GetID());
+	MM_CORE_INFO("GL: shader deleted; id={0}", shader.GetID());
+}
+
+void Graphics_GL::AttachShader(const Program& program, const Shader& shader) const
+{
+	glAttachShader(program.GetID(), shader.GetID());
+}
+
+void Graphics_GL::CreateProgram(Program& program) const
+{
+	*program.GetIDPtr() = glCreateProgram();
+	MM_CORE_INFO("GL: program created; id={0}", program.GetID());
+}
+
+void Graphics_GL::DeleteProgram(Program& program) const
+{
+	glDeleteProgram(program.GetID());
+	MM_CORE_INFO("GL: program deleted; id={0}", program.GetID());
+}
+
+Opt<String> Graphics_GL::LinkProgram(const Program& program) const
+{
+	u32 id = program.GetID();
+	glLinkProgram(id);
+
+	GLint ok{};
+	glGetProgramiv(id, GL_LINK_STATUS, &ok);
+	if (!ok) {
+		GLint len{};
+		glGetProgramiv(id, GL_INFO_LOG_LENGTH, &len);
+		String msg{};
+		msg.resize(len);
+		glGetProgramInfoLog(id, len, nullptr, &msg[0]);
+		return msg;
+	} else {
+		return std::nullopt;
+	}
+}
+
+u32 Graphics_GL::GetUniformCount(const Program& program) const
+{
+	i32 count{};
+	glGetProgramiv(program.GetID(), GL_ACTIVE_UNIFORMS, &count);
+	return count;
+}
+
+String Graphics_GL::GetUniformName(const Program& program, u32 index) const
+{
+	char buf[64]{};
+	glGetActiveUniformName(program.GetID(), index, sizeof(buf), nullptr, buf);
+	return String{ buf };
+}
+
+i32 Graphics_GL::GetUniformLocation(const Program& program, const String& name) const
+{
+	return glGetUniformLocation(program.GetID(), name.c_str());
 }
 
 }

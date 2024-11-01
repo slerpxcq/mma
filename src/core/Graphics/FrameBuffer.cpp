@@ -45,6 +45,7 @@ const Texture2D* FrameBuffer::GetAttachment(Graphics::Attachment attachment, u32
 
 void FrameBuffer::Resize(u32 width, u32 height)
 {
+	MM_CORE_UNINPLEMENTED();
 }
 
 }

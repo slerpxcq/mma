@@ -10,9 +10,4 @@ using FileStream = std::fstream;
 using InFileStream = std::ifstream;
 using OutFileStream = std::ofstream;
 
-template <typename T>
-void Read()
-{
-}
-
 }

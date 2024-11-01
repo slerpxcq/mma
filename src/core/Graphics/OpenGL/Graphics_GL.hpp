@@ -45,9 +45,16 @@ public:
 	virtual void ClearFrameBufferDepth(const FrameBuffer&, 
 									   f32 depth, i32 stencil) const override;
 
-	virtual Opt<String> CreateShader(Shader&, const String& source, ShaderType type) const = 0;
+	virtual Opt<String> CreateShader(Shader&, const String& source, ShaderType type) const override;
 	virtual void DeleteShader(Shader&) const override;
+	virtual void AttachShader(const Program&, const Shader&) const override;
 
+	virtual void CreateProgram(Program&) const override;
+	virtual void DeleteProgram(Program&) const override;
+	virtual Opt<String> LinkProgram(const Program&) const override;
+	virtual u32 GetUniformCount(const Program&) const override;
+	virtual String GetUniformName(const Program&, u32 index) const override;
+	virtual i32 GetUniformLocation(const Program&, const String& name) const override;
 
 private:
 };
