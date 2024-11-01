@@ -63,7 +63,7 @@ public:
 	virtual void ClearFrameBufferDepth(const FrameBuffer&, 
 									   f32 depth = 0.f, i32 stencil = 0) const = 0;
 
-	virtual Opt<String> CreateShader(Shader&, const String& source, ShaderType type) const = 0;
+	virtual Opt<String> CreateShader(Shader&, StringView source, ShaderType type) const = 0;
 	virtual void DeleteShader(Shader&) const = 0;
 
 	virtual void CreateProgram(Program&) const = 0;
@@ -72,7 +72,20 @@ public:
 	virtual Opt<String> LinkProgram(const Program&) const = 0;
 	virtual u32 GetUniformCount(const Program&) const = 0;
 	virtual String GetUniformName(const Program&, u32 index) const = 0;
-	virtual i32 GetUniformLocation(const Program&, const String& name) const = 0;
+	virtual i32 GetUniformLocation(const Program&, StringView name) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const f32* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec2* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec3* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec4* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const i32* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec2i* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec3i* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec4i* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const u32* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec2u* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec3u* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec4u* val) const = 0;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Mat4* val, bool transpose = false) const = 0;
 
 private:
 	Config::API m_api{};

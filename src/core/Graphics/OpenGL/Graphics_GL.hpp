@@ -45,7 +45,7 @@ public:
 	virtual void ClearFrameBufferDepth(const FrameBuffer&, 
 									   f32 depth, i32 stencil) const override;
 
-	virtual Opt<String> CreateShader(Shader&, const String& source, ShaderType type) const override;
+	virtual Opt<String> CreateShader(Shader&, StringView source, ShaderType type) const override;
 	virtual void DeleteShader(Shader&) const override;
 	virtual void AttachShader(const Program&, const Shader&) const override;
 
@@ -54,7 +54,20 @@ public:
 	virtual Opt<String> LinkProgram(const Program&) const override;
 	virtual u32 GetUniformCount(const Program&) const override;
 	virtual String GetUniformName(const Program&, u32 index) const override;
-	virtual i32 GetUniformLocation(const Program&, const String& name) const override;
+	virtual i32 GetUniformLocation(const Program&, StringView name) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const f32* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec2* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec3* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec4* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const i32* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec2i* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec3i* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec4i* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const u32* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec2u* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec3u* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec4u* val) const override;
+	virtual void SetUniform(const Program&, i32 location, u32 count, const Mat4* val, bool transpose = false) const override;
 
 private:
 };

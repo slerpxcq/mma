@@ -59,7 +59,7 @@
     - [ ] Shader loading
         - [x] Text class
         - [x] Shader creation/deletion related functions
-        - [ ] Program related functions
+        - [x] Program related functions
         - [ ] Uniform related functions
 
 --- 

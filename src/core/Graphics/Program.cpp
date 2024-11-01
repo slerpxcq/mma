@@ -11,7 +11,11 @@ Program::Program(std::initializer_list<Ref<Shader>> shaders)
 	for (const auto& shader : shaders) {
 		gfx->AttachShader(*this, *shader);
 	}
-	gfx->LinkProgram(*this);
+	auto msg = gfx->LinkProgram(*this); 
+	if (!msg) {
+		throw LinkError{ msg.value().c_str() };
+	}
+	LoadLocationCache();
 }
 
 void Program::LoadLocationCache()
@@ -24,6 +28,16 @@ void Program::LoadLocationCache()
 		if (loc >= 0) {
 			m_locationCache.insert({ name, loc });
 		}
+	}
+}
+
+i32 Program::GetLocation(StringView name)
+{
+	auto it = m_locationCache.find(String{ name });
+	if (it != m_locationCache.end()) {
+		return it->second;
+	} else {
+		return -1;
 	}
 }
 

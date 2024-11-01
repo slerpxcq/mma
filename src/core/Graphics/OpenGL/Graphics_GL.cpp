@@ -232,11 +232,11 @@ void Graphics_GL::ClearFrameBufferDepth(const FrameBuffer& fb, f32 depth, i32 st
 	glClearNamedFramebufferfi(fb.GetID(), GL_DEPTH, 0, depth, stencil);
 }
 
-Opt<String> Graphics_GL::CreateShader(Shader& shader, const String& source, ShaderType type) const
+Opt<String> Graphics_GL::CreateShader(Shader& shader, StringView source, ShaderType type) const
 {
 	*shader.GetIDPtr() = glCreateShader(ToGLShaderType(type));
 	u32 id = shader.GetID();
-	const char* raw = source.c_str();
+	const char* raw = source.data();
 	glShaderSource(id, 1, &raw, nullptr);
 	glCompileShader(id);
 
@@ -311,9 +311,74 @@ String Graphics_GL::GetUniformName(const Program& program, u32 index) const
 	return String{ buf };
 }
 
-i32 Graphics_GL::GetUniformLocation(const Program& program, const String& name) const
+i32 Graphics_GL::GetUniformLocation(const Program& program, StringView name) const
 {
-	return glGetUniformLocation(program.GetID(), name.c_str());
+	return glGetUniformLocation(program.GetID(), name.data());
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const f32* val) const
+{
+	glProgramUniform1fv(program.GetID(), location, count, val);
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const Vec2* val) const
+{
+	glProgramUniform2fv(program.GetID(), location, count, glm::value_ptr(*val));
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const Vec3* val) const
+{
+	glProgramUniform3fv(program.GetID(), location, count, glm::value_ptr(*val));
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const Vec4* val) const
+{
+	glProgramUniform4fv(program.GetID(), location, count, glm::value_ptr(*val));
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const i32* val) const
+{
+	glProgramUniform1iv(program.GetID(), location, count, val);
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const Vec2i* val) const
+{
+	glProgramUniform2iv(program.GetID(), location, count, glm::value_ptr(*val));
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const Vec3i* val) const
+{
+	glProgramUniform3iv(program.GetID(), location, count, glm::value_ptr(*val));
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const Vec4i* val) const
+{
+	glProgramUniform4iv(program.GetID(), location, count, glm::value_ptr(*val));
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const u32* val) const
+{
+	glProgramUniform1uiv(program.GetID(), location, count, val);
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const Vec2u* val) const
+{
+	glProgramUniform2uiv(program.GetID(), location, count, glm::value_ptr(*val));
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const Vec3u* val) const
+{
+	glProgramUniform3uiv(program.GetID(), location, count, glm::value_ptr(*val));
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const Vec4u* val) const
+{
+	glProgramUniform4uiv(program.GetID(), location, count, glm::value_ptr(*val));
+}
+
+void Graphics_GL::SetUniform(const Program& program, i32 location, u32 count, const Mat4* val, bool transpose) const
+{
+	glProgramUniformMatrix4fv(program.GetID(), location, count, transpose, glm::value_ptr(*val));
 }
 
 }
