@@ -8,19 +8,20 @@ namespace mm
 class IndexBuffer : public Buffer
 {
 public:
-	IndexBuffer(const void* data, u32 indexSize, u32 indexCount) : 
+	IndexBuffer(const void* data, Graphics::IndexType type, u32 count) : 
 		Buffer{ Target::INDEX }, 
-		m_indexSize{ indexSize }, 
-		m_indexCount{ indexCount } {
-		SetData(data, indexSize * indexCount);
+		m_type{ type }, 
+		m_count{ count } {
+		SetData(data, Graphics::ToSize(type) * count);
 	}
 
-	u32 GetIndexSize() const { return m_indexSize; }
-	u32 GetIndexCount() const { return m_indexCount; }
+	Graphics::IndexType GetIndexType() const { return m_type; }
+	u32 GetIndexSize() const { return Graphics::ToSize(m_type); }
+	u32 GetIndexCount() const { return m_count; }
 
 private:
-	u32 m_indexSize{};
-	u32 m_indexCount{};
+	Graphics::IndexType m_type{};
+	u32 m_count{};
 };
 
 }

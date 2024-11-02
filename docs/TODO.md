@@ -66,12 +66,13 @@
     - [x] Shader testing
         - [x] Load text file
 
-- [ ] Draw model to Viewport
 
 --- 
 # TO BE DONE:
-- [ ] CoreLayer
-    - [ ] Core update and rendering logic
+- [ ] Draw model  
+    - [x] Setup uniforms 
+    - [ ] Bind framebuffer
+    - [x] Draw meshes
 
 - [ ] Drawable interface
 - [ ] ModelNode class

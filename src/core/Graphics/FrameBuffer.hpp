@@ -27,6 +27,7 @@ public:
 		GetGraphics()->ClearFrameBufferDepth(*this, depth, stencil); 
 	}
 	void Resize(u32 width, u32 height);
+	void Bind() const { GetGraphics()->BindFrameBuffer(*this); }
 	bool IsComplete() const { 
 		return (GetGraphics()->CheckFrameBufferStatus(*this) 
 				== Graphics::FrameBufferStatus::OK); 

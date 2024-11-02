@@ -17,27 +17,29 @@ public:
 public:
 	explicit Program(InitList<Ref<Shader>> shaders);
 	~Program() { GetGraphics()->DeleteProgram(*this); }
+	void Use() const { GetGraphics()->UseProgram(*this); }
 
 	template <typename T>
-	void SetUniform(StringView name, const T& val) {
-		SetUniform(name, 1, &val);
+	bool SetUniform(StringView name, const T& val) {
+		return SetUniform(name, 1, &val);
 	}
 
 	template <typename T>
-	void SetUniform(StringView name, u32 count, const T* val) {
+	bool SetUniform(StringView name, u32 count, const T* val) {
 		i32 loc = GetLocation(name);
 		if (loc < 0) {
-			return;
+			return false;
 		}
-		SetUniform(loc, count, val);
-	}
-
-	template <typename T>
-	void SetUniform(i32 loc, u32 count, const T* val) {
-		GetGraphics()->SetUniform(*this, loc, count, val);
+		DoSetUniform(loc, count, val);
+		return true;
 	}
 
 private:
+	template <typename T>
+	void DoSetUniform(i32 loc, u32 count, const T* val) {
+		GetGraphics()->SetUniform(*this, loc, count, val);
+	}
+
 	void LoadLocations();
 	i32 GetLocation(StringView name);
 

@@ -6,7 +6,7 @@ namespace mm
 
 Program::Program(InitList<Ref<Shader>> shaders)
 {
-	const auto gfx = GetGraphics();
+	auto gfx = GetGraphics();
 	gfx->CreateProgram(*this);
 	for (const auto& shader : shaders) {
 		gfx->AttachShader(*this, *shader);
@@ -20,7 +20,7 @@ Program::Program(InitList<Ref<Shader>> shaders)
 
 void Program::LoadLocations()
 {
-	const auto gfx = GetGraphics();
+	auto gfx = GetGraphics();
 	u32 count = gfx->GetUniformCount(*this);
 	for (u32 i = 0; i < count; ++i) {
 		String name = gfx->GetUniformName(*this, i);

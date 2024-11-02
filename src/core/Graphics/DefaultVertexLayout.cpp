@@ -8,7 +8,7 @@ DefaultVertexLayout DefaultVertexLayout::instance;
 
 void DefaultVertexLayout::ApplyTo(const VertexArray& va) const
 {
-	const auto gfx = GetGraphics();
+	auto gfx = GetGraphics();
 
 	gfx->SetVertexAttribFormat(va, 0, Graphics::AttribType::FLOAT, 3, offsetof(Struct, position));
 	gfx->SetVertexAttribFormat(va, 1, Graphics::AttribType::FLOAT, 3, offsetof(Struct, normal));

@@ -14,6 +14,24 @@
 namespace mm
 {
 
+static void RegisterGLErrorCallback()
+{
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback([](GLenum source,
+							  GLenum type,
+							  GLuint id,
+							  GLenum severity,
+							  GLsizei length,
+							  const GLchar* message,
+							  const void* userParam) {
+								  switch (type) {
+								  case GL_DEBUG_TYPE_ERROR:
+									  MM_CORE_ERROR("GL: {0}", message);
+									  break;
+								  }
+						   }, nullptr);
+}
+
 WindowImpl_GLFW::WindowImpl_GLFW(const Window::ConstructInfo& info) :
 	Impl{ info }
 {

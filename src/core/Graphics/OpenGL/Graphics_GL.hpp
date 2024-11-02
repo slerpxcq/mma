@@ -22,6 +22,7 @@ public:
 	virtual void SetVertexBuffer(const VertexArray&, const VertexBuffer&) const override;
 	virtual void SetVertexAttribFormat(const VertexArray&, u32 location, AttribType type, 
 									   u32 count, u32 offset, bool normalized) const override;
+	virtual void DrawElements(const VertexArray& va, u32 begin, u32 count) const override;
 
 	virtual void CreateTexture(Texture&) const override;
 	virtual void DeleteTexture(Texture&) const override;
@@ -44,6 +45,8 @@ public:
 									   Color color) const override;
 	virtual void ClearFrameBufferDepth(const FrameBuffer&, 
 									   f32 depth, i32 stencil) const override;
+	virtual void BindFrameBuffer(const FrameBuffer&) const override;
+	virtual void BindWindowFrameBuffer() const override;
 
 	virtual Opt<String> CreateShader(Shader&, StringView source, ShaderType type) const override;
 	virtual void DeleteShader(Shader&) const override;
@@ -52,6 +55,7 @@ public:
 	virtual void CreateProgram(Program&) const override;
 	virtual void DeleteProgram(Program&) const override;
 	virtual Opt<String> LinkProgram(const Program&) const override;
+	virtual void UseProgram(const Program&) const override;
 	virtual u32 GetUniformCount(const Program&) const override;
 	virtual String GetUniformName(const Program&, u32 index) const override;
 	virtual i32 GetUniformLocation(const Program&, StringView name) const override;

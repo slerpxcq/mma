@@ -6,7 +6,7 @@ namespace mm
 
 Shader::Shader(StringView source, Graphics::ShaderType type)
 {
-	const auto gfx = GetGraphics();
+	auto gfx = GetGraphics();
 	auto result = gfx->CreateShader(*this, source, type);
 	if (result) {
 		throw CompileError(result.value().c_str());

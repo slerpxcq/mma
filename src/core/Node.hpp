@@ -12,7 +12,7 @@ namespace mm
 
 class Node
 {
-	// TODO: 
+	// TODO: remove friendship
 	friend class Application;
 public:
 	const String& GetName() { return m_name; }
@@ -20,6 +20,8 @@ public:
 	Transform GetLocalTransform() const { return m_localTransform; }
 	Transform GetWorldTransform() const { return m_worldTransform; }
 	void UpdateSubtreeWorldTransform();
+	Node* SearchChild(StringView name);
+	auto& GetChildren() { return m_children; }
 
 	template <typename T, typename... Args>
 	Node& AddChild(Args&&... args) {
@@ -29,9 +31,10 @@ public:
 		return *child;
 	}
 
-	void AttachChild(Scoped<Node> child) {
+	Node& AttachChild(Scoped<Node> child) {
 		child->m_parent = this;
 		m_children.push_back(std::move(child));
+		return *m_children.back();
 	}
 
 	virtual ~Node() = default;

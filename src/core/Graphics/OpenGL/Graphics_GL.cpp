@@ -93,6 +93,20 @@ static GLenum ToGLShaderType(Graphics::ShaderType type)
 	}
 }
 
+static GLenum ToGLIndexType(Graphics::IndexType type)
+{
+	switch (type) {
+	case Graphics::IndexType::UBYTE:
+		return GL_UNSIGNED_BYTE;
+	case Graphics::IndexType::USHORT:
+		return GL_UNSIGNED_SHORT;
+	case Graphics::IndexType::UINT:
+		return GL_UNSIGNED_INT;
+	default:
+		MM_CORE_UNREACHABLE();
+	}
+}
+
 void Graphics_GL::CreateBuffer(Buffer& buffer) const
 {
 	glCreateBuffers(1, buffer.GetIDPtr());
@@ -159,6 +173,15 @@ void Graphics_GL::SetVertexAttribFormat(const VertexArray& va, u32 location, Att
 	}
 
 	glVertexArrayAttribBinding(va.GetID(), location, 0);
+}
+
+// TODO: Add type
+void Graphics_GL::DrawElements(const VertexArray& va, u32 first, u32 count) const
+{
+	glBindVertexArray(va.GetID());
+	const auto& ib = va.GetIndexBuffer();
+	glDrawElements(GL_TRIANGLES, count, ToGLIndexType(ib.GetIndexType()),
+				   reinterpret_cast<void*>(first * ib.GetIndexSize()));
 }
 
 void Graphics_GL::CreateTexture(Texture& tex) const
@@ -232,6 +255,16 @@ void Graphics_GL::ClearFrameBufferDepth(const FrameBuffer& fb, f32 depth, i32 st
 	glClearNamedFramebufferfi(fb.GetID(), GL_DEPTH, 0, depth, stencil);
 }
 
+void Graphics_GL::BindFrameBuffer(const FrameBuffer& fb) const
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, fb.GetID());
+}
+
+void Graphics_GL::BindWindowFrameBuffer() const
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 Opt<String> Graphics_GL::CreateShader(Shader& shader, StringView source, ShaderType type) const
 {
 	*shader.GetIDPtr() = glCreateShader(ToGLShaderType(type));
@@ -295,6 +328,11 @@ Opt<String> Graphics_GL::LinkProgram(const Program& program) const
 	} else {
 		return std::nullopt;
 	}
+}
+
+void Graphics_GL::UseProgram(const Program& program) const
+{
+	glUseProgram(program.GetID());
 }
 
 u32 Graphics_GL::GetUniformCount(const Program& program) const

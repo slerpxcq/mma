@@ -17,7 +17,8 @@ static Ref<VertexArray> LoadVertexArrayPMX(const PMXFile& pmx)
 	/* Load indices */
 	Ref<IndexBuffer> ib =
 		MakeRef<IndexBuffer>(pmx.faces.data(),
-							 sizeof(pmx.faces[0]),
+							 Graphics::IndexType::UINT,
+							 // Graphics::ToIndexType(pmx.header.vertexIndexSize),
 							 pmx.faces.size() * 3);
 
 	/* Load vertices */

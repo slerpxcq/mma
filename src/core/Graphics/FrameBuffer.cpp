@@ -8,7 +8,7 @@ FrameBuffer::FrameBuffer(u32 width, u32 height,
 						 InitList<Attachment> attachments) :
 	m_width{ width }, m_height{ height } 
 {
-	const auto gfx = GetGraphics();
+	auto gfx = GetGraphics();
 	gfx->CreateFrameBuffer(*this);
 	for (const auto& attachment : attachments) {
 		AddAttachment(attachment.type, attachment.index, attachment.format);
@@ -31,7 +31,7 @@ static i32 ToKey(Graphics::AttachmentType type, u32 index)
 
 void FrameBuffer::AddAttachment(Graphics::AttachmentType type, u32 index, Graphics::TexFormat format) 
 {
-	const auto gfx = GetGraphics();
+	auto gfx = GetGraphics();
 	auto tex = MakeScoped<Texture2D>(m_width, m_height, format);
 	gfx->FrameBufferTexture(*this, *tex, type, index);
 	m_attachments.insert({ ToKey(type, index), std::move(tex) });

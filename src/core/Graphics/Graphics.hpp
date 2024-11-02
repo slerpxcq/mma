@@ -21,6 +21,11 @@ public:
 	enum class AttachmentType { COLOR, DEPTH };
 	enum class FrameBufferStatus { OK, INCOMPLETE };
 	enum class ShaderType { VERTEX, FRAGMENT };
+	enum class IndexType { UBYTE, USHORT, UINT };
+
+public:
+	static u32 ToSize(Graphics::IndexType type);
+	static IndexType ToIndexType(u32 size);
 
 public:
 	virtual	~Graphics() = default;
@@ -39,6 +44,7 @@ public:
 	virtual void SetVertexBuffer(const VertexArray&, const VertexBuffer&) const = 0;
 	virtual void SetVertexAttribFormat(const VertexArray&, u32 location, AttribType type, 
 									   u32 count, u32 offset, bool normalized = false) const = 0;
+	virtual void DrawElements(const VertexArray& va, u32 begin, u32 count) const = 0;
 
 	virtual void CreateTexture(Texture&) const = 0;
 	virtual void DeleteTexture(Texture&) const = 0;
@@ -62,6 +68,8 @@ public:
 									   Color color = { 0.f, 0.f, 0.f, 0.f }) const = 0;
 	virtual void ClearFrameBufferDepth(const FrameBuffer&, 
 									   f32 depth = 0.f, i32 stencil = 0) const = 0;
+	virtual void BindFrameBuffer(const FrameBuffer&) const = 0;
+	virtual void BindWindowFrameBuffer() const = 0;
 
 	virtual Opt<String> CreateShader(Shader&, StringView source, ShaderType type) const = 0;
 	virtual void DeleteShader(Shader&) const = 0;
@@ -70,6 +78,7 @@ public:
 	virtual void DeleteProgram(Program&) const = 0;
 	virtual void AttachShader(const Program&, const Shader&) const = 0;
 	virtual Opt<String> LinkProgram(const Program&) const = 0;
+	virtual void UseProgram(const Program&) const = 0;
 	virtual u32 GetUniformCount(const Program&) const = 0;
 	virtual String GetUniformName(const Program&, u32 index) const = 0;
 	virtual i32 GetUniformLocation(const Program&, StringView name) const = 0;

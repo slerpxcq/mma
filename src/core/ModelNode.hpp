@@ -21,6 +21,10 @@ public:
 private:
 	DynArray<Ref<Mesh>> m_meshes{};
 	DynArray<Ref<Texture>> m_textures{};
+	/* BEGIN TEST CODE */
+public:
+	Ref<Program> program{};
+	/* END TEST CODE */
 };
 
 }

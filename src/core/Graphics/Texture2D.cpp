@@ -10,7 +10,7 @@ Texture2D::Texture2D(u32 width, u32 height, Graphics::TexFormat format) :
 	m_width{ width },
 	m_height{ height }
 {
-	const auto gfx = GetGraphics();
+	auto gfx = GetGraphics();
 	gfx->TextureStorage2D(*this, width, height, format);
 }
 
@@ -19,7 +19,7 @@ void Texture2D::SetSubImage(const void* data, Graphics::PixelType type,
 							u32 level,
 							u32 xoffset, u32 yoffset) const
 {
-	const auto gfx = GetGraphics();
+	auto gfx = GetGraphics();
 	gfx->TextureSubImage2D(*this, data, type, width, height, m_format, level, xoffset, yoffset);
 }
 

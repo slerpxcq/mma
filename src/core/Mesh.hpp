@@ -17,7 +17,9 @@ public:
 		m_indexCount{ indexCount },
 		m_vertexArray{ va } {}
 
+	u32 GetIndexOffset() const { return m_indexOffset; }
 	u32 GetIndexCount() const { return m_indexCount; }
+	const VertexArray& GetVertexArray() const { return *m_vertexArray; }
 
 private:
 	String m_name{};

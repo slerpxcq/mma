@@ -4,7 +4,6 @@
 #include "Panel/Panel.hpp"
 
 /* BEGIN TEST INCLUDES */
-#include "Core/ModelNode.hpp"
 /* END TEST INCLUDES */
 
 namespace mm
@@ -23,7 +22,6 @@ public:
 private:
 	DynArray<Scoped<Panel>> m_panels;
 	/* BEGIN TEST VARIABLES */
-	ModelNode* m_model{};
 	/* END TEST VARIABLES */
 };
 

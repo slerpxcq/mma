@@ -13,4 +13,19 @@ void Node::UpdateSubtreeWorldTransform()
 	}
 }
 
+Node* Node::SearchChild(StringView name) 
+{
+	if (m_name == name) {
+		return this;
+	}
+
+	for (auto& child : m_children) {
+		if (Node* result{ child->SearchChild(name) }; result) {
+			return result;
+		}
+	}
+
+	return nullptr;
+}
+
 }
