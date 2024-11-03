@@ -1,10 +1,14 @@
 #include "CorePch.hpp"
 #include "CoreLayer.hpp"
 
+#include "../Graphics/Graphics.hpp"
+
 /* BEGIN TEST INCLUDE */
+#include "../Node.hpp"
 #include "../Model.hpp"
 #include "../Graphics/Program.hpp"
 #include "../Graphics/FrameBuffer.hpp"
+#include "SceneManager.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 /* END TEST INCLUDE */
@@ -24,7 +28,7 @@ void CoreLayer::OnRender()
 	fb->ClearColor(0);
 	fb->ClearDepth();
 	gfx->BindFrameBuffer(*fb);
-	auto model = dynamic_cast<Model*>(GetRootNode()->GetChildren().back().get());
+	auto model = dynamic_cast<Model*>(GetSceneManager()->GetRootNode().GetChildren().back().get());
 	if (model) {
 		// // TODO: Setup uniforms
 		// auto program = model->program;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderable.hpp"
+#include "Graphics/VertexArray.hpp"
 
 namespace mm
 {

@@ -4,6 +4,7 @@
 #include "Application/Globals.hpp"
 
 #include "WindowImpl_GLFW.hpp"
+#include "../Graphics/Graphics.hpp"
 
 namespace mm
 {

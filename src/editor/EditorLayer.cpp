@@ -5,11 +5,13 @@
 #include "Panel/MenuBarPanel.hpp"
 
 /* BEGIN TEST INCLUDE */
+#include "Core/SceneManager.hpp"
 #include "Core/Graphics/Shader.hpp"
 #include "Core/Graphics/Program.hpp"
 #include "Core/File/Text.hpp"
-#include "Core/Model.hpp"
 #include "Core/File/PMXFile.hpp"
+#include "Core/Node.hpp"
+#include "Core/Model.hpp"
 /* END TEST INCLUDE */
 
 #include <imgui.h>
@@ -27,10 +29,10 @@ EditorLayer::EditorLayer(const Window& window) :
 
 	/* BEGIN TEST CODE */
 	// Load model
-	auto root = GetRootNode();
+	auto& root = GetSceneManager()->GetRootNode();
 	auto pmx =  PMXFile::Load("../../resources/model/つみ式ミクさん/000 ミクさん.pmx");
 	auto model = Model::LoadFromPMX(*pmx);
-	auto& modelNode = root->AddChild(model->GetName());
+	auto& modelNode = root.AddChild(model->GetName());
 	modelNode.AttachObject(model);
 	/* END TEST CODE */
 }

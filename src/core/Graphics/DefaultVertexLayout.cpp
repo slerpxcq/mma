@@ -1,6 +1,8 @@
 #include "CorePch.hpp"
 #include "DefaultVertexLayout.hpp"
 
+#include "Graphics.hpp"
+
 namespace mm
 {
 

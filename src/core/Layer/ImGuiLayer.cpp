@@ -2,6 +2,7 @@
 #include "ImGuiLayer.hpp"
 
 #include "Window/Window.hpp"
+#include "../Graphics/Graphics.hpp"
 
 #include "ImGuiLayerImpl_GLFW.hpp"
 

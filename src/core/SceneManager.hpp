@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderable.hpp"
+#include "Node.hpp"
 
 namespace mm
 {
@@ -8,6 +9,9 @@ namespace mm
 class SceneManager
 {
 public:
+	SceneManager() : m_rootNode(MakeScoped<Node>("Root")) {
+	}
+
 	Node& GetRootNode() { return *m_rootNode; }
 
 	template <typename T, typename... Args>
@@ -19,8 +23,8 @@ public:
 private:
 
 private:
+	const Scoped<Node> m_rootNode{};
 	DynArray<Scoped<Renderable>> m_renderables{};
-	Scoped<Node> m_rootNode{};
 };
 
 }

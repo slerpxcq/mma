@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GPUResource.hpp"
+#include "Graphics.hpp"
 
 namespace mm
 {

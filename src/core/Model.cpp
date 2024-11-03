@@ -102,9 +102,14 @@ Ref<Model> Model::LoadFromPMX(const PMXFile& pmx)
 		auto tex = pm.textureIndex < 0 ? 
 			GetDefaultTextures()[0] :
 			textures[pm.textureIndex];
+		u32 flags{};
+		if (pm.drawFlag & static_cast<u8>(PMXFile::MaterialFlag::NO_CULL_BIT)) {
+			flags |= static_cast<u32>(Material::Flags::NO_CULL_BIT);
+		}
 		auto material = Ref<Material>(new Material{ pm.nameJP,
 									  { std::make_pair(Material::MapType::ALBEDO, tex) },
-									  GetDefaultProgram() });
+									  GetDefaultProgram(),
+									  flags });
 		mesh->AddSubMesh(pm.nameJP, material, offset, pm.elementCount);
 		offset += pm.elementCount;
 	}

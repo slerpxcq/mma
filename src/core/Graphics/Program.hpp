@@ -16,8 +16,8 @@ public:
 
 public:
 	explicit Program(InitList<Ref<Shader>> shaders);
-	~Program() { GetGraphics()->DeleteProgram(*this); }
-	void Use() const { GetGraphics()->UseProgram(*this); }
+	~Program();
+	void Use() const;
 
 	template <typename T>
 	bool SetUniform(StringView name, const T& val) {

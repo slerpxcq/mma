@@ -13,15 +13,13 @@ public:
 	};
 
 public:
-	virtual ~Texture() { GetGraphics()->DeleteTexture(*this); }
+	virtual ~Texture();
+	void Bind(u32 unit) const;
+
 	Target GetTarget() const { return m_target; }
-	void Bind(u32 unit) const { GetGraphics()->BindTexture(*this, unit); }
 
 protected:
-	Texture(Target target) : 
-		m_target{ target } {
-		GetGraphics()->CreateTexture(*this);
-	}
+	Texture(Target target);
 
 protected:
 	Target m_target{};

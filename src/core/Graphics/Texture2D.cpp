@@ -1,6 +1,8 @@
 #include "CorePch.hpp"
 #include "Texture2D.hpp"
 
+#include "Graphics.hpp"
+
 namespace mm
 {
 

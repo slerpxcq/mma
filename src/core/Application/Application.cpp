@@ -3,6 +3,7 @@
 
 #include "Globals.hpp"
 #include "InputManager.hpp"
+#include "../SceneManager.hpp"
 
 #include "File/Text.hpp"
 #include "File/Image.hpp"
@@ -57,7 +58,8 @@ void Application::Startup()
 	SetCoreLogger(new Logger{ "Core" });
 	SetAppLogger(new Logger{ "App" });
 	SetInputManager(new InputManager{});
-	SetRootNode(new Node{ "ROOT" });
+	// SetRootNode(new Node{ "ROOT" });
+	SetSceneManager(new SceneManager{});
 
 	SetMainFrameBuffer(new FrameBuffer{ 1024, 1024,
 					   { { Graphics::AttachmentType::COLOR, 0, Graphics::TexFormat::RGBA8 },
@@ -102,7 +104,8 @@ void Application::Shutdown()
 	GetDefaultProgram().reset();
 
 	delete GetMainFrameBuffer();
-	delete GetRootNode();
+	// delete GetRootNode();
+	delete GetSceneManager();
 	delete GetInputManager();
 	delete GetCoreLogger();
 }

@@ -15,6 +15,11 @@ FrameBuffer::FrameBuffer(u32 width, u32 height,
 	}
 }
 
+FrameBuffer::~FrameBuffer() 
+{ 
+	GetGraphics()->DeleteFrameBuffer(*this); 
+}
+
 static i32 ToKey(Graphics::AttachmentType type, u32 index)
 {
 	switch (type) {
@@ -48,6 +53,16 @@ const Texture2D* FrameBuffer::GetAttachment(Graphics::AttachmentType attachment,
 	}
 }
 
+void FrameBuffer::ClearColor(u32 index, Color color) const 
+{ 
+	GetGraphics()->ClearFrameBufferColor(*this, index, color); 
+}
+
+void FrameBuffer::ClearDepth(f32 depth, i32 stencil) const 
+{ 
+	GetGraphics()->ClearFrameBufferDepth(*this, depth, stencil); 
+}
+
 void FrameBuffer::Resize(u32 width, u32 height)
 {
 	auto gfx = GetGraphics();
@@ -58,6 +73,12 @@ void FrameBuffer::Resize(u32 width, u32 height)
 	}
 	m_width = width;
 	m_height = height;
+}
+
+bool FrameBuffer::IsComplete() const 
+{ 
+	return (GetGraphics()->CheckFrameBufferStatus(*this) 
+			== Graphics::FrameBufferStatus::OK); 
 }
 
 }

@@ -1,6 +1,8 @@
 #include "CorePch.hpp"
 #include "Program.hpp"
 
+#include "Graphics.hpp"
+
 namespace mm
 {
 
@@ -16,6 +18,16 @@ Program::Program(InitList<Ref<Shader>> shaders)
 		throw LinkError{ msg.value().c_str() };
 	}
 	LoadLocations();
+}
+
+Program::~Program() 
+{ 
+	GetGraphics()->DeleteProgram(*this); 
+}
+
+void Program::Use() const 
+{ 
+	GetGraphics()->UseProgram(*this); 
 }
 
 void Program::LoadLocations()

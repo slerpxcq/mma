@@ -7,7 +7,7 @@
 namespace mm
 {
 
-class PMXFile;
+struct PMXFile;
 
 class Model : public SceneObject
 {

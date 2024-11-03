@@ -18,6 +18,8 @@ class Node
 	// TODO: remove friendship
 	friend class Application;
 public:
+	virtual ~Node() = default;
+	Node(StringView name) : m_name{ name } {}
 	const String& GetName() { return m_name; }
 	void SetLocalTransform(const Transform& transform) { m_localTransform = transform; }
 	Transform GetLocalTransform() const { return m_localTransform; }
@@ -36,10 +38,6 @@ public:
 		obj->AttachTo(*this);
 	}
 
-	virtual ~Node() = default;
-
-protected:
-	Node(StringView name) : m_name{ name } {}
 
 private:
 	const String m_name{};
