@@ -6,7 +6,7 @@ namespace mm
 class Panel
 {
 public:
-	Panel(const String& name) : m_name{ name } {}
+	Panel(StringView name) : m_name{ name } {}
 	virtual ~Panel() = default;
 	virtual void OnUpdate(f32 deltaTime) = 0;
 	virtual void OnRender() = 0;

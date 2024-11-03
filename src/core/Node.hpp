@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/Math/Transform.hpp"
+#include "SceneObject.hpp"
 
 /* Note: 
  * To ensure world transform is calculated correctly, world transform of parent
@@ -9,6 +10,8 @@
 
 namespace mm
 {
+
+class SceneObject;
 
 class Node
 {
@@ -23,24 +26,20 @@ public:
 	Node* SearchChild(StringView name);
 	auto& GetChildren() { return m_children; }
 
-	template <typename T, typename... Args>
-	Node& AddChild(Args&&... args) {
-		m_children.emplace_back(Scoped<T>{new T{ std::forward<Args>(args)... }});
-		auto& child = m_children.back();
-		child->m_parent = this;
-		return *child;
+	Node& AddChild(StringView name) {
+		m_children.emplace_back(new Node{ name });
+		return *m_children.back();
 	}
 
-	Node& AttachChild(Scoped<Node> child) {
-		child->m_parent = this;
-		m_children.push_back(std::move(child));
-		return *m_children.back();
+	void AttachObject(Ref<SceneObject> obj) {
+		m_object = obj;
+		obj->AttachTo(*this);
 	}
 
 	virtual ~Node() = default;
 
 protected:
-	Node(const String& name) : m_name{ name } {}
+	Node(StringView name) : m_name{ name } {}
 
 private:
 	const String m_name{};
@@ -49,6 +48,8 @@ private:
 
 	Transform m_localTransform{};
 	Transform m_worldTransform{};
+
+	Ref<SceneObject> m_object{};
 };
 
 }

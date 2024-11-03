@@ -15,6 +15,8 @@ public:
 						u32 xoffset = 0, u32 yoffset = 0) const;
 	u32 GetWidth() const { return m_width; }
 	u32 GetHeight() const { return m_height; }
+	Graphics::TexFormat GetFormat() const { return m_format; }
+	void Resize(u32 width, u32 height);
 
 private:
 	u32 m_width{};

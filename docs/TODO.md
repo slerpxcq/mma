@@ -66,16 +66,22 @@
     - [x] Shader testing
         - [x] Load text file
 
+# 2024/11/2
+- [x] Draw model  
+    - [x] Setup uniforms 
+    - [x] Bind framebuffer
+    - [x] Draw meshes
+- [x] Framebuffer resize from Viewport
+
+# 2024/11/3
+- [ ] SceneManager 
+    - [ ] 
 
 --- 
 # TO BE DONE:
-- [ ] Draw model  
-    - [x] Setup uniforms 
-    - [ ] Bind framebuffer
-    - [x] Draw meshes
+Nodes are only placeholders for position calculation
+Loading:
+- [ ] Load armature (as nodes or ~~component?~~)
+- [ ] Load rigidbodies (as nodes or component?)
 
-- [ ] Drawable interface
-- [ ] ModelNode class
-    - [ ] Load from PMX file
-    - [ ] Keep references of textures, materials and meshes
 

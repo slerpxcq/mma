@@ -45,7 +45,8 @@ public:
 									   Color color) const override;
 	virtual void ClearFrameBufferDepth(const FrameBuffer&, 
 									   f32 depth, i32 stencil) const override;
-	virtual void BindFrameBuffer(const FrameBuffer&) const override;
+	virtual void BindFrameBuffer(const FrameBuffer&) override;
+	virtual void UnbindFrameBuffer() override;
 	virtual void BindWindowFrameBuffer() const override;
 
 	virtual Opt<String> CreateShader(Shader&, StringView source, ShaderType type) const override;
@@ -74,6 +75,7 @@ public:
 	virtual void SetUniform(const Program&, i32 location, u32 count, const Mat4* val, bool transpose = false) const override;
 
 private:
+	i32 m_lastFramebuffer{};
 };
 
 }

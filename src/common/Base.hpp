@@ -8,10 +8,11 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <utility>
 
 #include <glm/glm.hpp>
 
-#define MM_GLOBAL_ATTRIBUTE(_type_, _name_)  \
+#define MM_GLOBAL_OBJECT(_type_, _name_)  \
 class _name_##_g { \
 friend _type_& Get##_name_(); \
 template <typename T> \
@@ -24,6 +25,10 @@ static inline void Set##_name_(T&& x) { _name_##_g::data = std::forward<T>(x); }
 
 #define MM_APP_ENTRY(_appname_) \
 int main(int argc, char** argv) { return std::make_unique<mm::_appname_>(argc, argv)->Run(); }
+
+#define MakePair std::make_pair
+#define Move std::move
+#define Forward std::forward
 
 namespace mm
 {
@@ -63,6 +68,9 @@ using Func = std::function<T>;
 
 template <typename T>
 using Opt = std::optional<T>;
+
+template <typename T, typename U>
+using Pair = std::pair<T, U>; 
 
 template <typename T, size_t Size>
 using Array = std::array<T, Size>;

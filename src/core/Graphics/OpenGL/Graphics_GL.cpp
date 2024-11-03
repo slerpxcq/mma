@@ -255,9 +255,15 @@ void Graphics_GL::ClearFrameBufferDepth(const FrameBuffer& fb, f32 depth, i32 st
 	glClearNamedFramebufferfi(fb.GetID(), GL_DEPTH, 0, depth, stencil);
 }
 
-void Graphics_GL::BindFrameBuffer(const FrameBuffer& fb) const
+void Graphics_GL::BindFrameBuffer(const FrameBuffer& fb) 
 {
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_lastFramebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, fb.GetID());
+}
+
+void Graphics_GL::UnbindFrameBuffer() 
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, m_lastFramebuffer);
 }
 
 void Graphics_GL::BindWindowFrameBuffer() const

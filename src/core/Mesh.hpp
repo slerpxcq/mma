@@ -1,31 +1,28 @@
 #pragma once
 
-#include "Drawable.hpp"
+#include "SubMesh.hpp"
 #include "Graphics/VertexArray.hpp"
 
 namespace mm
 {
 
-class Mesh : public Drawable
+class Mesh 
 {
 public:
-	Mesh(const String& name, 
-		 Ref<VertexArray> va, 
-		 u32 indexCount, u32 indexOffset = 0) :
+	Mesh(StringView name, 
+		 Ref<VertexArray> va) : 
 		m_name{ name },
-		m_indexOffset{ indexOffset },
-		m_indexCount{ indexCount },
 		m_vertexArray{ va } {}
 
-	u32 GetIndexOffset() const { return m_indexOffset; }
-	u32 GetIndexCount() const { return m_indexCount; }
 	const VertexArray& GetVertexArray() const { return *m_vertexArray; }
+	void AddSubMesh(StringView name, Ref<Material> mat, u32 begin, u32 count) {
+		m_subMeshes.emplace_back(*this, name, m_vertexArray, mat, count, begin);
+	}
 
 private:
 	String m_name{};
 	Ref<VertexArray> m_vertexArray{};
-	u32 m_indexOffset{};
-	u32 m_indexCount{};
+	DynArray<SubMesh> m_subMeshes{};
 };
 
 }

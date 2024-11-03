@@ -4,12 +4,18 @@
 #include "Globals.hpp"
 #include "InputManager.hpp"
 
+#include "File/Text.hpp"
+#include "File/Image.hpp"
+
 #include "Common/Clock.hpp"
 
 #include "Layer/CoreLayer.hpp"
 
 #include "Graphics/OpenGL/Graphics_GL.hpp"
 #include "Graphics/FrameBuffer.hpp"
+#include "Graphics/Shader.hpp"
+#include "Graphics/Program.hpp"
+#include "Graphics/Texture2D.hpp"
 
 #include "Node.hpp"
 
@@ -49,6 +55,7 @@ i32 Application::Run()
 void Application::Startup()
 {
 	SetCoreLogger(new Logger{ "Core" });
+	SetAppLogger(new Logger{ "App" });
 	SetInputManager(new InputManager{});
 	SetRootNode(new Node{ "ROOT" });
 
@@ -61,6 +68,25 @@ void Application::Startup()
 		throw RuntimeError("Could not create main frame buffer");
 	}
 
+	// Load shader
+	auto vsSrc = Text::Load("../../resources/shaders/test.vert");
+	auto fsSrc = Text::Load("../../resources/shaders/test.frag");
+	auto vs = MakeRef<Shader>(vsSrc->GetString(), Graphics::ShaderType::VERTEX);
+	auto fs = MakeRef<Shader>(fsSrc->GetString(), Graphics::ShaderType::FRAGMENT);
+	SetDefaultProgram(Ref<Program>(new Program{ vs, fs }));
+
+	// Load default textures 
+	for (i32 i = 0; i <= 10; ++i) {
+		std::stringstream ss{};
+		const char* path = "../../resources/textures/";
+		ss << path << "toon" << std::setw(2) << std::setfill('0') << i << ".bmp";
+		auto img = Image::Load(ss.str());
+		auto tex = MakeRef<Texture2D>(img->GetWidth(), img->GetHeight(), Graphics::TexFormat::RGBA8);
+		tex->SetSubImage(img->GetPixels(), Graphics::PixelType::UBYTE,
+						 img->GetWidth(), img->GetHeight());
+		GetDefaultTextures().push_back(tex);
+	}
+
 	RegisterCallbacks();
 
 	m_layerStack.EmplaceBack<CoreLayer>();
@@ -71,6 +97,9 @@ void Application::Startup()
 void Application::Shutdown()
 {
 	MM_CORE_INFO("Application shutting down...");
+
+	GetDefaultTextures().clear();
+	GetDefaultProgram().reset();
 
 	delete GetMainFrameBuffer();
 	delete GetRootNode();

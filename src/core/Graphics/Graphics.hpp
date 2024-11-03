@@ -68,7 +68,8 @@ public:
 									   Color color = { 0.f, 0.f, 0.f, 0.f }) const = 0;
 	virtual void ClearFrameBufferDepth(const FrameBuffer&, 
 									   f32 depth = 0.f, i32 stencil = 0) const = 0;
-	virtual void BindFrameBuffer(const FrameBuffer&) const = 0;
+	virtual void BindFrameBuffer(const FrameBuffer&) = 0;
+	virtual void UnbindFrameBuffer() = 0;
 	virtual void BindWindowFrameBuffer() const = 0;
 
 	virtual Opt<String> CreateShader(Shader&, StringView source, ShaderType type) const = 0;

@@ -23,5 +23,13 @@ void Texture2D::SetSubImage(const void* data, Graphics::PixelType type,
 	gfx->TextureSubImage2D(*this, data, type, width, height, m_format, level, xoffset, yoffset);
 }
 
+void Texture2D::Resize(u32 width, u32 height)
+{
+	auto gfx = GetGraphics();
+	gfx->DeleteTexture(*this);
+	gfx->CreateTexture(*this);
+	gfx->TextureStorage2D(*this, width, height, m_format);
+}
+
 }
 

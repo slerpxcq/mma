@@ -8,6 +8,10 @@ namespace mm
 
 void ViewportPanel::OnUpdate(f32 deltaTime)
 {
+	if (m_frameBuffer && m_resized) {
+		m_frameBuffer->Resize(m_contentSize.x, m_contentSize.y);
+		MM_APP_INFO("viewport resized; width={0}, height={1}", m_contentSize.x, m_contentSize.y);
+	}
 }
 
 void ViewportPanel::OnRender()
@@ -21,8 +25,7 @@ void ViewportPanel::OnRender()
 	Panel::OnBegin();
 
 	if (m_frameBuffer) {
-		// m_frameBuffer->ClearColor(0, { 1.f, 0.f, 0.f, 1.f });
-		ImGui::Image((void*)m_frameBuffer->GetID(),
+		ImGui::Image(reinterpret_cast<void*>(m_frameBuffer->GetID()),
 					 ImVec2(m_contentSize.x, m_contentSize.y),
 					 ImVec2(0, 1), ImVec2(1, 0));
 	} else {
@@ -31,6 +34,6 @@ void ViewportPanel::OnRender()
 
 	ImGui::End();
 	ImGui::PopStyleVar();
-}
+} 
 
 }

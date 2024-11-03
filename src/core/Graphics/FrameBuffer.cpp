@@ -11,7 +11,7 @@ FrameBuffer::FrameBuffer(u32 width, u32 height,
 	auto gfx = GetGraphics();
 	gfx->CreateFrameBuffer(*this);
 	for (const auto& attachment : attachments) {
-		AddAttachment(attachment.type, attachment.index, attachment.format);
+		AddAttachment(attachment);
 	}
 }
 
@@ -29,12 +29,13 @@ static i32 ToKey(Graphics::AttachmentType type, u32 index)
 	}
 }
 
-void FrameBuffer::AddAttachment(Graphics::AttachmentType type, u32 index, Graphics::TexFormat format) 
+void FrameBuffer::AddAttachment(Attachment attachment) 
 {
 	auto gfx = GetGraphics();
-	auto tex = MakeScoped<Texture2D>(m_width, m_height, format);
-	gfx->FrameBufferTexture(*this, *tex, type, index);
-	m_attachments.insert({ ToKey(type, index), std::move(tex) });
+	auto tex = MakeScoped<Texture2D>(m_width, m_height, attachment.format);
+	gfx->FrameBufferTexture(*this, *tex, attachment.type, attachment.index);
+	m_attachments.insert({ ToKey(attachment.type, attachment.index), 
+						 std::make_pair(attachment, std::move(tex)) });
 }
 
 const Texture2D* FrameBuffer::GetAttachment(Graphics::AttachmentType attachment, u32 index) const
@@ -43,13 +44,20 @@ const Texture2D* FrameBuffer::GetAttachment(Graphics::AttachmentType attachment,
 	if (it == m_attachments.end()) {
 		return nullptr;
 	} else {
-		return it->second.get();
+		return it->second.second.get();
 	}
 }
 
 void FrameBuffer::Resize(u32 width, u32 height)
 {
-	MM_CORE_UNINPLEMENTED();
+	auto gfx = GetGraphics();
+	for (auto&& [_, pair] : m_attachments) {
+		auto&& [attachment, tex] = pair;
+		tex->Resize(width, height);
+		gfx->FrameBufferTexture(*this, *tex, attachment.type, attachment.index);
+	}
+	m_width = width;
+	m_height = height;
 }
 
 }

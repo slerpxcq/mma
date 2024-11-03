@@ -15,6 +15,12 @@ void _name_(Args&&... args) { m_impl._name_(std::forward<Args>(args)...); }
 #define MM_CORE_ERROR(...) GetCoreLogger()->Error(__VA_ARGS__)
 #define MM_CORE_FATAL(...) GetCoreLogger()->Fatal(__VA_ARGS__)
 
+#define MM_APP_TRACE(...) GetAppLogger()->Trace(__VA_ARGS__)
+#define MM_APP_INFO(...) GetAppLogger()->Info(__VA_ARGS__)
+#define MM_APP_WARN(...) GetAppLogger()->Warn(__VA_ARGS__)
+#define MM_APP_ERROR(...) GetAppLogger()->Error(__VA_ARGS__)
+#define MM_APP_FATAL(...) GetAppLogger()->Fatal(__VA_ARGS__)
+
 namespace mm
 {
 

@@ -1,11 +1,12 @@
 #include "CorePch.hpp"
-#include "ModelNode.hpp"
+#include "Model.hpp"
 
 #include "File/PMXFile.hpp"
 #include "File/Image.hpp"
 
 #include "Graphics/DefaultVertexLayout.hpp"
 #include "Graphics/Texture2D.hpp"
+#include "Material.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -71,25 +72,18 @@ static Ref<VertexArray> LoadVertexArrayPMX(const PMXFile& pmx)
 	return MakeRef<VertexArray>(vb, ib);
 }
 
-Scoped<ModelNode> ModelNode::LoadFromPMX(const PMXFile& pmx)
+Ref<Model> Model::LoadFromPMX(const PMXFile& pmx)
 {
-	auto model = MakeScoped<ModelNode>(pmx.info.nameJP);
+	auto model = MakeRef<Model>(pmx.info.nameJP);
 
 	/* Load vertices and indices */
 	auto va = LoadVertexArrayPMX(pmx);
 
-	/* Load sub-meshes */
-	u32 offset{ 0 };
-	auto& meshes = model->m_meshes;
-	meshes.reserve(pmx.materials.size());
-	for (const auto& pm : pmx.materials) {
-		auto mesh = MakeRef<Mesh>(pm.nameJP, va, pm.elementCount, offset);
-		meshes.push_back(std::move(mesh));
-		offset += pm.elementCount;
-	}
+	/* Load mesh */
+	model->m_mesh = MakeRef<Mesh>(model->GetName(), va);
 
 	/* Load textures */
-	auto& textures = model->m_textures;
+	DynArray<Ref<Texture>> textures{};
 	textures.reserve(pmx.textures.size());
 	for (const auto& pt : pmx.textures) {
 		String path = pmx.GetPath().parent_path().string() + '/' + pt.name;
@@ -99,6 +93,20 @@ Scoped<ModelNode> ModelNode::LoadFromPMX(const PMXFile& pmx)
 		tex->SetSubImage(img->GetPixels(), Graphics::PixelType::UBYTE,
 						 img->GetWidth(), img->GetHeight());
 		textures.push_back(std::move(tex));
+	}
+
+	/* Load sub-meshes */
+	u32 offset{ 0 };
+	auto mesh = model->m_mesh;
+	for (const auto& pm : pmx.materials) {
+		auto tex = pm.textureIndex < 0 ? 
+			GetDefaultTextures()[0] :
+			textures[pm.textureIndex];
+		auto material = Ref<Material>(new Material{ pm.nameJP,
+									  { std::make_pair(Material::MapType::ALBEDO, tex) },
+									  GetDefaultProgram() });
+		mesh->AddSubMesh(pm.nameJP, material, offset, pm.elementCount);
+		offset += pm.elementCount;
 	}
 
 	return std::move(model);

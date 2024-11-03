@@ -3,4 +3,13 @@
 
 namespace mm
 {
+
+void MenuBarPanel::OnUpdate(f32 deltaTime)
+{
+}
+
+void MenuBarPanel::OnRender()
+{
+}
+
 }
