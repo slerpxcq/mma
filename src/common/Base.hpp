@@ -11,6 +11,7 @@
 #include <utility>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #define MM_GLOBAL_OBJECT(_type_, _name_)  \
 class _name_##_g { \

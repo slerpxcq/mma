@@ -15,14 +15,12 @@ public:
 		m_vertexArray{ va } {}
 
 	const VertexArray& GetVertexArray() const { return *m_vertexArray; }
-	void AddSubMesh(StringView name, Ref<Material> mat, u32 begin, u32 count) {
-		m_subMeshes.emplace_back(*this, name, m_vertexArray, mat, count, begin);
-	}
+	void AddSubMesh(StringView name, Ref<Material> mat, u32 begin, u32 count);
 
 private:
 	String m_name{};
 	Ref<VertexArray> m_vertexArray{};
-	DynArray<SubMesh> m_subMeshes{};
+	DynArray<Ref<SubMesh>> m_subMeshes{};
 };
 
 }

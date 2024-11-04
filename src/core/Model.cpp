@@ -8,6 +8,8 @@
 #include "Graphics/Texture2D.hpp"
 #include "Material.hpp"
 
+#include "SceneManager.hpp"
+
 #include <glm/gtc/type_ptr.hpp>
 
 namespace mm

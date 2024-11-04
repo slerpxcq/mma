@@ -12,10 +12,11 @@ public:
 	ViewportPanel(const String& name) : Panel{ name } {}
 	virtual void OnUpdate(f32 deltaTime) override; 
 	virtual void OnRender() override;
-	void SetFrameBuffer(FrameBuffer* fb) { m_frameBuffer = fb; }
+	void SetViewport(Viewport* vp) { m_viewport = vp; }
+	void UpdateCamera() const;
 
 private:
-	FrameBuffer* m_frameBuffer{};
+	Viewport* m_viewport{};
 };
 
 }

@@ -9,22 +9,23 @@ namespace mm
 class SceneManager
 {
 public:
-	SceneManager() : m_rootNode(MakeScoped<Node>("Root")) {
-	}
+	SceneManager() : m_rootNode(MakeScoped<Node>("Root")) {}
 
 	Node& GetRootNode() { return *m_rootNode; }
-
-	template <typename T, typename... Args>
-	Renderable& AddRenderable(Args&&... args) {
-		m_renderables.push_back(MakeScoped<T>(std::forward(args)...));
-		return *m_renderables.back();
+	void AttachRenderable(Ref<Renderable> r) {
+		m_renderables.push_back(r);
 	}
+
+	/* BEGIN TEST CODE */
+	void Update(f32 deltaTime);
+	void Render();
+	/* END TEST CODE */
 
 private:
 
 private:
 	const Scoped<Node> m_rootNode{};
-	DynArray<Scoped<Renderable>> m_renderables{};
+	DynArray<Ref<Renderable>> m_renderables{};
 };
 
 }

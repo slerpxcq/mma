@@ -13,7 +13,7 @@ public:
 	Renderable(Ref<Material> mat) :
 		m_material{ mat } {}
 
-	virtual void Render(Renderer::Visitor&) = 0;
+	virtual void Render() = 0;
 
 private:
 	Ref<Material> m_material;

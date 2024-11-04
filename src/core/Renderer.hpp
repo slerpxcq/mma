@@ -8,15 +8,11 @@ class SubMesh;
 class Renderer
 {
 public:
-	class Visitor;
+	void BeginFrame();
+	void EndFrame();
+	void Render(SubMesh&);
 
 private:
-};
-
-class Renderer::Visitor
-{
-public:
-	void Render(SubMesh&);
 };
 
 }

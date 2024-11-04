@@ -21,7 +21,8 @@ public:
 
 	u32 GetWidth() const { return m_width; }
 	u32 GetHeight() const { return m_height; }
-	const Texture2D* GetAttachment(Graphics::AttachmentType type, u32 index) const;
+	f32 GetAspect() const { return static_cast<f32>(m_width) / m_height; }
+	const Texture2D* GetAttachment(Graphics::AttachmentType type, u32 index) const; 
 	void ClearColor(u32 index, Color color = { 0.f, 0.f, 0.f, 0.f }) const;
 	void ClearDepth(f32 depth = 0.f, i32 stencil = 0) const;
 	void Resize(u32 width, u32 height);

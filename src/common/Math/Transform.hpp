@@ -55,8 +55,8 @@ public:
 		return { glm::vec3(0), glm::identity<glm::quat>() };
 	}
 
-	glm::mat4 ToMat4(const Transform& x) const {
-		return glm::translate(glm::mat4(1.f), x.translation) * glm::toMat4(x.rotation);
+	glm::mat4 ToMat4() const {
+		return glm::translate(glm::mat4(1.f), translation) * glm::toMat4(rotation);
 	}
 
 };

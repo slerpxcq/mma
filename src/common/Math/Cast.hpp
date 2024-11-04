@@ -1,26 +1,20 @@
 #pragma once
 
-#include <btBulletDynamicsCommon.h>
+#include "../Base.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
+#include <btBulletDynamicsCommon.h>
+#include <imgui.h>
 
 namespace mm
 {
 
-template <typename Src, typename Dst>
-Dst Cast(const Src& s);
+template <typename Dst, typename Src>
+Dst Cast(const Src& src);
 
 template <>
-typename glm::vec3 Cast<btVector3, glm::vec3>(const btVector3& v)
+Vec2 Cast<Vec2, ImVec2>(const ImVec2& v)
 {
-	return {};
-}
-
-template <> 
-glm::quat Cast<btQuaternion, glm::quat>(const btQuaternion& q)
-{
-	return {};
+	return Vec2{ v.x, v.y };
 }
 
 // ***

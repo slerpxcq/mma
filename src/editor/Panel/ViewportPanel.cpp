@@ -1,6 +1,10 @@
 #include "EditorPch.hpp"
 #include "ViewportPanel.hpp"
 
+#include "Core/Viewport.hpp"
+#include "Core/Node.hpp"
+#include "Common/Math/Cast.hpp"
+
 #include <imgui.h>
 
 namespace mm
@@ -8,8 +12,8 @@ namespace mm
 
 void ViewportPanel::OnUpdate(f32 deltaTime)
 {
-	if (m_frameBuffer && m_resized) {
-		m_frameBuffer->Resize(m_contentSize.x, m_contentSize.y);
+	if (m_viewport && m_resized) {
+		m_viewport->GetFrameBuffer().Resize(m_contentSize.x, m_contentSize.y);
 		MM_APP_INFO("viewport resized; width={0}, height={1}", m_contentSize.x, m_contentSize.y);
 	}
 }
@@ -24,16 +28,72 @@ void ViewportPanel::OnRender()
 
 	Panel::OnBegin();
 
-	if (m_frameBuffer) {
-		ImGui::Image(reinterpret_cast<void*>(m_frameBuffer->GetID()),
+	if (m_viewport) {
+		ImGui::Image(reinterpret_cast<void*>(m_viewport->GetFrameBuffer().GetID()),
 					 ImVec2(m_contentSize.x, m_contentSize.y),
 					 ImVec2(0, 1), ImVec2(1, 0));
 	} else {
 		ImGui::Text("ERROR: no framebuffer is linked");
 	}
 
+	UpdateCamera();
+
 	ImGui::End();
 	ImGui::PopStyleVar();
-} 
+}
+
+void ViewportPanel::UpdateCamera() const
+{
+	static constexpr float PAN_SPEED = 0.01f;
+	static constexpr float ORBIT_SPEED = 0.005f;
+	static constexpr float ZOOM_SPEED = 1.f;
+
+	static Vec3 eyeOnClick;
+	static Vec3 viewOnClick;
+	static Vec3 upOnClick;
+	static Vec3 rightOnClick;
+	static Quat rotationOnClick;
+
+	static Vec2 mousePosOnClick;
+
+	auto& cam = m_viewport->GetCamera();
+	auto camNode = cam.GetNode();
+	Vec3 view = cam.GetViewVector();
+	Vec3 right = cam.GetRightVector();
+	Vec3 up = cam.GetUpVector();
+	Vec2 mousePos = Cast<Vec2>(ImGui::GetMousePos());
+
+	if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) || 
+		ImGui::IsMouseClicked(ImGuiMouseButton_Middle)) {
+		mousePosOnClick = Cast<Vec2>(ImGui::GetMousePos());
+		eyeOnClick = camNode->GetWorldTransform().translation;
+		rotationOnClick = camNode->GetWorldTransform().rotation;
+		upOnClick = cam.GetUpVector();
+		rightOnClick = cam.GetRightVector();
+	}
+
+	if (ImGui::IsMouseDown(ImGuiMouseButton_Middle)) {
+		Vec2 delta = mousePos - mousePosOnClick;
+		Vec3 translation = PAN_SPEED * (-delta.y * up + delta.x * right);
+		cam.GetNode()->SetTranslation(eyeOnClick + translation);
+		MM_APP_INFO("translation=({0},{1},{2})", translation.x, translation.y, translation.z);
+		MM_APP_INFO("delta=({0},{1})", delta.x, delta.y);
+	}
+
+	if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
+		Vec2 delta = Cast<Vec2>(ImGui::GetMouseDragDelta(ImGuiMouseButton_Right));
+		delta *= ORBIT_SPEED;
+		Quat qY = glm::angleAxis(delta.x, Vec3{ 0, 1, 0 });
+		Quat qX = glm::angleAxis(delta.y, rightOnClick);
+		Quat q = qY * qX;
+		cam.GetNode()->SetRotation(q * rotationOnClick);
+	}
+
+	auto& io = ImGui::GetIO();
+	if (std::fabs(io.MouseWheel) > std::numeric_limits<float>::epsilon()) {
+		Vec3 translation = ZOOM_SPEED * -io.MouseWheel * view;
+		cam.GetNode()->Translate(translation);
+	}
+}
 
 }

@@ -73,9 +73,11 @@
     - [x] Draw meshes
 - [x] Framebuffer resize from Viewport
 
-# 2024/11/3
-- [ ] SceneManager 
-    - [ ] 
+# 2024/11/4
+- [x] Camera class
+- [x] Viewport class
+- [ ] Link Viewport to ViewportPanel
+    - [ ] CameraController
 
 --- 
 # TO BE DONE:

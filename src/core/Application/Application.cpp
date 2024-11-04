@@ -4,6 +4,9 @@
 #include "Globals.hpp"
 #include "InputManager.hpp"
 #include "../SceneManager.hpp"
+#include "../Renderer.hpp"
+#include "../Viewport.hpp"
+#include "../Camera.hpp"
 
 #include "File/Text.hpp"
 #include "File/Image.hpp"
@@ -58,17 +61,17 @@ void Application::Startup()
 	SetCoreLogger(new Logger{ "Core" });
 	SetAppLogger(new Logger{ "App" });
 	SetInputManager(new InputManager{});
-	// SetRootNode(new Node{ "ROOT" });
 	SetSceneManager(new SceneManager{});
+	SetRenderer(new Renderer{});
 
-	SetMainFrameBuffer(new FrameBuffer{ 1024, 1024,
+	auto camera = MakeRef<Camera>("camera");
+	auto& cameraNode = GetSceneManager()->GetRootNode().AddChild("camera_node");
+	cameraNode.AttachObject(camera);
+	cameraNode.SetTranslation({ 0, -10, -20 });
+	auto fb = Ref<FrameBuffer>{ new FrameBuffer{1024, 1024,
 					   { { Graphics::AttachmentType::COLOR, 0, Graphics::TexFormat::RGBA8 },
-					     { Graphics::AttachmentType::DEPTH, 0, Graphics::TexFormat::D24S8 } } });
-
-	FrameBuffer* fb = GetMainFrameBuffer();
-	if (!fb->IsComplete()) {
-		throw RuntimeError("Could not create main frame buffer");
-	}
+						 { Graphics::AttachmentType::DEPTH, 0, Graphics::TexFormat::D24S8 } }} };
+	SetMainViewport(new Viewport{ camera, fb });
 
 	// Load shader
 	auto vsSrc = Text::Load("../../resources/shaders/test.vert");
@@ -83,7 +86,8 @@ void Application::Startup()
 		const char* path = "../../resources/textures/";
 		ss << path << "toon" << std::setw(2) << std::setfill('0') << i << ".bmp";
 		auto img = Image::Load(ss.str());
-		auto tex = MakeRef<Texture2D>(img->GetWidth(), img->GetHeight(), Graphics::TexFormat::RGBA8);
+		auto tex = MakeRef<Texture2D>(img->GetWidth(), img->GetHeight(), 
+									  Graphics::TexFormat::RGBA8);
 		tex->SetSubImage(img->GetPixels(), Graphics::PixelType::UBYTE,
 						 img->GetWidth(), img->GetHeight());
 		GetDefaultTextures().push_back(tex);
@@ -103,8 +107,9 @@ void Application::Shutdown()
 	GetDefaultTextures().clear();
 	GetDefaultProgram().reset();
 
-	delete GetMainFrameBuffer();
-	// delete GetRootNode();
+	delete GetMainViewport();
+	// delete GetMainFrameBuffer();
+	delete GetRenderer();
 	delete GetSceneManager();
 	delete GetInputManager();
 	delete GetCoreLogger();

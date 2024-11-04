@@ -6,12 +6,17 @@
 
 /* BEGIN TEST INCLUDE */
 #include "Core/SceneManager.hpp"
+
 #include "Core/Graphics/Shader.hpp"
 #include "Core/Graphics/Program.hpp"
+
 #include "Core/File/Text.hpp"
 #include "Core/File/PMXFile.hpp"
+
 #include "Core/Node.hpp"
 #include "Core/Model.hpp"
+
+#include "Core/Viewport.hpp"
 /* END TEST INCLUDE */
 
 #include <imgui.h>
@@ -23,7 +28,7 @@ EditorLayer::EditorLayer(const Window& window) :
 	ImGuiLayer{ window }
 {
 	auto vp = MakeScoped<ViewportPanel>("Viewport");
-	vp->SetFrameBuffer(GetMainFrameBuffer());
+	vp->SetViewport(GetMainViewport());
 	m_panels.push_back(std::move(vp));
 	m_panels.push_back(MakeScoped<MenuBarPanel>());
 

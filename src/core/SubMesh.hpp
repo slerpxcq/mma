@@ -21,7 +21,10 @@ public:
 		m_indexCount{ indexCount },
 		m_indexBegin{ indexBegin } {}
 	
-	void Render(Renderer::Visitor& v) override { v.Render(*this); }
+	void Render() override;
+	const VertexArray& GetVertexArray() const { return *m_vertexArray; }
+	u32 GetIndexBegin() const { return m_indexBegin; }
+	u32 GetIndexCount() const { return m_indexCount; }
 
 private:
 	Mesh& m_parent;
