@@ -12,10 +12,11 @@ namespace mm
 
 void Renderer::BeginFrame()
 {
-	auto& fb = GetMainViewport()->GetFrameBuffer();
 	auto gfx = GetGraphics();
+	auto& fb = GetMainViewport()->GetFrameBuffer();
 	fb.ClearColor(0);
 	fb.ClearDepth();
+	gfx->SetViewport(fb.GetSize());
 	gfx->BindFrameBuffer(fb);
 }
 

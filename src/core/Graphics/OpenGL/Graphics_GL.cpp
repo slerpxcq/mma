@@ -49,7 +49,7 @@ static GLenum ToGLTexFormat(Graphics::TexFormat format)
 	case Graphics::TexFormat::D24S8:
 		return GL_DEPTH24_STENCIL8;
 		break;
-	default: 
+	default:
 		MM_CORE_UNINPLEMENTED();
 	}
 }
@@ -105,6 +105,11 @@ static GLenum ToGLIndexType(Graphics::IndexType type)
 	default:
 		MM_CORE_UNREACHABLE();
 	}
+}
+
+void Graphics_GL::SetViewport(Vec2 size, Vec2 pos) const
+{
+	glViewport(pos.x, pos.y, size.x, size.y);
 }
 
 void Graphics_GL::CreateBuffer(Buffer& buffer) const

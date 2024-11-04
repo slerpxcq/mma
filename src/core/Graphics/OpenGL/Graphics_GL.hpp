@@ -10,6 +10,8 @@ class Graphics_GL : public Graphics
 public:
 	Graphics_GL() : Graphics{ Config::API::GL4 } {}
 
+	virtual void SetViewport(Vec2 size, Vec2 pos) const override;
+
 	virtual void CreateBuffer(Buffer&) const override;
 	virtual void DeleteBuffer(Buffer&) const override;
 	virtual void SetBufferData(const Buffer&, const void* data, u32 size) const override;

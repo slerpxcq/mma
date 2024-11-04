@@ -20,11 +20,11 @@ protected:
 	bool m_hovered{};
 	bool m_opened{};
 	bool m_resized{};
-	Vec2u m_contentSize{};
-	Vec2u m_windowSize{};
-	Vec2u m_contentMax{};
-	Vec2u m_contentMin{};
-	Vec2u m_contentPos{};
+	Vec2 m_contentSize{};
+	Vec2 m_windowSize{};
+	Vec2 m_contentMax{};
+	Vec2 m_contentMin{};
+	Vec2 m_contentPos{};
 };
 
 }

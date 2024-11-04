@@ -32,6 +32,8 @@ public:
 	Graphics(Config::API api);
 	Config::API GetAPI() const { return m_api; }
 
+	virtual void SetViewport(Vec2 size, Vec2 pos = { 0, 0 }) const = 0;
+
 	virtual void CreateBuffer(Buffer&) const = 0;
 	virtual void DeleteBuffer(Buffer&) const = 0;
 	virtual void SetBufferData(const Buffer&, const void* data, u32 size) const = 0;

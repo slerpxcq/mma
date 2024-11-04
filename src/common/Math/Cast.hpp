@@ -12,10 +12,8 @@ template <typename Dst, typename Src>
 Dst Cast(const Src& src);
 
 template <>
-Vec2 Cast<Vec2, ImVec2>(const ImVec2& v)
-{
-	return Vec2{ v.x, v.y };
-}
+Vec2 Cast<Vec2, ImVec2>(const ImVec2& v);
+
 
 // ***
 
