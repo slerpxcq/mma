@@ -13,7 +13,7 @@ public:
 
 	Node& GetRootNode() { return *m_rootNode; }
 	void AttachRenderable(Ref<Renderable> r) {
-		m_renderables.push_back(r);
+		m_renderables.push_back(std::move(r));
 	}
 
 	/* BEGIN TEST CODE */

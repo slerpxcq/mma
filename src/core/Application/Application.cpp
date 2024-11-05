@@ -7,6 +7,7 @@
 #include "../Renderer.hpp"
 #include "../Viewport.hpp"
 #include "../Camera.hpp"
+#include "../Grid.hpp"
 
 #include "File/Text.hpp"
 #include "File/Image.hpp"
@@ -64,16 +65,27 @@ void Application::Startup()
 	SetSceneManager(new SceneManager{});
 	SetRenderer(new Renderer{});
 
+	auto sm = GetSceneManager();
 	auto camera = MakeRef<Camera>("camera");
-	auto& cameraNode = GetSceneManager()->GetRootNode().AddChild("camera_node");
+	auto& cameraNode = sm->GetRootNode().AddChild("camera_node");
 	cameraNode.AttachObject(camera);
-	cameraNode.SetTranslation({ 0, -10, -20 });
+	cameraNode.SetWorldTranslation({ 0, 10, -20 });
 	auto fb = Ref<FrameBuffer>{ new FrameBuffer{1024, 1024,
 					   { { Graphics::AttachmentType::COLOR, 0, Graphics::TexFormat::RGBA8 },
 						 { Graphics::AttachmentType::DEPTH, 0, Graphics::TexFormat::D24S8 } }} };
 	SetMainViewport(new Viewport{ camera, fb });
 
-	// Load shader
+	// Load grid shader 
+	auto gridVsSrc = Text::Load("../../resources/shaders/grid.vert");
+	auto gridFsSrc = Text::Load("../../resources/shaders/grid.frag");
+	auto gridVs = MakeRef<Shader>(gridVsSrc->GetString(), Graphics::ShaderType::VERTEX);
+	auto gridFs = MakeRef<Shader>(gridFsSrc->GetString(), Graphics::ShaderType::FRAGMENT);
+	auto gridProg = Ref<Program>(new Program{ gridVs, gridFs });
+	auto gridMat = Ref<Material>(new Material{ "grid_material", {}, gridProg });
+	auto grid = MakeRef<Grid>(gridMat);
+	sm->AttachRenderable(grid);
+
+	// Load default shader
 	auto vsSrc = Text::Load("../../resources/shaders/test.vert");
 	auto fsSrc = Text::Load("../../resources/shaders/test.frag");
 	auto vs = MakeRef<Shader>(vsSrc->GetString(), Graphics::ShaderType::VERTEX);
@@ -88,7 +100,9 @@ void Application::Startup()
 		auto img = Image::Load(ss.str());
 		auto tex = MakeRef<Texture2D>(img->GetWidth(), img->GetHeight(), 
 									  Graphics::TexFormat::RGBA8);
-		tex->SetSubImage(img->GetPixels(), Graphics::PixelType::UBYTE,
+		tex->SetSubImage(img->GetPixels(), 
+						 Graphics::PixelType::UBYTE,
+						 Graphics::PixelFormat::RGBA,
 						 img->GetWidth(), img->GetHeight());
 		GetDefaultTextures().push_back(tex);
 	}

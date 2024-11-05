@@ -43,14 +43,10 @@ void Program::LoadLocations()
 	}
 }
 
-i32 Program::GetLocation(StringView name)
+i32 Program::GetLocation(StringView name) const
 {
 	auto it = m_locations.find(String{ name });
-	if (it != m_locations.end()) {
-		return it->second;
-	} else {
-		return -1;
-	}
+	return it->second;
 }
 
 }

@@ -11,6 +11,11 @@ public:
 	Graphics_GL() : Graphics{ Config::API::GL4 } {}
 
 	virtual void SetViewport(Vec2 size, Vec2 pos) const override;
+	virtual void SetFrontFace(FrontFace) const override;
+	virtual void SetCulling(bool enable) const override;
+	virtual void SetDepthTest(bool enable) const override;
+	virtual void SetBlend(bool enable) const override;
+	virtual void SetBlendFunc(BlendFactor src, BlendFactor dst) const override;
 
 	virtual void CreateBuffer(Buffer&) const override;
 	virtual void DeleteBuffer(Buffer&) const override;
@@ -25,6 +30,7 @@ public:
 	virtual void SetVertexAttribFormat(const VertexArray&, u32 location, AttribType type, 
 									   u32 count, u32 offset, bool normalized) const override;
 	virtual void DrawElements(const VertexArray& va, u32 begin, u32 count) const override;
+	virtual void DrawArrays(DrawMode mode, u32 begin, u32 count) const override;
 
 	virtual void CreateTexture(Texture&) const override;
 	virtual void DeleteTexture(Texture&) const override;
@@ -35,8 +41,10 @@ public:
 	virtual void TextureSubImage2D(const Texture&,
 								   const void* data, PixelType type, 
 								   u32 width, u32 height,
-								   TexFormat format, u32 level,
+								   PixelFormat format, u32 level,
 								   u32 xoffset, u32 yoffset) const override;
+	virtual void SetTextureFilter(const Texture&, TexFilter min, TexFilter mag) const override;
+	virtual void SetTextureWrap2D(const Texture2D&, TexWrap u, TexWrap v) const override;
 
 	virtual void CreateFrameBuffer(FrameBuffer&) const override;
 	virtual void DeleteFrameBuffer(FrameBuffer&) const override;

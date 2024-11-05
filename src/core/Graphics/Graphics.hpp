@@ -8,6 +8,7 @@ class VertexArray;
 class IndexBuffer;
 class VertexBuffer;
 class Texture;
+class Texture2D;
 class FrameBuffer;
 class Shader;
 class Program;
@@ -18,10 +19,16 @@ public:
 	enum class AttribType { FLOAT, INT };
 	enum class TexFormat { RGBA8, RGB8, D24S8 };
 	enum class PixelType { UBYTE };
+	enum class PixelFormat { RGB, RGBA };
 	enum class AttachmentType { COLOR, DEPTH };
 	enum class FrameBufferStatus { OK, INCOMPLETE };
 	enum class ShaderType { VERTEX, FRAGMENT };
 	enum class IndexType { UBYTE, USHORT, UINT };
+	enum class FrontFace { CW, CCW };
+	enum class TexWrap { REPEAT, CLAMP_TO_BORDER, CLAMP_TO_EDGE };
+	enum class TexFilter { LINEAR, NEAREST };
+	enum class BlendFactor { SRC_ALPHA, ONE_MINUS_SRC_ALPHA };
+	enum class DrawMode { TRIANGLES, LINES };
 
 public:
 	static u32 ToSize(Graphics::IndexType type);
@@ -33,6 +40,11 @@ public:
 	Config::API GetAPI() const { return m_api; }
 
 	virtual void SetViewport(Vec2 size, Vec2 pos = { 0, 0 }) const = 0;
+	virtual void SetFrontFace(FrontFace) const = 0;
+	virtual void SetCulling(bool enable) const = 0;
+	virtual void SetDepthTest(bool enable) const = 0;
+	virtual void SetBlend(bool enable) const = 0;
+	virtual void SetBlendFunc(BlendFactor src, BlendFactor dst) const = 0;
 
 	virtual void CreateBuffer(Buffer&) const = 0;
 	virtual void DeleteBuffer(Buffer&) const = 0;
@@ -47,6 +59,7 @@ public:
 	virtual void SetVertexAttribFormat(const VertexArray&, u32 location, AttribType type, 
 									   u32 count, u32 offset, bool normalized = false) const = 0;
 	virtual void DrawElements(const VertexArray& va, u32 begin, u32 count) const = 0;
+	virtual void DrawArrays(DrawMode mode, u32 begin, u32 count) const = 0;
 
 	virtual void CreateTexture(Texture&) const = 0;
 	virtual void DeleteTexture(Texture&) const = 0;
@@ -57,8 +70,10 @@ public:
 	virtual void TextureSubImage2D(const Texture&,
 								   const void* data, PixelType type, 
 								   u32 width, u32 height,
-								   TexFormat format, u32 level = 0,
+								   PixelFormat format, u32 level = 0,
 								   u32 xoffset = 0, u32 yoffset = 0) const = 0;
+	virtual void SetTextureFilter(const Texture&, TexFilter min, TexFilter mag) const = 0;
+	virtual void SetTextureWrap2D(const Texture2D&, TexWrap u, TexWrap v) const = 0;
 
 	virtual void CreateFrameBuffer(FrameBuffer&) const = 0;
 	virtual void DeleteFrameBuffer(FrameBuffer&) const = 0;

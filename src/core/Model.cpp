@@ -92,7 +92,9 @@ Ref<Model> Model::LoadFromPMX(const PMXFile& pmx)
 		auto img = Image::Load(path);
 		auto tex = MakeRef<Texture2D>(img->GetWidth(), img->GetHeight(),
 									  Graphics::TexFormat::RGBA8);
-		tex->SetSubImage(img->GetPixels(), Graphics::PixelType::UBYTE,
+		tex->SetSubImage(img->GetPixels(), 
+						 Graphics::PixelType::UBYTE,
+						 Graphics::PixelFormat::RGBA,
 						 img->GetWidth(), img->GetHeight());
 		textures.push_back(std::move(tex));
 	}

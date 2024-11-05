@@ -29,7 +29,7 @@ static GLuint ToGLBufferTarget(Buffer::Target target)
 static GLenum ToGLTexTarget(Texture::Target target)
 {
 	switch (target) {
-	case Texture::Target::TEX_2D:
+	case Texture::Target::TEXTURE_2D:
 		return GL_TEXTURE_2D;
 		break;
 	default:
@@ -49,6 +49,18 @@ static GLenum ToGLTexFormat(Graphics::TexFormat format)
 	case Graphics::TexFormat::D24S8:
 		return GL_DEPTH24_STENCIL8;
 		break;
+	default:
+		MM_CORE_UNINPLEMENTED();
+	}
+}
+
+static GLenum ToGLPixelFormat(Graphics::PixelFormat format)
+{
+	switch (format) {
+	case Graphics::PixelFormat::RGB:
+		return GL_RGB;
+	case Graphics::PixelFormat::RGBA:
+		return GL_RGBA;
 	default:
 		MM_CORE_UNINPLEMENTED();
 	}
@@ -107,9 +119,107 @@ static GLenum ToGLIndexType(Graphics::IndexType type)
 	}
 }
 
+static GLenum ToGLTexWrap(Graphics::TexWrap wrap)
+{
+	switch (wrap) {
+	case Graphics::TexWrap::REPEAT:
+		return GL_REPEAT;
+		break;
+	case Graphics::TexWrap::CLAMP_TO_EDGE:
+		return GL_CLAMP_TO_EDGE;
+		break;
+	case Graphics::TexWrap::CLAMP_TO_BORDER:
+		return GL_CLAMP_TO_BORDER;
+		break;
+	default:
+		MM_CORE_UNINPLEMENTED();
+	}
+}
+
+static GLenum ToGLTexFilter(Graphics::TexFilter filter)
+{
+	switch (filter) {
+	case Graphics::TexFilter::LINEAR:
+		return GL_LINEAR;
+		break;
+	case Graphics::TexFilter::NEAREST:
+		return GL_NEAREST;
+		break;
+	default:
+		MM_CORE_UNINPLEMENTED();
+	}
+}
+
+static GLenum ToGLBlendFactor(Graphics::BlendFactor fact)
+{
+	switch (fact) {
+	case Graphics::BlendFactor::ONE_MINUS_SRC_ALPHA:
+		return GL_ONE_MINUS_SRC_ALPHA;
+	case Graphics::BlendFactor::SRC_ALPHA:
+		return GL_SRC_ALPHA;
+	default:
+		MM_CORE_UNINPLEMENTED();
+	}
+}
+
+static GLenum ToGLDrawMode(Graphics::DrawMode mode)
+{
+	switch (mode) {
+	case Graphics::DrawMode::LINES:
+		return GL_LINES;
+	case Graphics::DrawMode::TRIANGLES:
+		return GL_TRIANGLES;
+	default:
+		MM_CORE_UNINPLEMENTED();
+	}
+}
+
 void Graphics_GL::SetViewport(Vec2 size, Vec2 pos) const
 {
 	glViewport(pos.x, pos.y, size.x, size.y);
+}
+
+void Graphics_GL::SetFrontFace(FrontFace ff) const
+{
+	switch (ff) {
+	case FrontFace::CW:
+		glFrontFace(GL_CW);
+		break;
+	case FrontFace::CCW:
+		glFrontFace(GL_CCW);
+		break;
+	default:
+		MM_CORE_UNREACHABLE();
+	}
+}
+
+void Graphics_GL::SetCulling(bool enable) const
+{
+	if (enable) 
+		glEnable(GL_CULL_FACE);
+	else 
+		glDisable(GL_CULL_FACE);
+}
+
+void Graphics_GL::SetDepthTest(bool enable) const
+{
+	if (enable)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+}
+
+void Graphics_GL::SetBlend(bool enable) const
+{
+	if (enable)
+		glEnable(GL_BLEND);
+	else
+		glDisable(GL_BLEND);
+}
+
+void Graphics_GL::SetBlendFunc(BlendFactor src, BlendFactor dst) const
+{
+	glBlendFunc(ToGLBlendFactor(src), ToGLBlendFactor(dst));
 }
 
 void Graphics_GL::CreateBuffer(Buffer& buffer) const
@@ -189,6 +299,11 @@ void Graphics_GL::DrawElements(const VertexArray& va, u32 first, u32 count) cons
 				   reinterpret_cast<void*>(first * ib.GetIndexSize()));
 }
 
+void Graphics_GL::DrawArrays(DrawMode mode, u32 begin, u32 count) const
+{
+	glDrawArrays(ToGLDrawMode(mode), begin, count);
+}
+
 void Graphics_GL::CreateTexture(Texture& tex) const
 {
 	glCreateTextures(ToGLTexTarget(tex.GetTarget()), 1, tex.GetIDPtr());
@@ -214,10 +329,22 @@ void Graphics_GL::TextureStorage2D(const Texture& tex, u32 width, u32 height, Te
 void Graphics_GL::TextureSubImage2D(const Texture& tex, 
 									const void* data, PixelType type, 
 									u32 width, u32 height, 
-									TexFormat format, u32 level, 
+									PixelFormat format, u32 level, 
 									u32 xoffset, u32 yoffset) const
 {
-	glTextureSubImage2D(tex.GetID(), level, xoffset, yoffset, width, height, ToGLTexFormat(format), ToGLPixelType(type), data);
+	glTextureSubImage2D(tex.GetID(), level, xoffset, yoffset, width, height, ToGLPixelFormat(format), ToGLPixelType(type), data);
+}
+
+void Graphics_GL::SetTextureFilter(const Texture& tex, TexFilter min, TexFilter mag) const
+{
+	glTextureParameteri(tex.GetID(), GL_TEXTURE_MIN_FILTER, ToGLTexFilter(min));
+	glTextureParameteri(tex.GetID(), GL_TEXTURE_MAG_FILTER, ToGLTexFilter(mag));
+}
+
+void Graphics_GL::SetTextureWrap2D(const Texture2D& tex, TexWrap u, TexWrap v) const
+{
+	glTextureParameteri(tex.GetID(), GL_TEXTURE_WRAP_S, ToGLTexWrap(u));
+	glTextureParameteri(tex.GetID(), GL_TEXTURE_WRAP_T, ToGLTexWrap(v));
 }
 
 void Graphics_GL::CreateFrameBuffer(FrameBuffer& fb) const
@@ -257,7 +384,7 @@ void Graphics_GL::ClearFrameBufferColor(const FrameBuffer& fb, u32 index, Color 
 
 void Graphics_GL::ClearFrameBufferDepth(const FrameBuffer& fb, f32 depth, i32 stencil) const
 {
-	glClearNamedFramebufferfi(fb.GetID(), GL_DEPTH, 0, depth, stencil);
+	glClearNamedFramebufferfi(fb.GetID(), GL_DEPTH_STENCIL, 0, depth, stencil);
 }
 
 void Graphics_GL::BindFrameBuffer(const FrameBuffer& fb) 

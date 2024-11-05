@@ -20,12 +20,12 @@ public:
 	void Use() const;
 
 	template <typename T>
-	bool SetUniform(StringView name, const T& val) {
+	bool SetUniform(StringView name, const T& val) const {
 		return SetUniform(name, 1, &val);
 	}
 
 	template <typename T>
-	bool SetUniform(StringView name, u32 count, const T* val) {
+	bool SetUniform(StringView name, u32 count, const T* val) const {
 		i32 loc = GetLocation(name);
 		if (loc < 0) {
 			return false;
@@ -36,12 +36,12 @@ public:
 
 private:
 	template <typename T>
-	void DoSetUniform(i32 loc, u32 count, const T* val) {
+	void DoSetUniform(i32 loc, u32 count, const T* val) const {
 		GetGraphics()->SetUniform(*this, loc, count, val);
 	}
 
 	void LoadLocations();
-	i32 GetLocation(StringView name);
+	i32 GetLocation(StringView name) const;
 
 private:
 	HashMap<String, i32> m_locations{};

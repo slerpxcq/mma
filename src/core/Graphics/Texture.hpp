@@ -9,7 +9,7 @@ class Texture : public GPUResource
 {
 public:
 	enum class Target {
-		TEX_2D, TEX_CUBE
+		TEXTURE_2D, TEXTURE_CUBE
 	};
 
 public:

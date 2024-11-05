@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Base.hpp"
 #include "../Container/String.hpp"
 
 #include <glm/glm.hpp>
@@ -59,6 +60,21 @@ public:
 		return glm::translate(glm::mat4(1.f), translation) * glm::toMat4(rotation);
 	}
 
+	friend inline Transform operator+(const Transform& t, const Vec3& v) {
+		return { t.translation + v, t.rotation };
+	}
+
+	friend inline Transform operator+(const Vec3& v, const Transform& t) {
+		return { t.translation + v, t.rotation };
+	}
+
+	friend inline Transform operator*(const Transform& t, const Quat& q) {
+		return { t.translation, t.rotation * q };
+	}
+
+	friend inline Transform operator*(const Quat& q, const Transform& t) {
+		return { t.translation, q * t.rotation };
+	}
 };
 
 }

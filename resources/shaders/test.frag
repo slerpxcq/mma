@@ -2,6 +2,8 @@
 
 layout (location = 0) out vec4 f_fragColor;
 
+uniform sampler2D u_albedo;
+
 in VS_OUT
 {
     vec2 texCoord;
@@ -9,5 +11,6 @@ in VS_OUT
 
 void main()
 {
-    f_fragColor = vec4(fs_in.texCoord, 1.0, 1.0);
+    f_fragColor = texture(u_albedo, fs_in.texCoord);
+    // f_fragColor = vec4(fs_in.texCoord, 1, 1);
 }

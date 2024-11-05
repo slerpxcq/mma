@@ -11,7 +11,7 @@ class Material : public Resource
 {
 public:
 	enum class MapType { ALBEDO };
-	enum class Flags : u32 {
+	enum Flags {
 		NONE = 0,
 		NO_CULL_BIT = (1 << 0),
 	};
@@ -22,13 +22,13 @@ public:
 			 Ref<Program> program,
 			 u32 flags = 0) :
 		Resource{ name },
-		m_program{ program } {
-		for (auto& map : maps) {
-			m_maps.insert(map);
-		}
+		m_program{ program },
+		m_maps{ maps.begin(), maps.end() } {
 	}
 
 	u32 GetFlags() const { return m_flags; }
+	const Program& GetProgram() const { return *m_program; }
+	const Texture& GetMap(MapType type) const { return *(m_maps.find(type))->second; }
 
 private:
 	u32 m_flags{};

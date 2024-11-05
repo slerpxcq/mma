@@ -76,8 +76,15 @@
 # 2024/11/4
 - [x] Camera class
 - [x] Viewport class
-- [ ] Link Viewport to ViewportPanel
-    - [ ] CameraController
+- [x] Link Viewport to ViewportPanel
+    - [x] CameraController
+
+# 2024/11/5
+- [x] Draw model with texture
+- [x] Add blending
+- [ ] Draw grid
+    - [ ] Grid shader
+- [ ] Fix camera controller (world/local transform)
 
 --- 
 # TO BE DONE:

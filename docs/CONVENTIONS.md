@@ -28,6 +28,30 @@
 | Initializer list | Use {} | ```X(int x) : m_x{x} {}``` |
 | Default argument | Use {} | ```X(int x = {}) : m_x{x} {}``` |
 
+# Reference and pointer use
+| Entity | Convention | Note/Example |
+| --- | --- | --- |
+| In argument | `const T&` | Except `String` |
+| In `String` | `StringView` | |
+| Out argument | `T*` | Prefer return by value or struct |
+| In-Out argument | `T&` | Prevent use |
+| Reference member | | Not owning composition (ex. reference to parent) |
+| Raw pointer member | | Not owning aggregation |
+| ```Ref<T>```  member || Shared owning |
+| ```Scoped<T>```  member || Exclusive owning |
+
+# Getter return value
+| Entity | Convention | Note/Example |
+| --- | --- | --- |
+| `T` | `T` or `const T&` | Depend on object size |
+| `T*` | `T*` | --- |
+| `T&` | `T&` | --- |
+| `const T*` | `const T*` | --- |
+| `const T&` | `const T&` | --- |
+| `Ref<T>` | `T*` | --- |
+| `Scoped<T>` | `T*` | --- |
+| `String` | `StringView` | --- |
+
 # Runtime
 All project and modules should use /MDd for debug and /MD for release. **DO NOT** use /MTd or /MT
 
