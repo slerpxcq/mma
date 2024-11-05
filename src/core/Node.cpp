@@ -7,14 +7,14 @@ namespace mm
 void Node::SetLocalTransform(const Transform& transform)
 {
 	m_localTransform = transform;
-	UpdateSubtreeWorldTransform();
+	// UpdateSubtreeWorldTransform();
 }
 
 void Node::SetWorldTransform(const Transform& transform)
 {
 	m_worldTransform = transform;
 	CalculateLocalTransform();
-	UpdateSubtreeWorldTransform();
+	// UpdateSubtreeWorldTransform();
 }
 
 void Node::SetWorldTranslation(const Vec3& translation)
@@ -71,8 +71,8 @@ void Node::UpdateSubtreeWorldTransform()
 {
 	for (auto& child : m_children) {
 		/* TODO: Check multiplication order */
-		// child->m_worldTransform = m_worldTransform * child->m_localTransform;
-		child->m_worldTransform = child->m_localTransform * m_worldTransform ;
+		child->m_worldTransform = m_worldTransform * child->m_localTransform;
+		// child->m_worldTransform = child->m_localTransform * m_worldTransform ;
 		child->UpdateSubtreeWorldTransform();
 	}
 }
@@ -81,7 +81,7 @@ void Node::CalculateLocalTransform()
 {
 	if (m_parent) {
 		Transform localToWorld = m_parent->m_worldTransform;
-		m_localTransform = localToWorld.Inverse() * m_worldTransform * localToWorld;
+		m_localTransform = localToWorld.Inverse() * m_worldTransform;
 		// m_localTransform = localToWorld * m_worldTransform * localToWorld.Inverse();
 	} else {
 		m_localTransform = m_worldTransform;

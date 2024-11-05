@@ -19,7 +19,7 @@ Viewport::Viewport(Ref<Camera> camera, Ref<FrameBuffer> fb) :
 
 Mat4 Viewport::GetMatrix() const
 {
-	Mat4 view = m_camera->GetNode()->GetWorldMatrix();
+	Mat4 view = glm::inverse(m_camera->GetNode()->GetWorldMatrix());
 	Mat4 proj = glm::perspective(m_camera->GetFOV(),
 								 m_frameBuffer->GetAspect(),
 								 m_camera->GetNear(), m_camera->GetFar());

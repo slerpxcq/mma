@@ -76,25 +76,23 @@ void ViewportPanel::UpdateCamera() const
 
 	if (ImGui::IsMouseDown(ImGuiMouseButton_Middle)) {
 		Vec2 delta = mousePos - mousePosOnClick;
-		Vec3 translation = PAN_SPEED * (-delta.y * up + delta.x * right);
+		Vec3 translation = PAN_SPEED * (delta.y * up + -delta.x * right);
 		node->SetWorldTranslation(translationOnClick + translation);
 	}
 
 	if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
 		Vec2 delta = mousePos - mousePosOnClick;
 		delta *= ORBIT_SPEED;
-		Quat qY = glm::angleAxis(delta.x, Vec3{ 0, 1, 0 });
-		Quat qX = glm::angleAxis(delta.y, rightOnClick);
+		Quat qY = glm::angleAxis(-delta.x, Vec3{ 0, 1, 0 });
+		Quat qX = glm::angleAxis(-delta.y, rightOnClick);
 		Quat q = qY * qX;
 		Vec3 pivotToCameraOnClick = translationOnClick - CAM_PIVOT;
-		node->SetWorldTranslation(CAM_PIVOT + q * pivotToCameraOnClick);
-		node->SetWorldRotation(q * rotationOnClick);
-		//.node->SetWorldTransform({ CAM_PIVOT + q * pivotToCameraOnClick,  q * rotationOnClick });
+		node->SetWorldTransform({ CAM_PIVOT + glm::rotate(q, pivotToCameraOnClick),  q * rotationOnClick });
 	}
 
 	auto& io = ImGui::GetIO();
 	if (std::fabs(io.MouseWheel) > std::numeric_limits<float>::epsilon()) {
-		Vec3 translation = ZOOM_SPEED * -io.MouseWheel * view;
+		Vec3 translation = ZOOM_SPEED * io.MouseWheel * view;
 		node->TranslateWorld(translation);
 	}
 }

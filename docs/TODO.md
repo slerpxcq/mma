@@ -82,9 +82,11 @@
 # 2024/11/5
 - [x] Draw model with texture
 - [x] Add blending
-- [ ] Draw grid
-    - [ ] Grid shader
-- [ ] Fix camera controller (world/local transform)
+- [x] Draw grid
+    - [x] Grid shader
+- [x] Fix camera controller (world/local transform)
+    - View matrix = world matrix inverse
+    - View vector(world)
 
 --- 
 # TO BE DONE:

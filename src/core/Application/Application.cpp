@@ -69,7 +69,7 @@ void Application::Startup()
 	auto camera = MakeRef<Camera>("camera");
 	auto& cameraNode = sm->GetRootNode().AddChild("camera_node");
 	cameraNode.AttachObject(camera);
-	cameraNode.SetWorldTranslation({ 0, 10, -20 });
+	cameraNode.SetWorldTranslation({ 0, 10, 20 });
 	auto fb = Ref<FrameBuffer>{ new FrameBuffer{1024, 1024,
 					   { { Graphics::AttachmentType::COLOR, 0, Graphics::TexFormat::RGBA8 },
 						 { Graphics::AttachmentType::DEPTH, 0, Graphics::TexFormat::D24S8 } }} };

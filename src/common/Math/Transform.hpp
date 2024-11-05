@@ -4,6 +4,7 @@
 #include "../Container/String.hpp"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -69,11 +70,11 @@ public:
 	}
 
 	friend inline Transform operator*(const Transform& t, const Quat& q) {
-		return { t.translation, t.rotation * q };
+		return t * Transform{ Vec3{0}, q };
 	}
 
 	friend inline Transform operator*(const Quat& q, const Transform& t) {
-		return { t.translation, q * t.rotation };
+		return Transform{ Vec3{0}, q } * t;
 	}
 };
 
