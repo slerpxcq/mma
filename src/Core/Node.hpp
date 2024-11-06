@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/Math/Transform.hpp"
+#include "NamedObject.hpp"
 #include "SceneObject.hpp"
 
 /* Note: 
@@ -13,12 +14,11 @@ namespace mm
 
 class SceneObject;
 
-class Node
+class Node : public NamedObject
 {
 public:
-	virtual ~Node() = default;
-	Node(StringView name) : m_name{ name } {}
-	const String& GetName() { return m_name; }
+	// virtual ~Node() = default;
+	Node(StringView name) : NamedObject{ name } {}
 
 	void SetLocalTransform(const Transform& transform);
 	void SetWorldTransform(const Transform& transform);
@@ -47,10 +47,10 @@ public:
 		return *m_children.back();
 	}
 
-	void AttachObject(Ref<SceneObject> obj) {
-		m_object = obj;
-		obj->AttachTo(*this);
-	}
+	// void AttachObject(Ref<SceneObject> obj) {
+	// 	m_object = obj;
+	// 	obj->AttachTo(*this);
+	// }
 
 	void UpdateSubtreeWorldTransform();
 

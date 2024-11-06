@@ -19,7 +19,8 @@ public:
 
 	virtual void CreateBuffer(Buffer&) const override;
 	virtual void DeleteBuffer(Buffer&) const override;
-	virtual void SetBufferData(const Buffer&, const void* data, u32 size) const override;
+	// virtual void SetBufferData(const Buffer&, const void* data, u32 size) const override;
+	virtual void SetBufferStorage(const Buffer&, const void* data, u32 size, u32 flags) const override;
 	virtual void SetBufferSubData(const Buffer&, const void* data, u32 size, u32 offset) const override;
 	virtual void SetBufferBindBase(const Buffer&, u32 base) const override;
 

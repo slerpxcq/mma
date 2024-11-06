@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderable.hpp"
+#include "NamedObject.hpp"
 #include "Graphics/VertexArray.hpp"
 
 namespace mm
@@ -8,15 +9,15 @@ namespace mm
 
 class Mesh;
 
-class SubMesh : public Renderable
+class SubMesh : public Renderable, public NamedObject
 { 
 public:
 	SubMesh(Mesh& parent, StringView name, 
 			Ref<VertexArray> va, Ref<Material> mat,
 			u32 indexCount, u32 indexBegin = 0) : 
 		Renderable{ mat },
+		NamedObject{ name },
 		m_parent{ parent },
-		m_name{ name }, 
 		m_vertexArray{ va },
 		m_indexCount{ indexCount },
 		m_indexBegin{ indexBegin } {}
@@ -28,7 +29,6 @@ public:
 
 private:
 	Mesh& m_parent;
-	const String m_name{};
 	Ref<VertexArray> m_vertexArray;
 	u32 m_indexCount{};
 	u32 m_indexBegin{};

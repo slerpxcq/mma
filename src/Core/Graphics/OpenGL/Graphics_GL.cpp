@@ -234,9 +234,15 @@ void Graphics_GL::DeleteBuffer(Buffer& buffer) const
 	MM_CORE_INFO("GL: buffer deleted; id={0}", buffer.GetID());
 }
 
-void Graphics_GL::SetBufferData(const Buffer& buffer, const void* data, u32 size) const
+// void Graphics_GL::SetBufferData(const Buffer& buffer, const void* data, u32 size) const
+// {
+// 	glNamedBufferData(buffer.GetID(), size, data, GL_STATIC_DRAW);
+// }
+
+void Graphics_GL::SetBufferStorage(const Buffer& buffer, const void* data, u32 size, u32 flags) const
 {
-	glNamedBufferData(buffer.GetID(), size, data, GL_STATIC_DRAW);
+	// TODO: flags conversion 
+	glNamedBufferStorage(buffer.GetID(), size, data, 0);
 }
 
 void Graphics_GL::SetBufferSubData(const Buffer& buffer, const void* data, u32 size, u32 offset) const

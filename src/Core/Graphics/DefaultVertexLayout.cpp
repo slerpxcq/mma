@@ -19,7 +19,7 @@ void DefaultVertexLayout::ApplyTo(const VertexArray& va) const
 	gfx->SetVertexAttribFormat(va, 4, Graphics::AttribType::FLOAT, 2, offsetof(Struct, texCoord2));
 	gfx->SetVertexAttribFormat(va, 5, Graphics::AttribType::FLOAT, 2, offsetof(Struct, texCoord3));
 	gfx->SetVertexAttribFormat(va, 6, Graphics::AttribType::FLOAT, 2, offsetof(Struct, texCoord4));
-	gfx->SetVertexAttribFormat(va, 7, Graphics::AttribType::INT, 4, offsetof(Struct, bones));
+	gfx->SetVertexAttribFormat(va, 7, Graphics::AttribType::INT, 4, offsetof(Struct, m_bones));
 	gfx->SetVertexAttribFormat(va, 8, Graphics::AttribType::FLOAT, 3, offsetof(Struct, weights));
 	gfx->SetVertexAttribFormat(va, 9, Graphics::AttribType::FLOAT, 3, offsetof(Struct, sdef_c));
 	gfx->SetVertexAttribFormat(va, 10, Graphics::AttribType::FLOAT, 3, offsetof(Struct, sdef_r0));

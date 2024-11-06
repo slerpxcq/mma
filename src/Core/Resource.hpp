@@ -1,16 +1,16 @@
 #pragma once
 
+#include "NamedObject.hpp"
+
 namespace mm
 {
 
-class Resource
+class Resource : public NamedObject
 {
 public:
-	Resource(StringView name) : m_name{ name } {}
-	StringView GetName() const { return m_name; }
+	Resource(StringView name) : 
+		NamedObject{ name } {}
 
-private:
-	const String m_name{};
 };
 
 }

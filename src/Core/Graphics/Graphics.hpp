@@ -48,7 +48,8 @@ public:
 
 	virtual void CreateBuffer(Buffer&) const = 0;
 	virtual void DeleteBuffer(Buffer&) const = 0;
-	virtual void SetBufferData(const Buffer&, const void* data, u32 size) const = 0;
+	// virtual void SetBufferData(const Buffer&, const void* data, u32 size) const = 0;
+	virtual void SetBufferStorage(const Buffer&, const void* data, u32 size, u32 flags = 0) const = 0;
 	virtual void SetBufferSubData(const Buffer&, const void* data, u32 size, u32 offset) const = 0;
 	virtual void SetBufferBindBase(const Buffer&, u32 base) const = 0;
 

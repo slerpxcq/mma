@@ -89,6 +89,13 @@
     - View vector(world)
 
 # 2024/11/6
+- [x] Change PMXFile access permission -> private
+- [x] SceneHierarchy panel
+    - [ ] Visitor
+- [x] Load bones
+- [ ] Skinning 
+    - [ ] Shader storage buffer
+    - [ ] VPDFile class
 
 --- 
 # TO BE DONE:

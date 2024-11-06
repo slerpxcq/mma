@@ -15,10 +15,10 @@ public:
 	class Impl {
 	public:
 		virtual ~Impl() = default;
-		Impl(const Window::ConstructInfo& info) : 
-			m_title{info.title},
-			m_width{info.width},
-			m_height{info.height} {}
+		Impl(const Window::ConstructInfo& m_info) : 
+			m_title{m_info.title},
+			m_width{m_info.width},
+			m_height{m_info.height} {}
 
 		virtual void BeginFrame() = 0;
 		virtual void EndFrame() = 0;
@@ -31,7 +31,7 @@ public:
 	};
 
 public:
-	Window(const ConstructInfo& info = {});
+	Window(const ConstructInfo& m_info = {});
 	void* GetHandle() const { return m_impl->GetHandle(); }
 	void BeginFrame() { m_impl->BeginFrame(); }
 	void EndFrame() { m_impl->EndFrame(); }

@@ -87,7 +87,7 @@ void ViewportPanel::UpdateCamera() const
 		Quat qX = glm::angleAxis(-delta.y, rightOnClick);
 		Quat q = qY * qX;
 		Vec3 pivotToCameraOnClick = translationOnClick - CAM_PIVOT;
-		node->SetWorldTransform({ CAM_PIVOT + glm::rotate(q, pivotToCameraOnClick),  q * rotationOnClick });
+		node->SetWorldTransform({ CAM_PIVOT + q * pivotToCameraOnClick,  q * rotationOnClick });
 	}
 
 	auto& io = ImGui::GetIO();

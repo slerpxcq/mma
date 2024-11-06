@@ -1,24 +1,24 @@
 #pragma once
 
+#include "NamedObject.hpp"
+
 namespace mm
 {
 
 class Node;
 
-class SceneObject
+class SceneObject : public NamedObject
 {
 public:
 	virtual ~SceneObject() = default;
 	SceneObject(StringView name) :
-		m_name{ name } {}
+		NamedObject{ name } {}
 
-	StringView GetName() const { return m_name; }
 	Node* GetNode() const { return m_node; }
 	void AttachTo(Node& node) { m_node = &node; }
 
 protected:
 	Node* m_node{};
-	const String m_name{};
 };
 
 }

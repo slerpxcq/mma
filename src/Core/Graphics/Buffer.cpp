@@ -14,10 +14,10 @@ Buffer::~Buffer()
 	GetGraphics()->DeleteBuffer(*this); 
 }
 
-void Buffer::SetData(const void* data, u32 size) 
-{ 
-	GetGraphics()->SetBufferData(*this, data, size); 
-}
+//void Buffer::SetData(const void* data, u32 size) 
+//{ 
+//	GetGraphics()->SetBufferData(*this, data, size); 
+//}
 
 void Buffer::SetSubData(const void* data, u32 size, u32 offset) 
 { 
@@ -27,6 +27,11 @@ void Buffer::SetSubData(const void* data, u32 size, u32 offset)
 void Buffer::SetBindBase(u32 base) 
 { 
 	GetGraphics()->SetBufferBindBase(*this, base); 
+}
+
+void Buffer::SetStorage(const void* data, u32 size, u32 flags)
+{
+	GetGraphics()->SetBufferStorage(*this, data, size, flags);
 }
 
 }

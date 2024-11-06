@@ -32,8 +32,8 @@ static void RegisterGLErrorCallback()
 						   }, nullptr);
 }
 
-WindowImpl_GLFW::WindowImpl_GLFW(const Window::ConstructInfo& info) :
-	Impl{ info }
+WindowImpl_GLFW::WindowImpl_GLFW(const Window::ConstructInfo& m_info) :
+	Impl{ m_info }
 {
 	if (!glfwInit()) {
 		throw RuntimeError("Could not init GLFW");
@@ -42,7 +42,7 @@ WindowImpl_GLFW::WindowImpl_GLFW(const Window::ConstructInfo& info) :
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, Config::GL_VERSION_MAJOR);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, Config::GL_VERSION_MINOR);
 
-	m_window = glfwCreateWindow(info.width, info.height, info.title.data(), nullptr, nullptr);
+	m_window = glfwCreateWindow(m_info.width, m_info.height, m_info.title.data(), nullptr, nullptr);
 	if (!m_window) {
 		throw RuntimeError("Could not create window");
 	}

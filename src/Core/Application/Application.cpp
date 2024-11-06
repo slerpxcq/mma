@@ -66,9 +66,9 @@ void Application::Startup()
 	SetRenderer(new Renderer{});
 
 	auto sm = GetSceneManager();
-	auto camera = MakeRef<Camera>("camera");
 	auto& cameraNode = sm->GetRootNode().AddChild("camera_node");
-	cameraNode.AttachObject(camera);
+	auto camera = MakeRef<Camera>("camera");
+	camera->AttachTo(cameraNode);
 	cameraNode.SetWorldTranslation({ 0, 10, 20 });
 	auto fb = Ref<FrameBuffer>{ new FrameBuffer{1024, 1024,
 					   { { Graphics::AttachmentType::COLOR, 0, Graphics::TexFormat::RGBA8 },
@@ -82,8 +82,9 @@ void Application::Startup()
 	auto gridFs = MakeRef<Shader>(gridFsSrc->GetString(), Graphics::ShaderType::FRAGMENT);
 	auto gridProg = Ref<Program>(new Program{ gridVs, gridFs });
 	auto gridMat = Ref<Material>(new Material{ "grid_material", {}, gridProg });
-	auto grid = MakeRef<Grid>(gridMat);
-	sm->AttachRenderable(grid);
+	auto& grid = sm->AddRenderable<Grid>(gridMat);
+	// auto grid = MakeRef<Grid>(gridMat);
+	// sm->AttachRenderable(grid);
 
 	// Load default shader
 	auto vsSrc = Text::Load("../../resources/shaders/test.vert");

@@ -10,7 +10,7 @@ namespace mm
 class WindowImpl_GLFW : public Window::Impl
 {
 public:
-	WindowImpl_GLFW(const Window::ConstructInfo& info);
+	WindowImpl_GLFW(const Window::ConstructInfo& m_info);
 	~WindowImpl_GLFW();
 
 	virtual void BeginFrame() override;

@@ -19,7 +19,8 @@ public:
 
 protected:
 	Buffer(Target target);
-	void SetData(const void* data, u32 size);
+	void SetStorage(const void* data, u32 size, u32 flags = 0);
+	//void SetData(const void* data, u32 size);
 	void SetSubData(const void* data, u32 size, u32 offset);
 	void SetBindBase(u32 base);
 

@@ -15,7 +15,7 @@ public:
 		Buffer{ Target::VERTEX },
 		m_layout{ layout },
 		m_vertexCount{ count } {
-		SetData(data, count * layout.GetSize());
+		SetStorage(data, count * layout.GetSize());
 	}
 
 	u32 GetVertexCount() const { return m_vertexCount; }

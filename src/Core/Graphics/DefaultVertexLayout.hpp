@@ -18,7 +18,7 @@ public:
 		glm::vec2 texCoord2{};
 		glm::vec2 texCoord3{};
 		glm::vec2 texCoord4{};
-		glm::ivec4 bones{};
+		glm::ivec4 m_bones{};
 		glm::vec3 weights{};
 		glm::vec3 sdef_c{};
 		glm::vec3 sdef_r0{};

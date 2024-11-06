@@ -13,8 +13,9 @@ struct PMXParseError : public RuntimeError
 	PMXParseError(const char* what = "") : RuntimeError(what) {}
 };
 
-struct PMXFile : public File
+class PMXFile : public File
 {
+public:
 	enum class TextEncoding : u8 {
 		UTF16LE = 0,
 		UTF8
@@ -325,41 +326,45 @@ public:
 	PMXFile(const Path& path) : File{ path } {}
 	static Ref<PMXFile> Load(const Path& path);
 
-public:
-	Header                 header{};
-	Info                   info{};
-	DynArray<Vertex>    vertices{};
-	DynArray<Face>      faces{};
-	DynArray<Texture>   textures{};
-	DynArray<Material>  materials{};
-	DynArray<Bone>      bones{};
-	DynArray<Morph>     morphs{};
-	DynArray<Cluster>   clusters{};
-	DynArray<Rigidbody> rigidbodies{};
-	DynArray<Joint>     joints{};
-};
-
-class PMXParser
-{
-public:
-	Ref<PMXFile> Parse(const Path& path);
+	const Header& GetHeader() const { return m_header; }
+	const Info& GetInfo() const { return m_info; }
+	const auto& GetVertices() const { return m_vertices; }
+	const auto& GetFaces() const { return m_faces; }
+	const auto& GetTextures() const { return m_textures; }
+	const auto& GetMaterials() const { return m_materials; }
+	const auto& GetBones() const { return m_bones; }
+	const auto& GetMorphs() const { return m_morphs; }
+	const auto& GetClusters() const { return m_clusters; }
+	const auto& GetRigidbodies() const { return m_rigidbodies; }
+	const auto& GetJoints() const { return m_joints; }
 
 private:
-	String ParseText(InFileStream& stream);
-	void ParseHeader(InFileStream& stream);
-	void ParseInfo(InFileStream& stream);
-	void ParseVertex(InFileStream& stream);
-	void ParseFace(InFileStream& stream);
-	void ParseTexture(InFileStream& stream);
-	void ParseMaterial(InFileStream& stream);
-	void ParseBone(InFileStream& stream);
-	void ParseMorph(InFileStream& stream);
-	void ParseFrame(InFileStream& stream);
-	void ParseRigidbody(InFileStream& stream);
-	void ParseJoint(InFileStream& stream);
+	static String ParseText(const PMXFile&, InFileStream& stream);
+	static void ParseHeader(PMXFile&, InFileStream& stream);
+	static void ParseInfo(PMXFile&, InFileStream& stream);
+	static void ParseVertex(PMXFile&, InFileStream& stream);
+	static void ParseFace(PMXFile&, InFileStream& stream);
+	static void ParseTexture(PMXFile&, InFileStream& stream);
+	static void ParseMaterial(PMXFile&, InFileStream& stream);
+	static void ParseBone(PMXFile&, InFileStream& stream);
+	static void ParseMorph(PMXFile&, InFileStream& stream);
+	static void ParseFrame(PMXFile&, InFileStream& stream);
+	static void ParseRigidbody(PMXFile&, InFileStream& stream);
+	static void ParseJoint(PMXFile&, InFileStream& stream);
 
 private:
-	Ref<PMXFile> m_pmx{};
+	Header              m_header{};
+	Info                m_info{};
+	DynArray<Vertex>    m_vertices{};
+	DynArray<Face>      m_faces{};
+	DynArray<Texture>   m_textures{};
+	DynArray<Material>  m_materials{};
+	DynArray<Bone>      m_bones{};
+	DynArray<Morph>     m_morphs{};
+	DynArray<Cluster>   m_clusters{};
+	DynArray<Rigidbody> m_rigidbodies{};
+	DynArray<Joint>     m_joints{};
+
 };
 
 

@@ -12,7 +12,7 @@ public:
 		Buffer{ Target::INDEX }, 
 		m_type{ type }, 
 		m_count{ count } {
-		SetData(data, Graphics::ToSize(type) * count);
+		SetStorage(data, Graphics::ToSize(type) * count);
 	}
 
 	Graphics::IndexType GetIndexType() const { return m_type; }
