@@ -61,6 +61,10 @@ public:
 		return glm::translate(glm::mat4(1.f), translation) * glm::toMat4(rotation);
 	}
 
+	friend inline bool operator==(const Transform& lhs, const Transform& rhs) {
+		return (lhs.translation == rhs.translation) && (lhs.rotation == rhs.rotation);
+	}
+
 	friend inline Transform operator+(const Transform& t, const Vec3& v) {
 		return { t.translation + v, t.rotation };
 	}

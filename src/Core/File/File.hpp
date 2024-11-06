@@ -1,22 +1,22 @@
 #pragma once
 
+#include "../NamedObject.hpp"
+
 namespace mm
 {
 
-class File
+class File : public NamedObject
 {
 public:
-	File(const Path& path) : 
-		m_path{path}, 
-		m_name{ path.filename().string() } {}
 	virtual	~File() = default;
+	File(const Path& path) : 
+		NamedObject{ path.filename().string() },
+		m_path{path} {}
 
 	const Path& GetPath() const { return m_path; }
-	const String& GetName() const { return m_name; }
 
 protected:
 	const Path m_path{};
-	const String m_name{};
 };
 
 }
