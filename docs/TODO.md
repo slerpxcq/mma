@@ -88,6 +88,8 @@
     - View matrix = world matrix inverse
     - View vector(world)
 
+# 2024/11/6
+
 --- 
 # TO BE DONE:
 Nodes are only placeholders for position calculation
