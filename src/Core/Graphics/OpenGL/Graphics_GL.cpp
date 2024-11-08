@@ -341,6 +341,30 @@ void Graphics_GL::TextureSubImage2D(const Texture& tex,
 	glTextureSubImage2D(tex.GetID(), level, xoffset, yoffset, width, height, ToGLPixelFormat(format), ToGLPixelType(type), data);
 }
 
+void Graphics_GL::TextureStorage3D(const Texture& tex, 
+								   u32 width, u32 height, u32 depth, 
+								   TexFormat format, u32 levels) const
+{
+	glTextureStorage3D(tex.GetID(), levels, ToGLTexFormat(format),
+					   width, height, depth);
+}
+
+void Graphics_GL::TextureSubImage3D(const Texture& tex, 
+									const void* data, 
+									PixelType type, 
+									u32 width, u32 height, u32 depth, 
+									PixelFormat format, 
+									u32 level, 
+									u32 xoffset, u32 yoffset, u32 zoffset) const
+{
+	glTextureSubImage3D(tex.GetID(), level,
+						xoffset, yoffset, zoffset,
+						width, height, depth,
+						ToGLPixelFormat(format), 
+						ToGLPixelType(type), 
+						data); 
+}
+
 void Graphics_GL::SetTextureFilter(const Texture& tex, TexFilter min, TexFilter mag) const
 {
 	glTextureParameteri(tex.GetID(), GL_TEXTURE_MIN_FILTER, ToGLTexFilter(min));

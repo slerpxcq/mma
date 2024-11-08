@@ -73,6 +73,14 @@ public:
 								   u32 width, u32 height,
 								   PixelFormat format, u32 level = 0,
 								   u32 xoffset = 0, u32 yoffset = 0) const = 0;
+	virtual void TextureStorage3D(const Texture&,
+								  u32 width, u32 height, u32 depth,
+								  TexFormat format, u32 levels = 1) const = 0;
+	virtual void TextureSubImage3D(const Texture&,
+								   const void* data, PixelType type,
+								   u32 width, u32 height, u32 depth,
+								   PixelFormat format, u32 level = 0,
+								   u32 xoffset = 0, u32 yoffset = 0, u32 zoffset = 0) const = 0;
 	virtual void SetTextureFilter(const Texture&, TexFilter min, TexFilter mag) const = 0;
 	virtual void SetTextureWrap2D(const Texture2D&, TexWrap u, TexWrap v) const = 0;
 
