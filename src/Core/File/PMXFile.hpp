@@ -316,8 +316,7 @@ public:
 	};
 
 public:
-	PMXFile(const Path& path);
-	//static Ref<PMXFile> Load(const Path& path);
+	explicit PMXFile(const Path& path);
 
 	const Header& GetHeader() const { return m_header; }
 	const Info& GetInfo() const { return m_info; }

@@ -13,6 +13,7 @@
 
 #include "Core/File/Text.hpp"
 #include "Core/File/PMXFile.hpp"
+#include "Core/File/VPDFile.hpp"
 
 #include "Core/Node.hpp"
 #include "Core/Model.hpp"
@@ -37,9 +38,11 @@ EditorLayer::EditorLayer(const Window& window) :
 	/* BEGIN TEST CODE */
 	// Load model
 	auto& root = GetSceneManager()->GetRootNode();
-	auto pmx =  PMXFile::Load("../../resources/model/つみ式ミクさん/000 ミクさん.pmx");
+	auto pmx =  PMXFile("../../resources/model/つみ式ミクさん/000 ミクさん.pmx");
 	auto& modelNode = root.AddChild("model_node");
-	auto model = Model::Load(modelNode, *pmx);
+	auto model = Model::Load(modelNode, pmx);
+	auto vpd = VPDFile("../../resources/motion/Standing 1 -Stellas Shoujo Walk.vpd");
+	model->LoadPose(vpd);
 	/* END TEST CODE */
 }
 

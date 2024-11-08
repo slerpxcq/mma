@@ -9,7 +9,7 @@ namespace mm
 class VPDFile : public File
 {
 public:
-	VPDFile(const Path& path);
+	explicit VPDFile(const Path& path);
 
 	const auto& GetPose() const { return m_pose; }
 	Transform GetTransform(StringView boneName) const;

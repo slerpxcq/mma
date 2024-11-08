@@ -4,7 +4,8 @@
 namespace mm
 {
 
-Buffer::Buffer(Target target) 
+Buffer::Buffer(Target target) :
+	m_target{ target }
 { 
 	GetGraphics()->CreateBuffer(*this); 
 }
@@ -24,9 +25,19 @@ void Buffer::SetBindBase(u32 base)
 	GetGraphics()->SetBufferBindBase(*this, base); 
 }
 
-void Buffer::SetStorage(const void* data, u32 size, u32 flags)
+void Buffer::SetStorage(const void* data, u32 size, Graphics::BufferFlags flags)
 {
 	GetGraphics()->SetBufferStorage(*this, data, size, flags);
+}
+
+void* Buffer::Map(Graphics::BufferAccess access)
+{
+	return GetGraphics()->MapBuffer(*this, access);
+}
+
+void Buffer::Unmap()
+{
+	GetGraphics()->UnmapBuffer(*this);
 }
 
 }

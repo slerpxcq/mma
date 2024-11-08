@@ -9,6 +9,7 @@ namespace mm
 {
 
 class PMXFile;
+class VPDFile;
 
 class Model : public SceneObject
 {
@@ -16,16 +17,16 @@ public:
 	Model(StringView name) : 
 		SceneObject{ name } {}
 
+	virtual void OnUpdate(f32) override;
 	static Ref<Model> Load(Node& node, const PMXFile& pmx);
-
-	/* BEGIN TEST CODE */
-	/* END TEST CODE */
+	void LoadPose(const VPDFile& vpd);
+	void UpdateSkinningBuffer();
 
 private:
 	Ref<Mesh> m_mesh;
 	Ref<ShaderStroageBuffer> m_skinningBuffer{};
 	HashMap<String, i32> m_boneNameIndexMap;
-	DynArray<Bone> m_bones{};
+	DynArray<Ref<Bone>> m_bones{};
 };
 
 }

@@ -19,10 +19,12 @@ public:
 
 protected:
 	Buffer(Target target);
-	void SetStorage(const void* data, u32 size, u32 flags = 0);
-	//void SetData(const void* data, u32 size);
+	void SetStorage(const void* data, u32 size, 
+					Graphics::BufferFlags flags = Graphics::BufferFlags::NONE);
 	void SetSubData(const void* data, u32 size, u32 offset);
 	void SetBindBase(u32 base);
+	void* Map(Graphics::BufferAccess access);
+	void Unmap();
 
 private:
 	Target m_target{};

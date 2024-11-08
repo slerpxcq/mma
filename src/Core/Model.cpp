@@ -2,6 +2,7 @@
 #include "Model.hpp"
 
 #include "File/PMXFile.hpp"
+#include "File/VPDFile.hpp"
 #include "File/Image.hpp"
 
 #include "Graphics/DefaultVertexLayout.hpp"
@@ -74,10 +75,16 @@ static Ref<VertexArray> LoadVertexArray(const PMXFile& pmx)
 	return MakeRef<VertexArray>(vb, ib);
 }
 
+void Model::OnUpdate(f32)
+{
+	UpdateSkinningBuffer();
+}
+
 Ref<Model> Model::Load(Node& node, const PMXFile& pmx)
 {
 	auto model = MakeRef<Model>(pmx.GetInfo().nameJP);
-	model->AttachTo(node);
+	//model->AttachTo(node);
+	node.AttachObject(model);
 
 	/* Load vertices and indices */
 	auto va = LoadVertexArray(pmx);
@@ -90,13 +97,13 @@ Ref<Model> Model::Load(Node& node, const PMXFile& pmx)
 	textures.reserve(pmx.GetTextures().size());
 	for (const auto& pt : pmx.GetTextures()) {
 		String path = pmx.GetPath().parent_path().string() + '/' + pt.name;
-		auto img = Image::Load(path);
-		auto tex = MakeRef<Texture2D>(img->GetWidth(), img->GetHeight(),
+		auto img = Image(path);
+		auto tex = MakeRef<Texture2D>(img.GetWidth(), img.GetHeight(),
 									  Graphics::TexFormat::RGBA8);
-		tex->SetSubImage(img->GetPixels(), 
+		tex->SetSubImage(img.GetPixels(), 
 						 Graphics::PixelType::UBYTE,
 						 Graphics::PixelFormat::RGBA,
-						 img->GetWidth(), img->GetHeight());
+						 img.GetWidth(), img.GetHeight());
 		textures.push_back(std::move(tex));
 	}
 
@@ -129,20 +136,47 @@ Ref<Model> Model::Load(Node& node, const PMXFile& pmx)
 			glm::make_vec3(pb.position) :
 			glm::make_vec3(pb.position) - glm::make_vec3(pmx.GetBones()[pb.parentIndex].position),
 			glm::identity<Quat>() };
-		Bone bone{ pb.nameJP, bindLocal, bindWorld };
+		auto bone = MakeRef<Bone>(pb.nameJP, bindLocal, bindWorld);
 		if (pb.parentIndex < 0) {
-			bone.AttachTo(node);
+			node.AttachObject(bone);
+			node.SetWorldTransform(bindWorld);
 		} else {
-			auto& boneNode = bones[pb.parentIndex].GetNode()->AddChild(pb.nameJP + "_node");
-			bone.AttachTo(boneNode);
+			auto& boneNode = bones[pb.parentIndex]->GetNode()->AddChild(pb.nameJP + "_node");
+			boneNode.AttachObject(bone);
+			boneNode.SetWorldTransform(bindWorld);
 		}
 		model->m_boneNameIndexMap.insert({ pb.nameJP, index });
 		bones.push_back(std::move(bone));
 		++index;
 	}
 	model->m_skinningBuffer = MakeRef<ShaderStroageBuffer>();
+	model->m_skinningBuffer->SetStorage(nullptr,
+										bones.size() * sizeof(Mat4),
+										Graphics::BufferFlags::MAP_WRITE_BIT);
+	model->m_skinningBuffer->SetBindBase(0);
 
 	return std::move(model);
+}
+
+void Model::LoadPose(const VPDFile& vpd)
+{
+	auto& pose = vpd.GetPose();
+	for (auto t : pose) {
+		auto it = m_boneNameIndexMap.find(t.first);
+		if (it != m_boneNameIndexMap.end()) {
+			auto& bone = m_bones[it->second];
+			bone->GetNode()->SetLocalTransform(t.second * bone->GetBindLocal());
+		}
+	}
+}
+
+void Model::UpdateSkinningBuffer()
+{
+	Mat4* ptr = reinterpret_cast<Mat4*>(m_skinningBuffer->Map(Graphics::BufferAccess::WRITE));
+	for (auto& b : m_bones) {
+		*ptr++ = b->GetNode()->GetWorldMatrix() * b->GetBindWorldInv().ToMat4();
+	}
+	m_skinningBuffer->Unmap();
 }
 
 }

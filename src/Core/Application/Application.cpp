@@ -68,7 +68,7 @@ void Application::Startup()
 	auto sm = GetSceneManager();
 	auto& cameraNode = sm->GetRootNode().AddChild("camera_node");
 	auto camera = MakeRef<Camera>("camera");
-	camera->AttachTo(cameraNode);
+	cameraNode.AttachObject(camera);
 	cameraNode.SetWorldTranslation({ 0, 10, 20 });
 	auto fb = Ref<FrameBuffer>{ new FrameBuffer{1024, 1024,
 					   { { Graphics::AttachmentType::COLOR, 0, Graphics::TexFormat::RGBA8 },
@@ -76,10 +76,10 @@ void Application::Startup()
 	SetMainViewport(new Viewport{ camera, fb });
 
 	// Load grid shader 
-	auto gridVsSrc = Text::Load("../../resources/shaders/grid.vert");
-	auto gridFsSrc = Text::Load("../../resources/shaders/grid.frag");
-	auto gridVs = MakeRef<Shader>(gridVsSrc->GetString(), Graphics::ShaderType::VERTEX);
-	auto gridFs = MakeRef<Shader>(gridFsSrc->GetString(), Graphics::ShaderType::FRAGMENT);
+	auto gridVsSrc = Text("../../resources/shaders/grid.vert");
+	auto gridFsSrc = Text("../../resources/shaders/grid.frag");
+	auto gridVs = MakeRef<Shader>(gridVsSrc.GetString(), Graphics::ShaderType::VERTEX);
+	auto gridFs = MakeRef<Shader>(gridFsSrc.GetString(), Graphics::ShaderType::FRAGMENT);
 	auto gridProg = Ref<Program>(new Program{ gridVs, gridFs });
 	auto gridMat = Ref<Material>(new Material{ "grid_material", {}, gridProg });
 	auto& grid = sm->AddRenderable<Grid>(gridMat);
@@ -87,10 +87,10 @@ void Application::Startup()
 	// sm->AttachRenderable(grid);
 
 	// Load default shader
-	auto vsSrc = Text::Load("../../resources/shaders/test.vert");
-	auto fsSrc = Text::Load("../../resources/shaders/test.frag");
-	auto vs = MakeRef<Shader>(vsSrc->GetString(), Graphics::ShaderType::VERTEX);
-	auto fs = MakeRef<Shader>(fsSrc->GetString(), Graphics::ShaderType::FRAGMENT);
+	auto vsSrc = Text("../../resources/shaders/test.vert");
+	auto fsSrc = Text("../../resources/shaders/test.frag");
+	auto vs = MakeRef<Shader>(vsSrc.GetString(), Graphics::ShaderType::VERTEX);
+	auto fs = MakeRef<Shader>(fsSrc.GetString(), Graphics::ShaderType::FRAGMENT);
 	SetDefaultProgram(Ref<Program>(new Program{ vs, fs }));
 
 	// Load default textures 
@@ -98,13 +98,13 @@ void Application::Startup()
 		std::stringstream ss{};
 		const char* path = "../../resources/textures/";
 		ss << path << "toon" << std::setw(2) << std::setfill('0') << i << ".bmp";
-		auto img = Image::Load(ss.str());
-		auto tex = MakeRef<Texture2D>(img->GetWidth(), img->GetHeight(), 
+		auto img = Image(ss.str());
+		auto tex = MakeRef<Texture2D>(img.GetWidth(), img.GetHeight(), 
 									  Graphics::TexFormat::RGBA8);
-		tex->SetSubImage(img->GetPixels(), 
+		tex->SetSubImage(img.GetPixels(), 
 						 Graphics::PixelType::UBYTE,
 						 Graphics::PixelFormat::RGBA,
-						 img->GetWidth(), img->GetHeight());
+						 img.GetWidth(), img.GetHeight());
 		GetDefaultTextures().push_back(tex);
 	}
 

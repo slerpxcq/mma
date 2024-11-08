@@ -14,11 +14,14 @@ public:
 		 Transform bindWorld) : 
 		SceneObject{ name },
 		m_bindLocal{ bindLocal },
-		m_bindWorld{ bindWorld } {}
+		m_bindWorldInv{ bindWorld.Inverse() } {}
+
+	Transform GetBindLocal() const { return m_bindLocal; }
+	Transform GetBindWorldInv() const { return m_bindWorldInv; }
 
 private:
 	Transform m_bindLocal{};
-	Transform m_bindWorld{};
+	Transform m_bindWorldInv{};
 };
 
 }

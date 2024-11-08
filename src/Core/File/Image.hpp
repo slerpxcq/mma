@@ -9,7 +9,7 @@ namespace mm
 class Image : public File, public RectObject
 {
 public:
-	Image(const Path& path);
+	explicit Image(const Path& path);
 	Byte* GetPixels() const { return m_pixels.get(); }
 	u32 GetWidth() const { return m_width; }
 	u32 GetHeight() const { return m_height; }

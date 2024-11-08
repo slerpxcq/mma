@@ -4,6 +4,16 @@
 namespace mm
 {
 
+void Node::OnUpdate(f32 deltaTime)
+{
+	for (auto& child : m_children) {
+		child->OnUpdate(deltaTime);
+	}
+	for (auto& obj : m_objects) {
+		obj->OnUpdate(deltaTime);
+	}
+}
+
 void Node::SetLocalTransform(const Transform& transform)
 {
 	m_localTransform = transform;

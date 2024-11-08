@@ -8,7 +8,7 @@ namespace mm
 {
 
 Image::Image(const Path& path) :
-	File{path}
+	File{ path }
 {
 	i32 x{}, y{}, ch{};
 	Byte* pixels = reinterpret_cast<Byte*>(stbi_load(path.string().c_str(), &x, &y, &ch, 4));

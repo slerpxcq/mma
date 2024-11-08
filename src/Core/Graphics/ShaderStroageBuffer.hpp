@@ -14,6 +14,8 @@ public:
 	using Buffer::SetStorage;
 	using Buffer::SetSubData;
 	using Buffer::SetBindBase;
+	using Buffer::Map;
+	using Buffer::Unmap;
 
 private:
 };

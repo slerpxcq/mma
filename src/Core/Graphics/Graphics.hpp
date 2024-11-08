@@ -29,6 +29,17 @@ public:
 	enum class TexFilter { LINEAR, NEAREST };
 	enum class BlendFactor { SRC_ALPHA, ONE_MINUS_SRC_ALPHA };
 	enum class DrawMode { TRIANGLES, LINES };
+	enum class BufferFlags {
+		NONE = 0,
+		MAP_READ_BIT = 1<<0,
+		MAP_WRITE_BIT = 1<<1,
+		DYNAMIC_STORAGE_BIT = 1<<2
+	};
+	enum class BufferAccess {
+		READ = 1<<0,
+		WRITE = 1<<1,
+		READ_WRITE = READ | WRITE
+	};
 
 public:
 	static u32 ToSize(Graphics::IndexType type);
@@ -48,10 +59,11 @@ public:
 
 	virtual void CreateBuffer(Buffer&) const = 0;
 	virtual void DeleteBuffer(Buffer&) const = 0;
-	// virtual void SetBufferData(const Buffer&, const void* data, u32 size) const = 0;
-	virtual void SetBufferStorage(const Buffer&, const void* data, u32 size, u32 flags = 0) const = 0;
+	virtual void SetBufferStorage(const Buffer&, const void* data, u32 size, BufferFlags flags = BufferFlags::NONE) const = 0;
 	virtual void SetBufferSubData(const Buffer&, const void* data, u32 size, u32 offset) const = 0;
 	virtual void SetBufferBindBase(const Buffer&, u32 base) const = 0;
+	virtual void* MapBuffer(const Buffer&, BufferAccess access) const = 0;
+	virtual void UnmapBuffer(const Buffer&) const = 0;
 
 	virtual void CreateVertexArray(VertexArray&) const = 0;
 	virtual void DeleteVertexArray(VertexArray&) const = 0;

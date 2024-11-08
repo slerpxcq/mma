@@ -19,6 +19,7 @@ class Node : public NamedObject
 public:
 	// virtual ~Node() = default;
 	Node(StringView name) : NamedObject{ name } {}
+	void OnUpdate(f32 deltaTime);
 
 	void SetLocalTransform(const Transform& transform);
 	void SetWorldTransform(const Transform& transform);
@@ -47,10 +48,10 @@ public:
 		return *m_children.back();
 	}
 
-	// void AttachObject(Ref<SceneObject> obj) {
-	// 	m_object = obj;
-	// 	obj->AttachTo(*this);
-	// }
+	void AttachObject(Ref<SceneObject> obj) {
+		obj->AttachTo(*this);
+		m_objects.push_back(obj);
+	}
 
 	void UpdateSubtreeWorldTransform();
 
@@ -65,7 +66,7 @@ private:
 	Transform m_localTransform{};
 	Transform m_worldTransform{};
 
-	Ref<SceneObject> m_object{};
+	DynArray<Ref<SceneObject>> m_objects{};
 };
 
 }

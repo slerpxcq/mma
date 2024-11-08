@@ -14,6 +14,8 @@ public:
 	SceneObject(StringView name) :
 		NamedObject{ name } {}
 
+	virtual void OnUpdate(f32 deltaTime) {}
+
 	Node* GetNode() const { return m_node; }
 	void AttachTo(Node& node) { m_node = &node; }
 

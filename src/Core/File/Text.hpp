@@ -8,7 +8,7 @@ namespace mm
 class Text : public File
 {
 public:
-	Text(const Path& path);
+	explicit Text(const Path& path);
 	const String& GetString() const { return m_string; }
 
 

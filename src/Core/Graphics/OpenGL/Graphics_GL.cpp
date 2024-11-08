@@ -21,6 +21,10 @@ static GLuint ToGLBufferTarget(Buffer::Target target)
 		return GL_ARRAY_BUFFER;
 	case Buffer::Target::INDEX:
 		return GL_ELEMENT_ARRAY_BUFFER;
+	case Buffer::Target::UNIFORM:
+		return GL_UNIFORM_BUFFER;
+	case Buffer::Target::SHADER_STORAGE:
+		return GL_SHADER_STORAGE_BUFFER;
 	default:
 		MM_CORE_UNINPLEMENTED();
 	}
@@ -174,6 +178,34 @@ static GLenum ToGLDrawMode(Graphics::DrawMode mode)
 	}
 }
 
+static GLbitfield ToGLBufferFlags(Graphics::BufferFlags flags)
+{
+	GLbitfield glflags{};
+	u32 tmp = static_cast<u32>(flags);
+	if (tmp & static_cast<u32>(Graphics::BufferFlags::MAP_READ_BIT))
+		glflags |= GL_MAP_READ_BIT;
+	if (tmp & static_cast<u32>(Graphics::BufferFlags::MAP_WRITE_BIT))
+		glflags |= GL_MAP_WRITE_BIT;
+	if (tmp & static_cast<u32>(Graphics::BufferFlags::DYNAMIC_STORAGE_BIT))
+		glflags |= GL_DYNAMIC_STORAGE_BIT;
+	return glflags;
+}
+
+static GLenum ToGLBufferAccess(Graphics::BufferAccess access)
+{
+	switch (access)
+	{
+	case Graphics::BufferAccess::READ:
+		return GL_READ_ONLY;
+	case Graphics::BufferAccess::WRITE:
+		return GL_WRITE_ONLY;
+	case Graphics::BufferAccess::READ_WRITE:
+		return GL_READ_WRITE;
+	default:
+		MM_CORE_UNREACHABLE();
+	}
+}
+
 void Graphics_GL::SetViewport(Vec2 size, Vec2 pos) const
 {
 	glViewport(pos.x, pos.y, size.x, size.y);
@@ -234,15 +266,10 @@ void Graphics_GL::DeleteBuffer(Buffer& buffer) const
 	MM_CORE_INFO("GL: buffer deleted; id={0}", buffer.GetID());
 }
 
-// void Graphics_GL::SetBufferData(const Buffer& buffer, const void* data, u32 size) const
-// {
-// 	glNamedBufferData(buffer.GetID(), size, data, GL_STATIC_DRAW);
-// }
-
-void Graphics_GL::SetBufferStorage(const Buffer& buffer, const void* data, u32 size, u32 flags) const
+void Graphics_GL::SetBufferStorage(const Buffer& buffer, const void* data, u32 size, BufferFlags flags) const
 {
 	// TODO: flags conversion 
-	glNamedBufferStorage(buffer.GetID(), size, data, 0);
+	glNamedBufferStorage(buffer.GetID(), size, data, ToGLBufferFlags(flags));
 }
 
 void Graphics_GL::SetBufferSubData(const Buffer& buffer, const void* data, u32 size, u32 offset) const
@@ -253,6 +280,16 @@ void Graphics_GL::SetBufferSubData(const Buffer& buffer, const void* data, u32 s
 void Graphics_GL::SetBufferBindBase(const Buffer& buffer, u32 base) const
 {
 	glBindBufferBase(ToGLBufferTarget(buffer.GetTarget()), base, buffer.GetID());
+}
+
+void* Graphics_GL::MapBuffer(const Buffer& buffer, BufferAccess access) const
+{
+	return glMapNamedBuffer(buffer.GetID(), ToGLBufferAccess(access));
+}
+
+void Graphics_GL::UnmapBuffer(const Buffer& buffer) const
+{
+	glUnmapNamedBuffer(buffer.GetID());
 }
 
 void Graphics_GL::CreateVertexArray(VertexArray& va) const
