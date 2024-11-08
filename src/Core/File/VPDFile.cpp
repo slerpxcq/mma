@@ -19,12 +19,12 @@ static void MatchAll(DynArray<String>& result, const String& str, const std::reg
 	}
 }
 
-Ref<VPDFile> VPDFile::Load(const Path& path)
+VPDFile::VPDFile(const Path& path) :
+	File{ path }
 {
-	auto vpd = MakeRef<VPDFile>(path);
-	auto src = Text::Load(path);
-	auto str = Locale::ShiftJISToUTF8(src->GetString().c_str(),
-									  src->GetString().size());
+	auto src = Text(path);
+	auto str = Locale::ShiftJISToUTF8(src.GetString().c_str(),
+									  src.GetString().size());
 
 	std::regex nameRegex{ "\\{.*$" };
 	/* NOTE: technically -?*\\d+\\.\\d+ is correct, but is extremelly slow 
@@ -48,12 +48,10 @@ Ref<VPDFile> VPDFile::Load(const Path& path)
 		f32 rW = std::atof(vals[7 * i + 6].c_str());
 		String& name = names[i];
 		name.erase(name.cbegin());
-		vpd->m_pose.insert({ name, 
+		m_pose.insert({ name, 
 						   Transform{ Vec3{ tX, tY, tZ }, 
 						              Quat{ rW, rX, rY, rZ }} });
 	}
-
-	return vpd;
 }
 
 Transform VPDFile::GetTransform(StringView boneName) const

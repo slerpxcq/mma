@@ -7,6 +7,7 @@ class CubicObject
 {
 public:
 	virtual ~CubicObject() = default;
+	CubicObject() = default;
 	CubicObject(u32 width, u32 height, u32 depth) :
 		m_width{width}, m_height{height}, m_depth{depth} {}
 

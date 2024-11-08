@@ -79,9 +79,13 @@ using Array = std::array<T, Size>;
 template <typename T>
 using InitList = std::initializer_list<T>;
 
-using RuntimeError = std::runtime_error;
 using Path = std::filesystem::path;
 
+using RuntimeError = std::runtime_error;
+struct FileLoadError : public RuntimeError 
+{
+	FileLoadError(const char* what) : RuntimeError{what} {}
+};
 
 
 }

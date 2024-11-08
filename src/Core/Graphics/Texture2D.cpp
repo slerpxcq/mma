@@ -8,9 +8,8 @@ namespace mm
 
 Texture2D::Texture2D(u32 width, u32 height, Graphics::TexFormat format) :
 	Texture{ Target::TEXTURE_2D },
-	m_format{ format },
-	m_width{ width },
-	m_height{ height }
+	RectObject{ width, height },
+	m_format{ format }
 {
 	auto gfx = GetGraphics();
 	gfx->TextureStorage2D(*this, width, height, format);

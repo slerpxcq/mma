@@ -1,17 +1,10 @@
 #pragma once
 
 #include "File.hpp"
-
 #include "Common/Locale.hpp"
-
-/* TODO: change to private access */
 
 namespace mm
 {
-struct PMXParseError : public RuntimeError
-{
-	PMXParseError(const char* what = "") : RuntimeError(what) {}
-};
 
 class PMXFile : public File
 {
@@ -323,8 +316,8 @@ public:
 	};
 
 public:
-	PMXFile(const Path& path) : File{ path } {}
-	static Ref<PMXFile> Load(const Path& path);
+	PMXFile(const Path& path);
+	//static Ref<PMXFile> Load(const Path& path);
 
 	const Header& GetHeader() const { return m_header; }
 	const Info& GetInfo() const { return m_info; }
@@ -339,18 +332,18 @@ public:
 	const auto& GetJoints() const { return m_joints; }
 
 private:
-	static String ParseText(const PMXFile&, InFileStream& stream);
-	static void ParseHeader(PMXFile&, InFileStream& stream);
-	static void ParseInfo(PMXFile&, InFileStream& stream);
-	static void ParseVertex(PMXFile&, InFileStream& stream);
-	static void ParseFace(PMXFile&, InFileStream& stream);
-	static void ParseTexture(PMXFile&, InFileStream& stream);
-	static void ParseMaterial(PMXFile&, InFileStream& stream);
-	static void ParseBone(PMXFile&, InFileStream& stream);
-	static void ParseMorph(PMXFile&, InFileStream& stream);
-	static void ParseFrame(PMXFile&, InFileStream& stream);
-	static void ParseRigidbody(PMXFile&, InFileStream& stream);
-	static void ParseJoint(PMXFile&, InFileStream& stream);
+	String ParseText(InFileStream& stream);
+	void ParseHeader(InFileStream& stream);
+	void ParseInfo(InFileStream& stream);
+	void ParseVertex(InFileStream& stream);
+	void ParseFace(InFileStream& stream);
+	void ParseTexture(InFileStream& stream);
+	void ParseMaterial(InFileStream& stream);
+	void ParseBone(InFileStream& stream);
+	void ParseMorph(InFileStream& stream);
+	void ParseFrame(InFileStream& stream);
+	void ParseRigidbody(InFileStream& stream);
+	void ParseJoint(InFileStream& stream);
 
 private:
 	Header              m_header{};

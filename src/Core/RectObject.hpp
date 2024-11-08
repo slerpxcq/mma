@@ -7,6 +7,7 @@ class RectObject
 {
 public:
 	virtual ~RectObject() = default;
+	RectObject() = default;
 	RectObject(u32 width, u32 height) :
 		m_width{width}, m_height{height} {}
 
