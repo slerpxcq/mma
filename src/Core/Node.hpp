@@ -4,11 +4,6 @@
 #include "NamedObject.hpp"
 #include "SceneObject.hpp"
 
-/* Note: 
- * To ensure world transform is calculated correctly, world transform of parent
- * node should be calculated correctly.
- */
-
 namespace mm
 {
 
@@ -33,7 +28,6 @@ public:
 	void TranslateWorld(const Vec3& translation);
 	void RotateLocal(const Quat& rotation);
 	void RotateWorld(const Quat& rotation);
-
 	Transform GetLocalTransform() const { return m_localTransform; }
 	Transform GetWorldTransform() const { return m_worldTransform; }
 	Mat4 GetLocalMatrix() const { return m_localTransform.ToMat4(); }
@@ -59,7 +53,6 @@ private:
 	void CalculateLocalTransform();
 
 private:
-	const String m_name{};
 	Node* m_parent{};
 	DynArray<Scoped<Node>> m_children{};
 

@@ -15,8 +15,6 @@ public:
 	Camera& GetCamera() { return *m_camera; }
 
 private:
-	u32 m_width{};
-	u32 m_height{};
 	Ref<Camera> m_camera{};
 	Ref<FrameBuffer> m_frameBuffer{};
 };

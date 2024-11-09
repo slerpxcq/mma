@@ -17,7 +17,7 @@ public:
 	virtual void OnUpdate(f32 deltaTime) {}
 
 	Node* GetNode() const { return m_node; }
-	void AttachTo(Node& node) { m_node = &node; }
+	virtual void AttachTo(Node& node) { m_node = &node; }
 
 protected:
 	Node* m_node{};

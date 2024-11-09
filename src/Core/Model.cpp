@@ -80,11 +80,9 @@ void Model::OnUpdate(f32)
 	UpdateSkinningBuffer();
 }
 
-Ref<Model> Model::Load(Node& node, const PMXFile& pmx)
+Ref<Model> Model::Load(const PMXFile& pmx)
 {
 	auto model = MakeRef<Model>(pmx.GetInfo().nameJP);
-	//model->AttachTo(node);
-	node.AttachObject(model);
 
 	/* Load vertices and indices */
 	auto va = LoadVertexArray(pmx);
@@ -136,15 +134,7 @@ Ref<Model> Model::Load(Node& node, const PMXFile& pmx)
 			glm::make_vec3(pb.position) :
 			glm::make_vec3(pb.position) - glm::make_vec3(pmx.GetBones()[pb.parentIndex].position),
 			glm::identity<Quat>() };
-		auto bone = MakeRef<Bone>(pb.nameJP, bindLocal, bindWorld);
-		if (pb.parentIndex < 0) {
-			node.AttachObject(bone);
-			node.SetWorldTransform(bindWorld);
-		} else {
-			auto& boneNode = bones[pb.parentIndex]->GetNode()->AddChild(pb.nameJP + "_node");
-			boneNode.AttachObject(bone);
-			boneNode.SetWorldTransform(bindWorld);
-		}
+		auto bone = MakeRef<Bone>(pb.nameJP, pb.parentIndex, bindLocal, bindWorld);
 		model->m_boneNameIndexMap.insert({ pb.nameJP, index });
 		bones.push_back(std::move(bone));
 		++index;
@@ -156,6 +146,21 @@ Ref<Model> Model::Load(Node& node, const PMXFile& pmx)
 	model->m_skinningBuffer->SetBindBase(0);
 
 	return std::move(model);
+}
+
+void Model::AttachTo(Node& node)
+{
+	SceneObject::AttachTo(node);
+	for (auto& b : m_bones) {
+		if (b->GetParentIndex() < 0) {
+			node.AttachObject(b);
+			node.SetWorldTransform(b->GetBindWorld());
+		} else {
+			auto& boneNode = m_bones[b->GetParentIndex()]->GetNode()->AddChild(b->GetName());
+			boneNode.AttachObject(b);
+			boneNode.SetWorldTransform(b->GetBindWorld());
+		}
+	}
 }
 
 void Model::LoadPose(const VPDFile& vpd)

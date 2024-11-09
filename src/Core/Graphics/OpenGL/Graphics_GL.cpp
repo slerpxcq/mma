@@ -257,13 +257,13 @@ void Graphics_GL::SetBlendFunc(BlendFactor src, BlendFactor dst) const
 void Graphics_GL::CreateBuffer(Buffer& buffer) const
 {
 	glCreateBuffers(1, buffer.GetIDPtr());
-	MM_CORE_INFO("GL: buffer created; id={0}", buffer.GetID());
+	MM_CORE_TRACE("GL: buffer created; id={0}", buffer.GetID());
 }
 
 void Graphics_GL::DeleteBuffer(Buffer& buffer) const
 {
 	glDeleteBuffers(1, buffer.GetIDPtr());
-	MM_CORE_INFO("GL: buffer deleted; id={0}", buffer.GetID());
+	MM_CORE_TRACE("GL: buffer deleted; id={0}", buffer.GetID());
 }
 
 void Graphics_GL::SetBufferStorage(const Buffer& buffer, const void* data, u32 size, BufferFlags flags) const
@@ -295,13 +295,13 @@ void Graphics_GL::UnmapBuffer(const Buffer& buffer) const
 void Graphics_GL::CreateVertexArray(VertexArray& va) const
 {
 	glCreateVertexArrays(1, va.GetIDPtr());
-	MM_CORE_INFO("GL: vertex array created; id={0}", va.GetID());
+	MM_CORE_TRACE("GL: vertex array created; id={0}", va.GetID());
 }
 
 void Graphics_GL::DeleteVertexArray(VertexArray& va) const
 {
 	glDeleteVertexArrays(1, va.GetIDPtr());
-	MM_CORE_INFO("GL: vertex array deleted; id={0}", va.GetID());
+	MM_CORE_TRACE("GL: vertex array deleted; id={0}", va.GetID());
 }
 
 void Graphics_GL::SetIndexBuffer(const VertexArray& va, const IndexBuffer& ib) const
@@ -350,13 +350,13 @@ void Graphics_GL::DrawArrays(DrawMode mode, u32 begin, u32 count) const
 void Graphics_GL::CreateTexture(Texture& tex) const
 {
 	glCreateTextures(ToGLTexTarget(tex.GetTarget()), 1, tex.GetIDPtr());
-	MM_CORE_INFO("GL: texture created; id={0}", tex.GetID());
+	MM_CORE_TRACE("GL: texture created; id={0}", tex.GetID());
 }
 
 void Graphics_GL::DeleteTexture(Texture& tex) const
 {
 	glDeleteTextures(1, tex.GetIDPtr());
-	MM_CORE_INFO("GL: texture deleted; id={0}", tex.GetID());
+	MM_CORE_TRACE("GL: texture deleted; id={0}", tex.GetID());
 }
 
 void Graphics_GL::BindTexture(const Texture& tex, u32 unit) const
@@ -417,13 +417,13 @@ void Graphics_GL::SetTextureWrap2D(const Texture2D& tex, TexWrap u, TexWrap v) c
 void Graphics_GL::CreateFrameBuffer(FrameBuffer& fb) const
 {
 	glCreateFramebuffers(1, fb.GetIDPtr());
-	MM_CORE_INFO("GL: frame buffer created; id={0}", fb.GetID());
+	MM_CORE_TRACE("GL: frame buffer created; id={0}", fb.GetID());
 }
 
 void Graphics_GL::DeleteFrameBuffer(FrameBuffer& fb) const
 {
 	glDeleteFramebuffers(1, fb.GetIDPtr());
-	MM_CORE_INFO("GL: frame buffer deleted; id={0}", fb.GetID());
+	MM_CORE_TRACE("GL: frame buffer deleted; id={0}", fb.GetID());
 }
 
 void Graphics_GL::FrameBufferTexture(const FrameBuffer& fb, const Texture& tex, AttachmentType attachment, u32 index, u32 level) const
@@ -488,7 +488,7 @@ Opt<String> Graphics_GL::CreateShader(Shader& shader, StringView source, ShaderT
 		glGetShaderInfoLog(id, len, nullptr, &msg[0]);
 		return msg;
 	} else {
-		MM_CORE_INFO("GL: shader created; id={0}", id);
+		MM_CORE_TRACE("GL: shader created; id={0}", id);
 		return std::nullopt;
 	}
 }
@@ -496,7 +496,7 @@ Opt<String> Graphics_GL::CreateShader(Shader& shader, StringView source, ShaderT
 void Graphics_GL::DeleteShader(Shader& shader) const
 {
 	glDeleteShader(shader.GetID());
-	MM_CORE_INFO("GL: shader deleted; id={0}", shader.GetID());
+	MM_CORE_TRACE("GL: shader deleted; id={0}", shader.GetID());
 }
 
 void Graphics_GL::AttachShader(const Program& program, const Shader& shader) const
@@ -507,13 +507,13 @@ void Graphics_GL::AttachShader(const Program& program, const Shader& shader) con
 void Graphics_GL::CreateProgram(Program& program) const
 {
 	*program.GetIDPtr() = glCreateProgram();
-	MM_CORE_INFO("GL: program created; id={0}", program.GetID());
+	MM_CORE_TRACE("GL: program created; id={0}", program.GetID());
 }
 
 void Graphics_GL::DeleteProgram(Program& program) const
 {
 	glDeleteProgram(program.GetID());
-	MM_CORE_INFO("GL: program deleted; id={0}", program.GetID());
+	MM_CORE_TRACE("GL: program deleted; id={0}", program.GetID());
 }
 
 Opt<String> Graphics_GL::LinkProgram(const Program& program) const

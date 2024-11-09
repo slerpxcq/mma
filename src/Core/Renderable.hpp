@@ -13,7 +13,7 @@ public:
 	Renderable(Ref<Material> mat) :
 		m_material{ mat } {}
 
-	virtual void Render(/*Renderer&*/) = 0;
+	virtual void Render() = 0;
 	const Material& GetMaterial() const { return *m_material; }
 
 private:

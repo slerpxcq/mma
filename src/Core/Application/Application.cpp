@@ -76,6 +76,8 @@ void Application::Startup()
 	SetMainViewport(new Viewport{ camera, fb });
 
 	// Load grid shader 
+	// auto irg = rm->CreateGroup("internal_resource_group");
+	// auto text = rm->CreateResource<Text>("text", "internal_resource_group", path);
 	auto gridVsSrc = Text("../../resources/shaders/grid.vert");
 	auto gridFsSrc = Text("../../resources/shaders/grid.frag");
 	auto gridVs = MakeRef<Shader>(gridVsSrc.GetString(), Graphics::ShaderType::VERTEX);
@@ -123,7 +125,6 @@ void Application::Shutdown()
 	GetDefaultProgram().reset();
 
 	delete GetMainViewport();
-	// delete GetMainFrameBuffer();
 	delete GetRenderer();
 	delete GetSceneManager();
 	delete GetInputManager();

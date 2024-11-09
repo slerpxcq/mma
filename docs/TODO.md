@@ -91,15 +91,17 @@
 # 2024/11/6
 - [x] Change PMXFile access permission -> private
 - [x] SceneHierarchy panel
-    - [ ] Visitor
 - [x] Load bones
-- [ ] Skinning 
-    - [ ] Shader storage buffer
-    - [ ] VPDFile class
+
+# 2024/11/8
+- [x] Skinning 
+    - [x] Shader storage buffer
+    - [x] VPDFile class
+
+# 2024/11/9
 
 --- 
 # TO BE DONE:
-Nodes are only placeholders for position calculation
 Loading:
 - [ ] Load armature (as nodes or ~~component?~~)
 - [ ] Load rigidbodies (as nodes or component?)
