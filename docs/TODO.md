@@ -103,7 +103,6 @@
 --- 
 # TO BE DONE:
 Loading:
-- [ ] Load armature (as nodes or ~~component?~~)
 - [ ] Load rigidbodies (as nodes or component?)
 
 

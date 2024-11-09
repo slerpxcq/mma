@@ -19,7 +19,7 @@ public:
 	virtual void OnUpdate(f32) override;
 
 	/* BEGIN TEST CODE */
-	void AttachTo(Node& node) override;
+	void AttachTo(Node* node) override;
 	void LoadPose(const VPDFile& vpd);
 	void UpdateSkinningBuffer();
 	/* BEGIN END CODE */
@@ -28,7 +28,7 @@ private:
 	Ref<Mesh> m_mesh;
 	Ref<ShaderStroageBuffer> m_skinningBuffer{};
 	HashMap<String, i32> m_boneNameIndexMap;
-	DynArray<Ref<Bone>> m_bones{};
+	DynArray<Bone*> m_bones{};
 };
 
 }

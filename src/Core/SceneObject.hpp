@@ -11,13 +11,16 @@ class SceneObject : public NamedObject
 {
 public:
 	virtual ~SceneObject() = default;
+
+	/* NOTE: Should not be called directly */
+	/* Use SceneManager::AddObject */
 	SceneObject(StringView name) :
 		NamedObject{ name } {}
 
 	virtual void OnUpdate(f32 deltaTime) {}
 
 	Node* GetNode() const { return m_node; }
-	virtual void AttachTo(Node& node) { m_node = &node; }
+	virtual void AttachTo(Node* node) { m_node = node; }
 
 protected:
 	Node* m_node{};

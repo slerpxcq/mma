@@ -37,11 +37,12 @@ EditorLayer::EditorLayer(const Window& window) :
 
 	/* BEGIN TEST CODE */
 	// Load model
-	auto& root = GetSceneManager()->GetRootNode();
+	auto sm = GetSceneManager();
+	auto root = sm->GetRootNode();
 	auto pmx =  PMXFile("../../resources/model/つみ式ミクさん/000 ミクさん.pmx");
-	auto& modelNode = root.AddChild("model_node");
-	auto model = MakeRef<Model>(pmx);
-	modelNode.AttachObject(model);
+	auto modelNode = root->AddChild("model_node");
+	auto model = sm->CreateObject<Model>(pmx);
+	modelNode->AttachObject(model);
 	auto vpd = VPDFile("../../resources/motion/Standing 1 -Stellas Shoujo Walk.vpd");
 	model->LoadPose(vpd);
 	/* END TEST CODE */

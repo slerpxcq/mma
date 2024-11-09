@@ -10,7 +10,7 @@
 namespace mm
 {
 
-Viewport::Viewport(Ref<Camera> camera, Ref<FrameBuffer> fb) :
+Viewport::Viewport(Camera* camera, Ref<FrameBuffer> fb) :
 	m_camera{ camera }, m_frameBuffer{ fb }
 {
 	MM_CORE_ASSERT(camera);

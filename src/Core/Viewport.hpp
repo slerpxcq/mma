@@ -9,13 +9,13 @@ namespace mm
 class Viewport
 {
 public:
-	Viewport(Ref<Camera> camera, Ref<FrameBuffer> fb);
+	Viewport(Camera* camera, Ref<FrameBuffer> fb);
 	Mat4 GetMatrix() const;
 	FrameBuffer& GetFrameBuffer() { return *m_frameBuffer; }
 	Camera& GetCamera() { return *m_camera; }
 
 private:
-	Ref<Camera> m_camera{};
+	Camera* m_camera{};
 	Ref<FrameBuffer> m_frameBuffer{};
 };
 

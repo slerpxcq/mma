@@ -83,13 +83,9 @@ void Model::OnUpdate(f32)
 Model::Model(const PMXFile& pmx) :
 	SceneObject{ pmx.GetInfo().nameJP }
 {
-	/* Load vertices and indices */
 	auto va = LoadVertexArray(pmx);
-
-	/* Load mesh */
 	m_mesh = MakeRef<Mesh>(m_name, va);
 
-	/* Load textures */
 	DynArray<Ref<Texture>> textures{};
 	textures.reserve(pmx.GetTextures().size());
 	for (const auto& pt : pmx.GetTextures()) {
@@ -104,7 +100,6 @@ Model::Model(const PMXFile& pmx) :
 		textures.push_back(std::move(tex));
 	}
 
-	/* Load sub-meshes */
 	u32 offset{ 0 };
 	for (const auto& pm : pmx.GetMaterials()) {
 		auto tex = pm.textureIndex < 0 ? 
@@ -115,14 +110,14 @@ Model::Model(const PMXFile& pmx) :
 			flags |= static_cast<u32>(Material::Flags::NO_CULL_BIT);
 		}
 		auto material = Ref<Material>(new Material{ pm.nameJP,
-									  { std::make_pair(Material::MapType::ALBEDO, tex) },
+									  { MakePair(Material::MapType::ALBEDO, tex) },
 									  GetDefaultProgram(),
 									  flags });
 		m_mesh->AddSubMesh(pm.nameJP, material, offset, pm.elementCount);
 		offset += pm.elementCount;
 	}
 
-	/* Load bones */
+	auto sm = GetSceneManager();
 	m_bones.reserve(pmx.GetBones().size());
 	i32 index{0};
 	for (const auto& pb : pmx.GetBones()) {
@@ -131,29 +126,29 @@ Model::Model(const PMXFile& pmx) :
 			glm::make_vec3(pb.position) :
 			glm::make_vec3(pb.position) - glm::make_vec3(pmx.GetBones()[pb.parentIndex].position),
 			glm::identity<Quat>() };
-		auto bone = MakeRef<Bone>(pb.nameJP, pb.parentIndex, bindLocal, bindWorld);
+		auto bone = sm->CreateObject<Bone>(pb.nameJP, pb.parentIndex, bindLocal, bindWorld);
 		m_boneNameIndexMap.insert({ pb.nameJP, index });
-		m_bones.push_back(std::move(bone));
+		m_bones.push_back(bone);
 		++index;
 	}
 	m_skinningBuffer = MakeRef<ShaderStroageBuffer>();
 	m_skinningBuffer->SetStorage(nullptr,
-										m_bones.size() * sizeof(Mat4),
-										Graphics::BufferFlags::MAP_WRITE_BIT);
+								 m_bones.size() * sizeof(Mat4),
+								 Graphics::BufferFlags::MAP_WRITE_BIT);
 	m_skinningBuffer->SetBindBase(0);
 }
 
-void Model::AttachTo(Node& node)
+void Model::AttachTo(Node* node)
 {
 	SceneObject::AttachTo(node);
 	for (auto& b : m_bones) {
 		if (b->GetParentIndex() < 0) {
-			node.AttachObject(b);
-			node.SetWorldTransform(b->GetBindWorld());
+			node->AttachObject(b);
+			node->SetWorldTransform(b->GetBindWorld());
 		} else {
-			auto& boneNode = m_bones[b->GetParentIndex()]->GetNode()->AddChild(b->GetName());
-			boneNode.AttachObject(b);
-			boneNode.SetWorldTransform(b->GetBindWorld());
+			auto boneNode = m_bones[b->GetParentIndex()]->GetNode()->AddChild(b->GetName());
+			boneNode->AttachObject(b);
+			boneNode->SetWorldTransform(b->GetBindWorld());
 		}
 	}
 }

@@ -36,14 +36,14 @@ public:
 	auto& GetChildren() { return m_children; }
 	Node* SearchChild(StringView name);
 
-	Node& AddChild(StringView name) {
+	Node* AddChild(StringView name) {
 		m_children.emplace_back(new Node{ name });
 		m_children.back()->m_parent = this;
-		return *m_children.back();
+		return m_children.back().get();
 	}
 
-	void AttachObject(Ref<SceneObject> obj) {
-		obj->AttachTo(*this);
+	void AttachObject(SceneObject* obj) {
+		obj->AttachTo(this);
 		m_objects.push_back(obj);
 	}
 
@@ -55,11 +55,11 @@ private:
 private:
 	Node* m_parent{};
 	DynArray<Scoped<Node>> m_children{};
+	DynArray<SceneObject*> m_objects{};
 
 	Transform m_localTransform{};
 	Transform m_worldTransform{};
 
-	DynArray<Ref<SceneObject>> m_objects{};
 };
 
 }

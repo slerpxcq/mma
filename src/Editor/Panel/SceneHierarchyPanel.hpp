@@ -17,7 +17,7 @@ public:
 	virtual void OnRender() override;
 
 private:
-	void Visit(Node& node);
+	void Visit(Node* node);
 
 private:
 	u32 m_itemID{};

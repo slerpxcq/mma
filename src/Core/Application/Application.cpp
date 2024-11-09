@@ -66,27 +66,24 @@ void Application::Startup()
 	SetRenderer(new Renderer{});
 
 	auto sm = GetSceneManager();
-	auto& cameraNode = sm->GetRootNode().AddChild("camera_node");
-	auto camera = MakeRef<Camera>("camera");
-	cameraNode.AttachObject(camera);
-	cameraNode.SetWorldTranslation({ 0, 10, 20 });
+	auto cameraNode = sm->GetRootNode()->AddChild("camera_node");
+	// auto camera = MakeRef<Camera>("camera");
+	auto camera = sm->CreateObject<Camera>("camera");
+	cameraNode->AttachObject(camera);
+	cameraNode->SetWorldTranslation({ 0, 10, 20 });
 	auto fb = Ref<FrameBuffer>{ new FrameBuffer{1024, 1024,
 					   { { Graphics::AttachmentType::COLOR, 0, Graphics::TexFormat::RGBA8 },
 						 { Graphics::AttachmentType::DEPTH, 0, Graphics::TexFormat::D24S8 } }} };
 	SetMainViewport(new Viewport{ camera, fb });
 
 	// Load grid shader 
-	// auto irg = rm->CreateGroup("internal_resource_group");
-	// auto text = rm->CreateResource<Text>("text", "internal_resource_group", path);
 	auto gridVsSrc = Text("../../resources/shaders/grid.vert");
 	auto gridFsSrc = Text("../../resources/shaders/grid.frag");
 	auto gridVs = MakeRef<Shader>(gridVsSrc.GetString(), Graphics::ShaderType::VERTEX);
 	auto gridFs = MakeRef<Shader>(gridFsSrc.GetString(), Graphics::ShaderType::FRAGMENT);
 	auto gridProg = Ref<Program>(new Program{ gridVs, gridFs });
 	auto gridMat = Ref<Material>(new Material{ "grid_material", {}, gridProg });
-	auto& grid = sm->AddRenderable<Grid>(gridMat);
-	// auto grid = MakeRef<Grid>(gridMat);
-	// sm->AttachRenderable(grid);
+	sm->CreateRenderable<Grid>(gridMat);
 
 	// Load default shader
 	auto vsSrc = Text("../../resources/shaders/test.vert");

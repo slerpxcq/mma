@@ -12,20 +12,20 @@ class SceneManager
 public:
 	SceneManager() : m_rootNode(MakeScoped<Node>("Root")) {}
 
-	Node& GetRootNode() { return *m_rootNode; }
+	Node* GetRootNode() const { return m_rootNode.get(); }
 
 	template <typename T, typename... Args>
-	T& AddRenderable(Args&&... args) {
-		auto renderable = Ref<T>(new T{ std::forward<Args>(args)... });
-		m_renderables.push_back(renderable);
-		return *renderable;
+	T* CreateRenderable(Args&&... args) {
+		auto renderable = Scoped<T>(new T{ std::forward<Args>(args)... });
+		m_renderables.push_back(std::move(renderable));
+		return static_cast<T*>(m_renderables.back().get());
 	}
 
 	template <typename T, typename... Args>
-	T& AddCamera(Args&&... args) {
-		auto camera = Ref<T>(new T{ std::forward<Args>(args)... });
-		m_cameras.push_back(camera);
-		return *camera;
+	T* CreateObject(Args&&... args) {
+		auto obj = Scoped<T>(new T{ std::forward<Args>(args)... });
+		m_objects.push_back(std::move(obj));
+		return static_cast<T*>(m_objects.back().get());
 	}
 
 	void Update(f32 deltaTime);
@@ -35,8 +35,8 @@ private:
 
 private:
 	const Scoped<Node> m_rootNode{};
-	DynArray<Ref<Renderable>> m_renderables{};
-	DynArray<Ref<Camera>> m_cameras{};
+	DynArray<Scoped<SceneObject>> m_objects{};
+	DynArray<Scoped<Renderable>> m_renderables{};
 };
 
 }
