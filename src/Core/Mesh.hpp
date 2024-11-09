@@ -5,13 +5,13 @@
 
 namespace mm
 {
-
-class Mesh : public Resource
+// TODO: Change base class to Resource
+class Mesh : public NamedObject
 {
 public:
 	Mesh(StringView name, 
 		 Ref<VertexArray> va) : 
-		Resource{ name },
+		NamedObject{ name },
 		m_vertexArray{ va } {}
 
 	const VertexArray& GetVertexArray() const { return *m_vertexArray; }

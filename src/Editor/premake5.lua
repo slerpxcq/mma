@@ -21,8 +21,8 @@ project "Editor"
         "%{wks.location}/%{IncDir.EventBus}",
         "%{wks.location}/%{IncDir.icu4c}",
         "%{wks.location}/%{IncDir.yaml}",
-        "src",
-        "../"
+        "../",
+		"."
     }
 
     postbuildcommands {

@@ -1,13 +1,14 @@
 #pragma once
 
-#include "Resource.hpp"
+#include "NamedObject.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/Program.hpp"
 
 namespace mm
 {
 
-class Material : public Resource
+// TODO: Change to Resource
+class Material : public NamedObject 
 {
 public:
 	enum class MapType { ALBEDO };
@@ -21,7 +22,7 @@ public:
 			 InitList<Pair<MapType, Ref<Texture>>> maps,
 			 Ref<Program> program,
 			 u32 flags = 0) :
-		Resource{ name },
+		NamedObject{ name },
 		m_program{ program },
 		m_maps{ maps.begin(), maps.end() } {
 	}

@@ -80,15 +80,14 @@ void Model::OnUpdate(f32)
 	UpdateSkinningBuffer();
 }
 
-Ref<Model> Model::Load(const PMXFile& pmx)
+Model::Model(const PMXFile& pmx) :
+	SceneObject{ pmx.GetInfo().nameJP }
 {
-	auto model = MakeRef<Model>(pmx.GetInfo().nameJP);
-
 	/* Load vertices and indices */
 	auto va = LoadVertexArray(pmx);
 
 	/* Load mesh */
-	model->m_mesh = MakeRef<Mesh>(model->GetName(), va);
+	m_mesh = MakeRef<Mesh>(m_name, va);
 
 	/* Load textures */
 	DynArray<Ref<Texture>> textures{};
@@ -107,7 +106,6 @@ Ref<Model> Model::Load(const PMXFile& pmx)
 
 	/* Load sub-meshes */
 	u32 offset{ 0 };
-	auto mesh = model->m_mesh;
 	for (const auto& pm : pmx.GetMaterials()) {
 		auto tex = pm.textureIndex < 0 ? 
 			GetDefaultTextures()[0] :
@@ -120,13 +118,12 @@ Ref<Model> Model::Load(const PMXFile& pmx)
 									  { std::make_pair(Material::MapType::ALBEDO, tex) },
 									  GetDefaultProgram(),
 									  flags });
-		mesh->AddSubMesh(pm.nameJP, material, offset, pm.elementCount);
+		m_mesh->AddSubMesh(pm.nameJP, material, offset, pm.elementCount);
 		offset += pm.elementCount;
 	}
 
 	/* Load bones */
-	auto& bones = model->m_bones;
-	bones.reserve(pmx.GetBones().size());
+	m_bones.reserve(pmx.GetBones().size());
 	i32 index{0};
 	for (const auto& pb : pmx.GetBones()) {
 		Transform bindWorld = { glm::make_vec3(pb.position), glm::identity<Quat>() };
@@ -135,17 +132,15 @@ Ref<Model> Model::Load(const PMXFile& pmx)
 			glm::make_vec3(pb.position) - glm::make_vec3(pmx.GetBones()[pb.parentIndex].position),
 			glm::identity<Quat>() };
 		auto bone = MakeRef<Bone>(pb.nameJP, pb.parentIndex, bindLocal, bindWorld);
-		model->m_boneNameIndexMap.insert({ pb.nameJP, index });
-		bones.push_back(std::move(bone));
+		m_boneNameIndexMap.insert({ pb.nameJP, index });
+		m_bones.push_back(std::move(bone));
 		++index;
 	}
-	model->m_skinningBuffer = MakeRef<ShaderStroageBuffer>();
-	model->m_skinningBuffer->SetStorage(nullptr,
-										bones.size() * sizeof(Mat4),
+	m_skinningBuffer = MakeRef<ShaderStroageBuffer>();
+	m_skinningBuffer->SetStorage(nullptr,
+										m_bones.size() * sizeof(Mat4),
 										Graphics::BufferFlags::MAP_WRITE_BIT);
-	model->m_skinningBuffer->SetBindBase(0);
-
-	return std::move(model);
+	m_skinningBuffer->SetBindBase(0);
 }
 
 void Model::AttachTo(Node& node)
