@@ -2,7 +2,6 @@
 
 #include "Common/Math/Transform.hpp"
 #include "SceneObject.hpp"
-#include "InverseKinematicData.hpp"
 
 namespace mm
 {
@@ -10,9 +9,34 @@ namespace mm
 class Bone : public SceneObject
 {
 public:
-	struct BoneConstructInfo {
+	struct AssignmentInfo
+	{
+		enum Type : u8 {
+			TRANSLATION = 1<<0,
+			ROTATION = 1<<1,
+		};
+
+		Bone* target{};
+		f32 ratio{};
+		u8 type{};
+	};
+
+	struct InverseKinematicsInfo
+	{
+		struct Node {
+			Bone* bone{};
+			bool hasLimit{};
+			Vec3 upperLimit{};
+			Vec3 lowerLimit{};
+		};
+
+		i32 iteration{};
+		f32 unitAngle{};
+		DynArray<Node> link;
+	};
+
+	struct ConstructInfo {
 		StringView name;
-		i32 parentIndex;
 		u32 transformLayer;
 		u32 flags;
 		Transform bindLocal;
@@ -25,36 +49,42 @@ public:
 		MOVEABLE_BIT = (1U << 2),
 		VISIBLE_BIT = (1U << 3),
 		OPERABLE_BIT = (1U << 4),
-		IK_BIT = (1U << 5),
-		ASSIGN_LOCAL_BIT = (1U << 7),
-		ASSIGN_ROTATION_BIT = (1U << 8),
-		ASSIGN_MOVE_BIT = (1U << 9),
 		FIXED_AXIS_BIT = (1U << 10),
 		LOCAL_AXIS_BIT = (1U << 11),
 		AFTER_PHYSICS_BIT = (1U << 12),
 		EXTERNAL_PARENT_BIT = (1U << 13),
 	};
 public:
-	Bone(BoneConstructInfo info) : 
+	Bone(ConstructInfo info) : 
 		SceneObject{ info.name },
-		m_parentIndex{ info.parentIndex },
 		m_bindLocal{ info.bindLocal },
-		m_bindWorldInv{ info.bindWorld.Inverse() },
+		m_bindWorld{ info.bindWorld },
 		m_flags{ info.flags },
 		m_transformLayer{ info.transformLayer } {}
 
-	i32 GetParentIndex() const { return m_parentIndex; }
+	void SetParent(Bone* parent) { m_parent = parent; }
+	Bone* GetParent() const { return m_parent; }
+	u32 GetTransformLayer() const { return m_transformLayer; }
 	u32 GetFlags() const { return m_flags; }
 	Transform GetBindLocal() const { return m_bindLocal; }
-	Transform GetBindWorld() const { return m_bindWorldInv.Inverse(); }
-	Transform GetBindWorldInv() const { return m_bindWorldInv; }
+	Transform GetBindWorld() const { return m_bindWorld; }
+	void SetAnimLocal(const Transform& transform);
+	Transform GetAnimLocal() const { return m_animLocal; }
+	Transform GetBindWorldInverse() const { return m_bindWorld.Inverse(); }
+	const auto& GetAssignmentInfo() const { return m_assignmentInfo; }
+	void SetAssignmentInfo(const AssignmentInfo& info) { m_assignmentInfo = info; }
+	const auto& GetInverseKinematicsInfo() const { return m_inverseKinematicsInfo; }
+	void SetInverseKinematicsInfo(const InverseKinematicsInfo& info) { m_inverseKinematicsInfo = info; }
 
 private:
-	i32 m_parentIndex{};
+	Bone* m_parent{};
 	u32 m_transformLayer{};
 	u32 m_flags{};
 	Transform m_bindLocal{};
-	Transform m_bindWorldInv{};
+	Transform m_animLocal{};
+	Transform m_bindWorld{};
+	Opt<AssignmentInfo> m_assignmentInfo;
+	Opt<InverseKinematicsInfo> m_inverseKinematicsInfo;
 };
 
 }

@@ -4,25 +4,28 @@
 namespace mm
 {
 
-void Node::OnUpdate(f32 deltaTime)
-{
-	for (auto& child : m_children) {
-		child->OnUpdate(deltaTime);
-	}
-	for (auto& obj : m_objects) {
-		obj->OnUpdate(deltaTime);
-	}
-}
+// void Node::OnUpdate(f32 deltaTime)
+// {
+// 	for (auto& child : m_children) {
+// 		child->OnUpdate(deltaTime);
+// 	}
+// 	for (auto& obj : m_objects) {
+// 		obj->OnUpdate(deltaTime);
+// 	}
+// }
 
 void Node::SetLocalTransform(const Transform& transform)
 {
 	m_localTransform = transform;
+	InvalidateSubtreeWorldTransform();
 }
 
 void Node::SetWorldTransform(const Transform& transform)
 {
 	m_worldTransform = transform;
 	CalculateLocalTransform();
+	InvalidateSubtreeWorldTransform();
+	m_isWorldTransformValid = true;
 }
 
 void Node::SetWorldTranslation(const Vec3& translation)
@@ -75,22 +78,39 @@ void Node::RotateWorld(const Quat& rotation)
 	SetWorldTransform(rotation * m_worldTransform);
 }
 
-void Node::UpdateSubtreeWorldTransform()
+Transform Node::GetWorldTransform() 
 {
+	if (!m_isWorldTransformValid) {
+		if (m_parent) {
+			m_worldTransform = m_parent->GetWorldTransform() * m_localTransform;
+		} else {
+			m_worldTransform = m_localTransform;
+		}
+		m_isWorldTransformValid = true;
+	}
+	return m_worldTransform;
+}
+
+// void Node::UpdateSubtreeWorldTransform()
+// {
+// 	for (auto& child : m_children) {
+// 		child->m_worldTransform = m_worldTransform * child->m_localTransform;
+// 		child->UpdateSubtreeWorldTransform();
+// 	}
+// }
+
+void Node::InvalidateSubtreeWorldTransform()
+{
+	m_isWorldTransformValid = false;
 	for (auto& child : m_children) {
-		/* TODO: Check multiplication order */
-		child->m_worldTransform = m_worldTransform * child->m_localTransform;
-		// child->m_worldTransform = child->m_localTransform * m_worldTransform ;
-		child->UpdateSubtreeWorldTransform();
+		child->InvalidateSubtreeWorldTransform();
 	}
 }
 
 void Node::CalculateLocalTransform()
 {
 	if (m_parent) {
-		Transform localToWorld = m_parent->m_worldTransform;
-		m_localTransform = localToWorld.Inverse() * m_worldTransform;
-		// m_localTransform = localToWorld * m_worldTransform * localToWorld.Inverse();
+		m_localTransform = m_parent->GetWorldTransform().Inverse() * m_worldTransform;
 	} else {
 		m_localTransform = m_worldTransform;
 	}

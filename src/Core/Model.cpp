@@ -114,11 +114,6 @@ static void LoadSubMeshes(const PMXFile& pmx, const DynArray<Ref<Texture>>& text
 	}
 }
 
-void Model::OnUpdate(f32)
-{
-	UpdateSkinningBuffer();
-}
-
 Model::Model(const PMXFile& pmx) :
 	SceneObject{ pmx.GetInfo().nameJP }
 {
@@ -134,11 +129,11 @@ void Model::AttachTo(Node* node)
 {
 	SceneObject::AttachTo(node);
 	for (auto& bone : m_armature->GetBones()) {
-		if (bone->GetParentIndex() < 0) {
+		if (!bone->GetParent()) {
 			node->AttachObject(bone);
 			node->SetWorldTransform(bone->GetBindWorld());
 		} else {
-			auto parentNode = m_armature->GetBones()[bone->GetParentIndex()]->GetNode();
+			auto parentNode = bone->GetParent()->GetNode();
 			auto boneNode = parentNode->AddChild(bone->GetName());
 			boneNode->AttachObject(bone);
 			boneNode->SetWorldTransform(bone->GetBindWorld());
@@ -148,25 +143,12 @@ void Model::AttachTo(Node* node)
 
 void Model::LoadPose(const VPDFile& vpd)
 {
-	auto& pose = vpd.GetPose();
-	auto& map = m_armature->GetBoneNameIndexMap();
-	auto& bones = m_armature->GetBones();
-	for (auto t : pose) {
-		auto it = map.find(t.first);
-		if (it != map.end()) {
-			auto& bone = bones[it->second];
-			bone->GetNode()->SetLocalTransform(t.second * bone->GetBindLocal());
-		}
-	}
+	m_armature->LoadPose(vpd.GetPose());
 }
 
 void Model::UpdateSkinningBuffer()
 {
-	Mat4* ptr = reinterpret_cast<Mat4*>(m_armature->GetSkinningBuffer().Map(Graphics::BufferAccess::WRITE));
-	for (auto& bone : m_armature->GetBones()) {
-		*ptr++ = bone->GetNode()->GetWorldMatrix() * bone->GetBindWorldInv().ToMat4();
-	}
-	m_armature->GetSkinningBuffer().Unmap();
+	m_armature->UpdateSkinningBuffer();
 }
 
 }

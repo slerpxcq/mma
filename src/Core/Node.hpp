@@ -9,12 +9,13 @@ namespace mm
 
 class SceneObject;
 
+/* NOTE: world transform calculation needs to be updated manually. */
+
 class Node : public NamedObject
 {
 public:
-	// virtual ~Node() = default;
 	Node(StringView name) : NamedObject{ name } {}
-	void OnUpdate(f32 deltaTime);
+	//void OnUpdate(f32 deltaTime);
 
 	void SetLocalTransform(const Transform& transform);
 	void SetWorldTransform(const Transform& transform);
@@ -29,9 +30,9 @@ public:
 	void RotateLocal(const Quat& rotation);
 	void RotateWorld(const Quat& rotation);
 	Transform GetLocalTransform() const { return m_localTransform; }
-	Transform GetWorldTransform() const { return m_worldTransform; }
-	Mat4 GetLocalMatrix() const { return m_localTransform.ToMat4(); }
-	Mat4 GetWorldMatrix() const { return m_worldTransform.ToMat4(); }
+	Transform GetWorldTransform();
+	Mat4 GetLocalMatrix() const { return GetLocalTransform().ToMat4(); }
+	Mat4 GetWorldMatrix() { return GetWorldTransform().ToMat4(); }
 
 	auto& GetChildren() { return m_children; }
 	Node* SearchChild(StringView name);
@@ -47,9 +48,8 @@ public:
 		m_objects.push_back(obj);
 	}
 
-	void UpdateSubtreeWorldTransform();
-
 private:
+	void InvalidateSubtreeWorldTransform();
 	void CalculateLocalTransform();
 
 private:
@@ -57,9 +57,9 @@ private:
 	DynArray<Scoped<Node>> m_children{};
 	DynArray<SceneObject*> m_objects{};
 
+	bool m_isWorldTransformValid{ true };
 	Transform m_localTransform{};
 	Transform m_worldTransform{};
-
 };
 
 }

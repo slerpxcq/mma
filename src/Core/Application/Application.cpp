@@ -70,7 +70,6 @@ void Application::Startup()
 
 	auto sm = GetSceneManager();
 	auto cameraNode = sm->GetRootNode()->AddChild("camera_node");
-	// auto camera = MakeRef<Camera>("camera");
 	auto camera = sm->CreateObject<Camera>("camera");
 	cameraNode->AttachObject(camera);
 	cameraNode->SetWorldTranslation({ 0, 10, 20 });

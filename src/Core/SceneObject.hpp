@@ -12,8 +12,8 @@ class SceneObject : public NamedObject
 public:
 	virtual ~SceneObject() = default;
 
-	/* NOTE: Should not be called directly */
-	/* Use SceneManager::CreateObject */
+	/* NOTE: Should not be called directly;
+	*        Use SceneManager::CreateObject */
 	SceneObject(StringView name) :
 		NamedObject{ name } {}
 

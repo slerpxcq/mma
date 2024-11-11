@@ -6,7 +6,6 @@
 #include "Armature.hpp"
 
 #include "Graphics/ShaderStroageBuffer.hpp"
-#include "InverseKinematicData.hpp"
 
 namespace mm
 {
@@ -19,10 +18,10 @@ class Model : public SceneObject
 public:
 	Model(const PMXFile& pmx);
 
-	virtual void OnUpdate(f32) override;
+	// virtual void OnUpdate(f32) override;
+	void AttachTo(Node* node) override;
 
 	/* BEGIN TEST CODE */
-	void AttachTo(Node* node) override;
 	void LoadPose(const VPDFile& vpd);
 	void UpdateSkinningBuffer();
 	/* BEGIN END CODE */

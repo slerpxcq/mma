@@ -6,8 +6,8 @@ namespace mm
 
 void SceneManager::Update(f32 deltaTime)
 {
-	m_rootNode->UpdateSubtreeWorldTransform();
-	m_rootNode->OnUpdate(deltaTime);
+	// m_rootNode->UpdateSubtreeWorldTransform();
+	// m_rootNode->OnUpdate(deltaTime);
 }
 
 void SceneManager::Render()

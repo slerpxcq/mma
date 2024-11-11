@@ -39,16 +39,6 @@ public:
 		return { -glm::rotate(rotInv, translation), rotInv };
 	}
 
-	Transform operator*(float s) const {
-		return { s * translation,
-			 glm::slerp(glm::identity<glm::quat>(), rotation, s) };
-	}
-
-	Transform operator*(const Transform& rhs) const {
-		return { glm::rotate(this->rotation, rhs.translation) + this->translation,
-			 this->rotation * rhs.rotation };
-	}
-
 	String ToString() const {
 		return glm::to_string(translation) + "\n" + glm::to_string(rotation);
 	}
@@ -61,26 +51,59 @@ public:
 		return glm::translate(glm::mat4(1.f), translation) * glm::toMat4(rotation);
 	}
 
-	friend inline bool operator==(const Transform& lhs, const Transform& rhs) {
-		return (lhs.translation == rhs.translation) && (lhs.rotation == rhs.rotation);
-	}
-
-	friend inline Transform operator+(const Transform& t, const Vec3& v) {
-		return { t.translation + v, t.rotation };
-	}
-
-	friend inline Transform operator+(const Vec3& v, const Transform& t) {
-		return { t.translation + v, t.rotation };
-	}
-
-	friend inline Transform operator*(const Transform& t, const Quat& q) {
-		return t * Transform{ Vec3{0}, q };
-	}
-
-	friend inline Transform operator*(const Quat& q, const Transform& t) {
-		return Transform{ Vec3{0}, q } * t;
-	}
 };
+
+inline Transform operator*(const Transform& lhs, float s) 
+{
+	return { s * lhs.translation,
+		     glm::slerp(glm::identity<Quat>(), lhs.rotation, s) };
+}
+
+inline Transform operator*(float s, const Transform& rhs) 
+{
+	return rhs * s;
+}
+
+inline Transform operator/(const Transform& lhs, float s) 
+{
+	return lhs * (1.f/s);
+}
+
+inline Transform operator*(const Transform& lhs, const Transform& rhs)  
+{
+	return { glm::rotate(lhs.rotation, rhs.translation) + lhs.translation,
+		 lhs.rotation * rhs.rotation };
+}
+
+inline bool operator==(const Transform& lhs, const Transform& rhs) 
+{
+	return (lhs.translation == rhs.translation) && (lhs.rotation == rhs.rotation);
+}
+
+inline bool operator!=(const Transform& lhs, const Transform& rhs) 
+{
+	return !(lhs == rhs);
+}
+
+inline Transform operator+(const Transform& t, const Vec3& v) 
+{
+	return { t.translation + v, t.rotation };
+}
+
+inline Transform operator+(const Vec3& v, const Transform& t) 
+{
+	return { t.translation + v, t.rotation };
+}
+
+inline Transform operator*(const Transform& t, const Quat& q) 
+{
+	return t * Transform{ Vec3{0}, q };
+}
+
+inline Transform operator*(const Quat& q, const Transform& t) 
+{
+	return Transform{ Vec3{0}, q } * t;
+}
 
 }
 
