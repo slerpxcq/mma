@@ -5,7 +5,6 @@
 
 namespace mm
 {
-// TODO: Change base class to Resource
 class Mesh : public NamedObject
 {
 public:
@@ -15,11 +14,11 @@ public:
 		m_vertexArray{ va } {}
 
 	const VertexArray& GetVertexArray() const { return *m_vertexArray; }
-	void AddSubMesh(StringView name, Ref<Material> mat, u32 begin, u32 count);
+	void CreateSubMesh(StringView name, Ref<Material> mat, u32 begin, u32 count);
 
 private:
 	Ref<VertexArray> m_vertexArray{};
-	DynArray<Ref<SubMesh>> m_subMeshes{};
+	DynArray<SubMesh*> m_subMeshes{};
 };
 
 }

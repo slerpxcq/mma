@@ -17,14 +17,12 @@ void Node::OnUpdate(f32 deltaTime)
 void Node::SetLocalTransform(const Transform& transform)
 {
 	m_localTransform = transform;
-	// UpdateSubtreeWorldTransform();
 }
 
 void Node::SetWorldTransform(const Transform& transform)
 {
 	m_worldTransform = transform;
 	CalculateLocalTransform();
-	// UpdateSubtreeWorldTransform();
 }
 
 void Node::SetWorldTranslation(const Vec3& translation)

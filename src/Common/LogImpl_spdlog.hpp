@@ -18,6 +18,7 @@ public:
 	LogImpl_spdlog(const char* name) :
 		m_logger{ spdlog::default_logger()->clone(name) } {
 		m_logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] %v"); 
+		m_logger->set_level(spdlog::level::trace);
 	}
 
 	FORWARD_SPDLOG(Trace, trace)

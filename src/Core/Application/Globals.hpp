@@ -24,8 +24,8 @@ MM_GLOBAL_OBJECT(Viewport*, MainViewport)
 /* BEGIN TEST CODE */
 MM_GLOBAL_OBJECT(SceneManager*, SceneManager)
 MM_GLOBAL_OBJECT(Renderer*, Renderer)
-MM_GLOBAL_OBJECT(Ref<Program>, DefaultProgram)
-MM_GLOBAL_OBJECT(DynArray<Ref<Texture>>, DefaultTextures)
+// MM_GLOBAL_OBJECT(Ref<Program>, DefaultProgram)
+// MM_GLOBAL_OBJECT(DynArray<Ref<Texture>>, DefaultTextures)
 /* END TEST CODE */
 
 };

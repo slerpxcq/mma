@@ -13,7 +13,7 @@ public:
 	virtual ~SceneObject() = default;
 
 	/* NOTE: Should not be called directly */
-	/* Use SceneManager::AddObject */
+	/* Use SceneManager::CreateObject */
 	SceneObject(StringView name) :
 		NamedObject{ name } {}
 

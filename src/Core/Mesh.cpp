@@ -6,10 +6,10 @@
 namespace mm
 {
 
-void Mesh::AddSubMesh(StringView name, Ref<Material> mat, u32 begin, u32 count) 
+void Mesh::CreateSubMesh(StringView name, Ref<Material> mat, u32 begin, u32 count) 
 {
 	auto sm = GetSceneManager();
-	sm->CreateRenderable<SubMesh>(name, m_vertexArray, mat, count, begin);
+	m_subMeshes.push_back(sm->CreateRenderable<SubMesh>(name, m_vertexArray, mat, count, begin));
 }
 
 }

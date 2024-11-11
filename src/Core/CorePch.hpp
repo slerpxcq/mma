@@ -11,6 +11,9 @@
 
 #include "Common/Memory.hpp"
 
+#include "Common/Math/Transform.hpp"
+#include "Common/Math/Cast.hpp"
+
 #include "Application/Globals.hpp"
 
 

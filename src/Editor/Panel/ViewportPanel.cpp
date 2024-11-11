@@ -29,7 +29,7 @@ void ViewportPanel::OnRender()
 	Panel::OnBegin();
 
 	if (m_viewport) {
-		ImGui::Image(reinterpret_cast<void*>(m_viewport->GetFrameBuffer().GetID()),
+		ImGui::Image(reinterpret_cast<void*>(m_viewport->GetFrameBuffer().GetAttachment(Graphics::AttachmentType::COLOR, 0)->GetID()),
 					 ImVec2(m_contentSize.x, m_contentSize.y),
 					 ImVec2(0, 1), ImVec2(1, 0));
 	} else {

@@ -43,7 +43,7 @@ void FrameBuffer::AddAttachment(Attachment attachment)
 						 std::make_pair(attachment, std::move(tex)) });
 }
 
-const Texture2D* FrameBuffer::GetAttachment(Graphics::AttachmentType attachment, u32 index) const
+Texture2D* FrameBuffer::GetAttachment(Graphics::AttachmentType attachment, u32 index) const
 {
 	auto it = m_attachments.find(ToKey(attachment, index));
 	if (it == m_attachments.end()) {

@@ -64,6 +64,9 @@ void Application::Startup()
 	SetInputManager(new InputManager{});
 	SetSceneManager(new SceneManager{});
 	SetRenderer(new Renderer{});
+	auto rdr = GetRenderer();
+	rdr->LoadInternalTextures();
+	rdr->LoadDefaultProgram();
 
 	auto sm = GetSceneManager();
 	auto cameraNode = sm->GetRootNode()->AddChild("camera_node");
@@ -85,28 +88,6 @@ void Application::Startup()
 	auto gridMat = Ref<Material>(new Material{ "grid_material", {}, gridProg });
 	sm->CreateRenderable<Grid>(gridMat);
 
-	// Load default shader
-	auto vsSrc = Text("../../resources/shaders/test.vert");
-	auto fsSrc = Text("../../resources/shaders/test.frag");
-	auto vs = MakeRef<Shader>(vsSrc.GetString(), Graphics::ShaderType::VERTEX);
-	auto fs = MakeRef<Shader>(fsSrc.GetString(), Graphics::ShaderType::FRAGMENT);
-	SetDefaultProgram(Ref<Program>(new Program{ vs, fs }));
-
-	// Load default textures 
-	for (i32 i = 0; i <= 10; ++i) {
-		std::stringstream ss{};
-		const char* path = "../../resources/textures/";
-		ss << path << "toon" << std::setw(2) << std::setfill('0') << i << ".bmp";
-		auto img = Image(ss.str());
-		auto tex = MakeRef<Texture2D>(img.GetWidth(), img.GetHeight(), 
-									  Graphics::TexFormat::RGBA8);
-		tex->SetSubImage(img.GetPixels(), 
-						 Graphics::PixelType::UBYTE,
-						 Graphics::PixelFormat::RGBA,
-						 img.GetWidth(), img.GetHeight());
-		GetDefaultTextures().push_back(tex);
-	}
-
 	RegisterCallbacks();
 
 	m_layerStack.EmplaceBack<CoreLayer>();
@@ -118,8 +99,8 @@ void Application::Shutdown()
 {
 	MM_CORE_INFO("Application shutting down...");
 
-	GetDefaultTextures().clear();
-	GetDefaultProgram().reset();
+	//GetDefaultTextures().clear();
+	//GetDefaultProgram().reset();
 
 	delete GetMainViewport();
 	delete GetRenderer();

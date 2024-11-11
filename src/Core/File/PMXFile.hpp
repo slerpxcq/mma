@@ -37,7 +37,7 @@ public:
 		EXTERNAL_PARENT_BIT = (1U << 13),
 	};
 
-	enum class MaterialFlag : u8 {
+	enum MaterialFlag : u8 {
 		NO_CULL_BIT = 1 << 0,
 		GROUND_SHADOW_BIT = 1 << 1,
 		SELF_SHADOW_MAP_BIT = 1 << 2,

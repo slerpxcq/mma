@@ -99,9 +99,17 @@
     - [x] VPDFile class
 
 # 2024/11/9
+- [x] Changed node and SceneObject ownership
+
+# 2024/11/11
 
 --- 
-# TO BE DONE:
+# TODO
+IK
+Transform assignment 
+
+Bone transform edit/Gizmo
+
 Loading:
 - [ ] Load rigidbodies (as nodes or component?)
 

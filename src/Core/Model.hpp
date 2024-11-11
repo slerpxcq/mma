@@ -3,7 +3,10 @@
 #include "Mesh.hpp"
 #include "Bone.hpp"
 #include "SceneObject.hpp"
+#include "Armature.hpp"
+
 #include "Graphics/ShaderStroageBuffer.hpp"
+#include "InverseKinematicData.hpp"
 
 namespace mm
 {
@@ -26,9 +29,7 @@ public:
 
 private:
 	Ref<Mesh> m_mesh;
-	Ref<ShaderStroageBuffer> m_skinningBuffer{};
-	HashMap<String, i32> m_boneNameIndexMap;
-	DynArray<Bone*> m_bones{};
+	Scoped<Armature> m_armature;
 };
 
 }

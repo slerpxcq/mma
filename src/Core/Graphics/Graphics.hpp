@@ -29,7 +29,7 @@ public:
 	enum class TexFilter { LINEAR, NEAREST };
 	enum class BlendFactor { SRC_ALPHA, ONE_MINUS_SRC_ALPHA };
 	enum class DrawMode { TRIANGLES, LINES };
-	enum class BufferFlags {
+	enum BufferFlags {
 		NONE = 0,
 		MAP_READ_BIT = 1<<0,
 		MAP_WRITE_BIT = 1<<1,
