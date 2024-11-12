@@ -92,7 +92,7 @@ void Application::Startup()
 
 	RegisterCallbacks();
 
-	m_layerStack.EmplaceBack<CoreLayer>();
+	m_layerStack.Push<CoreLayer>();
 
 	MM_CORE_INFO("Application started");
 }

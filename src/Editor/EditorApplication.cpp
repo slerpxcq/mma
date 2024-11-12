@@ -10,7 +10,7 @@ void EditorApplication::Startup()
 {
 	Application::Startup();
 
-	m_layerStack.EmplaceBack<EditorLayer>(m_window);
+	m_layerStack.Push<EditorLayer>(m_window);
 }
 
 void EditorApplication::Shutdown()

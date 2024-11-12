@@ -8,6 +8,13 @@
 namespace mm
 {
 
+void Panel::OnUpdate(f32 deltaTime)
+{
+	for (auto& overlay : m_overlays)  {
+		overlay->OnUpdate(deltaTime);
+	}
+}
+
 void Panel::OnBegin()
 {
 	m_focused = ImGui::IsWindowFocused();
@@ -25,6 +32,13 @@ void Panel::OnBegin()
 		m_resized = true;
 	} else {
 		m_resized = false;
+	}
+}
+
+void Panel::OnEnd()
+{
+	for (auto& overlay : m_overlays) {
+		overlay->OnRender();
 	}
 }
 

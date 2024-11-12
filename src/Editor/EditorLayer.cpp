@@ -4,6 +4,8 @@
 #include "Panel/ViewportPanel.hpp"
 #include "Panel/MenuBarPanel.hpp"
 #include "Panel/SceneHierarchyPanel.hpp"
+#include "Panel/PoseEditorOverlay.hpp"
+#include "Panel/CameraControllerOverlay.hpp"
 
 /* BEGIN TEST INCLUDE */
 #include "Core/SceneManager.hpp"
@@ -31,6 +33,8 @@ EditorLayer::EditorLayer(const Window& window) :
 {
 	auto vp = MakeScoped<ViewportPanel>("Viewport");
 	vp->SetViewport(GetMainViewport());
+	vp->PushOverlay<CameraControllerOverlay>("Camera Controller Overlay");
+	vp->PushOverlay<PoseEditorOverlay>("Pose Editor Overlay");
 	m_panels.push_back(std::move(vp));
 	m_panels.push_back(MakeScoped<MenuBarPanel>());
 	m_panels.push_back(MakeScoped<SceneHierarchyPanel>());
@@ -46,10 +50,6 @@ EditorLayer::EditorLayer(const Window& window) :
 	auto vpd = VPDFile("../../resources/motion/Standing 1 -Stellas Shoujo Walk.vpd");
 	model->LoadPose(vpd);
 	/* END TEST CODE */
-}
-
-EditorLayer::~EditorLayer()
-{
 }
 
 void EditorLayer::OnUpdate(f32 deltaTime)

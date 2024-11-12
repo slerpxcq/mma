@@ -12,7 +12,7 @@ public:
 	void OnRender();
 
 	template <typename T, typename... Args>
-	void EmplaceBack(Args&&... args) {
+	void Push(Args&&... args) {
 		m_layers.push_back(MakeScoped<T>(std::forward<Args>(args)...));
 	}
 

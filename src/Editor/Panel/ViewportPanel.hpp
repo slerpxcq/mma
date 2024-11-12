@@ -9,11 +9,17 @@ namespace mm
 class ViewportPanel : public Panel
 {
 public:
-	ViewportPanel(const String& name) : Panel{ name } {}
-	virtual void OnUpdate(f32 deltaTime) override; 
-	virtual void OnRender() override;
+	ViewportPanel(const String& name) : 
+		Panel{ name } {}
+
+	void OnUpdate(f32 deltaTime) override; 
+	void OnRender() override;
+
 	void SetViewport(Viewport* vp) { m_viewport = vp; }
-	void UpdateCamera() const;
+	Viewport* GetViewport() const { return m_viewport; }
+
+private:
+	//void UpdateCamera() const;
 
 private:
 	Viewport* m_viewport{};

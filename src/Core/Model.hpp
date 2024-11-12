@@ -22,6 +22,7 @@ public:
 	void AttachTo(Node* node) override;
 
 	/* BEGIN TEST CODE */
+	Armature* GetArmature() const { return m_armature.get(); }
 	void LoadPose(const VPDFile& vpd);
 	void UpdateSkinningBuffer();
 	/* BEGIN END CODE */
