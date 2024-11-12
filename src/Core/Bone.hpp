@@ -22,9 +22,9 @@ public:
 		u8 type{};
 	};
 
-
 	struct ConstructInfo {
 		StringView name;
+		i32 index;
 		u32 transformLayer;
 		u32 flags;
 		Transform bindLocal;
@@ -42,6 +42,11 @@ public:
 		AFTER_PHYSICS_BIT = (1U << 12),
 		EXTERNAL_PARENT_BIT = (1U << 13),
 	};
+
+	union TipInfo {
+		Bone* bone;
+		Vec3 offset;
+	};
 public:
 	Bone(ConstructInfo info) : 
 		SceneObject{ info.name },
@@ -50,8 +55,12 @@ public:
 		m_flags{ info.flags },
 		m_transformLayer{ info.transformLayer } {}
 
+	i32 GetIndex() const { return m_index; }
 	void SetParent(Bone* parent) { m_parent = parent; }
 	Bone* GetParent() const { return m_parent; }
+	void SetTipBone(Bone* bone) { m_tipInfo.bone = bone; }
+	void SetTipOffset(const Vec3& offset) { m_tipInfo.offset = offset; }
+	TipInfo GetTipInfo() const { return m_tipInfo; }
 	u32 GetTransformLayer() const { return m_transformLayer; }
 	u32 GetFlags() const { return m_flags; }
 	Transform GetBindLocal() const { return m_bindLocal; }
@@ -65,7 +74,9 @@ public:
 	void SetInverseKinematicsInfo(const InverseKinematicsInfo& info) { m_inverseKinematicsInfo = info; }
 
 private:
+	i32 m_index{};
 	Bone* m_parent{};
+	TipInfo m_tipInfo{};
 	u32 m_transformLayer{};
 	u32 m_flags{};
 	Transform m_bindLocal{};

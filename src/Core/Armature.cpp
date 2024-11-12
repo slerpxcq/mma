@@ -71,6 +71,7 @@ void Armature::LoadBonesPass1(const PMXFile& pmx)
 			glm::make_vec3(pb.position) - glm::make_vec3(pmx.GetBones()[pb.parentIndex].position),
 			glm::identity<Quat>() };
 		info.name = pb.nameJP;
+		info.index = index;
 		info.flags = pb.flags;
 		info.transformLayer = pb.transformationLayer;
 		info.bindLocal = bindLocal;
@@ -88,6 +89,12 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 	i32 index{};
 	for (auto& pb : pmx.GetBones()) {
 		auto& bone = m_bones[index];
+		if ((pb.flags & PMXFile::BoneFlag::CONNECTED_BIT) &&
+			(pb.connetcionEnd.boneIndex >= 0)) {
+			bone->SetTipBone(m_bones[pb.connetcionEnd.boneIndex]);
+		} else {
+			bone->SetTipOffset(glm::make_vec3(pb.connetcionEnd.position));
+		}
 		if (pb.flags & PMXFile::BoneFlag::IK_BIT) {
 			InverseKinematicsInfo ikInfo{};
 			ikInfo.iteration = pb.ik.iteration;

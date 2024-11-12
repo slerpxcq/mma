@@ -11,6 +11,7 @@ namespace mm
 
 void PropertiesPanel::OnUpdate(f32 deltaTime)
 {
+	Panel::OnUpdate(deltaTime);
 }
 
 void PropertiesPanel::OnRender()
@@ -18,6 +19,7 @@ void PropertiesPanel::OnRender()
 	auto sm = GetSceneManager();
 	ImGui::Begin(m_name.c_str());
 	Panel::OnBegin();
+	Panel::OnEnd();
 	ImGui::End();
 }
 

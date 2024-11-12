@@ -11,6 +11,8 @@ class Panel : public NamedObject
 public:
 	Panel(StringView name) :
 		NamedObject{ name } {}
+	Panel(const Panel&) = delete;
+	Panel(Panel&&) = default;
 	virtual ~Panel() = default;
 	virtual void OnUpdate(f32 deltaTime);
 	virtual void OnRender() = 0;
@@ -23,6 +25,7 @@ public:
 	bool IsResized() const { return m_resized; }
 	Vec2 GetContentSize() const { return m_contentSize; }
 	Vec2 GetWindowSize() const { return m_windowSize; }
+	Vec2 GetWindowPos() const { return m_windowPos; }
 	Vec2 GetContentMax() const { return m_contentMax; }
 	Vec2 GetContentMin() const { return m_contentMin; }
 	Vec2 GetContentPos() const { return m_contentPos; }
@@ -38,6 +41,7 @@ protected:
 	bool m_resized{};
 	Vec2 m_contentSize{};
 	Vec2 m_windowSize{};
+	Vec2 m_windowPos{};
 	Vec2 m_contentMax{};
 	Vec2 m_contentMin{};
 	Vec2 m_contentPos{};

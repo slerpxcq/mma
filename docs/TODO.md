@@ -105,7 +105,8 @@
 - [x] Transform assignment 
 
 # 2024/11/12
-- [ ] IK
+- [x] IK solver
+- [ ] PoseEditorOverlay
 
 --- 
 # TODO

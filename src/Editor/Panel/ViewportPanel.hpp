@@ -19,9 +19,6 @@ public:
 	Viewport* GetViewport() const { return m_viewport; }
 
 private:
-	//void UpdateCamera() const;
-
-private:
 	Viewport* m_viewport{};
 };
 

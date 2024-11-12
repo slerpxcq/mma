@@ -5,6 +5,7 @@
 
 namespace mm
 {
+
 void Bone::SetAnimLocal(const Transform& transform)
 {
 	m_animLocal = transform;
