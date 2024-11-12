@@ -31,11 +31,9 @@ public:
 	void RotateWorld(const Quat& rotation);
 	Transform GetLocalTransform() const { return m_localTransform; }
 	Quat GetLocalRotation() const { return m_localTransform.rotation; }
-	Vec3 GetLocalTranslation() const { return m_localTransform.translation; }
+
 	Transform GetWorldTransform();
-	Quat GetWorldRotation() { return GetWorldTransform().rotation; }
-	Vec3 GetWorldTranslation() { return GetWorldTransform().translation; }
-	Mat4 GetLocalMatrix() const { return GetLocalTransform().ToMat4(); } 
+	Mat4 GetLocalMatrix() const { return GetLocalTransform().ToMat4(); }
 	Mat4 GetWorldMatrix() { return GetWorldTransform().ToMat4(); }
 
 	auto& GetChildren() { return m_children; }

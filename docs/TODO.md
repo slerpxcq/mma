@@ -102,11 +102,13 @@
 - [x] Changed node and SceneObject ownership
 
 # 2024/11/11
+- [x] Transform assignment 
+
+# 2024/11/12
+- [ ] IK
 
 --- 
 # TODO
-IK
-Transform assignment 
 
 Bone transform edit/Gizmo
 

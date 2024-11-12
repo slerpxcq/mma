@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/Math/Transform.hpp"
+#include "InverseKinematics/InverseKinematicsInfo.hpp"
 #include "SceneObject.hpp"
 
 namespace mm
@@ -21,19 +22,6 @@ public:
 		u8 type{};
 	};
 
-	struct InverseKinematicsInfo
-	{
-		struct Node {
-			Bone* bone{};
-			bool hasLimit{};
-			Vec3 upperLimit{};
-			Vec3 lowerLimit{};
-		};
-
-		i32 iteration{};
-		f32 unitAngle{};
-		DynArray<Node> link;
-	};
 
 	struct ConstructInfo {
 		StringView name;
@@ -68,9 +56,9 @@ public:
 	u32 GetFlags() const { return m_flags; }
 	Transform GetBindLocal() const { return m_bindLocal; }
 	Transform GetBindWorld() const { return m_bindWorld; }
+	Transform GetBindWorldInverse() const { return m_bindWorld.Inverse(); }
 	void SetAnimLocal(const Transform& transform);
 	Transform GetAnimLocal() const { return m_animLocal; }
-	Transform GetBindWorldInverse() const { return m_bindWorld.Inverse(); }
 	const auto& GetAssignmentInfo() const { return m_assignmentInfo; }
 	void SetAssignmentInfo(const AssignmentInfo& info) { m_assignmentInfo = info; }
 	const auto& GetInverseKinematicsInfo() const { return m_inverseKinematicsInfo; }
@@ -81,8 +69,8 @@ private:
 	u32 m_transformLayer{};
 	u32 m_flags{};
 	Transform m_bindLocal{};
-	Transform m_animLocal{};
 	Transform m_bindWorld{};
+	Transform m_animLocal{};
 	Opt<AssignmentInfo> m_assignmentInfo;
 	Opt<InverseKinematicsInfo> m_inverseKinematicsInfo;
 };

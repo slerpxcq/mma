@@ -5,6 +5,9 @@
 #include "File/PMXFile.hpp"
 #include "Bone.hpp"
 
+#include "InverseKinematics/InverseKinematicsInfo.hpp"
+#include "InverseKinematics/InverseKinematicsSolver.hpp"
+
 namespace mm
 {
 
@@ -28,6 +31,7 @@ static bool IsCurrentLayer(Bone* bone, u32 layer, bool afterPhysics)
 void Armature::Update()
 {
 	for (u32 layer = 0; layer < m_maxTransformLayer; ++layer) {
+		UpdateInverseKinematics(layer, false);
 		UpdateAssignment(layer, false);
 	}
 	UpdateSkinningBuffer();
@@ -85,17 +89,17 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 	for (auto& pb : pmx.GetBones()) {
 		auto& bone = m_bones[index];
 		if (pb.flags & PMXFile::BoneFlag::IK_BIT) {
-			Bone::InverseKinematicsInfo ikInfo{};
+			InverseKinematicsInfo ikInfo{};
 			ikInfo.iteration = pb.ik.iteration;
 			ikInfo.unitAngle = pb.ik.unitAngle;
 			ikInfo.link.reserve(pb.ik.link.size() + 1);
 			/* End effector */
-			Bone::InverseKinematicsInfo::Node node{};
+			InverseKinematicsInfo::Node node{};
 			node.bone = m_bones[pb.ik.targetIndex];
 			node.hasLimit = false;
 			ikInfo.link.push_back(node);
 			for (auto& pn : pb.ik.link) {
-				Bone::InverseKinematicsInfo::Node node{};
+				InverseKinematicsInfo::Node node{};
 				node.bone = m_bones[pn.boneIndex];
 				node.hasLimit = pn.doLimit;
 				node.lowerLimit = glm::make_vec3(pn.limit[0]);
@@ -119,6 +123,19 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 			bone->SetParent(m_bones[pb.parentIndex]);
 		}
 		++index;
+	}
+}
+
+void Armature::UpdateInverseKinematics(u32 layer, bool afterPhysics)
+{
+	for (auto& bone : m_bones) {
+		if (IsCurrentLayer(bone, layer, afterPhysics)) {
+			auto info = bone->GetInverseKinematicsInfo();
+			if (info) {
+				auto solver = GetInverseKinematicsSolver();
+				solver->Solve(*info, bone);
+			}
+		}
 	}
 }
 

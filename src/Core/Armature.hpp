@@ -25,13 +25,13 @@ public:
 private:
 	void LoadBonesPass1(const PMXFile& pmx);
 	void LoadBonesPass2(const PMXFile& pmx);
+	void UpdateInverseKinematics(u32 layer, bool afterPhysics);
 	void UpdateAssignment(u32 layer, bool afterPhysics);
 
 private:
 	u32 m_maxTransformLayer{};
 	DynArray<Bone*> m_bones;
 	HashMap<String, i32> m_boneNameIndexMap;
-	// HashMap<i32, InverseKinematicsData> m_ikData;
 
 	ShaderStroageBuffer m_skinningBuffer{};
 };

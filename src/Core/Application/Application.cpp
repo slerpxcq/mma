@@ -22,6 +22,8 @@
 #include "Graphics/Program.hpp"
 #include "Graphics/Texture2D.hpp"
 
+#include "InverseKinematics/InverseKinematicsSolverCCD.hpp"
+
 #include "Node.hpp"
 
 namespace mm
@@ -64,6 +66,7 @@ void Application::Startup()
 	SetInputManager(new InputManager{});
 	SetSceneManager(new SceneManager{});
 	SetRenderer(new Renderer{});
+	SetInverseKinematicsSolver(new InverseKinematicsSolverCCD{});
 	auto rdr = GetRenderer();
 	rdr->LoadInternalTextures();
 	rdr->LoadDefaultProgram();
@@ -98,9 +101,7 @@ void Application::Shutdown()
 {
 	MM_CORE_INFO("Application shutting down...");
 
-	//GetDefaultTextures().clear();
-	//GetDefaultProgram().reset();
-
+	delete GetInverseKinematicsSolver();
 	delete GetMainViewport();
 	delete GetRenderer();
 	delete GetSceneManager();
