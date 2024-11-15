@@ -17,13 +17,21 @@ Viewport::Viewport(Camera* camera, Ref<FrameBuffer> fb) :
 	MM_CORE_ASSERT(fb);
 }
 
-Mat4 Viewport::GetMatrix() const
+Mat4 Viewport::GetViewProjectionMatrix() const
 {
-	Mat4 view = glm::inverse(m_camera->GetNode()->GetWorldMatrix());
-	Mat4 proj = glm::perspective(m_camera->GetFOV(),
-								 m_frameBuffer->GetAspect(),
-								 m_camera->GetNear(), m_camera->GetFar());
-	return proj * view;
+	return GetProjectionMatrix() * GetViewMatrix();
+}
+
+Mat4 Viewport::GetViewMatrix() const
+{
+	return glm::inverse(m_camera->GetNode()->GetWorldMatrix());
+}
+
+Mat4 Viewport::GetProjectionMatrix() const
+{
+	return glm::perspective(m_camera->GetFOV(),
+							m_frameBuffer->GetAspect(),
+							m_camera->GetNear(), m_camera->GetFar());
 }
 
 }

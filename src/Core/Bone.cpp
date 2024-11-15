@@ -9,7 +9,13 @@ namespace mm
 void Bone::SetAnimLocal(const Transform& transform)
 {
 	m_animLocal = transform;
-	m_node->SetLocalTransform(transform * m_bindLocal);
+	m_node->SetLocalTransform(m_bindLocal * transform);
+}
+
+Transform Bone::GetAnimLocal() 
+{
+	m_animLocal = m_bindLocal.Inverse() * m_node->GetLocalTransform();
+	return m_animLocal;
 }
 
 }

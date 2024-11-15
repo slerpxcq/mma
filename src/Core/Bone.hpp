@@ -10,11 +10,10 @@ namespace mm
 class Bone : public SceneObject
 {
 public:
-	struct AssignmentInfo
-	{
-		enum Type : u8 {
-			TRANSLATION = 1<<0,
-			ROTATION = 1<<1,
+	struct AssignmentInfo {
+		enum Flags : u8 {
+			TRANSLATION_BIT = 1<<0,
+			ROTATION_BIT = 1<<1,
 		};
 
 		Bone* target{};
@@ -47,6 +46,7 @@ public:
 		Bone* bone;
 		Vec3 offset;
 	};
+
 public:
 	Bone(ConstructInfo info) : 
 		SceneObject{ info.name },
@@ -58,20 +58,23 @@ public:
 	i32 GetIndex() const { return m_index; }
 	void SetParent(Bone* parent) { m_parent = parent; }
 	Bone* GetParent() const { return m_parent; }
-	void SetTipBone(Bone* bone) { m_tipInfo.bone = bone; }
-	void SetTipOffset(const Vec3& offset) { m_tipInfo.offset = offset; }
-	TipInfo GetTipInfo() const { return m_tipInfo; }
 	u32 GetTransformLayer() const { return m_transformLayer; }
 	u32 GetFlags() const { return m_flags; }
 	Transform GetBindLocal() const { return m_bindLocal; }
 	Transform GetBindWorld() const { return m_bindWorld; }
 	Transform GetBindWorldInverse() const { return m_bindWorld.Inverse(); }
 	void SetAnimLocal(const Transform& transform);
-	Transform GetAnimLocal() const { return m_animLocal; }
+	Transform GetAnimLocal();
+	void SetPoseLocal(const Transform& transform) { m_poseLocal = transform; }
+	Transform GetPoseLocal() const { return m_poseLocal; }
 	const auto& GetAssignmentInfo() const { return m_assignmentInfo; }
 	void SetAssignmentInfo(const AssignmentInfo& info) { m_assignmentInfo = info; }
 	const auto& GetInverseKinematicsInfo() const { return m_inverseKinematicsInfo; }
 	void SetInverseKinematicsInfo(const InverseKinematicsInfo& info) { m_inverseKinematicsInfo = info; }
+	void SetTipInfoBone(Bone* bone) { m_tipInfo.bone = bone; }
+	void SetTipInfoOffset(const Vec3& offset) { m_tipInfo.offset = offset; }
+	Bone* GetTipInfoBone() const { return m_tipInfo.bone; }
+	Vec3 GetTipInfoOffset() const { return m_tipInfo.offset; }
 
 private:
 	i32 m_index{};
@@ -82,6 +85,7 @@ private:
 	Transform m_bindLocal{};
 	Transform m_bindWorld{};
 	Transform m_animLocal{};
+	Transform m_poseLocal{};
 	Opt<AssignmentInfo> m_assignmentInfo;
 	Opt<InverseKinematicsInfo> m_inverseKinematicsInfo;
 };

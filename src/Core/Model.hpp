@@ -25,6 +25,7 @@ public:
 	Armature* GetArmature() const { return m_armature.get(); }
 	void LoadPose(const VPDFile& vpd);
 	void UpdateSkinningBuffer();
+	void OnUpdate(f32) override { m_armature->Update(); }
 	/* BEGIN END CODE */
 
 private:

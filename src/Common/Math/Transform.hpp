@@ -20,19 +20,22 @@ namespace mm
 struct Transform
 {
 public:
-	glm::vec3 translation;
-	glm::quat rotation;
+	Vec3 translation;
+	Quat rotation;
 
 public:
-	// Transform() { *this = Transform::Identity(); }
-	Transform(const glm::vec3& translation = glm::vec3(0), 
-			  const glm::quat& rotation = glm::identity<glm::quat>()) :
+	Transform(const Vec3& translation = Vec3{ 0 },
+			  const Quat& rotation = glm::identity<Quat>()) :
 		translation(translation),
 		rotation(rotation) {}
 
-	Transform(const glm::mat4& mat) :
+	Transform(const Quat& rotation) :
+		translation(Vec3{0}),
+		rotation(rotation) {}
+
+	Transform(const Mat4& mat) :
 		translation(mat[3]),
-		rotation(glm::toQuat(glm::mat3(mat))) {}
+		rotation(glm::toQuat(Mat3(mat))) {}
 
 	Transform Inverse() const {
 		glm::quat rotInv = glm::inverse(rotation);
@@ -72,7 +75,7 @@ inline Transform operator/(const Transform& lhs, float s)
 inline Transform operator*(const Transform& lhs, const Transform& rhs)  
 {
 	return { glm::rotate(lhs.rotation, rhs.translation) + lhs.translation,
-		 lhs.rotation * rhs.rotation };
+		     lhs.rotation * rhs.rotation };
 }
 
 inline bool operator==(const Transform& lhs, const Transform& rhs) 

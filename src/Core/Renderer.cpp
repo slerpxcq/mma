@@ -71,7 +71,7 @@ void Renderer::Render(SubMesh& subMesh)
 	auto& fb = vp->GetFrameBuffer();
 	auto program = m_defaultProgram;
 	auto gfx = GetGraphics();
-	program->SetUniform("u_viewProjection", vp->GetMatrix());
+	program->SetUniform("u_viewProjection", vp->GetViewProjectionMatrix());
 	program->SetUniform("u_albedo", 0);
 	program->Use();
 
@@ -91,7 +91,7 @@ void Renderer::Render(Grid& grid)
 	auto gfx = GetGraphics();
 	auto& program = grid.GetMaterial().GetProgram();
 	auto vp = GetMainViewport();
-	program.SetUniform("u_viewProjection", vp->GetMatrix());
+	program.SetUniform("u_viewProjection", vp->GetViewProjectionMatrix());
 	program.Use();
 
 	gfx->DrawArrays(Graphics::DrawMode::LINES, 0, 204 + 6);

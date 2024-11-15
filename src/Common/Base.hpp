@@ -10,6 +10,7 @@
 #include <sstream>
 #include <utility>
 #include <algorithm>
+#include <variant>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -81,6 +82,9 @@ using Array = std::array<T, Size>;
 
 template <typename T>
 using InitList = std::initializer_list<T>;
+
+template <typename... Ts>
+using Variant = std::variant<Ts...>;
 
 using Path = std::filesystem::path;
 

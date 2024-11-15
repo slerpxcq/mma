@@ -18,25 +18,27 @@ public:
 	//void OnUpdate(f32 deltaTime);
 
 	void SetLocalTransform(const Transform& transform);
+	void SetLocalTranslation(const Vec3& translation);
+	void SetLocalRotation(const Quat& rotation);
 	void SetWorldTransform(const Transform& transform);
 	void SetWorldTranslation(const Vec3& translation);
 	void SetWorldRotation(const Quat& rotation);
-	void SetLocalTranslation(const Vec3& translation);
-	void SetLocalRotation(const Quat& rotation);
 	void TransformWorld(const Transform& transform);
+	void TranslateWorld(const Vec3& translation);
 	void TransformLocal(const Transform& transform);
 	void TranslateLocal(const Vec3& translation);
-	void TranslateWorld(const Vec3& translation);
-	void RotateLocal(const Quat& rotation);
 	void RotateWorld(const Quat& rotation);
+	void RotateLocal(const Quat& rotation);
 	Transform GetLocalTransform() const { return m_localTransform; }
 	Quat GetLocalRotation() const { return m_localTransform.rotation; }
 	Vec3 GetLocalTranslation() const { return m_localTransform.translation; }
+	Mat4 GetLocalMatrix() const { return GetLocalTransform().ToMat4(); } 
 	Transform GetWorldTransform();
 	Quat GetWorldRotation() { return GetWorldTransform().rotation; }
 	Vec3 GetWorldTranslation() { return GetWorldTransform().translation; }
-	Mat4 GetLocalMatrix() const { return GetLocalTransform().ToMat4(); } 
 	Mat4 GetWorldMatrix() { return GetWorldTransform().ToMat4(); }
+	// Transform GetLocalToWorldTransform() const { return m_worldTransform * m_localTransform.Inverse(); }
+	// Transform GetWorldToLocalTransform() const { return m_localTransform * m_worldTransform.Inverse(); }
 
 	auto& GetChildren() { return m_children; }
 	Node* SearchChild(StringView name);

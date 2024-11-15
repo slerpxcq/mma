@@ -25,6 +25,8 @@ public:
 private:
 	void LoadBonesPass1(const PMXFile& pmx);
 	void LoadBonesPass2(const PMXFile& pmx);
+	void ClearAnimLocal();
+	void UpdateForwardKinematics(u32 layer, bool afterPhysics);
 	void UpdateInverseKinematics(u32 layer, bool afterPhysics);
 	void UpdateAssignment(u32 layer, bool afterPhysics);
 

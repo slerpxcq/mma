@@ -24,13 +24,15 @@ Armature::Armature(const PMXFile& pmx)
 
 static bool IsCurrentLayer(Bone* bone, u32 layer, bool afterPhysics)
 {
-	return ((bone->GetFlags() & Bone::Flags::AFTER_PHYSICS_BIT) == afterPhysics &&
+	return (static_cast<bool>(bone->GetFlags() & Bone::Flags::AFTER_PHYSICS_BIT) == afterPhysics &&
 			bone->GetTransformLayer() == layer);
 }
 
 void Armature::Update()
 {
-	for (u32 layer = 0; layer < m_maxTransformLayer; ++layer) {
+	ClearAnimLocal();
+	for (u32 layer = 0; layer <= m_maxTransformLayer; ++layer) {
+		UpdateForwardKinematics(layer, false);
 		UpdateInverseKinematics(layer, false);
 		UpdateAssignment(layer, false);
 	}
@@ -43,7 +45,7 @@ void Armature::LoadPose(const Pose& pose)
 		auto it = m_boneNameIndexMap.find(name);
 		if (it != m_boneNameIndexMap.end()) {
 			auto& bone = m_bones[it->second];
-			bone->SetAnimLocal(localTransform);
+			bone->SetPoseLocal(localTransform);
 		}
 	}
 	Update();
@@ -53,6 +55,7 @@ void Armature::UpdateSkinningBuffer()
 {
 	Mat4* ptr = reinterpret_cast<Mat4*>(m_skinningBuffer.Map(Graphics::BufferAccess::WRITE));
 	for (auto& bone : m_bones) {
+		auto mat = bone->GetNode()->GetWorldMatrix();
 		*ptr++ = bone->GetNode()->GetWorldMatrix() * bone->GetBindWorldInverse().ToMat4();
 	}
 	m_skinningBuffer.Unmap();
@@ -89,18 +92,20 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 	i32 index{};
 	for (auto& pb : pmx.GetBones()) {
 		auto& bone = m_bones[index];
-		if ((pb.flags & PMXFile::BoneFlag::CONNECTED_BIT) &&
-			(pb.connetcionEnd.boneIndex >= 0)) {
-			bone->SetTipBone(m_bones[pb.connetcionEnd.boneIndex]);
+		if (pb.flags & PMXFile::BoneFlag::CONNECTED_BIT) {
+			if (pb.connetcionEnd.boneIndex >= 0) {
+				bone->SetTipInfoBone(m_bones[pb.connetcionEnd.boneIndex]);
+			} else {
+				bone->SetTipInfoBone(nullptr);
+			}
 		} else {
-			bone->SetTipOffset(glm::make_vec3(pb.connetcionEnd.position));
+			bone->SetTipInfoOffset(glm::make_vec3(pb.connetcionEnd.position));
 		}
 		if (pb.flags & PMXFile::BoneFlag::IK_BIT) {
 			InverseKinematicsInfo ikInfo{};
 			ikInfo.iteration = pb.ik.iteration;
 			ikInfo.unitAngle = pb.ik.unitAngle;
 			ikInfo.link.reserve(pb.ik.link.size() + 1);
-			/* End effector */
 			InverseKinematicsInfo::Node node{};
 			node.bone = m_bones[pb.ik.targetIndex];
 			node.hasLimit = false;
@@ -115,13 +120,13 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 			}
 			bone->SetInverseKinematicsInfo(ikInfo);
 		}
-		if (pb.flags & PMXFile::BoneFlag::ASSIGN_ROTATION_BIT || 
-			pb.flags & PMXFile::BoneFlag::ASSIGN_MOVE_BIT) {
+		if ((pb.flags & PMXFile::BoneFlag::ASSIGN_ROTATION_BIT) | 
+			(pb.flags & PMXFile::BoneFlag::ASSIGN_MOVE_BIT)) {
 			Bone::AssignmentInfo info{};
 			if (pb.flags & PMXFile::BoneFlag::ASSIGN_ROTATION_BIT)
-				info.type |= Bone::AssignmentInfo::ROTATION;
+				info.type |= Bone::AssignmentInfo::ROTATION_BIT;
 			if (pb.flags & PMXFile::BoneFlag::ASSIGN_MOVE_BIT)
-				info.type |= Bone::AssignmentInfo::TRANSLATION;
+				info.type |= Bone::AssignmentInfo::TRANSLATION_BIT;
 			info.ratio = pb.assignment.ratio;
 			info.target = m_bones[pb.assignment.targetIndex];
 			bone->SetAssignmentInfo(info);
@@ -130,6 +135,22 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 			bone->SetParent(m_bones[pb.parentIndex]);
 		}
 		++index;
+	}
+}
+
+void Armature::ClearAnimLocal()
+{
+	for (auto& bone : m_bones) {
+		bone->SetAnimLocal(Transform{});
+	}
+}
+
+void Armature::UpdateForwardKinematics(u32 layer, bool afterPhysics)
+{
+	for (auto& bone : m_bones) {
+		if (IsCurrentLayer(bone, layer, afterPhysics)) {
+			bone->SetAnimLocal(bone->GetPoseLocal());
+		}
 	}
 }
 
@@ -153,13 +174,14 @@ void Armature::UpdateAssignment(u32 layer, bool afterPhysics)
 			auto info = bone->GetAssignmentInfo();
 			if (info) {
 				Transform transform;
-				if (info->type & Bone::AssignmentInfo::TRANSLATION) {
-					transform.translation = info->ratio * info->target->GetAnimLocal().translation;
+				auto local = info->target->GetAnimLocal();
+				if (info->type & Bone::AssignmentInfo::TRANSLATION_BIT) {
+					transform.translation = info->ratio * local.translation;
 				}
-				if (info->type & Bone::AssignmentInfo::ROTATION) {
-					transform.rotation = glm::slerp(glm::identity<Quat>(),
-													info->target->GetAnimLocal().rotation,
-													info->ratio);
+				if (info->type & Bone::AssignmentInfo::ROTATION_BIT) {
+				 	transform.rotation = glm::slerp(glm::identity<Quat>(),
+				 									local.rotation,
+				 									info->ratio); 
 				}
 				bone->SetAnimLocal(transform * bone->GetAnimLocal());
 			}

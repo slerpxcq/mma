@@ -47,7 +47,8 @@ EditorLayer::EditorLayer(const Window& window) :
 	auto modelNode = root->AddChild("model_node");
 	auto model = sm->CreateObject<Model>(pmx);
 	modelNode->AttachObject(model);
-	auto vpd = VPDFile("../../resources/motion/Standing 1 -Stellas Shoujo Walk.vpd");
+	//auto vpd = VPDFile("../../resources/motion/Standing 1 -Stellas Shoujo Walk.vpd");
+	auto vpd = VPDFile("../../resources/motion/test2.vpd");
 	model->LoadPose(vpd);
 	/* END TEST CODE */
 }

@@ -9,7 +9,7 @@ struct InverseKinematicsInfo;
 class InverseKinematicsSolverCCD : public InverseKinematicsSolver
 {
 public:
-	virtual void Solve(const InverseKinematicsInfo& info, Bone* target) override;
+	virtual void Solve(const InverseKinematicsInfo& info, const Bone* target) override;
 };
 
 }

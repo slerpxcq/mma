@@ -70,7 +70,7 @@ void Node::TranslateWorld(const Vec3& translation)
 
 void Node::RotateLocal(const Quat& rotation)
 {
-	SetLocalTransform(rotation * m_localTransform);
+	SetLocalTransform(m_localTransform * rotation);
 }
 
 void Node::RotateWorld(const Quat& rotation)

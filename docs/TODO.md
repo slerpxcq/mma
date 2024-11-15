@@ -107,6 +107,9 @@
 # 2024/11/12
 - [x] IK solver
 - [ ] PoseEditorOverlay
+    - [ ] Load extra bone info from PMX
+        - [ ] Bone tip
+        - [ ] Fix unconnected bone tip position calculation
 
 --- 
 # TODO

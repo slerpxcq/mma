@@ -5,6 +5,7 @@
 namespace mm
 {
 
+class Bone;
 class PoseEditorOverlay : public PanelOverlay
 {
 public:
@@ -15,6 +16,8 @@ public:
 
 private:
 	Vec3 ToScreenPos(Vec3 pos);
+	Vec2 GetTipPos(Bone* bone);
+	void Edit();
 
 private:
 	static constexpr f32 BUTTON_RADIUS = 7.5f;
