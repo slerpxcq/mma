@@ -17,7 +17,7 @@ public:
 private:
 	Vec3 ToScreenPos(Vec3 pos);
 	Vec2 GetTipPos(Bone* bone);
-	void Edit();
+	void ShowGizmo();
 
 private:
 	static constexpr f32 BUTTON_RADIUS = 7.5f;
@@ -25,6 +25,7 @@ private:
 	static constexpr u32 FILL_COLOR = 0x3fc0c0c0;
 	static constexpr f32 OUTLINE_SIZE = 1.5f;
 
+	Bone* m_selectedBone{};
 };
 
 }

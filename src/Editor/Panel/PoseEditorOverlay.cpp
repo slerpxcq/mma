@@ -71,6 +71,17 @@ static void DrawBoneConnection(ImDrawList* drawList,
 	drawList->AddLine(Cast<ImVec2>(end), Cast<ImVec2>(p1), outlineColor, outlineSize);
 }
 
+static bool ShowButton(Vec2 screenPos, f32 radius, i32 index)
+{
+	char buf[32];
+	std::snprintf(buf, sizeof(buf), "Bone_%u", index++);
+	ImVec2 cursorPos = ImVec2(screenPos.x - radius,
+							  screenPos.y - radius);
+	ImGui::SetCursorScreenPos(cursorPos);
+	ImGui::SetItemAllowOverlap();
+	return ImGui::InvisibleButton(buf, ImVec2(2 * radius, 2 * radius));
+}
+
 void PoseEditorOverlay::OnRender()
 {
 	/* BEGIN TEST CODE */
@@ -79,10 +90,13 @@ void PoseEditorOverlay::OnRender()
 	for (auto& obj : sm->GetObjects()) {
 		if (auto model = dynamic_cast<const Model*>(obj.get()); model) {
 			auto armature = model->GetArmature();
+			i32 index{};
 			for (auto bone : armature->GetBones()) {
-				//if (bone->GetFlags() & Bone::Flags::VISIBLE_BIT) {
-				if (true) {
+				if (bone->GetFlags() & Bone::Flags::VISIBLE_BIT) {
 					Vec2 screenPos = ToScreenPos(bone->GetNode()->GetWorldTranslation());
+					if (ShowButton(screenPos, BUTTON_RADIUS, index++)) {
+						m_selectedBone = bone;
+					}
 					if (bone->GetFlags() & Bone::Flags::MOVEABLE_BIT) {
 						DrawRect(drawList, screenPos, 
 								 BUTTON_RADIUS, FILL_COLOR, OUTLINE_COLOR, OUTLINE_SIZE);
@@ -135,12 +149,23 @@ Vec2 PoseEditorOverlay::GetTipPos(Bone* bone)
 	}
 }
 
-void PoseEditorOverlay::Edit()
+void PoseEditorOverlay::ShowGizmo()
 {
 	auto& panel = static_cast<ViewportPanel&>(m_parent);
 	auto viewport = panel.GetViewport();
 	Mat4 view = viewport->GetViewMatrix();
 	Mat4 proj = viewport->GetProjectionMatrix();
+
+	if (m_selectedBone) {
+		Mat4 edit = m_selectedBone->GetNode()->GetWorldMatrix();
+		ImGuizmo::Enable(true);
+		ImGuizmo::Manipulate(glm::value_ptr(view),
+							 glm::value_ptr(proj),
+							 ImGuizmo::TRANSLATE,
+							 ImGuizmo::LOCAL,
+							 glm::value_ptr(edit));
+		m_selectedBone->GetNode()->SetWorldTransform(edit);
+	}
 }
 
 }

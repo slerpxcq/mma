@@ -7,7 +7,6 @@
 #include "ImGuiLayerImpl_GLFW.hpp"
 
 #include <imgui.h>
-#include <ImGuizmo.h>
 
 struct GLFWwindow;
 
@@ -43,8 +42,6 @@ ImGuiLayer::ImGuiLayer(const Window& window)
 void ImGuiLayer::Begin() const
 {
 	m_impl->Begin();
-	ImGui::NewFrame();
-	ImGuizmo::BeginFrame();
 	ImGui::DockSpaceOverViewport();
 	ImGui::PushFont(m_font);
 }

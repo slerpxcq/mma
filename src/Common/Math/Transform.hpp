@@ -37,6 +37,14 @@ public:
 		translation(mat[3]),
 		rotation(glm::toQuat(Mat3(mat))) {}
 
+	operator Vec3() {
+		return translation;
+	}
+
+	operator Quat() {
+		return rotation;
+	}
+
 	Transform Inverse() const {
 		glm::quat rotInv = glm::inverse(rotation);
 		return { -glm::rotate(rotInv, translation), rotInv };

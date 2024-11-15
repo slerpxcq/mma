@@ -183,7 +183,7 @@ void Armature::UpdateAssignment(u32 layer, bool afterPhysics)
 				 									local.rotation,
 				 									info->ratio); 
 				}
-				bone->SetAnimLocal(transform * bone->GetAnimLocal());
+				bone->SetAnimLocal(bone->GetAnimLocal() * transform);
 			}
 		}
 	}

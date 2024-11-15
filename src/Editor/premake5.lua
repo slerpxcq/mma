@@ -39,7 +39,8 @@ project "Editor"
 
     links {
         "Core",
-        "Common" 
+        "Common",
+		"ImGuizmo"
     }
 
     filter "system:windows"
