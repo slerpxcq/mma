@@ -107,14 +107,18 @@
 # 2024/11/12
 - [x] IK solver
 - [ ] PoseEditorOverlay
-    - [ ] Load extra bone info from PMX
-        - [ ] Bone tip
-        - [ ] Fix unconnected bone tip position calculation
+    - [x] Load extra bone info from PMX
+        - [x] Bone tip
+        - [x] Fix unconnected bone tip position calculation
+
+# 2024/11/16
+- [ ] Bone transform edit/Gizmo
+    - [x] Change bone bindLocal calculation to pass 2
+    - [x] Load local axis/fixed axis to bone
+    - [ ] Gizmo context compute
 
 --- 
 # TODO
-
-Bone transform edit/Gizmo
 
 Loading:
 - [ ] Load rigidbodies (as nodes or component?)

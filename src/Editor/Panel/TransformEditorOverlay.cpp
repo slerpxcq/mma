@@ -1,5 +1,5 @@
 #include "EditorPch.hpp"
-#include "PoseEditorOverlay.hpp"
+#include "TransformEditorOverlay.hpp"
 
 #include "Core/SceneManager.hpp"
 #include "Core/Model.hpp"
@@ -16,14 +16,39 @@
 namespace mm
 {
 
-PoseEditorOverlay::PoseEditorOverlay(Panel& parent, StringView name) :
+TransformEditorOverlay::TransformEditorOverlay(Panel& parent, StringView name) :
 	PanelOverlay{ parent, name }
 {
 	MM_APP_ASSERT(dynamic_cast<ViewportPanel*>(&parent));
 }
 
-void PoseEditorOverlay::OnUpdate(f32 deltaTime)
+void TransformEditorOverlay::OnUpdate(f32 deltaTime)
 {
+}
+
+static ImGuizmo::OPERATION ToImGuizmoOperation(TransformEditorOverlay::Operation op)
+{
+	switch (op) {
+	case TransformEditorOverlay::Operation::ROTATE:	       return ImGuizmo::ROTATE;
+	case TransformEditorOverlay::Operation::ROTATE_X:      return ImGuizmo::ROTATE_X;
+	case TransformEditorOverlay::Operation::ROTATE_Y:      return ImGuizmo::ROTATE_Y;
+	case TransformEditorOverlay::Operation::ROTATE_Z:      return ImGuizmo::ROTATE_Z;
+	case TransformEditorOverlay::Operation::ROTATE_SCREEN: return ImGuizmo::ROTATE_SCREEN;
+	case TransformEditorOverlay::Operation::TRANSLATE:     return ImGuizmo::TRANSLATE;
+	case TransformEditorOverlay::Operation::TRANSLATE_X:   return ImGuizmo::TRANSLATE_X;
+	case TransformEditorOverlay::Operation::TRANSLATE_Y:   return ImGuizmo::TRANSLATE_Y;
+	case TransformEditorOverlay::Operation::TRANSLATE_Z:   return ImGuizmo::TRANSLATE_Z;
+	default: MM_APP_UNREACHABLE(); 
+	}
+}
+
+static ImGuizmo::MODE ToImGuizmoMode(TransformEditorOverlay::Mode mode)
+{
+	switch (mode) {
+	case TransformEditorOverlay::Mode::LOCAL: return ImGuizmo::LOCAL;
+	case TransformEditorOverlay::Mode::WORLD: return ImGuizmo::WORLD;
+	default: MM_APP_UNREACHABLE();
+	}
 }
 
 static void DrawRect(ImDrawList* drawList, 
@@ -74,15 +99,16 @@ static void DrawBoneConnection(ImDrawList* drawList,
 static bool ShowButton(Vec2 screenPos, f32 radius, i32 index)
 {
 	char buf[32];
-	std::snprintf(buf, sizeof(buf), "Bone_%u", index++);
+	std::snprintf(buf, sizeof(buf), "Bone_%u", index);
 	ImVec2 cursorPos = ImVec2(screenPos.x - radius,
 							  screenPos.y - radius);
 	ImGui::SetCursorScreenPos(cursorPos);
 	ImGui::SetItemAllowOverlap();
-	return ImGui::InvisibleButton(buf, ImVec2(2 * radius, 2 * radius));
+	//return ImGui::InvisibleButton(buf, ImVec2(2 * radius, 2 * radius));
+	return ImGui::Button(buf, ImVec2(2 * radius, 2 * radius));
 }
 
-void PoseEditorOverlay::OnRender()
+void TransformEditorOverlay::OnRender()
 {
 	/* BEGIN TEST CODE */
 	auto sm = GetSceneManager();
@@ -95,13 +121,13 @@ void PoseEditorOverlay::OnRender()
 				if (bone->GetFlags() & Bone::Flags::VISIBLE_BIT) {
 					Vec2 screenPos = ToScreenPos(bone->GetNode()->GetWorldTranslation());
 					if (ShowButton(screenPos, BUTTON_RADIUS, index++)) {
-						m_selectedBone = bone;
+						OnBoneSelected(bone);
 					}
 					if (bone->GetFlags() & Bone::Flags::MOVEABLE_BIT) {
 						DrawRect(drawList, screenPos, 
 								 BUTTON_RADIUS, FILL_COLOR, OUTLINE_COLOR, OUTLINE_SIZE);
 					} 
-					else if (bone->GetFlags() & Bone::Flags::FIXED_AXIS_BIT) {
+					else if (bone->GetFixedAxis()) {
 						DrawTriangle(drawList, screenPos, 
 									 BUTTON_RADIUS, FILL_COLOR, OUTLINE_COLOR, OUTLINE_SIZE);
 					}
@@ -115,10 +141,11 @@ void PoseEditorOverlay::OnRender()
 			}
 		}
 	}
+	ShowGizmo();
 	/* END TEST CODE */
 }
 
-Vec3 PoseEditorOverlay::ToScreenPos(Vec3 worldPos)
+Vec3 TransformEditorOverlay::ToScreenPos(Vec3 worldPos)
 {
 	auto& panel = static_cast<ViewportPanel&>(m_parent);
 	Viewport* viewport = panel.GetViewport();
@@ -132,7 +159,7 @@ Vec3 PoseEditorOverlay::ToScreenPos(Vec3 worldPos)
 				ndcPos.z);
 }
 
-Vec2 PoseEditorOverlay::GetTipPos(Bone* bone)
+Vec2 TransformEditorOverlay::GetTipPos(Bone* bone)
 {
 	if (bone->GetFlags() & Bone::Flags::CONNECTED_BIT) {
 		auto end = bone->GetTipInfoBone();
@@ -149,23 +176,77 @@ Vec2 PoseEditorOverlay::GetTipPos(Bone* bone)
 	}
 }
 
-void PoseEditorOverlay::ShowGizmo()
+void TransformEditorOverlay::ShowGizmo()
 {
 	auto& panel = static_cast<ViewportPanel&>(m_parent);
 	auto viewport = panel.GetViewport();
 	Mat4 view = viewport->GetViewMatrix();
 	Mat4 proj = viewport->GetProjectionMatrix();
 
-	if (m_selectedBone) {
-		Mat4 edit = m_selectedBone->GetNode()->GetWorldMatrix();
+	ImGuizmo::SetDrawlist();
+	Vec2 pos = panel.GetContentPos();
+	Vec2 size = panel.GetContentSize();
+	ImGuizmo::SetRect(pos.x, pos.y, size.x, size.y);
+
+	/* temp */
+	m_context.operation = Operation::ROTATE;
+
+	if (m_context.bone) {
 		ImGuizmo::Enable(true);
-		ImGuizmo::Manipulate(glm::value_ptr(view),
-							 glm::value_ptr(proj),
-							 ImGuizmo::TRANSLATE,
-							 ImGuizmo::LOCAL,
-							 glm::value_ptr(edit));
-		m_selectedBone->GetNode()->SetWorldTransform(edit);
+		if (m_context.fixedAxis) {
+			ImGuizmo::Manipulate(glm::value_ptr(view),
+								 glm::value_ptr(proj),
+								 ImGuizmo::ROTATE_X,
+								 ImGuizmo::LOCAL,
+								 glm::value_ptr(m_context.localFrame));
+		}
+		else if (m_context.localAxes) {
+			ImGuizmo::Manipulate(glm::value_ptr(view),
+								 glm::value_ptr(proj),
+								 ToImGuizmoOperation(m_context.operation),
+								 ImGuizmo::LOCAL,
+								 glm::value_ptr(m_context.localFrame));
+		} 
+		else {
+			ImGuizmo::Manipulate(glm::value_ptr(view),
+								 glm::value_ptr(proj),
+								 ToImGuizmoOperation(m_context.operation),
+								 ToImGuizmoMode(m_context.mode),
+								 glm::value_ptr(m_context.localFrame));
+		}
+		Mat4 world = m_context.localFrame * m_context.localFrameInverse;
+		Mat4 pose = m_context.worldToLocal * world;
+		m_context.bone->SetPoseLocal(pose);
+	} else {
+		ImGuizmo::Enable(false);
 	}
+}
+
+void TransformEditorOverlay::OnBoneSelected(Bone* bone)
+{
+	m_context.bone = bone;
+	m_context.fixedAxis = bone->GetFixedAxis();
+	m_context.localAxes = bone->GetLocalAxes();
+	auto parent = bone->GetParent();
+	Mat4 parentWorld = parent ?
+		parent->GetNode()->GetWorldMatrix() :
+		glm::identity<Mat4>();
+	m_context.worldToLocal = glm::inverse(parentWorld * bone->GetBindLocal().ToMat4());
+
+	Mat4 localFrame{ 1.f };
+	if (m_context.fixedAxis) {
+		Vec3 x = *m_context.fixedAxis;
+		Vec3 z = glm::normalize(glm::cross(Vec3{ 0, 1, 0 }, x));
+		Vec3 y = glm::cross(z, x);
+		localFrame[0] = Vec4{ x, 0 };
+		localFrame[1] = Vec4{ y, 0 };
+		localFrame[2] = Vec4{ z, 0 };
+	}
+	else if (m_context.localAxes) {
+		localFrame = *m_context.localAxes;
+	}
+	m_context.localFrame = bone->GetNode()->GetWorldMatrix() * localFrame;
+	m_context.localFrameInverse = glm::inverse(localFrame);
 }
 
 }

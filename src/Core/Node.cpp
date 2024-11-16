@@ -55,27 +55,7 @@ void Node::TransformWorld(const Transform& transform)
 
 void Node::TransformLocal(const Transform& transform)
 {
-	SetLocalTransform(transform * m_localTransform);
-}
-
-void Node::TranslateLocal(const Vec3& translation)
-{
-	SetLocalTransform(m_localTransform + translation);
-}
-
-void Node::TranslateWorld(const Vec3& translation)
-{
-	SetWorldTransform(m_worldTransform + translation);
-}
-
-void Node::RotateLocal(const Quat& rotation)
-{
-	SetLocalTransform(m_localTransform * rotation);
-}
-
-void Node::RotateWorld(const Quat& rotation)
-{
-	SetWorldTransform(rotation * m_worldTransform);
+	SetLocalTransform(m_localTransform * transform);
 }
 
 Transform Node::GetWorldTransform() 

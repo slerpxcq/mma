@@ -74,7 +74,7 @@ void CameraControllerOverlay::OnRender()
 	auto& io = ImGui::GetIO();
 	if (io.MouseWheel != 0.f) {
 		Vec3 translation = ZOOM_SPEED * io.MouseWheel * view;
-		node->TranslateWorld(translation);
+		node->TransformWorld(translation);
 	}
 }
 

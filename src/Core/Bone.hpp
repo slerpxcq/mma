@@ -26,7 +26,6 @@ public:
 		i32 index;
 		u32 transformLayer;
 		u32 flags;
-		Transform bindLocal;
 		Transform bindWorld;
 	};
 
@@ -36,8 +35,6 @@ public:
 		MOVEABLE_BIT = (1U << 2),
 		VISIBLE_BIT = (1U << 3),
 		OPERABLE_BIT = (1U << 4),
-		FIXED_AXIS_BIT = (1U << 10),
-		LOCAL_AXIS_BIT = (1U << 11),
 		AFTER_PHYSICS_BIT = (1U << 12),
 		EXTERNAL_PARENT_BIT = (1U << 13),
 	};
@@ -50,13 +47,13 @@ public:
 public:
 	Bone(ConstructInfo info) : 
 		SceneObject{ info.name },
-		m_bindLocal{ info.bindLocal },
 		m_bindWorld{ info.bindWorld },
+		m_bindLocal{ info.bindWorld },
 		m_flags{ info.flags },
 		m_transformLayer{ info.transformLayer } {}
 
 	i32 GetIndex() const { return m_index; }
-	void SetParent(Bone* parent) { m_parent = parent; }
+	void SetParent(Bone* parent); 
 	Bone* GetParent() const { return m_parent; }
 	u32 GetTransformLayer() const { return m_transformLayer; }
 	u32 GetFlags() const { return m_flags; }
@@ -75,17 +72,25 @@ public:
 	void SetTipInfoOffset(const Vec3& offset) { m_tipInfo.offset = offset; }
 	Bone* GetTipInfoBone() const { return m_tipInfo.bone; }
 	Vec3 GetTipInfoOffset() const { return m_tipInfo.offset; }
+	void SetLocalAxes(Vec3 x, Vec3 z);
+	Opt<Mat3> GetLocalAxes() const { return m_localAxes; }
+	void SetFixedAxis(Vec3 axis) { m_fixedAxis = axis; }
+	Opt<Vec3> GetFixedAxis() const { return m_fixedAxis; }
 
 private:
-	i32 m_index{};
 	Bone* m_parent{};
-	TipInfo m_tipInfo{};
+	i32 m_index{};
 	u32 m_transformLayer{};
 	u32 m_flags{};
+	TipInfo m_tipInfo{};
+
 	Transform m_bindLocal{};
 	Transform m_bindWorld{};
 	Transform m_animLocal{};
 	Transform m_poseLocal{};
+
+	Opt<Mat3> m_localAxes{};
+	Opt<Vec3> m_fixedAxis{};
 	Opt<AssignmentInfo> m_assignmentInfo;
 	Opt<InverseKinematicsInfo> m_inverseKinematicsInfo;
 };

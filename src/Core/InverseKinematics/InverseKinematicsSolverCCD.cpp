@@ -30,7 +30,7 @@ void InverseKinematicsSolverCCD::Solve(const InverseKinematicsInfo& info, const 
 				qLocal = glm::inverse(ikNode->bone->GetNode()->GetLocalRotation()) * qClamped;
 			}
 
-			ikNode->bone->GetNode()->RotateLocal(qLocal);
+			ikNode->bone->GetNode()->TransformLocal(qLocal);
 		}
 	}
 }

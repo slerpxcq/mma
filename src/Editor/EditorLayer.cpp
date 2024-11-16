@@ -4,7 +4,7 @@
 #include "Panel/ViewportPanel.hpp"
 #include "Panel/MenuBarPanel.hpp"
 #include "Panel/SceneHierarchyPanel.hpp"
-#include "Panel/PoseEditorOverlay.hpp"
+#include "Panel/TransformEditorOverlay.hpp"
 #include "Panel/CameraControllerOverlay.hpp"
 
 /* BEGIN TEST INCLUDE */
@@ -34,7 +34,7 @@ EditorLayer::EditorLayer(const Window& window) :
 	auto vp = MakeScoped<ViewportPanel>("Viewport");
 	vp->SetViewport(GetMainViewport());
 	vp->PushOverlay<CameraControllerOverlay>("Camera Controller Overlay");
-	vp->PushOverlay<PoseEditorOverlay>("Pose Editor Overlay");
+	vp->PushOverlay<TransformEditorOverlay>("Pose Editor Overlay");
 	m_panels.push_back(std::move(vp));
 	m_panels.push_back(MakeScoped<MenuBarPanel>());
 	m_panels.push_back(MakeScoped<SceneHierarchyPanel>());

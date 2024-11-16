@@ -24,10 +24,15 @@ public:
 	Quat rotation;
 
 public:
-	Transform(const Vec3& translation = Vec3{ 0 },
-			  const Quat& rotation = glm::identity<Quat>()) :
+	Transform() { *this = Transform::Identity(); }
+	Transform(const Vec3& translation,
+			  const Quat& rotation) :
 		translation(translation),
 		rotation(rotation) {}
+
+	Transform(const Vec3& translation) :
+		translation(translation),
+		rotation(glm::identity<Quat>()) {}
 
 	Transform(const Quat& rotation) :
 		translation(Vec3{0}),
@@ -37,16 +42,17 @@ public:
 		translation(mat[3]),
 		rotation(glm::toQuat(Mat3(mat))) {}
 
-	operator Vec3() {
-		return translation;
-	}
+	Transform(const Mat3& mat) :
+		translation(Vec3{0}),
+		rotation(glm::toQuat(mat)) {}
 
-	operator Quat() {
-		return rotation;
-	}
+	operator Vec3() { return translation; }
+	operator Quat() { return rotation; }
+	operator Mat4() { return ToMat4(); }
+	operator Mat3() { return ToMat3(); }
 
 	Transform Inverse() const {
-		glm::quat rotInv = glm::inverse(rotation);
+		Quat rotInv = glm::inverse(rotation);
 		return { -glm::rotate(rotInv, translation), rotInv };
 	}
 
@@ -55,13 +61,16 @@ public:
 	}
 
 	static Transform Identity() {
-		return { glm::vec3(0), glm::identity<glm::quat>() };
+		return { Vec3(0), glm::identity<Quat>() };
 	}
 
-	glm::mat4 ToMat4() const {
-		return glm::translate(glm::mat4(1.f), translation) * glm::toMat4(rotation);
+	Mat4 ToMat4() const {
+		return glm::translate(Mat4(1.f), translation) * glm::toMat4(rotation);
 	}
 
+	Mat3 ToMat3() const {
+		return glm::toMat3(rotation);
+	}
 };
 
 inline Transform operator*(const Transform& lhs, float s) 
@@ -94,16 +103,6 @@ inline bool operator==(const Transform& lhs, const Transform& rhs)
 inline bool operator!=(const Transform& lhs, const Transform& rhs) 
 {
 	return !(lhs == rhs);
-}
-
-inline Transform operator+(const Transform& t, const Vec3& v) 
-{
-	return { t.translation + v, t.rotation };
-}
-
-inline Transform operator+(const Vec3& v, const Transform& t) 
-{
-	return { t.translation + v, t.rotation };
 }
 
 inline Transform operator*(const Transform& t, const Quat& q) 

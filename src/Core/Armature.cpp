@@ -30,7 +30,7 @@ static bool IsCurrentLayer(Bone* bone, u32 layer, bool afterPhysics)
 
 void Armature::Update()
 {
-	ClearAnimLocal();
+	//ClearAnimLocal();
 	for (u32 layer = 0; layer <= m_maxTransformLayer; ++layer) {
 		UpdateForwardKinematics(layer, false);
 		UpdateInverseKinematics(layer, false);
@@ -68,16 +68,16 @@ void Armature::LoadBonesPass1(const PMXFile& pmx)
 	i32 index{};
 	for (const auto& pb : pmx.GetBones()) {
 		Bone::ConstructInfo info{};
-		Transform bindWorld = { glm::make_vec3(pb.position), glm::identity<Quat>() };
-		Transform bindLocal = { pb.parentIndex < 0 ?
-			glm::make_vec3(pb.position) :
-			glm::make_vec3(pb.position) - glm::make_vec3(pmx.GetBones()[pb.parentIndex].position),
-			glm::identity<Quat>() };
+		Transform bindWorld = glm::make_vec3(pb.position);
+		// Transform bindLocal = { pb.parentIndex < 0 ?
+		// 	glm::make_vec3(pb.position) :
+		// 	glm::make_vec3(pb.position) - glm::make_vec3(pmx.GetBones()[pb.parentIndex].position),
+		// 	glm::identity<Quat>() };
 		info.name = pb.nameJP;
 		info.index = index;
 		info.flags = pb.flags;
 		info.transformLayer = pb.transformationLayer;
-		info.bindLocal = bindLocal;
+		//info.bindLocal = bindLocal;
 		info.bindWorld = bindWorld;
 		auto bone = sm->CreateObject<Bone>(info);
 		m_boneNameIndexMap.insert({ pb.nameJP, index });
@@ -123,16 +123,25 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 		if ((pb.flags & PMXFile::BoneFlag::ASSIGN_ROTATION_BIT) | 
 			(pb.flags & PMXFile::BoneFlag::ASSIGN_MOVE_BIT)) {
 			Bone::AssignmentInfo info{};
-			if (pb.flags & PMXFile::BoneFlag::ASSIGN_ROTATION_BIT)
+			if (pb.flags & PMXFile::BoneFlag::ASSIGN_ROTATION_BIT) {
 				info.type |= Bone::AssignmentInfo::ROTATION_BIT;
-			if (pb.flags & PMXFile::BoneFlag::ASSIGN_MOVE_BIT)
+			}
+			if (pb.flags & PMXFile::BoneFlag::ASSIGN_MOVE_BIT) {
 				info.type |= Bone::AssignmentInfo::TRANSLATION_BIT;
+			}
 			info.ratio = pb.assignment.ratio;
 			info.target = m_bones[pb.assignment.targetIndex];
 			bone->SetAssignmentInfo(info);
 		}
 		if (pb.parentIndex >= 0) {
 			bone->SetParent(m_bones[pb.parentIndex]);
+		}
+		if (pb.flags & PMXFile::BoneFlag::LOCAL_AXIS_BIT) {
+			bone->SetLocalAxes(glm::make_vec3(pb.localAxisX),
+							   glm::make_vec3(pb.localAxisZ));
+		}
+		if (pb.flags & PMXFile::BoneFlag::FIXED_AXIS_BIT) {
+			bone->SetFixedAxis(glm::make_vec3(pb.fixedAxis));
 		}
 		++index;
 	}

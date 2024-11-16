@@ -3,6 +3,7 @@
 #include <cassert>
 
 #define MM_CORE_UNREACHABLE() MM_CORE_ASSERT(0 && "Unreachable")
+#define MM_APP_UNREACHABLE() MM_APP_ASSERT(0 && "Unreachable")
 
 #ifdef MM_CORE_DEBUG
 #define MM_CORE_ASSERT(x) \
