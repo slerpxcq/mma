@@ -2,11 +2,13 @@
 
 #include "Collider.hpp"
 #include "SceneObject.hpp"
+#include "PhysicsObject.hpp"
 
 namespace mm
 {
 
-class Rigidbody : public SceneObject
+class Rigidbody : public SceneObject, 
+	              public PhysicsObject
 {
 public:
 	struct ConstructInfo {
@@ -28,11 +30,11 @@ public:
 	Rigidbody(StringView name) :
 		SceneObject{ name } {}
 
-	void* GetHandle() const { return m_handle; }
-	void SetHandle(void* handle) { m_handle = handle; }
+	Transform GetBindWorld() const { return m_bindWorld; }
+	void SetBindWorld(const Transform& transform) { m_bindWorld = transform; }
 
-protected:
-	void* m_handle;
+private:
+	Transform m_bindWorld{};
 };
 
 }

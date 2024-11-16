@@ -7,6 +7,8 @@
 
 #include "Graphics/ShaderStroageBuffer.hpp"
 
+#include "Physics/Constraint.hpp"
+
 namespace mm
 {
 
@@ -33,6 +35,7 @@ private:
 	Ref<Mesh> m_mesh;
 	Scoped<Armature> m_armature;
 	DynArray<Rigidbody*> m_rigidbodies;
+	DynArray<Constraint> m_constraints;
 };
 
 }

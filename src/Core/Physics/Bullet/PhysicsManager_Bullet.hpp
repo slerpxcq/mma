@@ -14,6 +14,7 @@ public:
 	PhysicsManager_Bullet();
 	virtual Rigidbody* CreateRigidbody(const Rigidbody::ConstructInfo& info) override;
 	virtual Collider CreateCollider(const Collider::ConstructInfo& info) override;
+	virtual Constraint CreateConstraint(const Constraint::ConstructInfo& info) override;
 
 private:
 	Scoped<btDefaultCollisionConfiguration>     m_collisionConfig;
@@ -22,11 +23,10 @@ private:
 	Scoped<btSequentialImpulseConstraintSolver> m_solver;
 	Scoped<btDiscreteDynamicsWorld>             m_dynamicsWorld;
 
-	DynArray<Scoped<btCollisionShape>>       m_collisionShapes;
-	DynArray<Scoped<btRigidBody>>            m_rigidbodies;
-	DynArray<Scoped<btMotionState>>          m_motionStates;
-	DynArray<btTransform>                    m_bindTransforms;
-	DynArray<Scoped<btTypedConstraint>>      m_constraints;
+	DynArray<Scoped<btCollisionShape>>          m_collisionShapes;
+	DynArray<Scoped<btRigidBody>>               m_rigidbodies;
+	DynArray<Scoped<btMotionState>>             m_motionStates;
+	DynArray<Scoped<btTypedConstraint>>         m_constraints;
 };
 
 }

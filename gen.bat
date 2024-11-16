@@ -3,7 +3,7 @@
 :: -------- Bullet --------
 pushd .
 cd "3rdparty/bullet3"
-cmake -S . -B build
+cmake -S . -B build -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON 
 popd
 :: -------- glfw --------
 pushd .

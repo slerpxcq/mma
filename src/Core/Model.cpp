@@ -115,12 +115,76 @@ static void LoadSubMeshes(const PMXFile& pmx, const DynArray<Ref<Texture>>& text
 	}
 }
 
+static Collider LoadCollider(const PMXFile::Rigidbody& pr)
+{
+	Collider::ConstructInfo info{};
+	switch (static_cast<PMXFile::RigidbodyShape>(pr.shape)) {
+	case PMXFile::RigidbodyShape::BOX:
+		info.type = Collider::ConstructInfo::BOX;
+		info.data.box.size = glm::make_vec3(pr.size);
+		break;
+	case PMXFile::RigidbodyShape::CAPSULE:
+		info.type = Collider::ConstructInfo::CAPSULE;
+		info.data.capsule.radius = pr.size[0];
+		info.data.capsule.height = pr.size[1];
+		break;
+	case PMXFile::RigidbodyShape::SPHERE:
+		info.type = Collider::ConstructInfo::SPHERE;
+		info.data.sphere.radius = pr.size[0];
+		break;
+	default:
+		MM_CORE_UNREACHABLE();
+	}
+	auto collider = GetPhysicsManager()->CreateCollider(info);
+	return collider;
+}
+
 static DynArray<Rigidbody*> LoadRigidbodies(const PMXFile& pmx)
 {
 	auto pm = GetPhysicsManager();
-	for (auto& pr : pmx.GetRigidbodies()) {
-		auto rb = pm->CreateRigidbody();
+	auto sm = GetSceneManager();
+	DynArray<Rigidbody*> result;
+	result.reserve(pmx.GetRigidbodies().size());
+	for (auto&& pr : pmx.GetRigidbodies()) {
+		auto collider = LoadCollider(pr);
+		Rigidbody::ConstructInfo info{};
+		info.angularDamping = pr.angularDamping;
+		info.bindWorld = { glm::make_vec3(pr.position), Quat{ glm::make_vec3(pr.rotation) } };
+		info.collider = collider;
+		info.friction = pr.friction;
+		info.group = pr.group;
+		info.isDynamic = pr.physicsType == static_cast<u8>(PMXFile::RigidbodyType::DYNAMIC);
+		info.linearDamping = pr.linearDamping;
+		info.mass = pr.mass;
+		info.name = pr.nameJP;
+		info.noCollisionGroupMask = pr.noCollisionGroup;
+		info.restitution = pr.restitution;
+		result.push_back(pm->CreateRigidbody(info));
 	}
+	return result;
+}
+
+static DynArray<Constraint> LoadConstraints(const PMXFile& pmx, const DynArray<Rigidbody*>& rigidbodies)
+{
+	auto pm = GetPhysicsManager();
+	DynArray<Constraint> result;
+	result.reserve(pmx.GetJoints().size());
+	for (auto&& pj : pmx.GetJoints()) {
+		Constraint::ConstructInfo info{};
+		info.angularLimit = MakePair(glm::make_vec3(pj.angularLimit[0]),
+									 glm::make_vec3(pj.angularLimit[1]));
+		info.angularStiffness = glm::make_vec3(pj.angularStiffness);
+		info.bindWorld = { glm::make_vec3(pj.position), Quat{glm::make_vec3(pj.rotation)} };
+		info.linearLimit = MakePair(glm::make_vec3(pj.angularLimit[0]),
+									glm::make_vec3(pj.angularLimit[1]));
+		info.linearStiffness = glm::make_vec3(pj.linearStiffness);
+		info.name = pj.nameJP;
+		info.rigidbodyA = rigidbodies[pj.rigidbodyIndices[0]];
+		info.rigidbodyB = rigidbodies[pj.rigidbodyIndices[1]];
+		info.type = Constraint::Type::GENERIC_6DOP_SPRING;
+		result.emplace_back(pm->CreateConstraint(info));
+	}
+	return result;
 }
 
 Model::Model(const PMXFile& pmx) :
@@ -131,12 +195,14 @@ Model::Model(const PMXFile& pmx) :
 	auto textures = LoadTextures(pmx);
 	LoadSubMeshes(pmx, textures, *m_mesh);
 	m_armature = MakeScoped<Armature>(pmx);
+	m_rigidbodies = LoadRigidbodies(pmx);
+	m_constraints = LoadConstraints(pmx, m_rigidbodies);
 }
 
 void Model::AttachTo(Node* node)
 {
 	SceneObject::AttachTo(node);
-	for (auto& bone : m_armature->GetBones()) {
+	for (auto&& bone : m_armature->GetBones()) {
 		if (!bone->GetParent()) {
 			node->AttachObject(bone);
 			node->SetWorldTransform(bone->GetBindWorld());
@@ -146,6 +212,9 @@ void Model::AttachTo(Node* node)
 			boneNode->AttachObject(bone);
 			boneNode->SetWorldTransform(bone->GetBindWorld());
 		}
+	}
+	for (auto&& rb : m_rigidbodies) {
+		node->AttachObject(rb);
 	}
 }
 

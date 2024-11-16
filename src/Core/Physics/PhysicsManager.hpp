@@ -2,6 +2,7 @@
 
 #include "Rigidbody.hpp"
 #include "Collider.hpp"
+#include "Constraint.hpp"
 
 namespace mm
 {
@@ -17,9 +18,7 @@ public:
 
 	virtual Rigidbody* CreateRigidbody(const Rigidbody::ConstructInfo& info) = 0;
 	virtual Collider CreateCollider(const Collider::ConstructInfo& info) = 0;
-
-private:
-	DynArray<Rigidbody*> m_rigidbodies;
+	virtual Constraint CreateConstraint(const Constraint::ConstructInfo& info) = 0;
 };
 
 }
