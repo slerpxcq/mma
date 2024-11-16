@@ -12,6 +12,7 @@ namespace mm
 
 class PMXFile;
 class VPDFile;
+class Rigidbody;
 
 class Model : public SceneObject
 {
@@ -31,6 +32,7 @@ public:
 private:
 	Ref<Mesh> m_mesh;
 	Scoped<Armature> m_armature;
+	DynArray<Rigidbody*> m_rigidbodies;
 };
 
 }

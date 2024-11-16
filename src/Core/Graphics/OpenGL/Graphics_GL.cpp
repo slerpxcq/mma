@@ -8,7 +8,6 @@
 #include "../Shader.hpp"
 #include "../Program.hpp"
 
-#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 
 namespace mm
@@ -17,16 +16,11 @@ namespace mm
 static GLuint ToGLBufferTarget(Buffer::Target target)
 {
 	switch (target) {
-	case Buffer::Target::VERTEX:
-		return GL_ARRAY_BUFFER;
-	case Buffer::Target::INDEX:
-		return GL_ELEMENT_ARRAY_BUFFER;
-	case Buffer::Target::UNIFORM:
-		return GL_UNIFORM_BUFFER;
-	case Buffer::Target::SHADER_STORAGE:
-		return GL_SHADER_STORAGE_BUFFER;
-	default:
-		MM_CORE_UNINPLEMENTED();
+	case Buffer::Target::VERTEX:         return GL_ARRAY_BUFFER;
+	case Buffer::Target::INDEX:          return GL_ELEMENT_ARRAY_BUFFER;
+	case Buffer::Target::UNIFORM:        return GL_UNIFORM_BUFFER;
+	case Buffer::Target::SHADER_STORAGE: return GL_SHADER_STORAGE_BUFFER;
+	default: MM_CORE_UNINPLEMENTED();
 	}
 }
 

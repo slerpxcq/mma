@@ -135,7 +135,7 @@ public:
 	virtual void SetUniform(const Program&, i32 location, u32 count, const Vec4u* val) const = 0;
 	virtual void SetUniform(const Program&, i32 location, u32 count, const Mat4* val, bool transpose = false) const = 0;
 
-private:
+protected:
 	Config::API m_api{};
 };
 

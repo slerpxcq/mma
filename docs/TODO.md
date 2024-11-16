@@ -112,15 +112,16 @@
         - [x] Fix unconnected bone tip position calculation
 
 # 2024/11/16
-- [ ] Bone transform edit/Gizmo
+- [x] Bone transform edit/Gizmo
     - [x] Change bone bindLocal calculation to pass 2
     - [x] Load local axis/fixed axis to bone
-    - [ ] Gizmo context compute
+    - [x] Gizmo context compute
+
+- [ ] Load rigidbodies 
 
 --- 
 # TODO
 
 Loading:
-- [ ] Load rigidbodies (as nodes or component?)
 
 

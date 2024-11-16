@@ -10,6 +10,7 @@
 #include "Material.hpp"
 
 #include "SceneManager.hpp"
+#include "Physics/PhysicsManager.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -114,10 +115,17 @@ static void LoadSubMeshes(const PMXFile& pmx, const DynArray<Ref<Texture>>& text
 	}
 }
 
+static DynArray<Rigidbody*> LoadRigidbodies(const PMXFile& pmx)
+{
+	auto pm = GetPhysicsManager();
+	for (auto& pr : pmx.GetRigidbodies()) {
+		auto rb = pm->CreateRigidbody();
+	}
+}
+
 Model::Model(const PMXFile& pmx) :
 	SceneObject{ pmx.GetInfo().nameJP }
 {
-	auto renderer = GetRenderer();
 	auto va = LoadVertexArray(pmx);
 	m_mesh = MakeRef<Mesh>(m_name, va);
 	auto textures = LoadTextures(pmx);

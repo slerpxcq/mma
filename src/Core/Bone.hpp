@@ -45,7 +45,7 @@ public:
 	};
 
 public:
-	Bone(ConstructInfo info) : 
+	Bone(const ConstructInfo& info) : 
 		SceneObject{ info.name },
 		m_bindWorld{ info.bindWorld },
 		m_bindLocal{ info.bindWorld },
@@ -55,6 +55,7 @@ public:
 	i32 GetIndex() const { return m_index; }
 	void SetParent(Bone* parent); 
 	Bone* GetParent() const { return m_parent; }
+	Transform GetParentWorld();
 	u32 GetTransformLayer() const { return m_transformLayer; }
 	u32 GetFlags() const { return m_flags; }
 	Transform GetBindLocal() const { return m_bindLocal; }

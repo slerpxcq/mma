@@ -11,8 +11,18 @@ void Bone::SetParent(Bone* parent)
 	m_parent = parent;
 	if (parent) {
 		m_bindLocal = m_parent->GetBindWorldInverse() * m_bindWorld;
-	} else {
+	}
+	else {
 		m_bindLocal = m_bindWorld;
+	}
+}
+
+Transform Bone::GetParentWorld()
+{
+	if (m_parent) {
+		return m_parent->GetNode()->GetWorldTransform();
+	} else {
+		return Transform{};
 	}
 }
 

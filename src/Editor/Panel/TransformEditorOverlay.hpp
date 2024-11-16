@@ -9,22 +9,23 @@ class Bone;
 class TransformEditorOverlay : public PanelOverlay
 {
 public:
-	enum class Operation {
-		ROTATE, ROTATE_X, ROTATE_Y, ROTATE_Z, ROTATE_SCREEN,
-		TRANSLATE, TRANSLATE_X, TRANSLATE_Y, TRANSLATE_Z, TRANSLATE_SCREEN
-	};
-	enum class Mode {
-		LOCAL, WORLD
-	};
-	struct Context {
+	struct GizmoContext {
+		enum class Operation {
+			ROTATE, ROTATE_X, 
+			ROTATE_Y, ROTATE_Z, 
+			ROTATE_SCREEN,
+			TRANSLATE, TRANSLATE_X, 
+			TRANSLATE_Y, TRANSLATE_Z 
+		};
+		enum class Mode { LOCAL, WORLD };
+		enum class Constraint { FREE, LOCAL, FIXED };
 		Bone* bone{};
 		Mat4 worldToLocal{};
 		Mat4 localFrame{};
 		Mat4 localFrameInverse{};
-		Opt<Vec3> fixedAxis{};
-		Opt<Mat4> localAxes{};
 		Operation operation{};
 		Mode mode{};
+		Constraint constraint{};
 	};
 
 public:
@@ -45,7 +46,7 @@ private:
 	static constexpr u32 FILL_COLOR = 0x3fc0c0c0;
 	static constexpr f32 OUTLINE_SIZE = 1.5f;
 
-	Context m_context{};
+	GizmoContext m_gizmoContext{};
 };
 
 }

@@ -26,27 +26,27 @@ void TransformEditorOverlay::OnUpdate(f32 deltaTime)
 {
 }
 
-static ImGuizmo::OPERATION ToImGuizmoOperation(TransformEditorOverlay::Operation op)
+static ImGuizmo::OPERATION ToImGuizmoOperation(TransformEditorOverlay::GizmoContext::Operation op)
 {
 	switch (op) {
-	case TransformEditorOverlay::Operation::ROTATE:	       return ImGuizmo::ROTATE;
-	case TransformEditorOverlay::Operation::ROTATE_X:      return ImGuizmo::ROTATE_X;
-	case TransformEditorOverlay::Operation::ROTATE_Y:      return ImGuizmo::ROTATE_Y;
-	case TransformEditorOverlay::Operation::ROTATE_Z:      return ImGuizmo::ROTATE_Z;
-	case TransformEditorOverlay::Operation::ROTATE_SCREEN: return ImGuizmo::ROTATE_SCREEN;
-	case TransformEditorOverlay::Operation::TRANSLATE:     return ImGuizmo::TRANSLATE;
-	case TransformEditorOverlay::Operation::TRANSLATE_X:   return ImGuizmo::TRANSLATE_X;
-	case TransformEditorOverlay::Operation::TRANSLATE_Y:   return ImGuizmo::TRANSLATE_Y;
-	case TransformEditorOverlay::Operation::TRANSLATE_Z:   return ImGuizmo::TRANSLATE_Z;
+	case TransformEditorOverlay::GizmoContext::Operation::ROTATE:	     return ImGuizmo::ROTATE;
+	case TransformEditorOverlay::GizmoContext::Operation::ROTATE_X:      return ImGuizmo::ROTATE_X;
+	case TransformEditorOverlay::GizmoContext::Operation::ROTATE_Y:      return ImGuizmo::ROTATE_Y;
+	case TransformEditorOverlay::GizmoContext::Operation::ROTATE_Z:      return ImGuizmo::ROTATE_Z;
+	case TransformEditorOverlay::GizmoContext::Operation::ROTATE_SCREEN: return ImGuizmo::ROTATE_SCREEN;
+	case TransformEditorOverlay::GizmoContext::Operation::TRANSLATE:     return ImGuizmo::TRANSLATE;
+	case TransformEditorOverlay::GizmoContext::Operation::TRANSLATE_X:   return ImGuizmo::TRANSLATE_X;
+	case TransformEditorOverlay::GizmoContext::Operation::TRANSLATE_Y:   return ImGuizmo::TRANSLATE_Y;
+	case TransformEditorOverlay::GizmoContext::Operation::TRANSLATE_Z:   return ImGuizmo::TRANSLATE_Z;
 	default: MM_APP_UNREACHABLE(); 
 	}
 }
 
-static ImGuizmo::MODE ToImGuizmoMode(TransformEditorOverlay::Mode mode)
+static ImGuizmo::MODE ToImGuizmoMode(TransformEditorOverlay::GizmoContext::Mode mode)
 {
 	switch (mode) {
-	case TransformEditorOverlay::Mode::LOCAL: return ImGuizmo::LOCAL;
-	case TransformEditorOverlay::Mode::WORLD: return ImGuizmo::WORLD;
+	case TransformEditorOverlay::GizmoContext::Mode::LOCAL: return ImGuizmo::LOCAL;
+	case TransformEditorOverlay::GizmoContext::Mode::WORLD: return ImGuizmo::WORLD;
 	default: MM_APP_UNREACHABLE();
 	}
 }
@@ -189,34 +189,38 @@ void TransformEditorOverlay::ShowGizmo()
 	ImGuizmo::SetRect(pos.x, pos.y, size.x, size.y);
 
 	/* temp */
-	m_context.operation = Operation::ROTATE;
+	m_gizmoContext.operation = GizmoContext::Operation::ROTATE;
 
-	if (m_context.bone) {
+	if (m_gizmoContext.bone) {
 		ImGuizmo::Enable(true);
-		if (m_context.fixedAxis) {
+		switch (m_gizmoContext.constraint) {
+		case GizmoContext::Constraint::FIXED:
 			ImGuizmo::Manipulate(glm::value_ptr(view),
 								 glm::value_ptr(proj),
 								 ImGuizmo::ROTATE_X,
 								 ImGuizmo::LOCAL,
-								 glm::value_ptr(m_context.localFrame));
-		}
-		else if (m_context.localAxes) {
+								 glm::value_ptr(m_gizmoContext.localFrame));
+			break;
+		case GizmoContext::Constraint::LOCAL:
 			ImGuizmo::Manipulate(glm::value_ptr(view),
 								 glm::value_ptr(proj),
-								 ToImGuizmoOperation(m_context.operation),
+								 ToImGuizmoOperation(m_gizmoContext.operation),
 								 ImGuizmo::LOCAL,
-								 glm::value_ptr(m_context.localFrame));
-		} 
-		else {
+								 glm::value_ptr(m_gizmoContext.localFrame));
+			break;
+		case GizmoContext::Constraint::FREE:
 			ImGuizmo::Manipulate(glm::value_ptr(view),
 								 glm::value_ptr(proj),
-								 ToImGuizmoOperation(m_context.operation),
-								 ToImGuizmoMode(m_context.mode),
-								 glm::value_ptr(m_context.localFrame));
+								 ToImGuizmoOperation(m_gizmoContext.operation),
+								 ToImGuizmoMode(m_gizmoContext.mode),
+								 glm::value_ptr(m_gizmoContext.localFrame));
+			break;
+		default:
+			MM_APP_UNREACHABLE();
 		}
-		Mat4 world = m_context.localFrame * m_context.localFrameInverse;
-		Mat4 pose = m_context.worldToLocal * world;
-		m_context.bone->SetPoseLocal(pose);
+		Mat4 world = m_gizmoContext.localFrame * m_gizmoContext.localFrameInverse;
+		Mat4 pose = m_gizmoContext.worldToLocal * world;
+		m_gizmoContext.bone->SetPoseLocal(pose);
 	} else {
 		ImGuizmo::Enable(false);
 	}
@@ -224,29 +228,32 @@ void TransformEditorOverlay::ShowGizmo()
 
 void TransformEditorOverlay::OnBoneSelected(Bone* bone)
 {
-	m_context.bone = bone;
-	m_context.fixedAxis = bone->GetFixedAxis();
-	m_context.localAxes = bone->GetLocalAxes();
-	auto parent = bone->GetParent();
-	Mat4 parentWorld = parent ?
-		parent->GetNode()->GetWorldMatrix() :
-		glm::identity<Mat4>();
-	m_context.worldToLocal = glm::inverse(parentWorld * bone->GetBindLocal().ToMat4());
+	m_gizmoContext.bone = bone;
+	m_gizmoContext.worldToLocal = (bone->GetParentWorld() * bone->GetBindLocal()).Inverse();
+
+	auto fixedAxis = bone->GetFixedAxis();
+	auto localAxes = bone->GetLocalAxes();
+	m_gizmoContext.constraint = 
+		localAxes.has_value() ? GizmoContext::Constraint::LOCAL :
+		fixedAxis.has_value() ? GizmoContext::Constraint::FIXED :
+		GizmoContext::Constraint::FREE;
 
 	Mat4 localFrame{ 1.f };
-	if (m_context.fixedAxis) {
-		Vec3 x = *m_context.fixedAxis;
+	switch (m_gizmoContext.constraint) {
+	case GizmoContext::Constraint::FIXED:
+		Vec3 x = *fixedAxis;
 		Vec3 z = glm::normalize(glm::cross(Vec3{ 0, 1, 0 }, x));
 		Vec3 y = glm::cross(z, x);
 		localFrame[0] = Vec4{ x, 0 };
 		localFrame[1] = Vec4{ y, 0 };
 		localFrame[2] = Vec4{ z, 0 };
+		break;
+	case GizmoContext::Constraint::LOCAL:
+		localFrame = *localAxes;
+		break;
 	}
-	else if (m_context.localAxes) {
-		localFrame = *m_context.localAxes;
-	}
-	m_context.localFrame = bone->GetNode()->GetWorldMatrix() * localFrame;
-	m_context.localFrameInverse = glm::inverse(localFrame);
+	m_gizmoContext.localFrame = bone->GetNode()->GetWorldMatrix() * localFrame;
+	m_gizmoContext.localFrameInverse = glm::inverse(localFrame);
 }
 
 }

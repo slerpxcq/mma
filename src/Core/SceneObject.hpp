@@ -10,6 +10,7 @@ class Node;
 class SceneObject : public NamedObject
 {
 public:
+	MM_NONCOPYABLE(SceneObject)
 	virtual ~SceneObject() = default;
 
 	/* NOTE: Should not be called directly;

@@ -24,6 +24,9 @@
 
 #include "InverseKinematics/InverseKinematicsSolverCCD.hpp"
 
+#include "Physics/PhysicsManager.hpp"
+#include "Physics/Bullet/PhysicsManager_Bullet.hpp"
+
 #include "Node.hpp"
 
 namespace mm
@@ -67,6 +70,7 @@ void Application::Startup()
 	SetSceneManager(new SceneManager{});
 	SetRenderer(new Renderer{});
 	SetInverseKinematicsSolver(new InverseKinematicsSolverCCD{});
+	SetPhysicsManager(new PhysicsManager_Bullet{});
 	auto rdr = GetRenderer();
 	rdr->LoadInternalTextures();
 	rdr->LoadDefaultProgram();
@@ -101,6 +105,7 @@ void Application::Shutdown()
 {
 	MM_CORE_INFO("Application shutting down...");
 
+	delete GetPhysicsManager();
 	delete GetInverseKinematicsSolver();
 	delete GetMainViewport();
 	delete GetRenderer();
