@@ -16,9 +16,13 @@ public:
 	PhysicsManager() = default;
 	virtual ~PhysicsManager() = default;
 
+	virtual void StepSimulation(f32 deltaTime) = 0;
 	virtual Rigidbody* CreateRigidbody(const Rigidbody::ConstructInfo& info) = 0;
 	virtual Collider CreateCollider(const Collider::ConstructInfo& info) = 0;
 	virtual Constraint CreateConstraint(const Constraint::ConstructInfo& info) = 0;
+
+	virtual void PullRigidbodyTransform(Rigidbody*) = 0;
+	virtual void PushRigidbodyTransform(Rigidbody*) = 0;
 };
 
 }

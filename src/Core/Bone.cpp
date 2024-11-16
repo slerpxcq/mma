@@ -3,6 +3,8 @@
 
 #include "Node.hpp"
 
+#include "Physics/PhysicsManager.hpp"
+
 namespace mm
 {
 
@@ -42,6 +44,18 @@ void Bone::SetLocalAxes(Vec3 x, Vec3 z)
 {
 	Vec3 y = glm::cross(z, x);
 	m_localAxes = Mat3{ x, y, z };
+}
+
+void Bone::PullRigidbodyTransform()
+{
+	MM_CORE_ASSERT(m_rigidbody);
+	GetPhysicsManager()->PullRigidbodyTransform(m_rigidbody);
+}
+
+void Bone::PushRigidbodyTransform()
+{
+	MM_CORE_ASSERT(m_rigidbody);
+	GetPhysicsManager()->PushRigidbodyTransform(m_rigidbody);
 }
 
 }

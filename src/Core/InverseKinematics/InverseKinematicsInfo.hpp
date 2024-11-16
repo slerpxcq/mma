@@ -8,14 +8,12 @@ struct InverseKinematicsInfo
 {
 	struct Node {
 		Bone* bone{};
-		bool hasLimit{};
-		Vec3 upperLimit{};
-		Vec3 lowerLimit{};
+		Opt<Pair<Vec3, Vec3>> limit{};
 	};
 
 	i32 iteration{};
 	f32 unitAngle{};
-	DynArray<Node> link;
+	DynArray<Node> chain;
 };
 
 }

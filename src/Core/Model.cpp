@@ -139,7 +139,7 @@ static Collider LoadCollider(const PMXFile::Rigidbody& pr)
 	return collider;
 }
 
-static DynArray<Rigidbody*> LoadRigidbodies(const PMXFile& pmx)
+static DynArray<Rigidbody*> LoadRigidbodies(const PMXFile& pmx, const DynArray<Bone*>& bones)
 {
 	auto pm = GetPhysicsManager();
 	auto sm = GetSceneManager();
@@ -153,13 +153,25 @@ static DynArray<Rigidbody*> LoadRigidbodies(const PMXFile& pmx)
 		info.collider = collider;
 		info.friction = pr.friction;
 		info.group = pr.group;
-		info.isDynamic = pr.physicsType == static_cast<u8>(PMXFile::RigidbodyType::DYNAMIC);
+		switch (static_cast<PMXFile::RigidbodyType>(pr.physicsType)) {
+		case PMXFile::RigidbodyType::DYNAMIC:
+			info.flags |= Rigidbody::DYNAMIC_BIT;
+			break; 
+		case PMXFile::RigidbodyType::KINEMATIC:
+			info.flags |= Rigidbody::KINEMATIC_BIT;
+			break; 
+		case PMXFile::RigidbodyType::PIVOTED:
+			info.flags |= (Rigidbody::KINEMATIC_BIT | Rigidbody::DYNAMIC_BIT);
+			break; 
+		}
 		info.linearDamping = pr.linearDamping;
 		info.mass = pr.mass;
 		info.name = pr.nameJP;
 		info.noCollisionGroupMask = pr.noCollisionGroup;
 		info.restitution = pr.restitution;
-		result.push_back(pm->CreateRigidbody(info));
+		auto rigidbody = pm->CreateRigidbody(info);
+		bones[pr.boneIndex]->SetRigidbody(rigidbody);
+		result.push_back(rigidbody);
 	}
 	return result;
 }
@@ -195,7 +207,7 @@ Model::Model(const PMXFile& pmx) :
 	auto textures = LoadTextures(pmx);
 	LoadSubMeshes(pmx, textures, *m_mesh);
 	m_armature = MakeScoped<Armature>(pmx);
-	m_rigidbodies = LoadRigidbodies(pmx);
+	m_rigidbodies = LoadRigidbodies(pmx, m_armature->GetBones());
 	m_constraints = LoadConstraints(pmx, m_rigidbodies);
 }
 
@@ -212,9 +224,10 @@ void Model::AttachTo(Node* node)
 			boneNode->AttachObject(bone);
 			boneNode->SetWorldTransform(bone->GetBindWorld());
 		}
-	}
-	for (auto&& rb : m_rigidbodies) {
-		node->AttachObject(rb);
+		auto rigidbody = bone->GetRigidbody();
+		if (rigidbody) {
+			bone->GetNode()->AttachObject(rigidbody);
+		}
 	}
 }
 

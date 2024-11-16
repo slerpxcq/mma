@@ -8,6 +8,9 @@
 #include "InverseKinematics/InverseKinematicsInfo.hpp"
 #include "InverseKinematics/InverseKinematicsSolver.hpp"
 
+#include "Physics/PhysicsManager.hpp"
+#include "Physics/Rigidbody.hpp"
+
 namespace mm
 {
 
@@ -30,11 +33,26 @@ static bool IsCurrentLayer(Bone* bone, u32 layer, bool afterPhysics)
 
 void Armature::Update()
 {
-	//ClearAnimLocal();
+	ClearAnimLocal();
 	for (u32 layer = 0; layer <= m_maxTransformLayer; ++layer) {
 		UpdateForwardKinematics(layer, false);
 		UpdateInverseKinematics(layer, false);
 		UpdateAssignment(layer, false);
+	}
+	for (auto&& bone : m_bones) {
+		auto rigidbody = bone->GetRigidbody();
+		if (rigidbody) {
+			if (rigidbody->IsDynamic()) {
+				bone->PullRigidbodyTransform();
+			} else if (rigidbody->IsKinematic()) {
+				bone->PushRigidbodyTransform();
+			}
+		}
+	}
+	for (u32 layer = 0; layer <= m_maxTransformLayer; ++layer) {
+		UpdateForwardKinematics(layer, true);
+		UpdateInverseKinematics(layer, true);
+		UpdateAssignment(layer, true);
 	}
 	UpdateSkinningBuffer();
 }
@@ -69,15 +87,10 @@ void Armature::LoadBonesPass1(const PMXFile& pmx)
 	for (const auto& pb : pmx.GetBones()) {
 		Bone::ConstructInfo info{};
 		Transform bindWorld = glm::make_vec3(pb.position);
-		// Transform bindLocal = { pb.parentIndex < 0 ?
-		// 	glm::make_vec3(pb.position) :
-		// 	glm::make_vec3(pb.position) - glm::make_vec3(pmx.GetBones()[pb.parentIndex].position),
-		// 	glm::identity<Quat>() };
 		info.name = pb.nameJP;
 		info.index = index;
 		info.flags = pb.flags;
 		info.transformLayer = pb.transformationLayer;
-		//info.bindLocal = bindLocal;
 		info.bindWorld = bindWorld;
 		auto bone = sm->CreateObject<Bone>(info);
 		m_boneNameIndexMap.insert({ pb.nameJP, index });
@@ -105,18 +118,18 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 			InverseKinematicsInfo ikInfo{};
 			ikInfo.iteration = pb.ik.iteration;
 			ikInfo.unitAngle = pb.ik.unitAngle;
-			ikInfo.link.reserve(pb.ik.link.size() + 1);
+			ikInfo.chain.reserve(pb.ik.link.size() + 1);
 			InverseKinematicsInfo::Node node{};
 			node.bone = m_bones[pb.ik.targetIndex];
-			node.hasLimit = false;
-			ikInfo.link.push_back(node);
+			ikInfo.chain.push_back(node);
 			for (auto& pn : pb.ik.link) {
 				InverseKinematicsInfo::Node node{};
 				node.bone = m_bones[pn.boneIndex];
-				node.hasLimit = pn.doLimit;
-				node.lowerLimit = glm::make_vec3(pn.limit[0]);
-				node.upperLimit = glm::make_vec3(pn.limit[1]);
-				ikInfo.link.push_back(node);
+				if (pn.doLimit) {
+					node.limit = MakePair(glm::make_vec3(pn.limit[0]),
+										  glm::make_vec3(pn.limit[1]));
+				}
+				ikInfo.chain.push_back(node);
 			}
 			bone->SetInverseKinematicsInfo(ikInfo);
 		}
@@ -158,7 +171,7 @@ void Armature::UpdateForwardKinematics(u32 layer, bool afterPhysics)
 {
 	for (auto& bone : m_bones) {
 		if (IsCurrentLayer(bone, layer, afterPhysics)) {
-			bone->SetAnimLocal(bone->GetPoseLocal());
+			bone->SetAnimLocal(bone->GetPoseLocal() * bone->GetAnimLocal());
 		}
 	}
 }

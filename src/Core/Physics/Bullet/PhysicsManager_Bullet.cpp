@@ -17,11 +17,23 @@ PhysicsManager_Bullet::PhysicsManager_Bullet()
 	m_dynamicsWorld->setGravity(btVector3(0, -9.8, 0));
 }
 
+void PhysicsManager_Bullet::StepSimulation(f32 deltaTime)
+{
+	static constexpr f32 MIN_STEP = 1.f / 60;
+	static f32 acc;
+
+	acc += deltaTime;
+	while (acc >= MIN_STEP) {
+		m_dynamicsWorld->stepSimulation(MIN_STEP);
+		acc -= MIN_STEP;
+	}
+}
+
 Rigidbody* PhysicsManager_Bullet::CreateRigidbody(const Rigidbody::ConstructInfo& info)
 {
 	btVector3 localInertia(0, 0, 0);
 	btScalar mass = 0;
-	if (info.isDynamic) {
+	if (info.flags & Rigidbody::DYNAMIC_BIT) {
 		auto shape = static_cast<btCollisionShape*>(info.collider.GetHandle());
 		shape->calculateLocalInertia(info.mass, localInertia);
 		mass = info.mass;
@@ -39,7 +51,7 @@ Rigidbody* PhysicsManager_Bullet::CreateRigidbody(const Rigidbody::ConstructInfo
 	rigidbody->setFriction(info.friction);
 	rigidbody->setRestitution(info.restitution);
 	rigidbody->setActivationState(DISABLE_DEACTIVATION);
-	if (info.isDynamic) {
+	if (info.flags & Rigidbody::DYNAMIC_BIT) {
 		rigidbody->setCollisionFlags(rigidbody->getCollisionFlags() | 
 									 btCollisionObject::CF_DYNAMIC_OBJECT);
 	} else {
@@ -52,6 +64,7 @@ Rigidbody* PhysicsManager_Bullet::CreateRigidbody(const Rigidbody::ConstructInfo
 	auto sm = GetSceneManager();
 	auto result = sm->CreateObject<Rigidbody>(info.name);
 	result->SetBindWorld(info.bindWorld);
+	result->SetFlags(info.flags);
 	result->SetHandle(rigidbody);
 	return result;
 }
@@ -76,11 +89,6 @@ Collider PhysicsManager_Bullet::CreateCollider(const Collider::ConstructInfo& in
 	Collider result;
 	result.SetHandle(m_collisionShapes.back().get());
 	return result;
-}
-
-static Transform ComputeLocalFrame(const Transform& jointBindWorld, const Transform& rigidbodyBindWorld)
-{
-	return jointBindWorld.Inverse() * rigidbodyBindWorld;
 }
 
 Constraint PhysicsManager_Bullet::CreateConstraint(const Constraint::ConstructInfo& info)
@@ -112,6 +120,23 @@ Constraint PhysicsManager_Bullet::CreateConstraint(const Constraint::ConstructIn
 	Constraint result{ info.name };
 	result.SetHandle(m_constraints.back().get());
 	return result;
+}
+
+void PhysicsManager_Bullet::PullRigidbodyTransform(Rigidbody* body)
+{
+	auto rigidbody = static_cast<btRigidBody*>(body->GetHandle());
+	btTransform transform;
+	rigidbody->getMotionState()->getWorldTransform(transform);
+	body->GetNode()->SetWorldTransform(Cast<Transform>(transform));
+}
+
+void PhysicsManager_Bullet::PushRigidbodyTransform(Rigidbody* body)
+{
+	auto rigidbody = static_cast<btRigidBody*>(body->GetHandle());
+	rigidbody->clearForces();
+	rigidbody->setLinearVelocity({ 0, 0, 0 });
+	rigidbody->setAngularVelocity({ 0, 0, 0 });
+	rigidbody->setWorldTransform(Cast<btTransform>(body->GetNode()->GetWorldTransform()));
 }
 
 }

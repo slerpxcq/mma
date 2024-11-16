@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Common/Math/Transform.hpp"
 #include "InverseKinematics/InverseKinematicsInfo.hpp"
 #include "SceneObject.hpp"
 
 namespace mm
 {
 
+class Rigidbody;
 class Bone : public SceneObject
 {
 public:
@@ -77,6 +77,10 @@ public:
 	Opt<Mat3> GetLocalAxes() const { return m_localAxes; }
 	void SetFixedAxis(Vec3 axis) { m_fixedAxis = axis; }
 	Opt<Vec3> GetFixedAxis() const { return m_fixedAxis; }
+	void SetRigidbody(Rigidbody* rigidbody) { m_rigidbody = rigidbody; }
+	Rigidbody* GetRigidbody() const { return m_rigidbody; }
+	void PullRigidbodyTransform();
+	void PushRigidbodyTransform();
 
 private:
 	Bone* m_parent{};
@@ -90,6 +94,7 @@ private:
 	Transform m_animLocal{};
 	Transform m_poseLocal{};
 
+	Rigidbody* m_rigidbody{};
 	Opt<Mat3> m_localAxes{};
 	Opt<Vec3> m_fixedAxis{};
 	Opt<AssignmentInfo> m_assignmentInfo;
