@@ -149,7 +149,7 @@ static DynArray<Rigidbody*> LoadRigidbodies(const PMXFile& pmx, const DynArray<B
 		auto collider = LoadCollider(pr);
 		Rigidbody::ConstructInfo info{};
 		info.angularDamping = pr.angularDamping;
-		info.bindWorld = { glm::make_vec3(pr.position), Quat{ glm::make_vec3(pr.rotation) } };
+		info.bindWorld = { glm::make_vec3(pr.position), Quat{ MakeEulerAnglesPMX(pr.rotation) } };
 		info.collider = collider;
 		info.friction = pr.friction;
 		info.group = pr.group;
@@ -186,7 +186,7 @@ static DynArray<Constraint> LoadConstraints(const PMXFile& pmx, const DynArray<R
 		info.angularLimit = MakePair(glm::make_vec3(pj.angularLimit[0]),
 									 glm::make_vec3(pj.angularLimit[1]));
 		info.angularStiffness = glm::make_vec3(pj.angularStiffness);
-		info.bindWorld = { glm::make_vec3(pj.position), Quat{glm::make_vec3(pj.rotation)} };
+		info.bindWorld = { glm::make_vec3(pj.position), Quat{MakeEulerAnglesPMX(pj.rotation)} };
 		info.linearLimit = MakePair(glm::make_vec3(pj.angularLimit[0]),
 									glm::make_vec3(pj.angularLimit[1]));
 		info.linearStiffness = glm::make_vec3(pj.linearStiffness);

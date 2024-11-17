@@ -12,8 +12,8 @@
 namespace mm
 {
 
-CameraControllerOverlay::CameraControllerOverlay(Panel& parent, StringView name) :
-	PanelOverlay{ parent, name }
+CameraControllerOverlay::CameraControllerOverlay(Panel& parent) :
+	PanelOverlay{ parent }
 {
 	MM_APP_ASSERT(dynamic_cast<ViewportPanel*>(&parent));
 }

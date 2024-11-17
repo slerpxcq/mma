@@ -21,6 +21,16 @@ template <> inline ImVec2 Cast<ImVec2, Vec2>(const Vec2& v)
 	return ImVec2{ v.x, v.y };
 }
 
+template <> inline Vec4 Cast<Vec4, ImVec4>(const ImVec4& v)
+{
+	return Vec4{ v.x, v.y, v.z, v.w };
+}
+
+template <> inline ImVec4 Cast<ImVec4, Vec4>(const Vec4& v)
+{
+	return ImVec4{ v.x, v.y, v.z, v.w };
+}
+
 template <> inline Quat Cast<Quat, btQuaternion>(const btQuaternion& q)
 {
 	return Quat{ q.getW(), q.getX(), q.getY(), q.getZ() };
@@ -50,5 +60,6 @@ template <> inline btTransform Cast<btTransform, Transform>(const Transform& t)
 {
 	return btTransform{ Cast<btQuaternion>(t.rotation), Cast<btVector3>(t.translation) };
 }
+
 
 }

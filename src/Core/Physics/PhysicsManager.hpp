@@ -7,6 +7,7 @@
 namespace mm
 {
 
+class DebugDraw;
 class PhysicsManager
 {
 public:
@@ -23,6 +24,13 @@ public:
 
 	virtual void PullRigidbodyTransform(Rigidbody*) = 0;
 	virtual void PushRigidbodyTransform(Rigidbody*) = 0;
+
+	virtual void DebugDrawWorld() const = 0;
+	void SetDebugDraw(DebugDraw* dbg) { m_debugDraw = dbg; }
+	DebugDraw* GetDebugDraw() const { return m_debugDraw; }
+
+private:
+	DebugDraw* m_debugDraw{};
 };
 
 }

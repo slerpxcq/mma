@@ -117,11 +117,11 @@
     - [x] Load local axis/fixed axis to bone
     - [x] Gizmo context compute
 
-- [ ] Load rigidbodies 
+- [x] Load rigidbodies 
 
 --- 
 # TODO
+[ ] Physics debug draw overlay
 
-Loading:
 
 

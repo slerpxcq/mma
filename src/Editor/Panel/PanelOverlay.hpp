@@ -4,16 +4,19 @@
 
 namespace mm
 {
+
 class Panel;
-class PanelOverlay : public NamedObject
+class PanelOverlay 
 {
 public:
-	PanelOverlay(Panel& parent, StringView name) :
-		NamedObject{ name },
-		m_parent{ parent } {}
 	virtual ~PanelOverlay() = default;
+	PanelOverlay(Panel& parent) :
+		m_parent{ parent } {}
+
 	virtual void OnUpdate(f32) = 0;
 	virtual void OnRender() = 0;
+
+	Panel* GetParent() { return &m_parent; }
 
 protected:
 	Panel& m_parent;

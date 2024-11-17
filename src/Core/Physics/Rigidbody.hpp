@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Collider.hpp"
-#include "SceneObject.hpp"
+#include "../SceneObject.hpp"
 #include "PhysicsObject.hpp"
 
 namespace mm

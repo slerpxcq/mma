@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Panel.hpp"
-#include "Core/Graphics/FrameBuffer.hpp"
+
+#include "Core/Viewport.hpp"
 
 namespace mm
 {
@@ -17,6 +18,8 @@ public:
 
 	void SetViewport(Viewport* vp) { m_viewport = vp; }
 	Viewport* GetViewport() const { return m_viewport; }
+
+	Vec3 ToScreenPos(Vec3 worldPos);
 
 private:
 	Viewport* m_viewport{};

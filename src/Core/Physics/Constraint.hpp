@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PhysicsObject.hpp"
-#include "NamedObject.hpp"
+#include "../NamedObject.hpp"
 
 namespace mm
 {

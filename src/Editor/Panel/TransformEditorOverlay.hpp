@@ -29,13 +29,13 @@ public:
 	};
 
 public:
-	TransformEditorOverlay(Panel& parent, StringView name);
+	TransformEditorOverlay(Panel& parent);
 
 	void OnUpdate(f32) override;
 	void OnRender() override;
 
 private:
-	Vec3 ToScreenPos(Vec3 worldPos);
+	Vec3 ToScreenPos(Vec3 world);
 	Vec2 GetTipPos(Bone* bone);
 	void ShowGizmo();
 	void OnBoneSelected(Bone* bone);

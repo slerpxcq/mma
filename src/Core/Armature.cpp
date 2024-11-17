@@ -45,7 +45,7 @@ void Armature::Update()
 			if (rigidbody->IsDynamic()) {
 				bone->PullRigidbodyTransform();
 			} else if (rigidbody->IsKinematic()) {
-				bone->PushRigidbodyTransform();
+				//bone->PushRigidbodyTransform();
 			}
 		}
 	}

@@ -6,6 +6,9 @@
 #include "Common/Base.hpp"
 #include "Common/ClassTraits.hpp"
 
+#include "Common/Math/Cast.hpp"
+#include "Common/Math/Transform.hpp"
+
 #include "Common/Container/DynArray.hpp"
 #include "Common/Container/String.hpp"
 #include "Common/Container/Map.hpp" 

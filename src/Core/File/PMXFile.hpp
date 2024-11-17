@@ -359,5 +359,10 @@ private:
 
 };
 
+inline Vec3 MakeEulerAnglesPMX(const float* v)
+{
+	return Vec3{ v[1], v[0], v[2] };
+}
+
 
 }

@@ -42,4 +42,14 @@ void ViewportPanel::OnRender()
 	ImGui::PopStyleVar();
 }
 
+Vec3 ViewportPanel::ToScreenPos(Vec3 worldPos)
+{
+	Mat4 viewProjection = m_viewport->GetViewProjectionMatrix();
+	Vec4 ndcPos = viewProjection * Vec4(worldPos, 1);
+	ndcPos /= ndcPos.w;
+	return Vec3((ndcPos.x + 1.f) * 0.5f * m_contentSize.x + m_contentPos.x,
+				(-ndcPos.y + 1.f) * 0.5f * m_contentSize.y + m_contentPos.y,
+				ndcPos.z);
+}
+
 }

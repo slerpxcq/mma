@@ -16,8 +16,8 @@
 namespace mm
 {
 
-TransformEditorOverlay::TransformEditorOverlay(Panel& parent, StringView name) :
-	PanelOverlay{ parent, name }
+TransformEditorOverlay::TransformEditorOverlay(Panel& parent) :
+	PanelOverlay{ parent }
 {
 	MM_APP_ASSERT(dynamic_cast<ViewportPanel*>(&parent));
 }
@@ -145,18 +145,9 @@ void TransformEditorOverlay::OnRender()
 	/* END TEST CODE */
 }
 
-Vec3 TransformEditorOverlay::ToScreenPos(Vec3 worldPos)
+Vec3 TransformEditorOverlay::ToScreenPos(Vec3 world)
 {
-	auto& panel = static_cast<ViewportPanel&>(m_parent);
-	Viewport* viewport = panel.GetViewport();
-	Mat4 viewProjection = viewport->GetViewProjectionMatrix();
-	Vec2 viewportSize = panel.GetContentSize();
-	Vec2 viewportPos = panel.GetContentPos();
-	Vec4 ndcPos = viewProjection * Vec4(worldPos, 1);
-	ndcPos /= ndcPos.w;
-	return Vec3((ndcPos.x + 1.f) * 0.5f * viewportSize.x + viewportPos.x,
-				(-ndcPos.y + 1.f) * 0.5f * viewportSize.y + viewportPos.y,
-				ndcPos.z);
+	return static_cast<ViewportPanel&>(m_parent).ToScreenPos(world);
 }
 
 Vec2 TransformEditorOverlay::GetTipPos(Bone* bone)

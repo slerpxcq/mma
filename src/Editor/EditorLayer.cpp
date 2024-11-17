@@ -6,9 +6,11 @@
 #include "Panel/SceneHierarchyPanel.hpp"
 #include "Panel/TransformEditorOverlay.hpp"
 #include "Panel/CameraControllerOverlay.hpp"
+#include "Panel/PhysicsDebugDrawOverlay.hpp"
 
 /* BEGIN TEST INCLUDE */
 #include "Core/SceneManager.hpp"
+#include "Core/Physics/PhysicsManager.hpp"
 
 #include "Core/Graphics/Shader.hpp"
 #include "Core/Graphics/Program.hpp"
@@ -31,13 +33,15 @@ namespace mm
 EditorLayer::EditorLayer(const Window& window) :
 	ImGuiLayer{ window }
 {
-	auto vp = MakeScoped<ViewportPanel>("Viewport");
-	vp->SetViewport(GetMainViewport());
-	vp->PushOverlay<CameraControllerOverlay>("Camera Controller Overlay");
-	vp->PushOverlay<TransformEditorOverlay>("Pose Editor Overlay");
-	m_panels.push_back(std::move(vp));
+	auto viewportPanel = MakeScoped<ViewportPanel>("Viewport");
+	viewportPanel->SetViewport(GetMainViewport());
+	viewportPanel->PushOverlay<TransformEditorOverlay>();
+	auto physicsDebugDrawOverlay = viewportPanel->PushOverlay<PhysicsDebugDrawOverlay>();
+	viewportPanel->PushOverlay<CameraControllerOverlay>();
+	m_panels.push_back(std::move(viewportPanel));
 	m_panels.push_back(MakeScoped<MenuBarPanel>());
 	m_panels.push_back(MakeScoped<SceneHierarchyPanel>());
+	GetPhysicsManager()->SetDebugDraw(physicsDebugDrawOverlay->GetDebugDraw());
 
 	/* BEGIN TEST CODE */
 	// Load model
