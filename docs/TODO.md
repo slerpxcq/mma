@@ -119,9 +119,11 @@
 
 - [x] Load rigidbodies 
 
+# 2024/11/17
+[x] Physics debug draw overlay
+
 --- 
 # TODO
-[ ] Physics debug draw overlay
 
 
 

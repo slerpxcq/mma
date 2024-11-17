@@ -71,14 +71,6 @@ Transform Node::GetWorldTransform()
 	return m_worldTransform;
 }
 
-// void Node::UpdateSubtreeWorldTransform()
-// {
-// 	for (auto& child : m_children) {
-// 		child->m_worldTransform = m_worldTransform * child->m_localTransform;
-// 		child->UpdateSubtreeWorldTransform();
-// 	}
-// }
-
 void Node::InvalidateSubtreeWorldTransform()
 {
 	m_isWorldTransformValid = false;

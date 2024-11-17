@@ -23,7 +23,7 @@ public:
 	virtual Constraint CreateConstraint(const Constraint::ConstructInfo& info) = 0;
 
 	virtual void PullRigidbodyTransform(Rigidbody*) = 0;
-	virtual void PushRigidbodyTransform(Rigidbody*) = 0;
+	virtual void PushRigidbodyTransform(Rigidbody*, const Transform&, Transform::Type type) = 0;
 
 	virtual void DebugDrawWorld() const = 0;
 	void SetDebugDraw(DebugDraw* dbg) { m_debugDraw = dbg; }

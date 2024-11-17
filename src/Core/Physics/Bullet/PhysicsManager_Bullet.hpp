@@ -18,7 +18,7 @@ public:
 	virtual Constraint CreateConstraint(const Constraint::ConstructInfo& info) override;
 
 	virtual void PullRigidbodyTransform(Rigidbody*) override;
-	virtual void PushRigidbodyTransform(Rigidbody*) override;
+	virtual void PushRigidbodyTransform(Rigidbody*, const Transform&, Transform::Type type) override;
 
 	virtual void DebugDrawWorld() const override;
 

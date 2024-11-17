@@ -46,16 +46,24 @@ void Bone::SetLocalAxes(Vec3 x, Vec3 z)
 	m_localAxes = Mat3{ x, y, z };
 }
 
-void Bone::PullRigidbodyTransform()
+void Bone::PullRigidbodyTransform(Transform::Type type)
 {
-	MM_CORE_ASSERT(m_rigidbody);
 	GetPhysicsManager()->PullRigidbodyTransform(m_rigidbody);
+	auto boneToRigidbody = m_rigidbody->GetBindWorld().Inverse() * m_bindWorld;
+	auto transform = m_rigidbody->GetNode()->GetWorldTransform() * boneToRigidbody;
+	if (type & Transform::Type::ROTATION_BIT) {
+		m_node->SetWorldRotation(transform.rotation);
+	}
+	if (type & Transform::Type::TRANSLATION_BIT) {
+		m_node->SetWorldTranslation(transform.translation);
+	}
 }
 
-void Bone::PushRigidbodyTransform()
+void Bone::PushRigidbodyTransform(Transform::Type type)
 {
-	MM_CORE_ASSERT(m_rigidbody);
-	GetPhysicsManager()->PushRigidbodyTransform(m_rigidbody);
+	auto rigidbodyToBone = m_bindWorld.Inverse() * m_rigidbody->GetBindWorld();
+	auto transform = m_node->GetWorldTransform() * rigidbodyToBone;
+	GetPhysicsManager()->PushRigidbodyTransform(m_rigidbody, transform, type);
 }
 
 }

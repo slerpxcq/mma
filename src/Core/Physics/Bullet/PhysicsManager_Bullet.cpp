@@ -37,11 +37,13 @@ void PhysicsManager_Bullet::StepSimulation(f32 deltaTime)
 	static constexpr f32 MIN_STEP = 1.f / 60;
 	static f32 acc;
 
-	acc += deltaTime;
-	while (acc >= MIN_STEP) {
-		m_dynamicsWorld->stepSimulation(MIN_STEP);
-		acc -= MIN_STEP;
-	}
+	m_dynamicsWorld->stepSimulation(deltaTime);
+
+	// acc += deltaTime;
+	// while (acc >= MIN_STEP) {
+	// 	m_dynamicsWorld->stepSimulation(MIN_STEP);
+	// 	acc -= MIN_STEP;
+	// }
 }
 
 Rigidbody* PhysicsManager_Bullet::CreateRigidbody(const Rigidbody::ConstructInfo& info)
@@ -49,11 +51,17 @@ Rigidbody* PhysicsManager_Bullet::CreateRigidbody(const Rigidbody::ConstructInfo
 	auto shape = static_cast<btCollisionShape*>(info.collider.GetHandle());
 	btVector3 localInertia(0, 0, 0);
 	btScalar mass = 0;
-	if (info.flags & Rigidbody::DYNAMIC_BIT) {
+	switch (info.type) {
+	case Rigidbody::Type::KINEMATIC:
+		mass = 0;
+		break;
+	case Rigidbody::Type::DYNAMIC:
+	case Rigidbody::Type::DYNAMIC_FOLLOW:
 		shape->calculateLocalInertia(info.mass, localInertia);
 		mass = info.mass;
-	} else {
-		mass = 0;
+		break;
+	default:
+		MM_CORE_UNREACHABLE();
 	}
 	auto motionState = MakeScoped<btDefaultMotionState>(Cast<btTransform>(info.bindWorld));
 	auto info2 = btRigidBody::btRigidBodyConstructionInfo(mass,
@@ -66,10 +74,7 @@ Rigidbody* PhysicsManager_Bullet::CreateRigidbody(const Rigidbody::ConstructInfo
 	rigidbody->setFriction(info.friction);
 	rigidbody->setRestitution(info.restitution);
 	rigidbody->setActivationState(DISABLE_DEACTIVATION);
-	if (info.flags & Rigidbody::DYNAMIC_BIT) {
-		rigidbody->setCollisionFlags(rigidbody->getCollisionFlags() | 
-									 btCollisionObject::CF_DYNAMIC_OBJECT);
-	} else {
+	if (info.type == Rigidbody::Type::KINEMATIC) {
 		rigidbody->setCollisionFlags(rigidbody->getCollisionFlags() | 
 									 btCollisionObject::CF_KINEMATIC_OBJECT);
 	}
@@ -79,8 +84,9 @@ Rigidbody* PhysicsManager_Bullet::CreateRigidbody(const Rigidbody::ConstructInfo
 	auto sm = GetSceneManager();
 	auto result = sm->CreateObject<Rigidbody>(info.name);
 	result->SetBindWorld(info.bindWorld);
-	result->SetFlags(info.flags);
+	result->SetType(info.type);
 	result->SetHandle(rigidbody.get());
+	result->SetCollider(info.collider);
 	m_rigidbodies.push_back(std::move(rigidbody));
 	return result;
 }
@@ -110,16 +116,14 @@ Collider PhysicsManager_Bullet::CreateCollider(const Collider::ConstructInfo& in
 Constraint PhysicsManager_Bullet::CreateConstraint(const Constraint::ConstructInfo& info)
 {
 	switch (info.type) {
-	case Constraint::Type::GENERIC_6DOP_SPRING: {
-		// Transform localFrameA = info.bindWorld.Inverse() * info.rigidbodyA->GetBindWorld();
-		// Transform localFrameB = info.bindWorld.Inverse() * info.rigidbodyB->GetBindWorld();
-		Transform localFrameA = info.rigidbodyA->GetBindWorld().Inverse() * info.bindWorld;
-		Transform localFrameB = info.rigidbodyB->GetBindWorld().Inverse() * info.bindWorld;
+	case Constraint::Type::GENERIC_6DOF_SPRING: {
+		Transform frameInA = info.rigidbodyA->GetBindWorld().Inverse() * info.bindWorld;
+		Transform frameInB = info.rigidbodyB->GetBindWorld().Inverse() * info.bindWorld;
 		auto constraint = MakeScoped<btGeneric6DofSpring2Constraint>(
 			*static_cast<btRigidBody*>(info.rigidbodyA->GetHandle()),
 			*static_cast<btRigidBody*>(info.rigidbodyB->GetHandle()),
-			Cast<btTransform>(localFrameA),
-			Cast<btTransform>(localFrameB));
+			Cast<btTransform>(frameInA),
+			Cast<btTransform>(frameInB));
 		for (i32 i = 0; i < 3; ++i) {
 			constraint->setLimit(i, info.linearLimit.first[i], info.linearLimit.second[i]);
 			constraint->setStiffness(i, info.linearStiffness[i]);
@@ -128,6 +132,7 @@ Constraint PhysicsManager_Bullet::CreateConstraint(const Constraint::ConstructIn
 			constraint->setStiffness(i+3, info.angularStiffness[i]);
 			constraint->enableSpring(i+3, true);
 		}
+		constraint->setDbgDrawSize(1.f);
 		m_dynamicsWorld->addConstraint(constraint.get(), true);
 		m_constraints.push_back(std::move(constraint)); }
 		break;
@@ -148,18 +153,38 @@ void PhysicsManager_Bullet::PullRigidbodyTransform(Rigidbody* body)
 	body->GetNode()->SetWorldTransform(Cast<Transform>(transform));
 }
 
-void PhysicsManager_Bullet::PushRigidbodyTransform(Rigidbody* body)
+void PhysicsManager_Bullet::PushRigidbodyTransform(Rigidbody* body, 
+												   const Transform& transform, 
+												   Transform::Type type)
 {
 	auto rigidbody = static_cast<btRigidBody*>(body->GetHandle());
-	rigidbody->clearForces();
-	rigidbody->setLinearVelocity({ 0, 0, 0 });
-	rigidbody->setAngularVelocity({ 0, 0, 0 });
-	rigidbody->setWorldTransform(Cast<btTransform>(body->GetNode()->GetWorldTransform()));
+	auto motionState = rigidbody->getMotionState();
+	btTransform xfm;
+	motionState->getWorldTransform(xfm);
+	if (type & Transform::Type::ROTATION_BIT) {
+		xfm.setRotation(Cast<btQuaternion>(transform.rotation));
+	}
+	if (type & Transform::Type::TRANSLATION_BIT) {
+		xfm.setOrigin(Cast<btVector3>(transform.translation));
+	}
+	motionState->setWorldTransform(xfm);
 }
 
 void PhysicsManager_Bullet::DebugDrawWorld() const
 {
-	m_dynamicsWorld->debugDrawWorld();
+	for (auto&& rigidbody : m_rigidbodies) {
+		btVector3 color = 
+			(rigidbody->getCollisionFlags() & btCollisionObject::CF_KINEMATIC_OBJECT) ?
+			btVector3(1, 0, 0) : btVector3(1, 1, 0);
+		btTransform transform;
+		rigidbody->getMotionState()->getWorldTransform(transform);
+		m_dynamicsWorld->debugDrawObject(transform,
+										 rigidbody->getCollisionShape(),
+										 color);
+	}
+	for (auto&& constraint : m_constraints) {
+		m_dynamicsWorld->debugDrawConstraint(constraint.get());
+	}
 }
 
 }

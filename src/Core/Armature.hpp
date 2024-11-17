@@ -29,6 +29,7 @@ private:
 	void UpdateForwardKinematics(u32 layer, bool afterPhysics);
 	void UpdateInverseKinematics(u32 layer, bool afterPhysics);
 	void UpdateAssignment(u32 layer, bool afterPhysics);
+	void UpdatePhysics();
 
 private:
 	u32 m_maxTransformLayer{};

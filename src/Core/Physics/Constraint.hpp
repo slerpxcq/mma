@@ -12,7 +12,7 @@ class Constraint : public PhysicsObject,
 {
 public:
 	enum class Type {
-		GENERIC_6DOP_SPRING
+		GENERIC_6DOF_SPRING
 	};
 
 	struct ConstructInfo {

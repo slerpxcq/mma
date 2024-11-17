@@ -39,16 +39,7 @@ void Armature::Update()
 		UpdateInverseKinematics(layer, false);
 		UpdateAssignment(layer, false);
 	}
-	for (auto&& bone : m_bones) {
-		auto rigidbody = bone->GetRigidbody();
-		if (rigidbody) {
-			if (rigidbody->IsDynamic()) {
-				bone->PullRigidbodyTransform();
-			} else if (rigidbody->IsKinematic()) {
-				//bone->PushRigidbodyTransform();
-			}
-		}
-	}
+	UpdatePhysics();
 	for (u32 layer = 0; layer <= m_maxTransformLayer; ++layer) {
 		UpdateForwardKinematics(layer, true);
 		UpdateInverseKinematics(layer, true);
@@ -56,6 +47,7 @@ void Armature::Update()
 	}
 	UpdateSkinningBuffer();
 }
+
 
 void Armature::LoadPose(const Pose& pose)
 {
@@ -136,12 +128,14 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 		if ((pb.flags & PMXFile::BoneFlag::ASSIGN_ROTATION_BIT) | 
 			(pb.flags & PMXFile::BoneFlag::ASSIGN_MOVE_BIT)) {
 			Bone::AssignmentInfo info{};
+			u8 type{};
 			if (pb.flags & PMXFile::BoneFlag::ASSIGN_ROTATION_BIT) {
-				info.type |= Bone::AssignmentInfo::ROTATION_BIT;
+				type |= Transform::Type::ROTATION_BIT;
 			}
 			if (pb.flags & PMXFile::BoneFlag::ASSIGN_MOVE_BIT) {
-				info.type |= Bone::AssignmentInfo::TRANSLATION_BIT;
+				type |= Transform::Type::TRANSLATION_BIT;
 			}
+			info.type = static_cast<Transform::Type>(type);
 			info.ratio = pb.assignment.ratio;
 			info.target = m_bones[pb.assignment.targetIndex];
 			bone->SetAssignmentInfo(info);
@@ -197,15 +191,38 @@ void Armature::UpdateAssignment(u32 layer, bool afterPhysics)
 			if (info) {
 				Transform transform;
 				auto local = info->target->GetAnimLocal();
-				if (info->type & Bone::AssignmentInfo::TRANSLATION_BIT) {
+				if (info->type & Transform::Type::TRANSLATION_BIT) {
 					transform.translation = info->ratio * local.translation;
 				}
-				if (info->type & Bone::AssignmentInfo::ROTATION_BIT) {
+				if (info->type & Transform::Type::ROTATION_BIT) {
 				 	transform.rotation = glm::slerp(glm::identity<Quat>(),
 				 									local.rotation,
 				 									info->ratio); 
 				}
 				bone->SetAnimLocal(bone->GetAnimLocal() * transform);
+			}
+		}
+	}
+}
+
+void Armature::UpdatePhysics()
+{
+	for (auto&& bone : m_bones) {
+		auto rigidbody = bone->GetRigidbody();
+		if (rigidbody) {
+			switch (rigidbody->GetType()) {
+			case Rigidbody::Type::KINEMATIC:
+				bone->PushRigidbodyTransform();
+				break;
+			case Rigidbody::Type::DYNAMIC:
+				bone->PullRigidbodyTransform();
+				break;
+			case Rigidbody::Type::DYNAMIC_FOLLOW:
+				bone->PushRigidbodyTransform(Transform::Type::TRANSLATION_BIT);
+				bone->PullRigidbodyTransform(Transform::Type::ROTATION_BIT);
+				break;
+			default:
+				MM_CORE_UNREACHABLE();
 			}
 		}
 	}

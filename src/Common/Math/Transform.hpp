@@ -20,8 +20,12 @@ namespace mm
 struct Transform
 {
 public:
-	Vec3 translation;
-	Quat rotation;
+	enum Type : u8 {
+		NONE = 0,
+		ROTATION_BIT = 1<<0,
+		TRANSLATION_BIT = 1<<1,
+		ALL = TRANSLATION_BIT | ROTATION_BIT
+	};
 
 public:
 	Transform() { *this = Transform::Identity(); }
@@ -71,7 +75,12 @@ public:
 	Mat3 ToMat3() const {
 		return glm::toMat3(rotation);
 	}
+
+public:
+	Vec3 translation;
+	Quat rotation;
 };
+
 
 inline Transform operator*(const Transform& lhs, float s) 
 {

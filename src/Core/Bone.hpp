@@ -11,14 +11,9 @@ class Bone : public SceneObject
 {
 public:
 	struct AssignmentInfo {
-		enum Flags : u8 {
-			TRANSLATION_BIT = 1<<0,
-			ROTATION_BIT = 1<<1,
-		};
-
 		Bone* target{};
 		f32 ratio{};
-		u8 type{};
+		Transform::Type type{};
 	};
 
 	struct ConstructInfo {
@@ -79,8 +74,8 @@ public:
 	Opt<Vec3> GetFixedAxis() const { return m_fixedAxis; }
 	void SetRigidbody(Rigidbody* rigidbody) { m_rigidbody = rigidbody; }
 	Rigidbody* GetRigidbody() const { return m_rigidbody; }
-	void PullRigidbodyTransform();
-	void PushRigidbodyTransform();
+	void PullRigidbodyTransform(Transform::Type type = Transform::Type::ALL);
+	void PushRigidbodyTransform(Transform::Type type = Transform::Type::ALL);
 
 private:
 	Bone* m_parent{};

@@ -11,10 +11,12 @@ class Rigidbody : public SceneObject,
 	              public PhysicsObject
 {
 public:
-	enum Flags : u8 {
-		KINEMATIC_BIT = 1 << 0,
-		DYNAMIC_BIT = 1 << 1
+	enum class Type {
+		KINEMATIC,
+		DYNAMIC,
+		DYNAMIC_FOLLOW
 	};
+
 	struct ConstructInfo {
 		StringView name{};
 		Collider collider{};
@@ -26,7 +28,7 @@ public:
 		f32 restitution{};
 		u16 group{};
 		u16 noCollisionGroupMask{};
-		u8 flags{};
+		Type type{};
 	};
 
 public:
@@ -35,14 +37,16 @@ public:
 		SceneObject{ name } {}
 
 	Transform GetBindWorld() const { return m_bindWorld; }
-	void SetFlags(u8 flags) { m_flags = flags; }
 	void SetBindWorld(const Transform& transform) { m_bindWorld = transform; }
-	bool IsDynamic() const { return m_flags & DYNAMIC_BIT; }
-	bool IsKinematic() const { return m_flags & KINEMATIC_BIT; }
+	Type GetType() const { return m_type; }
+	void SetType(Type type) { m_type = type; }
+	Collider GetCollider() const { return m_collider; }
+	void SetCollider(Collider c) { m_collider = c; }
 
 private:
+	Collider m_collider;
 	Transform m_bindWorld{};
-	u8 m_flags{};
+	Type m_type{};
 };
 
 }
