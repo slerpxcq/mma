@@ -48,30 +48,43 @@ public:
 		m_transformLayer{ info.transformLayer } {}
 
 	i32 GetIndex() const { return m_index; }
+
 	void SetParent(Bone* parent); 
 	Bone* GetParent() const { return m_parent; }
-	Transform GetParentWorld();
+
 	u32 GetTransformLayer() const { return m_transformLayer; }
+
 	u32 GetFlags() const { return m_flags; }
+	bool IsConnected() const { return m_flags & Flags::CONNECTED_BIT; }
+	bool IsRotatable() const { return m_flags & Flags::ROTATABLE_BIT; }
+	bool IsTranslatable() const { return m_flags & Flags::MOVEABLE_BIT; }
+	bool IsVisible() const { return m_flags & Flags::VISIBLE_BIT; }
+	bool IsOperable() const { return m_flags & Flags::OPERABLE_BIT; }
+
+	Transform GetParentWorld();
 	Transform GetBindLocal() const { return m_bindLocal; }
 	Transform GetBindWorld() const { return m_bindWorld; }
 	Transform GetBindWorldInverse() const { return m_bindWorld.Inverse(); }
-	void SetAnimLocal(const Transform& transform);
 	Transform GetAnimLocal();
-	void SetPoseLocal(const Transform& transform) { m_poseLocal = transform; }
 	Transform GetPoseLocal() const { return m_poseLocal; }
+
+	void SetAnimLocal(const Transform& transform);
+	void SetPoseLocal(const Transform& transform) { m_poseLocal = transform; }
+
 	const auto& GetAssignmentInfo() const { return m_assignmentInfo; }
-	void SetAssignmentInfo(const AssignmentInfo& info) { m_assignmentInfo = info; }
 	const auto& GetInverseKinematicsInfo() const { return m_inverseKinematicsInfo; }
+	void SetAssignmentInfo(const AssignmentInfo& info) { m_assignmentInfo = info; }
 	void SetInverseKinematicsInfo(const InverseKinematicsInfo& info) { m_inverseKinematicsInfo = info; }
+
 	void SetTipInfoBone(Bone* bone) { m_tipInfo.bone = bone; }
 	void SetTipInfoOffset(const Vec3& offset) { m_tipInfo.offset = offset; }
-	Bone* GetTipInfoBone() const { return m_tipInfo.bone; }
-	Vec3 GetTipInfoOffset() const { return m_tipInfo.offset; }
+	Vec3 GetTipWorldPos() const;
+
 	void SetLocalAxes(Vec3 x, Vec3 z);
-	Opt<Mat3> GetLocalAxes() const { return m_localAxes; }
 	void SetFixedAxis(Vec3 axis) { m_fixedAxis = axis; }
+	Opt<Mat3> GetLocalAxes() const { return m_localAxes; }
 	Opt<Vec3> GetFixedAxis() const { return m_fixedAxis; }
+
 	void SetRigidbody(Rigidbody* rigidbody) { m_rigidbody = rigidbody; }
 	Rigidbody* GetRigidbody() const { return m_rigidbody; }
 	void PullRigidbodyTransform(Transform::Type type = Transform::Type::ALL);

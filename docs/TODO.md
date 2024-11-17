@@ -124,6 +124,18 @@
 
 --- 
 # TODO
+Editor:
+[ ] Global keymap
+[ ] TransformEditOverlay state machine
+[ ] Overlap bone sorting
+[ ] Curve editor
+[ ] Editor global event
+
+Core:
+[ ] Animation loading
+[ ] Scene serialization
+[ ] ResourceManager, ResourceHandle (auto release)
+[ ] Multi lighting
 
 
 

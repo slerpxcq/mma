@@ -9,10 +9,7 @@ namespace mm
 class PhysicsDebugDrawOverlay : public PanelOverlay
 {
 public:
-	PhysicsDebugDrawOverlay(Panel& parent) :
-		PanelOverlay{ parent } {
-		m_debugDraw = MakeScoped<DebugDrawImpl_ImGui>(*this);
-	}
+	PhysicsDebugDrawOverlay(Panel& parent);
 
 	virtual void OnUpdate(f32) override;
 	virtual void OnRender() override;

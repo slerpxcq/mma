@@ -40,6 +40,22 @@ Transform Bone::GetAnimLocal()
 	return m_animLocal;
 }
 
+Vec3 Bone::GetTipWorldPos() const
+{
+	if (m_flags & Bone::Flags::CONNECTED_BIT) {
+		auto end = m_tipInfo.bone;
+		if (end) {
+			return end->GetNode()->GetWorldTranslation();
+		} else {
+			return m_node->GetWorldTranslation();
+		}
+	}
+	else {
+		auto transform = m_node->GetWorldTransform();
+		return transform.translation + glm::rotate(transform.rotation, m_tipInfo.offset);
+	}
+}
+
 void Bone::SetLocalAxes(Vec3 x, Vec3 z)
 {
 	Vec3 y = glm::cross(z, x);

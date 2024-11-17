@@ -18,7 +18,7 @@ public:
 			TRANSLATE_Y, TRANSLATE_Z 
 		};
 		enum class Mode { LOCAL, WORLD };
-		enum class Constraint { FREE, LOCAL, FIXED };
+		enum class Constraint { NONE, LOCAL, FIXED };
 		Bone* bone{};
 		Mat4 worldToLocal{};
 		Mat4 localFrame{};
@@ -26,6 +26,15 @@ public:
 		Operation operation{};
 		Mode mode{};
 		Constraint constraint{};
+	};
+
+	struct EditorContext {
+		enum class State {
+			PICKING, EDITING
+		} state{};
+		bool enabled{ true };
+		Bone* selectedBone{};
+		HashSet<Bone*> selectedBones{};
 	};
 
 public:
@@ -36,9 +45,9 @@ public:
 
 private:
 	Vec3 ToScreenPos(Vec3 world);
-	Vec2 GetTipPos(Bone* bone);
+	void ComputeGizmoContext(Bone* bone);
 	void ShowGizmo();
-	void OnBoneSelected(Bone* bone);
+	void ProcessInput();
 
 private:
 	static constexpr f32 BUTTON_RADIUS = 7.5f;
@@ -47,6 +56,7 @@ private:
 	static constexpr f32 OUTLINE_SIZE = 1.5f;
 
 	GizmoContext m_gizmoContext{};
+	EditorContext m_editorContext{};
 };
 
 }

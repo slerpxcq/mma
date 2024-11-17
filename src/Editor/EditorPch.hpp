@@ -15,4 +15,6 @@
 
 #include "Common/Memory.hpp"
 
+#include "EditorGlobals.hpp"
+
 #include "Core/Application/Globals.hpp"
