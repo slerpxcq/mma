@@ -122,6 +122,14 @@
 # 2024/11/17
 [x] Physics debug draw overlay
 
+# 2024/12/14
+- [ ] Assert pipeline
+    - [ ] Investigate GLTF
+    - [ ] Convert PMX model to unified format
+        - [ ] .mesh: vertices, indices; binary
+        - [ ] .morph: morphs; binary
+        - [ ] .model: yaml script; text
+
 --- 
 # TODO
 Editor:

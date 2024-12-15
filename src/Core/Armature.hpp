@@ -10,6 +10,7 @@ class Model;
 class PMXFile;
 class Bone;
 
+// TODO: Builder pattern
 class Armature
 {
 public:
