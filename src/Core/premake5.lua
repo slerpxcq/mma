@@ -26,18 +26,19 @@ project "Core"
     }
 
     includedirs {
-        "%{wks.location}/%{IncDir.glfw}",
-        "%{wks.location}/%{IncDir.glad}",
-        "%{wks.location}/%{IncDir.imgui}",
-        "%{wks.location}/%{IncDir.ImGuizmo}",
-        "%{wks.location}/%{IncDir.bullet3}",
-        "%{wks.location}/%{IncDir.spdlog}",
-        "%{wks.location}/%{IncDir.glm}",
-        "%{wks.location}/%{IncDir.stb}",
-        "%{wks.location}/%{IncDir.nativefiledialog}",
-        "%{wks.location}/%{IncDir.EventBus}",
-        "%{wks.location}/%{IncDir.icu4c}",
-        "%{wks.location}/%{IncDir.yaml}",
+        "%{IncDir.glfw}",
+        "%{IncDir.glad}",
+        "%{IncDir.imgui}",
+        "%{IncDir.ImGuizmo}",
+        "%{IncDir.bullet3}",
+        "%{IncDir.spdlog}",
+        "%{IncDir.glm}",
+        "%{IncDir.stb}",
+        "%{IncDir.nativefiledialog}",
+        "%{IncDir.EventBus}",
+        "%{IncDir.icu4c}",
+        "%{IncDir.yaml}",
+		"%{IncDir.tinygltf}",
         "../",
 		"."
     }

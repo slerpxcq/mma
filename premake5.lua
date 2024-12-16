@@ -22,6 +22,7 @@ workspace "MMX"
     IncDir["icu4c"] = "%{wks.location}/3rdparty/icu4c/include"
     IncDir["yaml"] = "%{wks.location}/3rdparty/yaml-cpp/include"
     IncDir["googletest"] = "%{wks.location}/3rdparty/googletest/googletest/include"
+	IncDir["tinygltf"] = "%{wks.location}/3rdparty/tinygltf"
 
     LibDir = {}
     LibDir["icu4c"] = "%{wks.location}/3rdparty/icu4c/lib64"

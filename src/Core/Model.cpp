@@ -170,7 +170,7 @@ static DynArray<Rigidbody*> LoadRigidbodies(const PMXFile& pmx, const DynArray<B
 		info.noCollisionGroupMask = pr.noCollisionGroup;
 		info.restitution = pr.restitution;
 		auto rigidbody = pm->CreateRigidbody(info);
-		bones[pr.boneIndex]->SetRigidbody(rigidbody);
+		Bone::Builder{ bones[pr.boneIndex] }.SetRigidbody(rigidbody);
 		result.push_back(rigidbody);
 	}
 	return result;

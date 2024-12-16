@@ -5,7 +5,6 @@ namespace mm
 
 /* ModelImporter:
  * Converts model to gltf
- * 
  */
 class ModelImporter
 {

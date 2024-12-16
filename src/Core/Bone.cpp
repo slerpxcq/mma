@@ -8,14 +8,14 @@
 namespace mm
 {
 
-void Bone::SetParent(Bone* parent)
+void Bone::Builder::SetParent(Bone* parent)
 {
-	m_parent = parent;
+	m_bone->m_parent = parent;
 	if (parent) {
-		m_bindLocal = m_parent->GetBindWorldInverse() * m_bindWorld;
+		m_bone->m_bindLocal = m_bone->m_parent->GetBindWorldInverse() * m_bone->m_bindWorld;
 	}
 	else {
-		m_bindLocal = m_bindWorld;
+		m_bone->m_bindLocal = m_bone->m_bindWorld;
 	}
 }
 
@@ -56,10 +56,10 @@ Vec3 Bone::GetTipWorldPos() const
 	}
 }
 
-void Bone::SetLocalAxes(Vec3 x, Vec3 z)
+void Bone::Builder::SetLocalAxes(Vec3 x, Vec3 z)
 {
 	Vec3 y = glm::cross(z, x);
-	m_localAxes = Mat3{ x, y, z };
+	m_bone->m_localAxes = Mat3{ x, y, z };
 }
 
 void Bone::PullRigidbodyTransform(Transform::Type type)

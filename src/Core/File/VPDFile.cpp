@@ -49,8 +49,8 @@ VPDFile::VPDFile(const Path& path) :
 		String& name = names[i];
 		name.erase(name.cbegin());
 		m_pose.insert({ name, 
-						   Transform{ Vec3{ tX, tY, tZ }, 
-						              Quat{ rW, rX, rY, rZ }} });
+						Transform{ Vec3{ tX, tY, tZ }, 
+						           Quat{ rW, rX, rY, rZ }} });
 	}
 }
 

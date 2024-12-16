@@ -10,10 +10,10 @@ Path ModelImporter::Import(const Path& path)
 	if (extension == ".pmx") {
 		return ImportPMX(path);
 	}
-	if (extension == ".x") {
+	else if (extension == ".x") {
 		MM_CORE_UNINPLEMENTED();
 	}
-	if (extension == ".obj") {
+	else if (extension == ".obj") {
 		MM_CORE_UNINPLEMENTED();
 	}
 	else {

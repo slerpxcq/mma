@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Bone.hpp"
 #include "Pose.hpp"
 
 #include "Graphics/ShaderStroageBuffer.hpp"
@@ -8,7 +9,6 @@ namespace mm
 {
 class Model;
 class PMXFile;
-class Bone;
 
 // TODO: Builder pattern
 class Armature
@@ -24,8 +24,8 @@ public:
 	void UpdateSkinningBuffer();
 
 private:
-	void LoadBonesPass1(const PMXFile& pmx);
-	void LoadBonesPass2(const PMXFile& pmx);
+	void LoadBonesPass1(const PMXFile& pmx, DynArray<Bone::Builder>& builders);
+	void LoadBonesPass2(const PMXFile& pmx, DynArray<Bone::Builder>& builders);
 	void ClearAnimLocal();
 	void UpdateForwardKinematics(u32 layer, bool afterPhysics);
 	void UpdateInverseKinematics(u32 layer, bool afterPhysics);

@@ -9,6 +9,7 @@ namespace mm
 class Rigidbody;
 class Bone : public SceneObject
 {
+	friend class Builder;
 public:
 	struct AssignmentInfo {
 		Bone* target{};
@@ -39,6 +40,7 @@ public:
 		Vec3 offset;
 	};
 
+	class Builder;
 public:
 	Bone(const ConstructInfo& info) : 
 		SceneObject{ info.name },
@@ -49,7 +51,7 @@ public:
 
 	i32 GetIndex() const { return m_index; }
 
-	void SetParent(Bone* parent); 
+	// void SetParent(Bone* parent); 
 	Bone* GetParent() const { return m_parent; }
 
 	u32 GetTransformLayer() const { return m_transformLayer; }
@@ -73,19 +75,19 @@ public:
 
 	const auto& GetAssignmentInfo() const { return m_assignmentInfo; }
 	const auto& GetInverseKinematicsInfo() const { return m_inverseKinematicsInfo; }
-	void SetAssignmentInfo(const AssignmentInfo& info) { m_assignmentInfo = info; }
-	void SetInverseKinematicsInfo(const InverseKinematicsInfo& info) { m_inverseKinematicsInfo = info; }
+	// void SetAssignmentInfo(const AssignmentInfo& info) { m_assignmentInfo = info; }
+	// void SetInverseKinematicsInfo(const InverseKinematicsInfo& info) { m_inverseKinematicsInfo = info; }
 
-	void SetTipInfoBone(Bone* bone) { m_tipInfo.bone = bone; }
-	void SetTipInfoOffset(const Vec3& offset) { m_tipInfo.offset = offset; }
+	// void SetTipInfoBone(Bone* bone) { m_tipInfo.bone = bone; }
+	// void SetTipInfoOffset(const Vec3& offset) { m_tipInfo.offset = offset; }
 	Vec3 GetTipWorldPos() const;
 
-	void SetLocalAxes(Vec3 x, Vec3 z);
-	void SetFixedAxis(Vec3 axis) { m_fixedAxis = axis; }
+	// void SetLocalAxes(Vec3 x, Vec3 z);
+	// void SetFixedAxis(Vec3 axis) { m_fixedAxis = axis; }
 	Opt<Mat3> GetLocalAxes() const { return m_localAxes; }
 	Opt<Vec3> GetFixedAxis() const { return m_fixedAxis; }
 
-	void SetRigidbody(Rigidbody* rigidbody) { m_rigidbody = rigidbody; }
+	// void SetRigidbody(Rigidbody* rigidbody) { m_rigidbody = rigidbody; }
 	Rigidbody* GetRigidbody() const { return m_rigidbody; }
 	void PullRigidbodyTransform(Transform::Type type = Transform::Type::ALL);
 	void PushRigidbodyTransform(Transform::Type type = Transform::Type::ALL);
@@ -107,6 +109,22 @@ private:
 	Opt<Vec3> m_fixedAxis{};
 	Opt<AssignmentInfo> m_assignmentInfo;
 	Opt<InverseKinematicsInfo> m_inverseKinematicsInfo;
+};
+
+class Bone::Builder {
+public:
+	Builder(Bone* bone) : m_bone{ bone } {}
+	void SetAssignmentInfo(const AssignmentInfo& info) { m_bone->m_assignmentInfo = info; }
+	void SetInverseKinematicsInfo(const InverseKinematicsInfo& info) { m_bone->m_inverseKinematicsInfo = info; }
+	void SetTipInfoBone(Bone* bone) { m_bone->m_tipInfo.bone = bone; }
+	void SetTipInfoOffset(const Vec3& offset) { m_bone->m_tipInfo.offset = offset; }
+	void SetLocalAxes(Vec3 x, Vec3 z);
+	void SetFixedAxis(Vec3 axis) { m_bone->m_fixedAxis = axis; }
+	void SetRigidbody(Rigidbody* rigidbody) { m_bone->m_rigidbody = rigidbody; }
+	void SetParent(Bone* parent); 
+	Bone* Get() { return m_bone; }
+private:
+	Bone* m_bone;
 };
 
 }

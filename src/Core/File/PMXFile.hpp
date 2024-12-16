@@ -317,6 +317,9 @@ public:
 
 public:
 	explicit PMXFile(const Path& path);
+	static inline Vec3 MakeEulerAngles(const float* v) {
+		return Vec3{ v[1], v[0], v[2] };
+	}
 
 	const Header& GetHeader() const { return m_header; }
 	const Info& GetInfo() const { return m_info; }
@@ -358,11 +361,5 @@ private:
 	DynArray<Joint>     m_joints{};
 
 };
-
-inline Vec3 MakeEulerAnglesPMX(const float* v)
-{
-	return Vec3{ v[1], v[0], v[2] };
-}
-
 
 }
