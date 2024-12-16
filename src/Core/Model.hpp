@@ -27,9 +27,12 @@ public:
 	/* BEGIN TEST CODE */
 	Armature* GetArmature() const { return m_armature.get(); }
 	void LoadPose(const VPDFile& vpd);
-	void UpdateSkinningBuffer();
-	void OnUpdate(f32) override { m_armature->Update(); }
+	//void UpdateSkinningBuffer();
+	void OnUpdate(f32 deltaTime) override;
 	/* BEGIN END CODE */
+
+private:
+	void SyncWithPhysics();
 
 private:
 	Ref<Mesh> m_mesh;

@@ -87,6 +87,7 @@ Rigidbody* PhysicsManager_Bullet::CreateRigidbody(const Rigidbody::ConstructInfo
 	result->SetType(info.type);
 	result->SetHandle(rigidbody.get());
 	result->SetCollider(info.collider);
+	result->SetBone(info.bone);
 	m_rigidbodies.push_back(std::move(rigidbody));
 	return result;
 }
@@ -167,6 +168,10 @@ void PhysicsManager_Bullet::PushRigidbodyTransform(Rigidbody* body,
 	if (type & Transform::Type::TRANSLATION_BIT) {
 		xfm.setOrigin(Cast<btVector3>(transform.translation));
 	}
+	rigidbody->clearForces();
+	rigidbody->setLinearVelocity(btVector3(0, 0, 0));
+	rigidbody->setAngularVelocity(btVector3(0, 0, 0));
+	rigidbody->setWorldTransform(xfm);
 	motionState->setWorldTransform(xfm);
 }
 

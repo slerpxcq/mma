@@ -48,6 +48,8 @@ EditorLayer::EditorLayer(const Window& window) :
 	auto sm = GetSceneManager();
 	auto root = sm->GetRootNode();
 	auto pmx =  PMXFile("../../resources/model/つみ式ミクさん/000 ミクさん.pmx");
+	//auto pmx = PMXFile{ "../../resources/model/つみ式ミクさんv4/つみ式ミクさんv4.pmx"};
+	//auto pmx = PMXFile{ "../../resources/model/Tda Maid Miku by iRon0129/Tda Maid Miku 1.00 by iRon0129.pmx" };
 	auto modelNode = root->AddChild("model_node");
 	auto model = sm->CreateObject<Model>(pmx);
 	modelNode->AttachObject(model);

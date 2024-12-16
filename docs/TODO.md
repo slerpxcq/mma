@@ -124,9 +124,19 @@
 
 # 2024/12/15
 - [ ] Assert pipeline
+    - [ ] Unified foramt: scene, model, pose, animation
+    - [ ] Model import
     - [ ] Investigate GLTF
-    - [ ] Convert PMX model to gltf
+        - [ ] glTF does not support SDEF
+        - [ ] glTF does not support rigidbodies/joints
+        - [ ] Extend glTF?
+        - [ ] glTF-like?
+        - [ ] Seperate position, normal, uv with skinning informations?
+    - [ ] Convert PMX model to a unified model format
         - [ ] tinygltf usage?
+
+# 2024/12/16
+- [ ] Bug: one bone can attach multiple rigidbodies
 
 --- 
 # TODO
@@ -142,6 +152,8 @@ Core:
 [ ] Scene serialization
 [ ] ResourceManager, ResourceHandle (auto release)
 [ ] Multi lighting
+
+Rendering:
 
 
 

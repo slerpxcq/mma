@@ -16,17 +16,11 @@ namespace mm
 
 Armature::Armature(const PMXFile& pmx)
 {
-	DynArray<Bone::Builder> builders;
 	auto boneCount = pmx.GetBones().size();
-	builders.reserve(boneCount);
 	m_bones.reserve(boneCount);
 
-	LoadBonesPass1(pmx, builders);
-	LoadBonesPass2(pmx, builders);
-
-	for (auto& builder : builders) {
-		m_bones.push_back(builder.Get());
-	}
+	LoadBonesPass1(pmx);
+	LoadBonesPass2(pmx);
 
 	m_skinningBuffer.SetBindBase(0);
 	m_skinningBuffer.SetStorage(nullptr,
@@ -40,21 +34,13 @@ static bool IsCurrentLayer(Bone* bone, u32 layer, bool afterPhysics)
 			bone->GetTransformLayer() == layer);
 }
 
-void Armature::Update()
+void Armature::UpdatePose(bool afterPhysics)
 {
-	ClearAnimLocal();
 	for (u32 layer = 0; layer <= m_maxTransformLayer; ++layer) {
-		UpdateForwardKinematics(layer, false);
-		UpdateInverseKinematics(layer, false);
-		UpdateAssignment(layer, false);
+		UpdateForwardKinematics(layer, afterPhysics);
+		UpdateInverseKinematics(layer, afterPhysics);
+		UpdateAssignment(layer, afterPhysics);
 	}
-	UpdatePhysics();
-	for (u32 layer = 0; layer <= m_maxTransformLayer; ++layer) {
-		UpdateForwardKinematics(layer, true);
-		UpdateInverseKinematics(layer, true);
-		UpdateAssignment(layer, true);
-	}
-	UpdateSkinningBuffer();
 }
 
 
@@ -67,7 +53,7 @@ void Armature::LoadPose(const Pose& pose)
 			bone->SetPoseLocal(localTransform);
 		}
 	}
-	Update();
+	//UpdatePose();
 }
 
 void Armature::UpdateSkinningBuffer()
@@ -80,7 +66,7 @@ void Armature::UpdateSkinningBuffer()
 	m_skinningBuffer.Unmap();
 }
 
-void Armature::LoadBonesPass1(const PMXFile& pmx, DynArray<Bone::Builder>& builders)
+void Armature::LoadBonesPass1(const PMXFile& pmx)
 {
 	auto sm = GetSceneManager();
 	i32 index{};
@@ -95,20 +81,19 @@ void Armature::LoadBonesPass1(const PMXFile& pmx, DynArray<Bone::Builder>& build
 		auto bone = sm->CreateObject<Bone>(info);
 		m_boneNameIndexMap.insert({ pb.nameJP, index });
 		m_maxTransformLayer = std::max(m_maxTransformLayer, static_cast<u32>(pb.transformationLayer));
-		builders.emplace_back(bone);
-		//m_bones.push_back(bone);
+		m_bones.push_back(bone);
 		++index;
 	}
 }
 
-void Armature::LoadBonesPass2(const PMXFile& pmx, DynArray<Bone::Builder>& builders)
+void Armature::LoadBonesPass2(const PMXFile& pmx)
 {
 	i32 index{};
 	for (auto& pb : pmx.GetBones()) {
-		auto& builder = builders[index];
+		auto& builder = Bone::Builder{ m_bones[index] };
 		if (pb.flags & PMXFile::BoneFlag::CONNECTED_BIT) {
 			if (pb.connetcionEnd.boneIndex >= 0) {
-				builder.SetTipInfoBone(builders[pb.connetcionEnd.boneIndex].Get());
+				builder.SetTipInfoBone(m_bones[pb.connetcionEnd.boneIndex]);
 			} else {
 				builder.SetTipInfoBone(nullptr);
 			}
@@ -121,11 +106,11 @@ void Armature::LoadBonesPass2(const PMXFile& pmx, DynArray<Bone::Builder>& build
 			ikInfo.unitAngle = pb.ik.unitAngle;
 			ikInfo.chain.reserve(pb.ik.link.size() + 1);
 			InverseKinematicsInfo::Node node{};
-			node.bone = builders[pb.ik.targetIndex].Get();
+			node.bone = m_bones[pb.ik.targetIndex];
 			ikInfo.chain.push_back(node);
 			for (auto& pn : pb.ik.link) {
 				InverseKinematicsInfo::Node node{};
-				node.bone = builders[pn.boneIndex].Get();
+				node.bone = m_bones[pn.boneIndex];
 				if (pn.doLimit) {
 					node.limit = MakePair(glm::make_vec3(pn.limit[0]),
 										  glm::make_vec3(pn.limit[1]));
@@ -146,11 +131,11 @@ void Armature::LoadBonesPass2(const PMXFile& pmx, DynArray<Bone::Builder>& build
 			}
 			info.type = static_cast<Transform::Type>(type);
 			info.ratio = pb.assignment.ratio;
-			info.target = builders[pb.assignment.targetIndex].Get();
+			info.target = m_bones[pb.assignment.targetIndex];
 			builder.SetAssignmentInfo(info);
 		}
 		if (pb.parentIndex >= 0) {
-			builder.SetParent(builders[pb.parentIndex].Get());
+			builder.SetParent(m_bones[pb.parentIndex]);
 		}
 		if (pb.flags & PMXFile::BoneFlag::LOCAL_AXIS_BIT) {
 			builder.SetLocalAxes(glm::make_vec3(pb.localAxisX),
@@ -214,27 +199,27 @@ void Armature::UpdateAssignment(u32 layer, bool afterPhysics)
 	}
 }
 
-void Armature::UpdatePhysics()
-{
-	for (auto&& bone : m_bones) {
-		auto rigidbody = bone->GetRigidbody();
-		if (rigidbody) {
-			switch (rigidbody->GetType()) {
-			case Rigidbody::Type::KINEMATIC:
-				bone->PushRigidbodyTransform();
-				break;
-			case Rigidbody::Type::DYNAMIC:
-				bone->PullRigidbodyTransform();
-				break;
-			case Rigidbody::Type::DYNAMIC_FOLLOW:
-				bone->PushRigidbodyTransform(Transform::Type::TRANSLATION_BIT);
-				bone->PullRigidbodyTransform(Transform::Type::ROTATION_BIT);
-				break;
-			default:
-				MM_CORE_UNREACHABLE();
-			}
-		}
-	}
-}
+//void Armature::UpdatePhysics()
+//{
+//	for (auto&& bone : m_bones) {
+//		auto rigidbody = bone->GetRigidbody();
+//		if (rigidbody) {
+//			switch (rigidbody->GetType()) {
+//			case Rigidbody::Type::KINEMATIC:
+//				bone->PushRigidbodyTransform();
+//				break;
+//			case Rigidbody::Type::DYNAMIC:
+//				bone->PullRigidbodyTransform();
+//				break;
+//			case Rigidbody::Type::DYNAMIC_FOLLOW:
+//				bone->PushRigidbodyTransform(Transform::Type::TRANSLATION_BIT);
+//				bone->PullRigidbodyTransform(Transform::Type::ROTATION_BIT);
+//				break;
+//			default:
+//				MM_CORE_UNREACHABLE();
+//			}
+//		}
+//	}
+//}
 
 }

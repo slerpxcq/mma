@@ -46,17 +46,15 @@ public:
 		SceneObject{ info.name },
 		m_bindWorld{ info.bindWorld },
 		m_bindLocal{ info.bindWorld },
+		m_index{ info.index },
 		m_flags{ info.flags },
 		m_transformLayer{ info.transformLayer } {}
 
 	i32 GetIndex() const { return m_index; }
-
-	// void SetParent(Bone* parent); 
 	Bone* GetParent() const { return m_parent; }
-
 	u32 GetTransformLayer() const { return m_transformLayer; }
-
 	u32 GetFlags() const { return m_flags; }
+
 	bool IsConnected() const { return m_flags & Flags::CONNECTED_BIT; }
 	bool IsRotatable() const { return m_flags & Flags::ROTATABLE_BIT; }
 	bool IsTranslatable() const { return m_flags & Flags::MOVEABLE_BIT; }
@@ -75,19 +73,11 @@ public:
 
 	const auto& GetAssignmentInfo() const { return m_assignmentInfo; }
 	const auto& GetInverseKinematicsInfo() const { return m_inverseKinematicsInfo; }
-	// void SetAssignmentInfo(const AssignmentInfo& info) { m_assignmentInfo = info; }
-	// void SetInverseKinematicsInfo(const InverseKinematicsInfo& info) { m_inverseKinematicsInfo = info; }
-
-	// void SetTipInfoBone(Bone* bone) { m_tipInfo.bone = bone; }
-	// void SetTipInfoOffset(const Vec3& offset) { m_tipInfo.offset = offset; }
 	Vec3 GetTipWorldPos() const;
 
-	// void SetLocalAxes(Vec3 x, Vec3 z);
-	// void SetFixedAxis(Vec3 axis) { m_fixedAxis = axis; }
 	Opt<Mat3> GetLocalAxes() const { return m_localAxes; }
 	Opt<Vec3> GetFixedAxis() const { return m_fixedAxis; }
 
-	// void SetRigidbody(Rigidbody* rigidbody) { m_rigidbody = rigidbody; }
 	Rigidbody* GetRigidbody() const { return m_rigidbody; }
 	void PullRigidbodyTransform(Transform::Type type = Transform::Type::ALL);
 	void PushRigidbodyTransform(Transform::Type type = Transform::Type::ALL);
@@ -123,6 +113,7 @@ public:
 	void SetRigidbody(Rigidbody* rigidbody) { m_bone->m_rigidbody = rigidbody; }
 	void SetParent(Bone* parent); 
 	Bone* Get() { return m_bone; }
+
 private:
 	Bone* m_bone;
 };

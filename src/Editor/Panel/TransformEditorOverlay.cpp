@@ -104,8 +104,8 @@ static bool ShowButton(Vec2 screenPos, f32 radius, i32 index)
 							  screenPos.y - radius);
 	ImGui::SetCursorScreenPos(cursorPos);
 	ImGui::SetItemAllowOverlap();
-	//return ImGui::InvisibleButton(buf, ImVec2(2 * radius, 2 * radius));
-	return ImGui::Button(buf, ImVec2(2 * radius, 2 * radius));
+	return ImGui::InvisibleButton(buf, ImVec2(2 * radius, 2 * radius));
+	//return ImGui::Button(buf, ImVec2(2 * radius, 2 * radius));
 }
 
 void TransformEditorOverlay::OnRender()

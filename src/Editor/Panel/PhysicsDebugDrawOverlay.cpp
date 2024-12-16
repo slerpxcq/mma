@@ -21,7 +21,7 @@ void PhysicsDebugDrawOverlay::OnUpdate(f32 deltaTime)
 
 void PhysicsDebugDrawOverlay::OnRender()
 {
-	//GetPhysicsManager()->DebugDrawWorld();
+	GetPhysicsManager()->DebugDrawWorld();
 }
 
 }

@@ -169,8 +169,8 @@ static DynArray<Rigidbody*> LoadRigidbodies(const PMXFile& pmx, const DynArray<B
 		info.name = pr.nameJP;
 		info.noCollisionGroupMask = pr.noCollisionGroup;
 		info.restitution = pr.restitution;
+		info.bone = bones[pr.boneIndex];
 		auto rigidbody = pm->CreateRigidbody(info);
-		Bone::Builder{ bones[pr.boneIndex] }.SetRigidbody(rigidbody);
 		result.push_back(rigidbody);
 	}
 	return result;
@@ -236,9 +236,32 @@ void Model::LoadPose(const VPDFile& vpd)
 	m_armature->LoadPose(vpd.GetPose());
 }
 
-void Model::UpdateSkinningBuffer()
+void Model::OnUpdate(f32)
 {
+	m_armature->ClearAnimLocal();
+	m_armature->UpdatePose(false); 
+	SyncWithPhysics();
+	//m_armature->UpdatePhysics();
+	m_armature->UpdatePose(true);
 	m_armature->UpdateSkinningBuffer();
+}
+
+void Model::SyncWithPhysics()
+{
+	for (auto&& rigidbody : m_rigidbodies) {
+		switch (rigidbody->GetType()) {
+		case Rigidbody::Type::KINEMATIC:
+			rigidbody->PullBoneTransform();
+			break;
+		case Rigidbody::Type::DYNAMIC:
+			rigidbody->PushBoneTransform();
+			break;
+		case Rigidbody::Type::DYNAMIC_FOLLOW:
+			rigidbody->PullBoneTransform(Transform::ROTATION_BIT);
+			rigidbody->PushBoneTransform(Transform::TRANSLATION_BIT);
+			break;
+		}
+	}
 }
 
 }

@@ -24,6 +24,9 @@ void CameraControllerOverlay::OnUpdate(f32 deltaTime)
 
 void CameraControllerOverlay::OnRender()
 {
+	if (!m_parent.IsHovered())
+		return;
+
 	static constexpr float PAN_SPEED = 0.01f;
 	static constexpr float ORBIT_SPEED = 0.005f;
 	static constexpr float ZOOM_SPEED = 1.f;

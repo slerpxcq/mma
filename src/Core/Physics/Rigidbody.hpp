@@ -7,6 +7,7 @@
 namespace mm
 {
 
+class Bone;
 class Rigidbody : public SceneObject, 
 	              public PhysicsObject
 {
@@ -19,6 +20,7 @@ public:
 
 	struct ConstructInfo {
 		StringView name{};
+		Bone* bone{};
 		Collider collider{};
 		Transform bindWorld{};
 		f32 mass{};
@@ -42,8 +44,12 @@ public:
 	void SetType(Type type) { m_type = type; }
 	Collider GetCollider() const { return m_collider; }
 	void SetCollider(Collider c) { m_collider = c; }
+	void SetBone(Bone* bone) { m_bone = bone; }
+	void PullBoneTransform(Transform::Type type = Transform::ALL);
+	void PushBoneTransform(Transform::Type type = Transform::ALL);
 
 private:
+	Bone* m_bone{};
 	Collider m_collider;
 	Transform m_bindWorld{};
 	Type m_type{};

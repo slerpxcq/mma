@@ -19,18 +19,18 @@ public:
 	const auto& GetBones() const { return m_bones; }
 	const auto& GetBoneNameIndexMap() const { return m_boneNameIndexMap; }
 	const auto& GetSkinningBuffer() const { return m_skinningBuffer; }
-	void Update();
+	void ClearAnimLocal();
+	void UpdatePose(bool afterPhysics);
+	//void UpdatePhysics();
 	void LoadPose(const Pose& pose);
 	void UpdateSkinningBuffer();
 
 private:
-	void LoadBonesPass1(const PMXFile& pmx, DynArray<Bone::Builder>& builders);
-	void LoadBonesPass2(const PMXFile& pmx, DynArray<Bone::Builder>& builders);
-	void ClearAnimLocal();
+	void LoadBonesPass1(const PMXFile& pmx);
+	void LoadBonesPass2(const PMXFile& pmx);
 	void UpdateForwardKinematics(u32 layer, bool afterPhysics);
 	void UpdateInverseKinematics(u32 layer, bool afterPhysics);
 	void UpdateAssignment(u32 layer, bool afterPhysics);
-	void UpdatePhysics();
 
 private:
 	u32 m_maxTransformLayer{};
