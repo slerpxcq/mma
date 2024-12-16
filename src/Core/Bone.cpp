@@ -5,19 +5,11 @@
 
 #include "Physics/PhysicsManager.hpp"
 
+#include "SceneManager.hpp"
+
 namespace mm
 {
 
-void Bone::Builder::SetParent(Bone* parent)
-{
-	m_bone->m_parent = parent;
-	if (parent) {
-		m_bone->m_bindLocal = m_bone->m_parent->GetBindWorldInverse() * m_bone->m_bindWorld;
-	}
-	else {
-		m_bone->m_bindLocal = m_bone->m_bindWorld;
-	}
-}
 
 Transform Bone::GetParentWorld()
 {
@@ -62,24 +54,20 @@ void Bone::Builder::SetLocalAxes(Vec3 x, Vec3 z)
 	m_bone->m_localAxes = Mat3{ x, y, z };
 }
 
-void Bone::PullRigidbodyTransform(Transform::Type type)
+void Bone::Builder::SetParent(Bone* parent)
 {
-	GetPhysicsManager()->PullRigidbodyTransform(m_rigidbody);
-	auto boneToRigidbody = m_rigidbody->GetBindWorld().Inverse() * m_bindWorld;
-	auto transform = m_rigidbody->GetNode()->GetWorldTransform() * boneToRigidbody;
-	if (type & Transform::Type::ROTATION_BIT) {
-		m_node->SetWorldRotation(transform.rotation);
+	m_bone->m_parent = parent;
+	if (parent) {
+		m_bone->m_bindLocal = m_bone->m_parent->GetBindWorldInverse() * m_bone->m_bindWorld;
 	}
-	if (type & Transform::Type::TRANSLATION_BIT) {
-		m_node->SetWorldTranslation(transform.translation);
+	else {
+		m_bone->m_bindLocal = m_bone->m_bindWorld;
 	}
 }
 
-void Bone::PushRigidbodyTransform(Transform::Type type)
+Bone::Builder::Builder(const Bone::ConstructInfo& info)
 {
-	auto rigidbodyToBone = m_bindWorld.Inverse() * m_rigidbody->GetBindWorld();
-	auto transform = m_node->GetWorldTransform() * rigidbodyToBone;
-	GetPhysicsManager()->PushRigidbodyTransform(m_rigidbody, transform, type);
+	m_bone = GetSceneManager()->CreateObject<Bone>(info);
 }
 
 }

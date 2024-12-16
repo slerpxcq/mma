@@ -5,6 +5,7 @@
 #include "Bone.hpp"
 
 #include "PhysicsManager.hpp"
+#include "SceneManager.hpp"
 
 namespace mm
 {
@@ -27,6 +28,11 @@ void Rigidbody::PushBoneTransform(Transform::Type type)
 	if (type & Transform::Type::TRANSLATION_BIT) {
 		m_bone->GetNode()->SetWorldTranslation(transform.translation);
 	}
+}
+
+Rigidbody::Builder::Builder(const Rigidbody::ConstructInfo& info)
+{
+	m_rigidbody = GetSceneManager()->CreateObject<Rigidbody>(info.name);
 }
 
 }

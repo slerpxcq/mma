@@ -82,14 +82,14 @@ Rigidbody* PhysicsManager_Bullet::CreateRigidbody(const Rigidbody::ConstructInfo
 								  1 << info.group,
 								  info.noCollisionGroupMask);
 	auto sm = GetSceneManager();
-	auto result = sm->CreateObject<Rigidbody>(info.name);
-	result->SetBindWorld(info.bindWorld);
-	result->SetType(info.type);
-	result->SetHandle(rigidbody.get());
-	result->SetCollider(info.collider);
-	result->SetBone(info.bone);
-	m_rigidbodies.push_back(std::move(rigidbody));
-	return result;
+	Rigidbody::Builder builder{ info };
+	builder.SetBindWorld(info.bindWorld);
+	builder.SetType(info.type);
+	builder.SetHandle(rigidbody.get());
+	builder.SetCollider(info.collider);
+	builder.SetBone(info.bone);
+	m_rigidbodies.push_back(move(rigidbody));
+	return builder.Get();
 }
 
 Collider PhysicsManager_Bullet::CreateCollider(const Collider::ConstructInfo& info)

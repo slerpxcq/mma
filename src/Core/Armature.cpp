@@ -18,9 +18,15 @@ Armature::Armature(const PMXFile& pmx)
 {
 	auto boneCount = pmx.GetBones().size();
 	m_bones.reserve(boneCount);
+	DynArray<Bone::Builder> builders;
+	builders.reserve(boneCount);
 
-	LoadBonesPass1(pmx);
-	LoadBonesPass2(pmx);
+	LoadBonesPass1(pmx, builders);
+	LoadBonesPass2(pmx, builders);
+
+	for (auto&& builder : builders) {
+		m_bones.push_back(builder.Get());
+	}
 
 	m_skinningBuffer.SetBindBase(0);
 	m_skinningBuffer.SetStorage(nullptr,
@@ -53,7 +59,6 @@ void Armature::LoadPose(const Pose& pose)
 			bone->SetPoseLocal(localTransform);
 		}
 	}
-	//UpdatePose();
 }
 
 void Armature::UpdateSkinningBuffer()
@@ -66,34 +71,33 @@ void Armature::UpdateSkinningBuffer()
 	m_skinningBuffer.Unmap();
 }
 
-void Armature::LoadBonesPass1(const PMXFile& pmx)
+void Armature::LoadBonesPass1(const PMXFile& pmx, DynArray<Bone::Builder>& builders)
 {
 	auto sm = GetSceneManager();
 	i32 index{};
 	for (const auto& pb : pmx.GetBones()) {
 		Bone::ConstructInfo info{};
-		Transform bindWorld = glm::make_vec3(pb.position);
 		info.name = pb.nameJP;
 		info.index = index;
 		info.flags = pb.flags;
 		info.transformLayer = pb.transformationLayer;
-		info.bindWorld = bindWorld;
-		auto bone = sm->CreateObject<Bone>(info);
+		info.bindWorld = glm::make_vec3(pb.position);
+		builders.emplace_back(info);
+
 		m_boneNameIndexMap.insert({ pb.nameJP, index });
 		m_maxTransformLayer = std::max(m_maxTransformLayer, static_cast<u32>(pb.transformationLayer));
-		m_bones.push_back(bone);
 		++index;
 	}
 }
 
-void Armature::LoadBonesPass2(const PMXFile& pmx)
+void Armature::LoadBonesPass2(const PMXFile& pmx, DynArray<Bone::Builder>& builders)
 {
 	i32 index{};
 	for (auto& pb : pmx.GetBones()) {
-		auto& builder = Bone::Builder{ m_bones[index] };
+		auto& builder = builders[index];
 		if (pb.flags & PMXFile::BoneFlag::CONNECTED_BIT) {
 			if (pb.connetcionEnd.boneIndex >= 0) {
-				builder.SetTipInfoBone(m_bones[pb.connetcionEnd.boneIndex]);
+				builder.SetTipInfoBone(builders[pb.connetcionEnd.boneIndex].Get());
 			} else {
 				builder.SetTipInfoBone(nullptr);
 			}
@@ -106,11 +110,11 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 			ikInfo.unitAngle = pb.ik.unitAngle;
 			ikInfo.chain.reserve(pb.ik.link.size() + 1);
 			InverseKinematicsInfo::Node node{};
-			node.bone = m_bones[pb.ik.targetIndex];
+			node.bone = builders[pb.ik.targetIndex].Get();
 			ikInfo.chain.push_back(node);
 			for (auto& pn : pb.ik.link) {
 				InverseKinematicsInfo::Node node{};
-				node.bone = m_bones[pn.boneIndex];
+				node.bone = builders[pn.boneIndex].Get();
 				if (pn.doLimit) {
 					node.limit = MakePair(glm::make_vec3(pn.limit[0]),
 										  glm::make_vec3(pn.limit[1]));
@@ -131,15 +135,15 @@ void Armature::LoadBonesPass2(const PMXFile& pmx)
 			}
 			info.type = static_cast<Transform::Type>(type);
 			info.ratio = pb.assignment.ratio;
-			info.target = m_bones[pb.assignment.targetIndex];
+			info.target = builders[pb.assignment.targetIndex].Get();
 			builder.SetAssignmentInfo(info);
 		}
 		if (pb.parentIndex >= 0) {
-			builder.SetParent(m_bones[pb.parentIndex]);
+			builder.SetParent(builders[pb.parentIndex].Get());
 		}
 		if (pb.flags & PMXFile::BoneFlag::LOCAL_AXIS_BIT) {
 			builder.SetLocalAxes(glm::make_vec3(pb.localAxisX),
-							   glm::make_vec3(pb.localAxisZ));
+							     glm::make_vec3(pb.localAxisZ));
 		}
 		if (pb.flags & PMXFile::BoneFlag::FIXED_AXIS_BIT) {
 			builder.SetFixedAxis(glm::make_vec3(pb.fixedAxis));
