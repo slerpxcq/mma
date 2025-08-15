@@ -1,6 +1,9 @@
 # MMX (MM eXtended)
 A source-opened implementation of MikuMikuDance with modern OpenGL 
 
+## Demo video
+A short demo for currently implemented features. See https://youtu.be/HI3hsQfQWac
+
 ## Build
 Windows (VS2022)
 ```
